@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theo Walsh - Art Here Portland</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        /* Override gallery to show 3 images instead of 2 */
+        .artist-bio-gallery {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        @media (max-width: 700px) {
+            .artist-bio-gallery { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="site-nav">
+        <div class="site-nav-container">
+            <a href="../index.html" class="site-logo">art here</a>
+            <ul class="site-nav-links">
+                <li class="cities-dropdown">
+                    <a href="#" class="active">cities</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="../pages/portland.html" class="active">Portland</a></li>
+                        <li><a href="#">Biloxi (Coming Soon)</a></li>
+                        <li><a href="#">San Jose (Coming Soon)</a></li>
+                    </ul>
+                </li>
+                <li><a href="../pages/about.html">about</a></li>
+                <li><a href="../pages/contact.html">contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="artist-hero">
+        <img src="../images/artwork/theo-walsh-hero.jpg" alt="Theo Walsh in her studio">
+    </section>
+
+    <a href="../pages/portland.html" class="back-link">&larr; back to Portland artists</a>
+
+    <section class="artist-bio-section">
+        <div class="artist-bio-header">
+            <div class="artist-bio-photo"><img src="../images/artists/theo-walsh-bio.jpg" alt="Theo Walsh"></div>
+            <div class="artist-bio-meta">
+                <h1 class="artist-bio-name">Theo Walsh</h1>
+                <div class="artist-bio-medium">Ceramicist</div>
+                <div class="artist-bio-location">SE Portland &middot; Portland, OR</div>
+            </div>
+        </div>
+
+        <div class="artist-bio-text">
+            <p>Theo Walsh throws functional pottery with a maker's eye for the everyday. Her mugs, bowls, and serving pieces draw on Pacific Northwest landscape and weather, with speckled stoneware bodies, soft glazes, and small narrative details that nod to the city she has come to call home.</p>
+            <p>Originally from Maine, Theo trained at the Penland School of Craft before moving west in 2019. She keeps a studio at the Multnomah Arts Center and sells through small craft shows, the Portland Saturday Market, and a handful of local restaurants who use her plates and serving ware. Her Portland-themed mug series has become a quiet favorite among locals and visitors looking for something rooted in place.</p>
+            <p>Theo is interested in the social life of objects: how a mug shapes a conversation, how a bowl invites a meal. She is currently developing a line of communal serving pieces for shared dining tables.</p>
+        </div>
+    </section>
+
+    <section class="artist-bio-gallery">
+        <img src="../images/artwork/theo-walsh-1.jpg" alt="Handmade in Portland mug">
+        <img src="../images/artwork/theo-walsh-2.jpg" alt="Mt. Hood PDX Ceramics mug">
+        <img src="../images/artwork/theo-walsh-3.jpg" alt="Forest City Portland Oregon mug">
+    </section>
+
+    <footer>&copy; 2026 Art Here &middot; A project of Art Experience Lab</footer>
+</body>
+</html>
