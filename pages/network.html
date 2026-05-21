@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" href="../images/ArtHere_favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Nunito:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../styles.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
@@ -57,7 +57,10 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.06);
             z-index: 100;
         }
-    </style>
+    
+/* Nunito for all display headers */
+h1, h2.section-title, .page-hero h1, .place-name-large { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; }
+</style>
 </head>
 <body>
     <nav class="site-nav">
@@ -102,53 +105,48 @@
 
     <script>
     const nodes = [
-        // Artists
-        {id: "Maya Chen", type: "artist", url: "../artists/maya-chen.html"},
-        {id: "Jamal Okafor", type: "artist", url: "../artists/jamal-okafor.html"},
-        {id: "Rosa Medina", type: "artist", url: "../artists/rosa-medina.html"},
-        {id: "Theo Walsh", type: "artist", url: "../artists/theo-walsh.html"},
+        // Real artists
+        {id: "Kurtis Piltz", type: "artist", url: "../artists/kurtis-piltz.html"},
+        {id: "Beth Bundy", type: "artist", url: "../artists/beth-bundy.html"},
+        {id: "Yong Hong Zhong", type: "artist", url: "../artists/yong-hong-zhong.html"},
+        {id: "Lindsey Fox", type: "artist", url: "../artists/lindsey-fox.html"},
+        {id: "Jennifer Eaton White", type: "artist", url: "../artists/jennifer-eaton-white.html"},
         // Places
-        {id: "Multnomah Arts Center", type: "place"},
-        {id: "CommUnity PDX", type: "place"},
+        {id: "Multnomah Arts Center", type: "place", url: "../places/multnomah-arts-center.html"},
+        {id: "ComeUnity PDX", type: "place", url: "../places/comeunity-pdx.html"},
+        {id: "NW Marine Art Works", type: "place", url: "../places/nw-marine-art-works.html"},
         {id: "Alberta Street Gallery", type: "place"},
-        // Projects
-        {id: "First Thursday Walk", type: "project"},
-        {id: "Open Studios PDX", type: "project"},
-        {id: "Alberta Last Thursday", type: "project"},
-        {id: "Portland Print Fair", type: "project"},
+        {id: "Portland Art Studios", type: "place", url: "../places/portland-art-studios.html"},
+        // Events
+        {id: "NWMAW Open Studios", type: "project"},
+        {id: "Multnomah Days 2026", type: "project"},
         // Opportunities
         {id: "RACC Project Grant", type: "opp"},
         {id: "Make|Learn|Build", type: "opp"},
-        {id: "Mural Program", type: "opp"},
     ];
 
     const links = [
-        // Artist <-> Place
-        {source: "Maya Chen", target: "Multnomah Arts Center"},
-        {source: "Maya Chen", target: "Alberta Street Gallery"},
-        {source: "Jamal Okafor", target: "CommUnity PDX"},
-        {source: "Jamal Okafor", target: "Multnomah Arts Center"},
-        {source: "Rosa Medina", target: "CommUnity PDX"},
-        {source: "Rosa Medina", target: "Alberta Street Gallery"},
-        {source: "Theo Walsh", target: "Multnomah Arts Center"},
-        // Artist <-> Project
-        {source: "Maya Chen", target: "Open Studios PDX"},
-        {source: "Jamal Okafor", target: "Portland Print Fair"},
-        {source: "Jamal Okafor", target: "First Thursday Walk"},
-        {source: "Rosa Medina", target: "Alberta Last Thursday"},
-        {source: "Theo Walsh", target: "Open Studios PDX"},
-        // Place <-> Project
-        {source: "Alberta Street Gallery", target: "Alberta Last Thursday"},
-        {source: "Alberta Street Gallery", target: "First Thursday Walk"},
-        {source: "CommUnity PDX", target: "Open Studios PDX"},
-        // Artist <-> Opportunity
-        {source: "Maya Chen", target: "RACC Project Grant"},
-        {source: "Rosa Medina", target: "Make|Learn|Build"},
-        {source: "Jamal Okafor", target: "Mural Program"},
-        {source: "Theo Walsh", target: "RACC Project Grant"},
-        // Artist <-> Artist (collaborations)
-        {source: "Maya Chen", target: "Rosa Medina"},
-        {source: "Jamal Okafor", target: "Theo Walsh"},
+        // Kurtis Piltz
+        {source: "Kurtis Piltz", target: "Multnomah Arts Center"},
+        // Beth Bundy
+        {source: "Beth Bundy", target: "ComeUnity PDX"},
+        // Yong Hong Zhong
+        {source: "Yong Hong Zhong", target: "Alberta Street Gallery"},
+        {source: "Yong Hong Zhong", target: "RACC Project Grant"},
+        // Lindsey Fox
+        {source: "Lindsey Fox", target: "NW Marine Art Works"},
+        {source: "Lindsey Fox", target: "ComeUnity PDX"},
+        {source: "Lindsey Fox", target: "NWMAW Open Studios"},
+        // Jennifer Eaton White
+        {source: "Jennifer Eaton White", target: "Alberta Street Gallery"},
+        // Place <-> Place
+        {source: "NW Marine Art Works", target: "Portland Art Studios"},
+        // Place <-> Event
+        {source: "NW Marine Art Works", target: "NWMAW Open Studios"},
+        {source: "Multnomah Arts Center", target: "Multnomah Days 2026"},
+        // Opportunities
+        {source: "Beth Bundy", target: "Make|Learn|Build"},
+        {source: "Kurtis Piltz", target: "RACC Project Grant"},
     ];
 
     const colors = {

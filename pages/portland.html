@@ -36,7 +36,10 @@
         }
         .artist-card { transition: opacity 0.25s, transform 0.3s; }
         .artist-card.hidden { display: none; }
-    </style>
+    
+/* Nunito for all display headers */
+h1, h2.section-title, .page-hero h1, .place-name-large { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; }
+</style>
 </head>
 <body>
     <nav class="site-nav">
@@ -58,9 +61,12 @@
     </nav>
 
     <section class="page-hero">
-        <img src="../images/portland-hero.jpg" alt="Portland creative community">
+        <img src="../images/portland-sign.jpg" alt="Portland Oregon sign" style="object-position: center 40%;">
         <div class="page-hero-overlay">
-            <h1>Art Here / Portland</h1>
+            <div style="display:flex;align-items:baseline;gap:14px;">
+                <span style="font-family:'Nunito','Arial Rounded MT Bold',Arial,sans-serif;font-size:3.5rem;font-weight:700;color:#fff;letter-spacing:-0.02em;line-height:1.05;">art here</span>
+                <span style="font-family:'Nunito','Arial Rounded MT Bold',Arial,sans-serif;font-size:1.4rem;font-weight:600;color:rgba(255,255,255,0.75);letter-spacing:0.02em;text-transform:uppercase;">Portland</span>
+            </div>
         </div>
     </section>
 
