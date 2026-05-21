@@ -4,11 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portland - Art Here</title>
-    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAAD7ElEQVR42u2bzUorTRCGq3rivxOCgUSjJAgiiAiCIIIggiIiuHHhxoWI4EJQFERJIghegTfgwsvQlRehCzeCC9GAKCYxis70e1Y9GL7zyeGczqSTScEskoH8vM/bNd1V3UxEoACHoIBHQ4CGAAGPUC38SMuyCAAxM0kpCdCXt9n0pwAza/3DNTUEhBAEgGZnZ+n8/JzOzs6or6/Pu6crYOIlhIAQAslkEqVSCSouLy+9e5q+y0wBLMsCEeHk5AQA8P7+jq+vL5RKJcTjcRARmLk+BRBCgJmRSCSQz+chpYTrugCAQqGARCKhTQBhcuLb2dkh27bJdV1i5oolRSPpx2IxvLy8QErpXQBQLBbR09NTvw5QmX9ra4sikUgZ/UqFMfSZGcyMaDSKp6enMvKBcICa8W1ublI0GvWFPplGPxKJIJfLlWX+7w4oFAro7u6uPwco+hsbGxSLxch13d/O9gDU31NA0bdtG/f39/+h/90B+Xxe60RImER/fX2dEokESSm1zvWNdoCi397ejru7u9/Sr2sHKPqrq6uUTCZ9p08m0G9tbcXt7e3/0q9bByj6Kysr1N/f/0f0AZCUsvYdoOg3Nzfj5ubmR/rfHfD8/Iyurq7ad4Civ7y8TIODg1UZ+1V1gBACoVAIV1dXkFLCcRz8FHXlgFAoRFJKWlpaouHhYZJSkmVZwekLKLun0+mKVnyNFEDRX1xcpNHR0arSr4oAUkpiZspkMmYUYPzO/FJKmp+fp/Hx8b+iL6XUOg/wVQA13rPZbNnrQDhA0Z+ZmaHJycmqj33fBVC0Dw8PjaHvmwCK/tTUFE1PTxtD3zcBFG2V+U2h74sAiv7ExATNzc0ZRd/XHJDNZrW0tXRvkBB+0B8bG6OFhQUt9HVXhYUf4z+TyZAQQnshw+jlsGVZYGaMjIzAcZwfix1/Emo5nMvlEA6Ha2M5DIDS6bQ3FEyNirW4h4aG8Pn5Cdd1PYKBcIDK9gcHB9TU1OStAAPhAEV/YGAAHx8fZS1uHQ54fHyEbdvmOkDR39/fp5aWFu0tbqObo4p+KpVCqVTSRv+7Ax4eHtDZ2WmmAxT9vb09amtr822DgxEOUPR7e3tRLBa10q8JByj6u7u71NHRUTP0SRd9IkI8Hsfr66t2+sY7QLW0tre3KRwO1xR9ocP6juOQbdu0trZGACrS41OPPsdxyHVdbZ8b0jX2bdv2trZVouqjyuHMrFUAbTlACIGLiwtUOk5PT8t2k//rpeXEiHJBPB6no6MjSqVS3vu66DMzXV9f0/HxMb29vWlzmfFHZiodWg9NMbO38aFSq0zXdYN1aKpuqsINARoCNAQwMn4BEOus3HZoqZgAAAAASUVORK5CYII=">
-<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="icon" type="image/png" href="../images/ArtHere_favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Nunito:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../styles.css">
+    <style>
+        /* Medium filter bar */
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+        .filter-btn {
+            padding: 7px 16px;
+            border: 0.5px solid #ddd;
+            border-radius: 20px;
+            background: transparent;
+            font-size: 0.82rem;
+            color: #888;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover { border-color: #999; color: #444; }
+        .filter-btn.active {
+            background: #1a1a1a;
+            border-color: #1a1a1a;
+            color: #fff;
+        }
+        .artist-card { transition: opacity 0.25s, transform 0.3s; }
+        .artist-card.hidden { display: none; }
+    </style>
 </head>
 <body>
     <nav class="site-nav">
@@ -48,52 +76,64 @@
     <section id="artists" class="section">
         <div class="section-label">Artists</div>
         <h2 class="section-title">Portland makers, named and known.</h2>
-        <p class="section-intro">A growing directory of working artists across the Portland metro. Featured below are early profiles from the pilot.</p>
+        <p class="section-intro">A growing directory of working artists across the Portland metro.</p>
 
-        <div class="artists-grid">
-            <a href="../artists/theo-walsh.html" class="artist-card">
-                <div class="artist-circle"><img src="../images/artists/theo-walsh-bio.jpg" alt="Theo Walsh"></div>
-                <div class="artist-name">Theo Walsh</div>
-                <div class="artist-medium">Ceramicist</div>
-            </a>
-            <a href="../artists/kurtis-piltz.html" class="artist-card">
+        <div class="filter-bar" id="filter-bar">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="Painter">Painter</button>
+            <button class="filter-btn" data-filter="Ceramicist">Ceramicist</button>
+            <button class="filter-btn" data-filter="Illustrator">Illustrator</button>
+        </div>
+
+        <div class="artists-grid" id="artists-grid">
+            <a href="../artists/kurtis-piltz.html" class="artist-card" data-medium="Ceramicist">
                 <div class="artist-circle"><img src="../images/artists/kurtis-piltz-bio.jpg" alt="Kurtis Piltz"></div>
                 <div class="artist-name">Kurtis Piltz</div>
                 <div class="artist-medium">Ceramicist</div>
             </a>
-            <a href="../artists/beth-bundy.html" class="artist-card">
+            <a href="../artists/beth-bundy.html" class="artist-card" data-medium="Illustrator">
                 <div class="artist-circle"><img src="../images/artists/beth-bundy-bio.jpg" alt="Beth Bundy"></div>
                 <div class="artist-name">Beth Bundy</div>
                 <div class="artist-medium">Illustrator &amp; Paper Cut Artist</div>
             </a>
-            <a href="../artists/yong-hong-zhong.html" class="artist-card">
+            <a href="../artists/yong-hong-zhong.html" class="artist-card" data-medium="Painter">
                 <div class="artist-circle"><img src="../images/artists/yong-hong-zhong-bio.jpg" alt="Yong Hong Zhong"></div>
                 <div class="artist-name">Yong Hong Zhong</div>
                 <div class="artist-medium">Watercolor Painter</div>
+            </a>
+            <a href="../artists/lindsey-fox.html" class="artist-card" data-medium="Painter">
+                <div class="artist-circle"><img src="../images/artists/lindsey-fox-bio.jpg" alt="Lindsey Fox"></div>
+                <div class="artist-name">Lindsey Fox</div>
+                <div class="artist-medium">Watercolor Painter</div>
+            </a>
+            <a href="../artists/jennifer-eaton-white.html" class="artist-card" data-medium="Painter">
+                <div class="artist-circle"><img src="../images/artists/jennifer-eaton-white-bio.jpg" alt="Jennifer Eaton White"></div>
+                <div class="artist-name">Jennifer Eaton White</div>
+                <div class="artist-medium">Painter</div>
             </a>
         </div>
     </section>
 
     <section id="places" class="section" style="padding-top: 40px;">
         <div class="section-label">Places</div>
-        <h2 class="section-title">Where the work happens.</h2>
+        <h2 class="section-title">Places that support local arts.</h2>
         <p class="section-intro">Studios, galleries, community spaces, and gathering points that anchor Portland's creative life.</p>
 
         <div class="places-grid">
-            <a href="#" class="place-card">
+            <a href="../places/multnomah-arts-center.html" class="place-card">
                 <div class="place-image"><img src="../images/places/multnomah.jpg" alt="Multnomah Arts Center"></div>
                 <div class="place-name">Multnomah Arts Center</div>
-                <div class="place-meta">SW Portland &middot; Classes, Studios, Gallery</div>
+                <div class="place-meta">Multnomah Village &middot; Classes, Studios, Gallery</div>
             </a>
-            <a href="#" class="place-card">
-                <div class="place-image"><img src="../images/places/communitypdx.jpg" alt="CommUnity PDX"></div>
-                <div class="place-name">CommUnity PDX</div>
-                <div class="place-meta">NE Portland &middot; Community Arts Hub</div>
+            <a href="../places/comeunity-pdx.html" class="place-card">
+                <div class="place-image"><img src="../images/places/communitypdx.jpg" alt="ComeUnity PDX"></div>
+                <div class="place-name">ComeUnity PDX</div>
+                <div class="place-meta">NE Portland &middot; Retail, Gallery &amp; Events</div>
             </a>
-            <a href="#" class="place-card">
-                <div class="place-image"><img src="../images/places/alberta.jpg" alt="Alberta Street Gallery"></div>
-                <div class="place-name">Alberta Street Gallery</div>
-                <div class="place-meta">Alberta Arts District &middot; Gallery</div>
+            <a href="../places/nw-marine-art-works.html" class="place-card">
+                <div class="place-image"><img src="../images/places/alberta.jpg" alt="NW Marine Art Works"></div>
+                <div class="place-name">NW Marine Art Works</div>
+                <div class="place-meta">NW Industrial &middot; 75+ Artist Studios</div>
             </a>
         </div>
     </section>
@@ -120,9 +160,9 @@
                 <div class="opp-source">RACC</div>
             </a>
             <a href="https://racc.org/opportunities/" class="opp-item" target="_blank" rel="noopener">
-                <div class="opp-date">Quarterly</div>
-                <div class="opp-title">Capacity Building Grants for Arts Organizations</div>
-                <div class="opp-source">RACC</div>
+                <div class="opp-date">Upcoming</div>
+                <div class="opp-title">NW Marine Art Works Open Studios — Preview Night May 29</div>
+                <div class="opp-source">NWMAW</div>
             </a>
             <a href="https://racc.org/opportunities/" class="opp-item" target="_blank" rel="noopener">
                 <div class="opp-date">Annual</div>
@@ -130,8 +170,7 @@
                 <div class="opp-source">RACC</div>
             </a>
         </div>
-
-        <p class="opps-note">Listings sourced from <a href="https://racc.org/opportunities/" style="color:#888; text-decoration: underline;">racc.org/opportunities</a>. Live feed integration in progress.</p>
+        <p class="opps-note">Listings sourced from <a href="https://racc.org/opportunities/" target="_blank" rel="noopener">racc.org/opportunities</a>. Live feed integration in progress.</p>
     </section>
 
     <section id="network" class="section" style="padding-top: 40px;">
@@ -142,7 +181,6 @@
         <a href="network.html" style="display: block; border: 1px solid #e5e5e5; border-radius: 4px; overflow: hidden; text-decoration: none; color: inherit; transition: border-color 0.3s;">
             <div style="aspect-ratio: 16 / 9; background: #fafafa; display: flex; align-items: center; justify-content: center; position: relative;">
                 <svg viewBox="0 0 400 225" style="width: 80%; max-width: 600px; height: auto;">
-                    <!-- Static preview of network -->
                     <g stroke="#ccc" stroke-width="0.6" fill="none">
                         <line x1="120" y1="80" x2="200" y2="110"/>
                         <line x1="200" y1="110" x2="280" y2="80"/>
@@ -167,13 +205,28 @@
                         <circle cx="200" cy="50" r="4" fill="#888"/>
                     </g>
                 </svg>
-                <div style="position: absolute; bottom: 20px; right: 24px; font-size: 0.8rem; color: #888; letter-spacing: 0.1em; text-transform: uppercase;">Open Network &rarr;</div>
+                <div style="position:absolute;bottom:20px;right:24px;font-size:0.8rem;color:#888;letter-spacing:0.1em;text-transform:uppercase;">Open Network &rarr;</div>
             </div>
         </a>
     </section>
 
-    <footer>
-        &copy; 2026 Art Here &middot; A project of Art Experience Lab
-    </footer>
+    <footer>&copy; 2026 Art Here &middot; A project of Art Experience Lab</footer>
+
+    <script>
+    document.querySelectorAll('.filter-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var filter = this.dataset.filter;
+            document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+            this.classList.add('active');
+            document.querySelectorAll('.artist-card').forEach(function(card) {
+                if (filter === 'all' || card.dataset.medium === filter) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        });
+    });
+    </script>
 </body>
 </html>
