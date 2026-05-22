@@ -5,29 +5,149 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About - Art Here</title>
     <link rel="icon" type="image/png" href="../images/ArtHere_favicon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Nunito:wght@600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../styles.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, sans-serif; color: #1a1a1a; background: #fff; min-height: 100vh; }
+
+        /* ---- NAV ---- */
+        .top-bar {
+            position: sticky; top: 0;
+            background: rgba(255,255,255,0.97);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #eee;
+            z-index: 100;
+            padding: 18px 28px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .top-bar-logo {
+            display: block;
+            height: 28px; width: auto;
+        }
+        .pancake-wrap { position: relative; }
+        .pancake-btn {
+            background: none; border: none; cursor: pointer;
+            padding: 4px;
+            display: flex; flex-direction: column; gap: 5px;
+        }
+        .pancake-btn span {
+            display: block; width: 20px; height: 1.5px;
+            background: #1a1a1a; transition: all 0.25s;
+        }
+        .pancake-btn.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+        .pancake-btn.open span:nth-child(2) { opacity: 0; }
+        .pancake-btn.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+        .pancake-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 0;
+            background: #fff;
+            border: 1px solid #eee;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            min-width: 180px;
+            border-radius: 6px;
+            overflow: hidden;
+            z-index: 200;
+        }
+        .pancake-dropdown.open { display: block; }
+        .pancake-dropdown a {
+            display: block; padding: 13px 20px;
+            font-size: 0.92rem; color: #444; text-decoration: none;
+            border-bottom: 1px solid #f5f5f5;
+            transition: background 0.15s, color 0.15s;
+        }
+        .pancake-dropdown a:last-child { border-bottom: none; }
+        .pancake-dropdown a:hover { background: #fafafa; color: #1a1a1a; }
+        .pancake-dropdown a.join { font-weight: 600; color: #1a1a1a; }
+
+        /* ---- CONTENT ---- */
+        .text-page {
+            max-width: 680px;
+            margin: 60px auto;
+            padding: 0 40px;
+        }
+        h1 {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            margin-bottom: 32px;
+        }
+        h2 {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 40px 0 12px;
+            color: #1a1a1a;
+        }
+        p {
+            font-size: 1.05rem;
+            color: #444;
+            font-weight: 300;
+            line-height: 1.8;
+            margin-bottom: 18px;
+        }
+        p a { color: #1a1a1a; text-underline-offset: 4px; }
+        .contact-block {
+            margin-top: 48px;
+            padding-top: 36px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .contact-detail {
+            display: flex;
+            gap: 16px;
+            align-items: baseline;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            color: #444;
+        }
+        .contact-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: #aaa;
+            width: 60px;
+            flex-shrink: 0;
+        }
+        .contact-detail a { color: #1a1a1a; text-underline-offset: 4px; }
+
+        footer {
+            padding: 48px 40px;
+            text-align: center;
+            color: #bbb;
+            font-size: 0.78rem;
+            letter-spacing: 0.05em;
+            border-top: 1px solid #f5f5f5;
+            margin-top: 80px;
+        }
+        @media (max-width: 600px) {
+            .text-page { padding: 0 24px; }
+            h1 { font-size: 1.8rem; }
+        }
+    </style>
 </head>
 <body>
-    <nav class="site-nav">
-        <div class="site-nav-container">
-            <a href="../index.html" class="site-logo">art here</a>
-            <ul class="site-nav-links">
-                <li class="cities-dropdown">
-                    <a href="#">cities</a>
-                    <ul class="dropdown-menu">
-                        <li><a href="portland.html" class="active">Portland</a></li>
-                        <li><a href="#">Biloxi (Coming Soon)</a></li>
-                        <li><a href="#">San Jose (Coming Soon)</a></li>
-                    </ul>
-                </li>
-                <li><a href="about.html" class="active">about</a></li>
-                <li><a href="contact.html">contact</a></li>
-            </ul>
+
+    <div class="top-bar">
+        <a href="../index.html">
+            <img src="../images/arthere-logo-dark.png" alt="Art Here" class="top-bar-logo">
+        </a>
+        <div class="pancake-wrap">
+            <button class="pancake-btn" id="pancake-btn" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="pancake-dropdown" id="pancake-dropdown">
+                <a href="survey.html" class="join">Join Us</a>
+                <a href="about.html">About</a>
+                <a href="about.html#contact">Contact</a>
+            </div>
         </div>
-    </nav>
+    </div>
 
     <section class="text-page">
         <h1>About Art Here</h1>
@@ -35,8 +155,38 @@
         <p>Each city instance of Art Here has its own visual identity, designed through a local flyer competition, and its own living directory of artists, places, and opportunities. Underneath the surface, every city shares the same simple structure: who is here, where they make work, what is happening, and how it all connects.</p>
         <p>The project is currently piloting in Portland, Oregon, with launches planned in Biloxi, Mississippi and San Jose, California.</p>
         <p>Art Here is a project of <a href="https://axlab.io" target="_blank" rel="noopener">Art Experience Lab</a>.</p>
+
+        <div class="contact-block" id="contact">
+            <h2>Contact</h2>
+            <div class="contact-detail">
+                <span class="contact-label">Email</span>
+                <a href="mailto:hello@axlab.io">hello@axlab.io</a>
+            </div>
+            <div class="contact-detail">
+                <span class="contact-label">Instagram</span>
+                <a href="https://www.instagram.com/artishere.pdx" target="_blank" rel="noopener">@artishere.pdx</a>
+            </div>
+            <div class="contact-detail">
+                <span class="contact-label">Web</span>
+                <a href="https://axlab.io" target="_blank" rel="noopener">axlab.io</a>
+            </div>
+        </div>
     </section>
 
     <footer>&copy; 2026 Art Here &middot; A project of Art Experience Lab</footer>
+
+    <script>
+    var btn = document.getElementById('pancake-btn');
+    var drop = document.getElementById('pancake-dropdown');
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        btn.classList.toggle('open');
+        drop.classList.toggle('open');
+    });
+    document.addEventListener('click', function() {
+        btn.classList.remove('open');
+        drop.classList.remove('open');
+    });
+    </script>
 </body>
 </html>

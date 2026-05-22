@@ -17,93 +17,68 @@
             position: fixed;
             top: 0; left: 0;
             z-index: 50;
-            padding: 20px 24px;
+            padding: 18px 20px;
             display: flex;
-            flex-direction: column;
-            gap: 12px;
-            align-items: flex-start;
+            align-items: center;
+            gap: 14px;
         }
         .chrome-logo {
             display: block;
-            height: 36px;
-            width: auto;
-            opacity: 0.92;
+            height: 28px; width: auto;
+            opacity: 0.9;
             transition: opacity 0.2s;
         }
         .chrome-logo:hover { opacity: 1; }
+
+        /* Portland label pinned top-right of chrome group */
+        .chrome-city {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.85);
+            letter-spacing: 0.04em;
+            white-space: nowrap;
+        }
+
+        /* Pancake */
+        .pancake-wrap { position: relative; }
         .pancake-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 2px 0;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
+            background: none; border: none; cursor: pointer;
+            padding: 4px;
+            display: flex; flex-direction: column; gap: 4px;
         }
         .pancake-btn span {
-            display: block;
-            width: 20px;
-            height: 1.5px;
-            background: rgba(255,255,255,0.8);
-            transition: all 0.25s;
+            display: block; width: 20px; height: 1.5px;
+            background: rgba(255,255,255,0.8); transition: all 0.25s;
         }
         .pancake-btn.open span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
         .pancake-btn.open span:nth-child(2) { opacity: 0; }
         .pancake-btn.open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
-
-        /* ---- SLIDE-IN MENU ---- */
-        .menu-overlay {
+        .pancake-dropdown {
             display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 98;
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 0;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            overflow: hidden;
+            min-width: 160px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            z-index: 200;
         }
-        .menu-overlay.open { display: block; }
-        .pancake-menu {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 260px;
-            height: 100vh;
-            background: #111;
-            border-right: 1px solid #222;
-            z-index: 99;
-            padding: 80px 0 40px;
-            flex-direction: column;
+        .pancake-dropdown.open { display: block; }
+        .pancake-dropdown a {
+            display: block; padding: 13px 20px;
+            font-size: 0.9rem; color: #ddd; text-decoration: none;
+            border-bottom: 1px solid #222;
+            transition: background 0.15s, color 0.15s;
         }
-        .pancake-menu.open { display: flex; }
-        .pancake-menu a {
-            display: block;
-            padding: 16px 32px;
-            font-size: 1rem;
-            color: #eee;
-            text-decoration: none;
-            border-bottom: 1px solid #1e1e1e;
-            transition: color 0.2s, background 0.2s;
-        }
-        .pancake-menu a:hover { background: #1a1a1a; color: #fff; }
-        .pancake-menu a.join { font-weight: 600; color: #fff; }
+        .pancake-dropdown a:last-child { border-bottom: none; }
+        .pancake-dropdown a:hover { background: #222; color: #fff; }
+        .pancake-dropdown a.join { font-weight: 600; color: #fff; }
 
-        /* ---- CITY TITLE + SUB-NAV ---- */
-        .city-header {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 40;
-            padding: 20px 24px 0;
-            pointer-events: none;
-        }
-        .city-title {
-            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-            font-size: clamp(2.8rem, 8vw, 6rem);
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: -0.02em;
-            line-height: 1;
-            text-align: center;
-            text-shadow: 0 2px 20px rgba(0,0,0,0.5);
-            margin-top: 10px;
-        }
+        /* ---- SUB-NAV (bottom) ---- */
         .sub-nav {
             position: fixed;
             bottom: 0; left: 0; right: 0;
@@ -111,197 +86,182 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 36px;
-            padding: 22px 24px;
-            background: linear-gradient(transparent, rgba(0,0,0,0.6));
+            gap: 40px;
+            padding: 24px 24px 28px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
         }
         .sub-nav a {
-            color: rgba(255,255,255,0.75);
+            color: rgba(255,255,255,0.7);
             text-decoration: none;
-            font-size: 0.88rem;
-            letter-spacing: 0.1em;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
             text-transform: lowercase;
             transition: color 0.2s;
             padding: 4px 0;
-            border-bottom: 1px solid transparent;
+            border-bottom: 2px solid transparent;
         }
         .sub-nav a:hover, .sub-nav a.active {
             color: #fff;
-            border-color: rgba(255,255,255,0.6);
+            border-color: rgba(255,255,255,0.7);
         }
 
-        /* ---- SCROLLING ARTWORK GRID ---- */
+        /* ---- ARTWORK GRID ---- */
         .grid-viewport {
             position: fixed;
             inset: 0;
             overflow: hidden;
         }
-
-        /* The 2x2 logo cell — pinned top-left of the grid */
-        .logo-cell {
-            position: absolute;
-            top: 0; left: 0;
-            width: calc(var(--col) * 2 + var(--gap));
-            height: calc(var(--col) * 2 + var(--gap));
-            z-index: 45;
-            overflow: hidden;
-        }
-        .logo-cell-mask {
-            width: 100%;
-            height: 100%;
-            -webkit-mask-image: url('../images/arthere-mask.png');
-            mask-image: url('../images/arthere-mask.png');
-            -webkit-mask-repeat: no-repeat;
-            mask-repeat: no-repeat;
-            -webkit-mask-position: center;
-            mask-position: center;
-            -webkit-mask-size: 75%;
-            mask-size: 75%;
-        }
-        .logo-cell-mask img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center 40%;
+        .grid-viewport.browse-mode {
+            overflow-y: auto;
         }
 
-        /* The scrolling grid track */
         .grid-track {
             position: absolute;
             top: 0; left: 0; right: 0;
             display: grid;
-            grid-template-columns: repeat(var(--cols), var(--col));
             gap: var(--gap);
             padding: var(--gap);
+            will-change: transform;
+        }
+        .grid-track.scrolling {
             animation: scrollUp var(--scroll-duration) linear infinite;
         }
-        .grid-track.artwork-mode {
-            animation: none;
-            overflow-y: auto;
-            height: 100vh;
+
+        @keyframes scrollUp {
+            from { transform: translateY(0); }
+            to   { transform: translateY(var(--scroll-dist)); }
         }
+
         .grid-cell {
-            width: var(--col);
             overflow: hidden;
-            border-radius: 2px;
+            border-radius: 6px;
             background: #111;
             flex-shrink: 0;
         }
-        .grid-cell.logo-placeholder {
-            grid-column: span 2;
-            grid-row: span 2;
-            background: transparent;
-            pointer-events: none;
-        }
         .grid-cell img {
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             object-fit: cover;
-            object-position: center;
+            object-position: center 35%;
             display: block;
             transition: transform 0.4s;
         }
-        .grid-cell.clickable { cursor: pointer; }
+        .grid-cell.clickable {
+            cursor: pointer;
+        }
         .grid-cell.clickable:hover img { transform: scale(1.04); }
 
-        @keyframes scrollUp {
-            0%   { transform: translateY(0); }
-            100% { transform: translateY(var(--scroll-dist)); }
+        /* Logo cells — same size as grid cells, scroll with grid */
+        .logo-cell-group {
+            display: contents; /* slots into grid naturally */
         }
-
-        /* Mode: ambient (default) vs artwork browse */
-        body.ambient-mode .sub-nav a[data-section="artwork"] { border-color: transparent; }
-        body.artwork-mode .grid-cell { cursor: pointer; }
-        body.artwork-mode .grid-viewport { overflow-y: auto; overflow-x: hidden; position: absolute; }
+        .logo-cell {
+            overflow: hidden;
+            border-radius: 6px;
+            background: #0a0a0a;
+            position: relative;
+        }
+        .logo-cell-inner {
+            width: 100%; height: 100%;
+            -webkit-mask-image: url('../images/arthere-mask.png');
+            mask-image: url('../images/arthere-mask.png');
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-size: 200%;
+            mask-size: 200%;
+        }
+        /* Position mask quadrant per cell */
+        .logo-cell.tl .logo-cell-inner {
+            -webkit-mask-position: top left;
+            mask-position: top left;
+        }
+        .logo-cell.tr .logo-cell-inner {
+            -webkit-mask-position: top right;
+            mask-position: top right;
+        }
+        .logo-cell.bl .logo-cell-inner {
+            -webkit-mask-position: bottom left;
+            mask-position: bottom left;
+        }
+        .logo-cell.br .logo-cell-inner {
+            -webkit-mask-position: bottom right;
+            mask-position: bottom right;
+        }
+        .logo-cell-inner img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            object-position: center 40%;
+        }
     </style>
 </head>
-<body class="ambient-mode">
+<body>
 
-    <!-- MENU OVERLAY -->
-    <div class="menu-overlay" id="menu-overlay"></div>
-    <nav class="pancake-menu" id="pancake-menu">
-        <a href="survey.html" class="join">Join Us</a>
-        <a href="about.html">About</a>
-        <a href="about.html#contact">Contact</a>
-    </nav>
+    <!-- MENU OVERLAY (invisible, closes dropdown) -->
+    <div id="menu-overlay" style="display:none;position:fixed;inset:0;z-index:49;" ></div>
 
     <!-- TOP-LEFT CHROME -->
     <div class="city-chrome">
         <a href="../index.html"><img src="../images/arthere-logo-white.png" alt="Art Here" class="chrome-logo"></a>
-        <button class="pancake-btn" id="pancake-btn" aria-label="Menu">
-            <span></span><span></span><span></span>
-        </button>
-    </div>
-
-    <!-- CITY TITLE -->
-    <div class="city-header">
-        <div class="city-title">Portland</div>
+        <div class="pancake-wrap">
+            <button class="pancake-btn" id="pancake-btn" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="pancake-dropdown" id="pancake-dropdown">
+                <a href="survey.html" class="join">Join Us</a>
+                <a href="about.html">About</a>
+                <a href="about.html#contact">Contact</a>
+            </div>
+        </div>
+        <span class="chrome-city">Portland</span>
     </div>
 
     <!-- ARTWORK GRID -->
     <div class="grid-viewport" id="grid-viewport">
-        <div class="grid-track" id="grid-track">
-            <!-- Logo placeholder (2x2) -->
-            <div class="grid-cell logo-placeholder"></div>
-            <!-- Artwork cells injected by JS -->
-        </div>
-    </div>
-
-    <!-- LOGO CELL (pinned, masked) -->
-    <div class="logo-cell" id="logo-cell">
-        <div class="logo-cell-mask">
-            <img src="../images/portland-sign.jpg" alt="Portland">
-        </div>
+        <div class="grid-track" id="grid-track"></div>
     </div>
 
     <!-- SUB-NAV -->
     <nav class="sub-nav" id="sub-nav">
-        <a href="portland.html#artwork" data-section="artwork" id="nav-artwork">artwork</a>
-        <a href="../artists/kurtis-piltz.html" data-section="artists" id="nav-artists">artists</a>
-        <a href="#community" data-section="community" id="nav-community">community</a>
-        <a href="network.html" data-section="network" id="nav-network">network</a>
+        <a href="#" id="nav-artwork">artwork</a>
+        <a href="../artists/kurtis-piltz.html">artists</a>
+        <a href="../places/multnomah-arts-center.html">community</a>
+        <a href="network.html">network</a>
     </nav>
 
     <script>
     // ---- CONFIG ----
-    var COLS = window.innerWidth < 600 ? 3 : 4;
-    var GAP = 4;
-    var COL = Math.floor((window.innerWidth - GAP * (COLS + 1)) / COLS);
+    var W = window.innerWidth;
+    var COLS = W < 500 ? 3 : 4;
+    var GAP = 5;
+    var COL = Math.floor((W - GAP * (COLS + 1)) / COLS);
+    var ROW_H = COL; // square cells
 
-    document.documentElement.style.setProperty('--cols', COLS);
-    document.documentElement.style.setProperty('--col', COL + 'px');
     document.documentElement.style.setProperty('--gap', GAP + 'px');
+    document.getElementById('grid-track').style.gridTemplateColumns = 'repeat(' + COLS + ', ' + COL + 'px)';
 
-    // Size logo cell
-    var logoCell = document.getElementById('logo-cell');
-    var logoCellSize = COL * 2 + GAP;
-    logoCell.style.width = logoCellSize + 'px';
-    logoCell.style.height = logoCellSize + 'px';
-
-    // ---- ARTWORK DATA ----
-    var allArtwork = [
-        { src: '../images/artwork/beth-bundy-1.jpg',           artist: '../artists/beth-bundy.html',           h: 1 },
-        { src: '../images/artwork/beth-bundy-2.jpg',           artist: '../artists/beth-bundy.html',           h: 1 },
-        { src: '../images/artwork/beth-bundy-3.jpg',           artist: '../artists/beth-bundy.html',           h: 1 },
-        { src: '../images/artwork/beth-bundy-hero.jpg',        artist: '../artists/beth-bundy.html',           h: 1 },
-        { src: '../images/artwork/jennifer-eaton-white-1.jpg', artist: '../artists/jennifer-eaton-white.html', h: 1 },
-        { src: '../images/artwork/jennifer-eaton-white-2.jpg', artist: '../artists/jennifer-eaton-white.html', h: 1 },
-        { src: '../images/artwork/jennifer-eaton-white-3.jpg', artist: '../artists/jennifer-eaton-white.html', h: 1 },
-        { src: '../images/artwork/kurtis-piltz-1.jpg',         artist: '../artists/kurtis-piltz.html',         h: 1 },
-        { src: '../images/artwork/kurtis-piltz-2.jpg',         artist: '../artists/kurtis-piltz.html',         h: 1 },
-        { src: '../images/artwork/kurtis-piltz-3.jpg',         artist: '../artists/kurtis-piltz.html',         h: 1 },
-        { src: '../images/artwork/kurtis-piltz-hero.jpg',      artist: '../artists/kurtis-piltz.html',         h: 1 },
-        { src: '../images/artwork/lindsey-fox-1.jpg',          artist: '../artists/lindsey-fox.html',          h: 2 },
-        { src: '../images/artwork/lindsey-fox-2.jpg',          artist: '../artists/lindsey-fox.html',          h: 1 },
-        { src: '../images/artwork/lindsey-fox-3.jpg',          artist: '../artists/lindsey-fox.html',          h: 1 },
-        { src: '../images/artwork/lindsey-fox-hero.jpg',       artist: '../artists/lindsey-fox.html',          h: 1 },
-        { src: '../images/artwork/yong-hong-zhong-1.jpg',      artist: '../artists/yong-hong-zhong.html',      h: 1 },
-        { src: '../images/artwork/yong-hong-zhong-2.jpg',      artist: '../artists/yong-hong-zhong.html',      h: 1 },
-        { src: '../images/artwork/yong-hong-zhong-3.jpg',      artist: '../artists/yong-hong-zhong.html',      h: 1 },
-        { src: '../images/artwork/yong-hong-zhong-4.jpg',      artist: '../artists/yong-hong-zhong.html',      h: 1 },
+    // ---- ALL ARTWORK ----
+    var ALL = [
+        { src: '../images/artwork/beth-bundy-1.jpg',           url: '../artists/beth-bundy.html' },
+        { src: '../images/artwork/beth-bundy-2.jpg',           url: '../artists/beth-bundy.html' },
+        { src: '../images/artwork/beth-bundy-3.jpg',           url: '../artists/beth-bundy.html' },
+        { src: '../images/artwork/beth-bundy-hero.jpg',        url: '../artists/beth-bundy.html' },
+        { src: '../images/artwork/jennifer-eaton-white-1.jpg', url: '../artists/jennifer-eaton-white.html' },
+        { src: '../images/artwork/jennifer-eaton-white-2.jpg', url: '../artists/jennifer-eaton-white.html' },
+        { src: '../images/artwork/jennifer-eaton-white-3.jpg', url: '../artists/jennifer-eaton-white.html' },
+        { src: '../images/artwork/kurtis-piltz-1.jpg',         url: '../artists/kurtis-piltz.html' },
+        { src: '../images/artwork/kurtis-piltz-2.jpg',         url: '../artists/kurtis-piltz.html' },
+        { src: '../images/artwork/kurtis-piltz-3.jpg',         url: '../artists/kurtis-piltz.html' },
+        { src: '../images/artwork/kurtis-piltz-hero.jpg',      url: '../artists/kurtis-piltz.html' },
+        { src: '../images/artwork/lindsey-fox-1.jpg',          url: '../artists/lindsey-fox.html' },
+        { src: '../images/artwork/lindsey-fox-2.jpg',          url: '../artists/lindsey-fox.html' },
+        { src: '../images/artwork/lindsey-fox-3.jpg',          url: '../artists/lindsey-fox.html' },
+        { src: '../images/artwork/lindsey-fox-hero.jpg',       url: '../artists/lindsey-fox.html' },
+        { src: '../images/artwork/yong-hong-zhong-1.jpg',      url: '../artists/yong-hong-zhong.html' },
+        { src: '../images/artwork/yong-hong-zhong-2.jpg',      url: '../artists/yong-hong-zhong.html' },
+        { src: '../images/artwork/yong-hong-zhong-3.jpg',      url: '../artists/yong-hong-zhong.html' },
+        { src: '../images/artwork/yong-hong-zhong-4.jpg',      url: '../artists/yong-hong-zhong.html' },
     ];
 
-    // Shuffle array
     function shuffle(arr) {
         var a = arr.slice();
         for (var i = a.length - 1; i > 0; i--) {
@@ -311,91 +271,139 @@
         return a;
     }
 
-    // Build grid cells
+    function makeCell(art, clickable) {
+        var cell = document.createElement('div');
+        cell.className = 'grid-cell' + (clickable ? ' clickable' : '');
+        cell.style.height = ROW_H + 'px';
+        var img = document.createElement('img');
+        img.src = art.src;
+        img.alt = '';
+        img.loading = 'lazy';
+        cell.appendChild(img);
+        if (clickable) {
+            cell.addEventListener('click', function() { window.location.href = art.url; });
+        }
+        return cell;
+    }
+
+    function makeLogoCells(clickable) {
+        // 4 individual cells each showing one quadrant of the logo mask over the stag image
+        var quadrants = ['tl','tr','bl','br'];
+        return quadrants.map(function(q) {
+            var cell = document.createElement('div');
+            cell.className = 'logo-cell ' + q;
+            cell.style.height = ROW_H + 'px';
+            var inner = document.createElement('div');
+            inner.className = 'logo-cell-inner';
+            var img = document.createElement('img');
+            img.src = '../images/portland-sign.jpg';
+            img.alt = '';
+            inner.appendChild(img);
+            cell.appendChild(inner);
+            return cell;
+        });
+    }
+
     function buildGrid(clickable) {
         var track = document.getElementById('grid-track');
-        // Clear existing cells (keep placeholder)
-        var cells = track.querySelectorAll('.grid-cell:not(.logo-placeholder)');
-        cells.forEach(function(c) { c.remove(); });
+        track.innerHTML = '';
+        track.classList.remove('scrolling');
 
-        var images = shuffle(allArtwork);
-        // Double up for seamless scroll loop
+        var images = shuffle(ALL);
+        // Triple the images so the loop is seamless
         var set = clickable ? images : images.concat(images).concat(images);
 
-        set.forEach(function(art) {
-            var cell = document.createElement('div');
-            cell.className = 'grid-cell' + (clickable ? ' clickable' : '');
-            var cellH = art.h === 2 ? COL * 2 + GAP : COL;
-            cell.style.height = cellH + 'px';
-            if (art.h === 2) cell.style.gridRow = 'span 2';
+        // Insert logo cells first (top-left 2x2 = positions 0,1,COLS,COLS+1)
+        // We build a flat array with logo slots at those positions
+        var logoCells = makeLogoCells(clickable);
+        var logoIndices = [0, 1, COLS, COLS + 1];
 
-            var img = document.createElement('img');
-            img.src = art.src;
-            img.alt = '';
-            img.loading = 'lazy';
-            // Smart crop: center-weighted, avoid edges
-            img.style.objectPosition = 'center 35%';
-            cell.appendChild(img);
+        var imgIndex = 0;
+        var totalCells = COLS * Math.ceil((set.length + 4) / COLS) + COLS * 4;
 
-            if (clickable) {
-                cell.addEventListener('click', function() {
-                    window.location.href = art.artist;
-                });
+        for (var i = 0; i < set.length + 8; i++) {
+            if (logoIndices.indexOf(i % (COLS * Math.ceil(set.length / COLS))) !== -1
+                && i < logoIndices.length * 3) {
+                // skip — logo cells handled below
             }
-            track.appendChild(cell);
-        });
+        }
 
-        // Set scroll distance for animation
-        var rowH = COL + GAP;
-        var totalRows = Math.ceil(images.length / COLS);
-        var scrollDist = totalRows * rowH;
-        document.documentElement.style.setProperty('--scroll-dist', '-' + scrollDist + 'px');
-        document.documentElement.style.setProperty('--scroll-duration', (totalRows * 6) + 's');
+        // Simpler approach: prepend 4 logo cells, then artwork
+        logoCells.forEach(function(lc) { track.appendChild(lc); });
+
+        // Fill rest of row 1 after logo (cols 2 and 3 if 4-col, or col 2 if 3-col)
+        var afterLogo = COLS - 2; // cells on row 1 after the 2-wide logo
+        for (var r = 0; r < afterLogo; r++) {
+            if (imgIndex < set.length) {
+                track.appendChild(makeCell(set[imgIndex++], clickable));
+            }
+        }
+        // Row 2: cols after logo
+        for (var r2 = 0; r2 < afterLogo; r2++) {
+            if (imgIndex < set.length) {
+                track.appendChild(makeCell(set[imgIndex++], clickable));
+            }
+        }
+        // Remaining rows
+        while (imgIndex < set.length) {
+            track.appendChild(makeCell(set[imgIndex++], clickable));
+        }
+
+        if (!clickable) {
+            // Calculate scroll distance = height of one full set
+            var cellsPerSet = images.length;
+            var rowsPerSet = Math.ceil(cellsPerSet / COLS);
+            var scrollDist = rowsPerSet * (ROW_H + GAP);
+            document.documentElement.style.setProperty('--scroll-dist', '-' + scrollDist + 'px');
+            document.documentElement.style.setProperty('--scroll-duration', (rowsPerSet * 5) + 's');
+            // Force reflow then start animation
+            track.offsetHeight;
+            track.classList.add('scrolling');
+        }
     }
 
-    // ---- MODES ----
+    // ---- MODE TOGGLE ----
     var isAmbient = true;
+    var navArtwork = document.getElementById('nav-artwork');
 
-    function setAmbientMode() {
+    function setAmbient() {
         isAmbient = true;
-        document.body.className = 'ambient-mode';
-        document.getElementById('grid-track').style.animation = '';
-        document.getElementById('grid-viewport').style.overflowY = 'hidden';
-        document.getElementById('nav-artwork').classList.remove('active');
+        document.getElementById('grid-viewport').classList.remove('browse-mode');
+        navArtwork.classList.remove('active');
         buildGrid(false);
-        // Re-apply animation
-        var track = document.getElementById('grid-track');
-        track.style.animation = 'none';
-        track.offsetHeight; // reflow
-        track.style.animation = '';
     }
-
-    function setArtworkMode() {
+    function setBrowse() {
         isAmbient = false;
-        document.body.className = 'artwork-mode';
-        document.getElementById('grid-track').style.animation = 'none';
-        document.getElementById('grid-viewport').style.overflowY = 'auto';
-        document.getElementById('nav-artwork').classList.add('active');
+        document.getElementById('grid-viewport').classList.add('browse-mode');
+        navArtwork.classList.add('active');
         buildGrid(true);
     }
 
-    document.getElementById('nav-artwork').addEventListener('click', function(e) {
+    navArtwork.addEventListener('click', function(e) {
         e.preventDefault();
-        if (isAmbient) { setArtworkMode(); }
-        else { setAmbientMode(); }
+        isAmbient ? setBrowse() : setAmbient();
+    });
+
+    // Spacebar toggles artwork mode
+    document.addEventListener('keydown', function(e) {
+        if (e.code === 'Space' && e.target === document.body) {
+            e.preventDefault();
+            isAmbient ? setBrowse() : setAmbient();
+        }
     });
 
     // ---- MENU ----
-    var pancakeBtn = document.getElementById('pancake-btn');
-    var pancakeMenu = document.getElementById('pancake-menu');
-    var menuOverlay = document.getElementById('menu-overlay');
-    function toggleMenu() {
-        pancakeBtn.classList.toggle('open');
-        pancakeMenu.classList.toggle('open');
-        menuOverlay.classList.toggle('open');
-    }
-    pancakeBtn.addEventListener('click', toggleMenu);
-    menuOverlay.addEventListener('click', toggleMenu);
+    var pBtn = document.getElementById('pancake-btn');
+    var pDrop = document.getElementById('pancake-dropdown');
+    pBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        pBtn.classList.toggle('open');
+        pDrop.classList.toggle('open');
+    });
+    document.addEventListener('click', function() {
+        pBtn.classList.remove('open');
+        pDrop.classList.remove('open');
+    });
 
     // ---- INIT ----
     buildGrid(false);
