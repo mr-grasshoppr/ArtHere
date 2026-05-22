@@ -89,7 +89,7 @@
         }
         .logo-mask {
             position: relative;
-            width: min(85vw, 700px);
+            width: min(60vw, 520px);
             aspect-ratio: 1675 / 1465;
             overflow: hidden;
             -webkit-mask-image: url('images/arthere-mask.png');
@@ -98,8 +98,8 @@
             mask-repeat: no-repeat;
             -webkit-mask-position: center;
             mask-position: center;
-            -webkit-mask-size: contain;
-            mask-size: contain;
+            -webkit-mask-size: 100% 100%;
+            mask-size: 100% 100%;
         }
         .image-track {
             position: absolute;
@@ -109,7 +109,7 @@
             animation: slide 50s linear infinite;
         }
         .image-track .slide { height: 100%; flex-shrink: 0; }
-        .image-track .slide img { height: 100%; width: auto; object-fit: cover; display: block; }
+        .image-track .slide img { height: 100%; width: auto; min-width: 100%; object-fit: cover; display: block; }
         @keyframes slide {
             0%   { transform: translateX(0); }
             100% { transform: translateX(-50%); }
@@ -164,7 +164,7 @@
         }
 
         @media (max-width: 600px) {
-            .logo-mask { width: 88vw; }
+            .logo-mask { width: min(85vw, 380px); }
             .city-name { font-size: 1.3rem; }
         }
     </style>

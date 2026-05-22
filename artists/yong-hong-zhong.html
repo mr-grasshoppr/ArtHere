@@ -41,24 +41,91 @@
 
 /* Nunito for all display headers */
 h1, h2.section-title, .page-hero h1, .place-name-large { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; }
-</style>
+
+    /* ---- TOP NAV ---- */
+    .top-nav {
+        position: fixed;
+        top: 0; left: 0;
+        z-index: 200;
+        padding: 18px 22px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .nav-logo {
+        display: block;
+        height: 28px; width: auto;
+        transition: opacity 0.2s;
+    }
+    .nav-logo:hover { opacity: 0.7; }
+    .nav-city-link {
+        font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        text-decoration: none;
+        letter-spacing: 0.03em;
+        transition: opacity 0.2s;
+    }
+    .nav-city-link:hover { opacity: 0.6; }
+    .pancake-wrap { position: relative; }
+    .pancake-btn {
+        background: none; border: none; cursor: pointer;
+        padding: 4px;
+        display: flex; flex-direction: column; gap: 5px;
+    }
+    .pancake-btn span {
+        display: block; width: 20px; height: 1.5px;
+        background: #1a1a1a; transition: all 0.25s;
+    }
+    .pancake-btn.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .pancake-btn.open span:nth-child(2) { opacity: 0; }
+    .pancake-btn.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+    .pancake-dropdown {
+        display: none;
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 6px;
+        overflow: hidden;
+        min-width: 160px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        z-index: 300;
+    }
+    .pancake-dropdown.open { display: block; }
+    .pancake-dropdown a {
+        display: block; padding: 13px 20px;
+        font-size: 0.9rem; color: #444; text-decoration: none;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.15s, color 0.15s;
+    }
+    .pancake-dropdown a:last-child { border-bottom: none; }
+    .pancake-dropdown a:hover { background: #fafafa; color: #1a1a1a; }
+    .pancake-dropdown a.join { font-weight: 600; color: #1a1a1a; }
+    /* Push content below fixed nav */
+    body { padding-top: 70px; }
+
+    </style>
 </head>
 <body>
-<nav class="site-nav">
-  <div class="site-nav-container">
-    <a href="../index.html" class="site-logo">art here</a>
-    <ul class="site-nav-links">
-      <li class="cities-dropdown"><a class="active">cities</a>
-        <ul class="dropdown-menu">
-          <li><a href="../pages/portland.html" class="active">Portland</a></li>
-          <li><a href="#">Biloxi (Coming Soon)</a></li>
-          <li><a href="#">San Jose (Coming Soon)</a></li>
-        </ul></li>
-      <li><a href="../pages/about.html">about</a></li>
-      <li><a href="../pages/contact.html">contact</a></li>
-    </ul>
-  </div>
-</nav>
+    <!-- TOP NAV -->
+    <div class="top-nav">
+        <a href="../index.html"><img src="../images/arthere-logo-dark.png" alt="Art Here" class="nav-logo"></a>
+        <div class="pancake-wrap">
+            <button class="pancake-btn" id="nav-pancake-btn" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="pancake-dropdown" id="nav-pancake-drop">
+                <a href="../pages/survey.html" class="join">Join Us</a>
+                <a href="../pages/about.html">About</a>
+                <a href="../pages/about.html#contact">Contact</a>
+            </div>
+        </div>
+        <a href="../pages/portland.html" class="nav-city-link">Portland</a>
+    </div>
+
 
 <section class="artist-hero">
   <img src="../images/artwork/yong-hong-zhong-1.jpg" alt="Yong Hong Zhong watercolor painting">
