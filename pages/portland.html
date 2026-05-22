@@ -12,44 +12,35 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; overflow: hidden; background: #0a0a0a; color: #fff; font-family: 'Inter', sans-serif; }
 
-        /* ---- TOP-LEFT CHROME ---- */
-        .city-chrome {
+        /* ---- TOP BAR ---- */
+        .top-bar {
             position: fixed;
-            top: 0; left: 0;
-            z-index: 50;
-            padding: 18px 20px;
+            top: 0; left: 0; right: 0;
+            height: 56px;
+            background: #000;
+            z-index: 100;
             display: flex;
             align-items: center;
-            gap: 14px;
+            padding: 0 18px;
+            gap: 12px;
         }
-        .chrome-logo {
+        .nav-logo {
             display: block;
-            height: 32px; width: auto;
+            height: 26px; width: auto;
             opacity: 0.9;
             transition: opacity 0.2s;
+            flex-shrink: 0;
         }
-        .chrome-logo:hover { opacity: 1; }
-
-        /* Portland label pinned top-right of chrome group */
-        .chrome-city {
-            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: rgba(255,255,255,0.85);
-            letter-spacing: 0.04em;
-            white-space: nowrap;
-        }
-
-        /* Pancake */
-        .pancake-wrap { position: relative; }
+        .nav-logo:hover { opacity: 1; }
+        .pancake-wrap { position: relative; flex-shrink: 0; }
         .pancake-btn {
             background: none; border: none; cursor: pointer;
             padding: 4px;
             display: flex; flex-direction: column; gap: 4px;
         }
         .pancake-btn span {
-            display: block; width: 20px; height: 1.5px;
-            background: rgba(255,255,255,0.8); transition: all 0.25s;
+            display: block; width: 18px; height: 1.5px;
+            background: rgba(255,255,255,0.85); transition: all 0.25s;
         }
         .pancake-btn.open span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
         .pancake-btn.open span:nth-child(2) { opacity: 0; }
@@ -57,65 +48,46 @@
         .pancake-dropdown {
             display: none;
             position: absolute;
-            top: calc(100% + 10px);
+            top: calc(100% + 8px);
             left: 0;
             background: #1a1a1a;
             border: 1px solid #333;
             border-radius: 6px;
             overflow: hidden;
             min-width: 160px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
             z-index: 200;
         }
         .pancake-dropdown.open { display: block; }
         .pancake-dropdown a {
             display: block; padding: 13px 20px;
-            font-size: 0.9rem; color: #ddd; text-decoration: none;
+            font-size: 0.9rem; color: #ccc; text-decoration: none;
             border-bottom: 1px solid #222;
             transition: background 0.15s, color 0.15s;
         }
         .pancake-dropdown a:last-child { border-bottom: none; }
         .pancake-dropdown a:hover { background: #222; color: #fff; }
         .pancake-dropdown a.join { font-weight: 600; color: #fff; }
-
-        /* ---- SUB-NAV (bottom) ---- */
-        .sub-nav {
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            z-index: 40;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 40px;
-            padding: 24px 24px 28px;
-            background: linear-gradient(transparent, rgba(0,0,0,0.7));
-        }
-        .sub-nav a {
-            color: rgba(255,255,255,0.7);
-            text-decoration: none;
+        .nav-city {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
             font-size: 1rem;
-            font-weight: 600;
-            letter-spacing: 0.06em;
-            text-transform: lowercase;
-            transition: color 0.2s;
-            padding: 4px 0;
-            border-bottom: 2px solid transparent;
+            font-weight: 700;
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            letter-spacing: 0.03em;
+            transition: opacity 0.2s;
         }
-        .sub-nav a:hover, .sub-nav a.active {
-            color: #fff;
-            border-color: rgba(255,255,255,0.7);
-        }
+        .nav-city:hover { opacity: 0.7; }
 
-        /* ---- ARTWORK GRID ---- */
+        /* ---- GRID VIEWPORT ---- */
         .grid-viewport {
             position: fixed;
-            inset: 0;
+            top: 56px; left: 0; right: 0; bottom: 56px;
             overflow: hidden;
         }
-        .grid-viewport.browse-mode {
+        .grid-viewport.browse {
             overflow-y: auto;
         }
-
         .grid-track {
             position: absolute;
             top: 0; left: 0; right: 0;
@@ -125,41 +97,35 @@
             will-change: transform;
         }
         .grid-track.scrolling {
-            animation: scrollUp var(--scroll-duration) linear infinite;
+            animation: scrollUp var(--dur) linear infinite;
         }
-
         @keyframes scrollUp {
             from { transform: translateY(0); }
-            to   { transform: translateY(var(--scroll-dist)); }
+            to   { transform: translateY(var(--dist)); }
         }
-
         .grid-cell {
             overflow: hidden;
             border-radius: 6px;
             background: #111;
-            flex-shrink: 0;
+            cursor: default;
         }
         .grid-cell img {
             width: 100%; height: 100%;
             object-fit: cover;
             object-position: center 35%;
             display: block;
-            transition: transform 0.4s;
         }
-        .grid-cell.clickable {
-            cursor: pointer;
-        }
+        .grid-cell.tall { grid-row: span 2; }
+        .grid-cell.wide { grid-column: span 2; }
+        .grid-cell.clickable { cursor: pointer; }
+        .grid-cell.clickable img { transition: transform 0.3s; }
         .grid-cell.clickable:hover img { transform: scale(1.04); }
 
-        /* Logo cells — same size as grid cells, scroll with grid */
-        .logo-cell-group {
-            display: contents; /* slots into grid naturally */
-        }
+        /* Logo cells */
         .logo-cell {
             overflow: hidden;
             border-radius: 6px;
             background: #0a0a0a;
-            position: relative;
         }
         .logo-cell-inner {
             width: 100%; height: 100%;
@@ -170,58 +136,93 @@
             -webkit-mask-size: 200% 200%;
             mask-size: 200% 200%;
         }
-        /* Each quadrant shows one corner of the 2x2 logo */
-        .logo-cell.tl .logo-cell-inner {
-            -webkit-mask-position: 0% 0%;
-            mask-position: 0% 0%;
-        }
-        .logo-cell.tr .logo-cell-inner {
-            -webkit-mask-position: 100% 0%;
-            mask-position: 100% 0%;
-        }
-        .logo-cell.bl .logo-cell-inner {
-            -webkit-mask-position: 0% 100%;
-            mask-position: 0% 100%;
-        }
-        .logo-cell.br .logo-cell-inner {
-            -webkit-mask-position: 100% 100%;
-            mask-position: 100% 100%;
-        }
+        .logo-cell.tl .logo-cell-inner { -webkit-mask-position: 0% 0%; mask-position: 0% 0%; }
+        .logo-cell.tr .logo-cell-inner { -webkit-mask-position: 100% 0%; mask-position: 100% 0%; }
+        .logo-cell.bl .logo-cell-inner { -webkit-mask-position: 0% 100%; mask-position: 0% 100%; }
+        .logo-cell.br .logo-cell-inner { -webkit-mask-position: 100% 100%; mask-position: 100% 100%; }
         .logo-cell-inner img {
             width: 100%; height: 100%;
             object-fit: cover;
             object-position: center 40%;
         }
+
+        /* ---- BOTTOM BAR ---- */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 56px;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 36px;
+        }
+        .bottom-bar a {
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 0.92rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: lowercase;
+            transition: color 0.2s;
+            padding: 4px 0;
+            border-bottom: 2px solid transparent;
+        }
+        .bottom-bar a:hover, .bottom-bar a.active {
+            color: #fff;
+            border-color: rgba(255,255,255,0.6);
+        }
+
+        /* Touch hint */
+        .touch-hint {
+            position: fixed;
+            bottom: 68px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.6);
+            color: rgba(255,255,255,0.6);
+            font-size: 0.75rem;
+            letter-spacing: 0.08em;
+            padding: 6px 14px;
+            border-radius: 20px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+            z-index: 90;
+        }
+        .touch-hint.show { opacity: 1; }
     </style>
 </head>
 <body>
 
-    <!-- MENU OVERLAY (invisible, closes dropdown) -->
-    <div id="menu-overlay" style="display:none;position:fixed;inset:0;z-index:49;" ></div>
-
-    <!-- TOP-LEFT CHROME -->
-    <div class="city-chrome">
-        <a href="../index.html"><img src="../images/arthere-logo-white.png" alt="Art Here" class="chrome-logo"></a>
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <a href="../index.html"><img src="../images/arthere-logo-white.png" alt="Art Here" class="nav-logo"></a>
         <div class="pancake-wrap">
             <button class="pancake-btn" id="pancake-btn" aria-label="Menu">
                 <span></span><span></span><span></span>
             </button>
-            <div class="pancake-dropdown" id="pancake-dropdown">
+            <div class="pancake-dropdown" id="pancake-drop">
                 <a href="survey.html" class="join">Join Us</a>
                 <a href="about.html">About</a>
                 <a href="about.html#contact">Contact</a>
             </div>
         </div>
-        <span class="chrome-city">Portland</span>
+        <a href="portland.html" class="nav-city">Portland</a>
     </div>
 
-    <!-- ARTWORK GRID -->
-    <div class="grid-viewport" id="grid-viewport">
+    <!-- GRID -->
+    <div class="grid-viewport" id="grid-vp">
         <div class="grid-track" id="grid-track"></div>
     </div>
 
-    <!-- SUB-NAV -->
-    <nav class="sub-nav" id="sub-nav">
+    <!-- TOUCH HINT -->
+    <div class="touch-hint" id="touch-hint">tap to browse artwork</div>
+
+    <!-- BOTTOM BAR -->
+    <nav class="bottom-bar">
         <a href="#" id="nav-artwork">artwork</a>
         <a href="../artists/kurtis-piltz.html">artists</a>
         <a href="../places/multnomah-arts-center.html">community</a>
@@ -229,79 +230,76 @@
     </nav>
 
     <script>
-    // ---- CONFIG ----
-    var W = window.innerWidth;
-    var COLS = W < 500 ? 3 : 4;
+    var COLS = window.innerWidth < 500 ? 3 : 4;
     var GAP = 5;
-    var COL = Math.floor((W - GAP * (COLS + 1)) / COLS);
-    var ROW_H = COL; // square cells
+    var VW = window.innerWidth;
+    var COL = Math.floor((VW - GAP * (COLS + 1)) / COLS);
+    var ROW = COL;
 
     document.documentElement.style.setProperty('--gap', GAP + 'px');
-    document.getElementById('grid-track').style.gridTemplateColumns = 'repeat(' + COLS + ', ' + COL + 'px)';
+    document.getElementById('grid-track').style.gridTemplateColumns = 'repeat(' + COLS + ',' + COL + 'px)';
 
-    // ---- ALL ARTWORK ----
     var ALL = [
-        { src: '../images/artwork/beth-bundy-1.jpg',           url: '../artists/beth-bundy.html' },
-        { src: '../images/artwork/beth-bundy-2.jpg',           url: '../artists/beth-bundy.html' },
-        { src: '../images/artwork/beth-bundy-3.jpg',           url: '../artists/beth-bundy.html' },
-        { src: '../images/artwork/beth-bundy-hero.jpg',        url: '../artists/beth-bundy.html' },
-        { src: '../images/artwork/jennifer-eaton-white-1.jpg', url: '../artists/jennifer-eaton-white.html' },
-        { src: '../images/artwork/jennifer-eaton-white-2.jpg', url: '../artists/jennifer-eaton-white.html' },
-        { src: '../images/artwork/jennifer-eaton-white-3.jpg', url: '../artists/jennifer-eaton-white.html' },
-        { src: '../images/artwork/kurtis-piltz-1.jpg',         url: '../artists/kurtis-piltz.html' },
-        { src: '../images/artwork/kurtis-piltz-2.jpg',         url: '../artists/kurtis-piltz.html' },
-        { src: '../images/artwork/kurtis-piltz-3.jpg',         url: '../artists/kurtis-piltz.html' },
-        { src: '../images/artwork/kurtis-piltz-hero.jpg',      url: '../artists/kurtis-piltz.html' },
-        { src: '../images/artwork/lindsey-fox-1.jpg',          url: '../artists/lindsey-fox.html' },
-        { src: '../images/artwork/lindsey-fox-2.jpg',          url: '../artists/lindsey-fox.html' },
-        { src: '../images/artwork/lindsey-fox-3.jpg',          url: '../artists/lindsey-fox.html' },
-        { src: '../images/artwork/lindsey-fox-hero.jpg',       url: '../artists/lindsey-fox.html' },
-        { src: '../images/artwork/yong-hong-zhong-1.jpg',      url: '../artists/yong-hong-zhong.html' },
-        { src: '../images/artwork/yong-hong-zhong-2.jpg',      url: '../artists/yong-hong-zhong.html' },
-        { src: '../images/artwork/yong-hong-zhong-3.jpg',      url: '../artists/yong-hong-zhong.html' },
-        { src: '../images/artwork/yong-hong-zhong-4.jpg',      url: '../artists/yong-hong-zhong.html' },
+        { src: '../images/artwork/beth-bundy-hero.jpg',        url: '../artists/beth-bundy.html',           tall: true  },
+        { src: '../images/artwork/beth-bundy-1.jpg',           url: '../artists/beth-bundy.html',           tall: false },
+        { src: '../images/artwork/beth-bundy-2.jpg',           url: '../artists/beth-bundy.html',           tall: false },
+        { src: '../images/artwork/beth-bundy-3.jpg',           url: '../artists/beth-bundy.html',           tall: false },
+        { src: '../images/artwork/jennifer-eaton-white-hero.jpg', url: '../artists/jennifer-eaton-white.html', tall: true  },
+        { src: '../images/artwork/jennifer-eaton-white-1.jpg', url: '../artists/jennifer-eaton-white.html', tall: false },
+        { src: '../images/artwork/jennifer-eaton-white-2.jpg', url: '../artists/jennifer-eaton-white.html', tall: false },
+        { src: '../images/artwork/kurtis-piltz-hero.jpg',      url: '../artists/kurtis-piltz.html',         tall: true  },
+        { src: '../images/artwork/kurtis-piltz-1.jpg',         url: '../artists/kurtis-piltz.html',         tall: false },
+        { src: '../images/artwork/kurtis-piltz-2.jpg',         url: '../artists/kurtis-piltz.html',         tall: false },
+        { src: '../images/artwork/kurtis-piltz-3.jpg',         url: '../artists/kurtis-piltz.html',         tall: false },
+        { src: '../images/artwork/lindsey-fox-hero.jpg',       url: '../artists/lindsey-fox.html',          tall: true  },
+        { src: '../images/artwork/lindsey-fox-1.jpg',          url: '../artists/lindsey-fox.html',          tall: false },
+        { src: '../images/artwork/lindsey-fox-2.jpg',          url: '../artists/lindsey-fox.html',          tall: false },
+        { src: '../images/artwork/lindsey-fox-3.jpg',          url: '../artists/lindsey-fox.html',          tall: false },
+        { src: '../images/artwork/yong-hong-zhong-1.jpg',      url: '../artists/yong-hong-zhong.html',      tall: true  },
+        { src: '../images/artwork/yong-hong-zhong-2.jpg',      url: '../artists/yong-hong-zhong.html',      tall: false },
+        { src: '../images/artwork/yong-hong-zhong-3.jpg',      url: '../artists/yong-hong-zhong.html',      tall: false },
+        { src: '../images/artwork/yong-hong-zhong-4.jpg',      url: '../artists/yong-hong-zhong.html',      tall: false },
     ];
 
-    function shuffle(arr) {
-        var a = arr.slice();
-        for (var i = a.length - 1; i > 0; i--) {
+    function shuffle(a) {
+        var arr = a.slice();
+        for (var i = arr.length - 1; i > 0; i--) {
             var j = Math.floor(Math.random() * (i + 1));
-            var t = a[i]; a[i] = a[j]; a[j] = t;
+            var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
         }
-        return a;
+        return arr;
+    }
+
+    function makeLogoCells() {
+        return ['tl','tr','bl','br'].map(function(q) {
+            var c = document.createElement('div');
+            c.className = 'logo-cell ' + q;
+            c.style.height = ROW + 'px';
+            var inn = document.createElement('div');
+            inn.className = 'logo-cell-inner';
+            var img = document.createElement('img');
+            img.src = '../images/portland-sign.jpg';
+            img.alt = '';
+            inn.appendChild(img);
+            c.appendChild(inn);
+            return c;
+        });
     }
 
     function makeCell(art, clickable) {
-        var cell = document.createElement('div');
-        cell.className = 'grid-cell' + (clickable ? ' clickable' : '');
-        cell.style.height = ROW_H + 'px';
+        var c = document.createElement('div');
+        c.className = 'grid-cell' + (art.tall ? ' tall' : '') + (clickable ? ' clickable' : '');
+        c.style.height = (art.tall ? ROW * 2 + GAP : ROW) + 'px';
+        if (art.tall) c.style.gridRow = 'span 2';
         var img = document.createElement('img');
         img.src = art.src;
         img.alt = '';
         img.loading = 'lazy';
-        cell.appendChild(img);
+        c.appendChild(img);
         if (clickable) {
-            cell.addEventListener('click', function() { window.location.href = art.url; });
+            c.addEventListener('click', function() { window.location.href = art.url; });
         }
-        return cell;
-    }
-
-    function makeLogoCells(clickable) {
-        // 4 individual cells each showing one quadrant of the logo mask over the stag image
-        var quadrants = ['tl','tr','bl','br'];
-        return quadrants.map(function(q) {
-            var cell = document.createElement('div');
-            cell.className = 'logo-cell ' + q;
-            cell.style.height = ROW_H + 'px';
-            var inner = document.createElement('div');
-            inner.className = 'logo-cell-inner';
-            var img = document.createElement('img');
-            img.src = '../images/portland-sign.jpg';
-            img.alt = '';
-            inner.appendChild(img);
-            cell.appendChild(inner);
-            return cell;
-        });
+        return c;
     }
 
     function buildGrid(clickable) {
@@ -310,71 +308,51 @@
         track.classList.remove('scrolling');
 
         var images = shuffle(ALL);
-        // Triple the images so the loop is seamless
-        var set = clickable ? images : images.concat(images).concat(images);
+        // For ambient: triple the set for infinite scroll
+        var set = clickable ? images : images.concat(shuffle(ALL)).concat(shuffle(ALL));
 
-        // Insert logo cells first (top-left 2x2 = positions 0,1,COLS,COLS+1)
-        // We build a flat array with logo slots at those positions
-        var logoCells = makeLogoCells(clickable);
-        var logoIndices = [0, 1, COLS, COLS + 1];
+        // Insert logo 2x2 cells first (4 cells occupying top-left)
+        makeLogoCells().forEach(function(lc) { track.appendChild(lc); });
 
-        var imgIndex = 0;
-        var totalCells = COLS * Math.ceil((set.length + 4) / COLS) + COLS * 4;
-
-        for (var i = 0; i < set.length + 8; i++) {
-            if (logoIndices.indexOf(i % (COLS * Math.ceil(set.length / COLS))) !== -1
-                && i < logoIndices.length * 3) {
-                // skip — logo cells handled below
+        // Fill rest of first 2 rows after logo
+        var afterLogo = COLS - 2;
+        var imgIdx = 0;
+        for (var r = 0; r < 2; r++) {
+            for (var c = 0; c < afterLogo; c++) {
+                if (imgIdx < set.length) {
+                    track.appendChild(makeCell(set[imgIdx++], clickable));
+                }
             }
         }
-
-        // Simpler approach: prepend 4 logo cells, then artwork
-        logoCells.forEach(function(lc) { track.appendChild(lc); });
-
-        // Fill rest of row 1 after logo (cols 2 and 3 if 4-col, or col 2 if 3-col)
-        var afterLogo = COLS - 2; // cells on row 1 after the 2-wide logo
-        for (var r = 0; r < afterLogo; r++) {
-            if (imgIndex < set.length) {
-                track.appendChild(makeCell(set[imgIndex++], clickable));
-            }
-        }
-        // Row 2: cols after logo
-        for (var r2 = 0; r2 < afterLogo; r2++) {
-            if (imgIndex < set.length) {
-                track.appendChild(makeCell(set[imgIndex++], clickable));
-            }
-        }
-        // Remaining rows
-        while (imgIndex < set.length) {
-            track.appendChild(makeCell(set[imgIndex++], clickable));
+        // Rest of grid
+        while (imgIdx < set.length) {
+            track.appendChild(makeCell(set[imgIdx++], clickable));
         }
 
         if (!clickable) {
-            // Calculate scroll distance = height of one full set
-            var cellsPerSet = images.length;
-            var rowsPerSet = Math.ceil(cellsPerSet / COLS);
-            var scrollDist = rowsPerSet * (ROW_H + GAP);
-            document.documentElement.style.setProperty('--scroll-dist', '-' + scrollDist + 'px');
-            document.documentElement.style.setProperty('--scroll-duration', (rowsPerSet * 5) + 's');
-            // Force reflow then start animation
+            var rows = Math.ceil(images.length / COLS);
+            var dist = rows * (ROW + GAP);
+            document.documentElement.style.setProperty('--dist', '-' + dist + 'px');
+            document.documentElement.style.setProperty('--dur', (rows * 5) + 's');
             track.offsetHeight;
             track.classList.add('scrolling');
         }
     }
 
-    // ---- MODE TOGGLE ----
+    // ---- MODE ----
     var isAmbient = true;
     var navArtwork = document.getElementById('nav-artwork');
 
     function setAmbient() {
         isAmbient = true;
-        document.getElementById('grid-viewport').classList.remove('browse-mode');
+        document.getElementById('grid-vp').classList.remove('browse');
         navArtwork.classList.remove('active');
         buildGrid(false);
+        touchHintShown = false;
     }
     function setBrowse() {
         isAmbient = false;
-        document.getElementById('grid-viewport').classList.add('browse-mode');
+        document.getElementById('grid-vp').classList.add('browse');
         navArtwork.classList.add('active');
         buildGrid(true);
     }
@@ -384,17 +362,37 @@
         isAmbient ? setBrowse() : setAmbient();
     });
 
-    // Spacebar toggles artwork mode
+    // Spacebar toggle
     document.addEventListener('keydown', function(e) {
-        if (e.code === 'Space' && e.target === document.body) {
+        if (e.code === 'Space' && document.activeElement === document.body) {
             e.preventDefault();
             isAmbient ? setBrowse() : setAmbient();
         }
     });
 
+    // ---- TOUCH: tap to pause and make clickable ----
+    var touchHintShown = false;
+    var hintTimer;
+
+    document.getElementById('grid-vp').addEventListener('touchstart', function(e) {
+        if (isAmbient) {
+            setBrowse();
+            // Show brief hint first time
+            if (!touchHintShown) {
+                touchHintShown = true;
+                var hint = document.getElementById('touch-hint');
+                hint.classList.add('show');
+                clearTimeout(hintTimer);
+                hintTimer = setTimeout(function() {
+                    hint.classList.remove('show');
+                }, 2000);
+            }
+        }
+    }, { passive: true });
+
     // ---- MENU ----
     var pBtn = document.getElementById('pancake-btn');
-    var pDrop = document.getElementById('pancake-dropdown');
+    var pDrop = document.getElementById('pancake-drop');
     pBtn.addEventListener('click', function(e) {
         e.stopPropagation();
         pBtn.classList.toggle('open');
