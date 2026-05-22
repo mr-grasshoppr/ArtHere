@@ -5,175 +5,216 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Art Here</title>
     <link rel="icon" type="image/png" href="images/ArtHere_favicon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Nunito:wght@600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #fff;
             color: #1a1a1a;
-            background: #ffffff;
-            overflow-x: hidden;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
 
-        .logo-window {
-            position: relative;
-            width: 100vw;
-            height: 75vh;
-            min-height: 500px;
-            background: #ffffff;
+        /* ---- PANCAKE NAV (top-left) ---- */
+        .top-nav {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            z-index: 100;
+            padding: 22px 28px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            overflow: hidden;
         }
+        .pancake-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .pancake-btn span {
+            display: block;
+            width: 22px;
+            height: 1.5px;
+            background: #1a1a1a;
+            transition: all 0.25s;
+        }
+        .pancake-btn.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+        .pancake-btn.open span:nth-child(2) { opacity: 0; }
+        .pancake-btn.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+        .pancake-menu {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 280px;
+            height: 100vh;
+            background: #fff;
+            border-right: 1px solid #eee;
+            box-shadow: 4px 0 24px rgba(0,0,0,0.06);
+            z-index: 99;
+            padding: 80px 0 40px;
+            flex-direction: column;
+        }
+        .pancake-menu.open { display: flex; }
+        .pancake-menu a {
+            display: block;
+            padding: 16px 36px;
+            font-size: 1.05rem;
+            color: #1a1a1a;
+            text-decoration: none;
+            transition: color 0.2s, background 0.2s;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .pancake-menu a:hover { background: #fafafa; }
+        .pancake-menu a.join { font-weight: 600; }
+        .pancake-menu .menu-label {
+            padding: 24px 36px 8px;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: #bbb;
+        }
+        .menu-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.2);
+            z-index: 98;
+        }
+        .menu-overlay.open { display: block; }
 
-        /* The masked window: a wide container where only the letter shapes are visible */
+        /* ---- LOGO WINDOW ---- */
+        .logo-window {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 20px 40px;
+            min-height: 70vh;
+        }
         .logo-mask {
             position: relative;
-            width: 90vw;
-            max-width: 1400px;
-            aspect-ratio: 1670 / 800;
+            width: min(85vw, 700px);
+            aspect-ratio: 1671 / 1460;
             overflow: hidden;
-            /* Mask: opaque letters = visible, transparent surround = hidden */
             -webkit-mask-image: url('images/arthere-mask.png');
             mask-image: url('images/arthere-mask.png');
             -webkit-mask-repeat: no-repeat;
             mask-repeat: no-repeat;
-            -webkit-mask-position: center center;
-            mask-position: center center;
+            -webkit-mask-position: center;
+            mask-position: center;
             -webkit-mask-size: contain;
             mask-size: contain;
         }
-
-        /* The sliding image track INSIDE the masked element */
         .image-track {
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 0; left: 0;
             height: 100%;
             display: flex;
             animation: slide 50s linear infinite;
         }
-
-        .image-track .slide {
-            height: 100%;
-            flex-shrink: 0;
-        }
-
-        .image-track .slide img {
-            height: 100%;
-            width: auto;
-            object-fit: cover;
-            display: block;
-        }
-
+        .image-track .slide { height: 100%; flex-shrink: 0; }
+        .image-track .slide img { height: 100%; width: auto; object-fit: cover; display: block; }
         @keyframes slide {
             0%   { transform: translateX(0); }
             100% { transform: translateX(-50%); }
         }
 
-        /* Navigation */
-        nav {
-            position: relative;
-            width: 100%;
-            padding: 30px 0 50px;
+        /* ---- CITIES LIST ---- */
+        .cities-list {
+            position: fixed;
+            top: 28px;
+            left: 28px;
+            margin-top: 52px;
             z-index: 10;
-            background: #ffffff;
         }
-
-        .nav-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 40px;
+        .city-link {
             display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 60px;
-            list-style: none;
-        }
-
-        .nav-links a {
-            color: #888;
+            align-items: baseline;
+            gap: 10px;
+            padding: 5px 0;
             text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 400;
-            letter-spacing: 0.02em;
-            transition: color 0.3s;
+            color: inherit;
+            transition: all 0.2s;
         }
-
-        .nav-links a:hover { color: #1a1a1a; }
-
-        .cities-dropdown { position: relative; }
-
-        .cities-dropdown:hover .dropdown-menu {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(0);
+        .city-link:hover .city-name { color: #1a1a1a; }
+        .city-link:hover .city-arrow { opacity: 1; transform: translateX(3px); }
+        .city-name {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            transition: color 0.2s;
         }
-
-        .dropdown-menu {
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%) translateY(-10px);
-            background: #ffffff;
-            border: 1px solid #e5e5e5;
-            padding: 18px 0;
-            min-width: 240px;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.25s ease;
-            margin-top: 16px;
-            list-style: none;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-        }
-
-        .dropdown-menu li { padding: 0; }
-
-        .dropdown-menu a {
-            display: block;
-            padding: 10px 28px;
-            color: #aaa;
-            font-size: 0.92rem;
-            white-space: nowrap;
-            text-decoration: none;
-            transition: color 0.2s, background 0.2s;
-        }
-
-        .dropdown-menu a.active { color: #1a1a1a; font-weight: 500; }
-        .dropdown-menu a:hover { background: #fafafa; color: #1a1a1a; }
-
-        footer {
-            margin-top: auto;
-            padding: 40px;
-            text-align: center;
+        .city-name.soon { color: #ccc; }
+        .city-tag {
+            font-size: 0.7rem;
             color: #bbb;
-            font-size: 0.8rem;
             font-weight: 300;
             letter-spacing: 0.05em;
         }
-
-        @media (max-width: 700px) {
-            .logo-window { height: 60vh; min-height: 360px; }
-            .nav-links { gap: 36px; }
-            .nav-links a { font-size: 0.88rem; }
+        .city-arrow {
+            color: #aaa;
+            font-size: 1rem;
+            opacity: 0;
+            transition: all 0.2s;
         }
-    
-/* Nunito for all display headers */
-h1, h2.section-title, .page-hero h1, .place-name-large { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; }
-</style>
+
+        footer {
+            padding: 32px 28px;
+            text-align: center;
+            color: #bbb;
+            font-size: 0.78rem;
+            letter-spacing: 0.05em;
+        }
+
+        @media (max-width: 600px) {
+            .logo-mask { width: 88vw; }
+            .city-name { font-size: 1.3rem; }
+        }
+    </style>
 </head>
 <body>
+
+    <!-- PANCAKE NAV -->
+    <div class="top-nav">
+        <button class="pancake-btn" id="pancake-btn" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+
+    <!-- CITIES (fixed top-left under pancake) -->
+    <div class="cities-list">
+        <a href="pages/portland.html" class="city-link">
+            <span class="city-name">Portland</span>
+            <span class="city-arrow">→</span>
+        </a>
+        <a href="#" class="city-link" style="cursor:default;">
+            <span class="city-name soon">Biloxi</span>
+            <span class="city-tag">coming soon</span>
+        </a>
+        <a href="#" class="city-link" style="cursor:default;">
+            <span class="city-name soon">San Jose</span>
+            <span class="city-tag">coming soon</span>
+        </a>
+    </div>
+
+    <div class="menu-overlay" id="menu-overlay"></div>
+    <nav class="pancake-menu" id="pancake-menu">
+        <a href="pages/survey.html" class="join">Join Us</a>
+        <a href="pages/about.html">About</a>
+        <a href="pages/about.html#contact">Contact</a>
+    </nav>
+
+    <!-- LOGO -->
     <div class="logo-window">
         <div class="logo-mask">
             <div class="image-track">
@@ -183,27 +224,23 @@ h1, h2.section-title, .page-hero h1, .place-name-large { font-family: 'Nunito', 
                 <div class="slide"><img src="images/bg-art2.jpg" alt=""></div>
             </div>
         </div>
-    </div>
 
-    <nav>
-        <div class="nav-container">
-            <ul class="nav-links">
-                <li class="cities-dropdown">
-                    <a href="#cities">cities</a>
-                    <ul class="dropdown-menu">
-                        <li><a href="pages/portland.html" class="active">Portland</a></li>
-                        <li><a href="#">Biloxi (Coming Soon)</a></li>
-                        <li><a href="#">San Jose (Coming Soon)</a></li>
-                    </ul>
-                </li>
-                <li><a href="pages/about.html">about</a></li>
-                <li><a href="pages/contact.html">contact</a></li>
-            </ul>
+        <!-- CITIES -->
         </div>
-    </nav>
 
-    <footer>
-        &copy; 2026 Art Here &middot; A project of Art Experience Lab
-    </footer>
+    <footer>&copy; 2026 Art Here &middot; A project of Art Experience Lab</footer>
+
+    <script>
+    var btn = document.getElementById('pancake-btn');
+    var menu = document.getElementById('pancake-menu');
+    var overlay = document.getElementById('menu-overlay');
+    function toggleMenu() {
+        btn.classList.toggle('open');
+        menu.classList.toggle('open');
+        overlay.classList.toggle('open');
+    }
+    btn.addEventListener('click', toggleMenu);
+    overlay.addEventListener('click', toggleMenu);
+    </script>
 </body>
 </html>
