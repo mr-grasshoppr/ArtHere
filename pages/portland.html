@@ -224,8 +224,8 @@
     <!-- BOTTOM BAR -->
     <nav class="bottom-bar">
         <a href="#" id="nav-artwork">artwork</a>
-        <a href="../artists/kurtis-piltz.html">artists</a>
-        <a href="../places/multnomah-arts-center.html">community</a>
+        <a href="portland.html#artists">artists</a>
+        <a href="portland.html#community">community</a>
         <a href="network.html">network</a>
     </nav>
 
@@ -314,19 +314,27 @@
         // Insert logo 2x2 cells first (4 cells occupying top-left)
         makeLogoCells().forEach(function(lc) { track.appendChild(lc); });
 
-        // Fill rest of first 2 rows after logo
+        // Fill rest of first 2 rows after logo (no tall cells here — logo already uses 2 rows)
         var afterLogo = COLS - 2;
         var imgIdx = 0;
         for (var r = 0; r < 2; r++) {
-            for (var c = 0; c < afterLogo; c++) {
+            for (var c2 = 0; c2 < afterLogo; c2++) {
                 if (imgIdx < set.length) {
-                    track.appendChild(makeCell(set[imgIdx++], clickable));
+                    var art = set[imgIdx++];
+                    // Force non-tall next to logo to avoid layout conflicts
+                    var cell = makeCell({src: art.src, url: art.url, tall: false}, clickable);
+                    track.appendChild(cell);
                 }
             }
         }
-        // Rest of grid
+        // Rest of grid — enforce: no two consecutive tall images in same column
+        // Simple rule: after a tall image, next image in sequence must be non-tall
+        var lastWasTall = false;
         while (imgIdx < set.length) {
-            track.appendChild(makeCell(set[imgIdx++], clickable));
+            var art = set[imgIdx++];
+            var forcedTall = art.tall && !lastWasTall;
+            lastWasTall = forcedTall;
+            track.appendChild(makeCell({src: art.src, url: art.url, tall: forcedTall}, clickable));
         }
 
         if (!clickable) {
