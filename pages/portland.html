@@ -61,12 +61,21 @@
         .grid-cell.clickable img { transition: transform 0.3s; }
         .grid-cell.clickable:hover img { transform: scale(1.04); }
 
-        /* Logo cells — 2 panels side by side, each 1 square (one row) */
+        /* Logo row: a wrapper spanning 2 columns, containing both panels flush */
+        .logo-row-wrapper {
+            grid-column: span 2;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;                    /* NO gap between left and right — letters must read together */
+            height: var(--row-px);
+            border-radius: 6px;
+            overflow: hidden;
+        }
         .logo-panel {
             overflow: hidden;
-            border-radius: 6px;
             background: #0a0a0a;
             position: relative;
+            height: 100%;
         }
         .logo-panel-inner {
             position: absolute; inset: 0;
@@ -74,15 +83,13 @@
             mask-repeat: no-repeat;
             -webkit-mask-position: center;
             mask-position: center;
-            -webkit-mask-size: contain;
-            mask-size: contain;
+            -webkit-mask-size: cover;
+            mask-size: cover;
         }
-        /* Left panel: A (top) over HE (bottom) */
         .logo-panel.left .logo-panel-inner {
             -webkit-mask-image: url('../images/arthere-mask-left.png');
             mask-image: url('../images/arthere-mask-left.png');
         }
-        /* Right panel: RT (top) over RE (bottom) */
         .logo-panel.right .logo-panel-inner {
             -webkit-mask-image: url('../images/arthere-mask-right.png');
             mask-image: url('../images/arthere-mask-right.png');
@@ -185,18 +192,25 @@
         return arr;
     }
 
-    function makeLogoPanel(side, artSrc) {
-        var panel = document.createElement('div');
-        panel.className = 'logo-panel ' + side;
-        panel.style.height = ROW + 'px';
-        var inner = document.createElement('div');
-        inner.className = 'logo-panel-inner';
-        var img = document.createElement('img');
-        img.src = artSrc;
-        img.alt = '';
-        inner.appendChild(img);
-        panel.appendChild(inner);
-        return panel;
+    // The logo row: a single grid item spanning 2 cols, two panels inside with no gap
+    function makeLogoRow(leftSrc, rightSrc) {
+        var wrapper = document.createElement('div');
+        wrapper.className = 'logo-row-wrapper';
+        wrapper.style.setProperty('--row-px', ROW + 'px');
+
+        ['left', 'right'].forEach(function(side, i) {
+            var panel = document.createElement('div');
+            panel.className = 'logo-panel ' + side;
+            var inner = document.createElement('div');
+            inner.className = 'logo-panel-inner';
+            var img = document.createElement('img');
+            img.src = side === 'left' ? leftSrc : rightSrc;
+            img.alt = '';
+            inner.appendChild(img);
+            panel.appendChild(inner);
+            wrapper.appendChild(panel);
+        });
+        return wrapper;
     }
 
     function makeCell(art, clickable) {
@@ -207,41 +221,13 @@
         var img = document.createElement('img');
         img.src = art.src; img.alt = ''; img.loading = 'lazy';
         c.appendChild(img);
-        if (clickable) c.addEventListener('click', function() { window.location.href = art.url; });
-        return c;
-    }
-
-    // Insert a logo row: one row tall. Logo occupies 2 adjacent columns
-    // (either the LEFT two or RIGHT two), rest of the row is artwork.
-    // alignRight=false -> logo in columns 1-2; alignRight=true -> logo in last 2 columns.
-    function insertLogoRow(track, artPool, poolIdx, clickable, alignRight) {
-        var leftArt = artPool[poolIdx % artPool.length];
-        var rightArt = artPool[(poolIdx + 1) % artPool.length];
-        var fillCount = COLS - 2;
-        var cells = [];
-
-        // Build the two logo panels
-        var lp = makeLogoPanel('left', leftArt.src);
-        var rp = makeLogoPanel('right', rightArt.src);
-
-        if (alignRight) {
-            // artwork first, then logo on the right
-            for (var c = 0; c < fillCount; c++) {
-                var art = artPool[(poolIdx + 2 + c) % artPool.length];
-                track.appendChild(makeCell({src: art.src, url: art.url, tall: false}, clickable));
-            }
-            track.appendChild(lp);
-            track.appendChild(rp);
-        } else {
-            // logo on the left, then artwork
-            track.appendChild(lp);
-            track.appendChild(rp);
-            for (var c2 = 0; c2 < fillCount; c2++) {
-                var art2 = artPool[(poolIdx + 2 + c2) % artPool.length];
-                track.appendChild(makeCell({src: art2.src, url: art2.url, tall: false}, clickable));
-            }
+        if (clickable) {
+            c.addEventListener('click', function(e) {
+                e.stopPropagation();
+                window.location.href = art.url;
+            });
         }
-        return poolIdx + 2 + fillCount;
+        return c;
     }
 
     function buildGrid(clickable) {
@@ -249,35 +235,26 @@
         track.innerHTML = '';
         track.classList.remove('scrolling');
 
-        // 3x each artwork, shuffled fresh each time
         var base = shuffle(ALL);
+        // 3x shuffle for enough content
         var set = base.concat(shuffle(ALL)).concat(shuffle(ALL));
 
-        var imgIdx = 0;
-        var rowCount = 0;
-        var LOGO_EVERY = 8; // rows between logo appearances
-        var logoCount = 0;  // toggles left/right alignment
+        // Logo row at top ONLY — uses first two artwork images as backgrounds
+        track.appendChild(makeLogoRow(set[0].src, set[1].src));
 
-        // First: logo row at top (left-aligned)
-        imgIdx = insertLogoRow(track, set, imgIdx, clickable, false);
-        rowCount = 1;
-        logoCount = 1;
+        // Fill remaining columns in the logo row (COLS - 2 cells)
+        for (var c = 0; c < COLS - 2; c++) {
+            track.appendChild(makeCell({src: set[2 + c].src, url: set[2 + c].url, tall: false}, clickable));
+        }
 
+        // All remaining artwork
+        var imgIdx = 2 + (COLS - 2);
         var lastWasTall = false;
         while (imgIdx < set.length) {
-            if (rowCount > 0 && rowCount % LOGO_EVERY === 0) {
-                // Alternate alignment each time the logo appears
-                var alignRight = (logoCount % 2 === 1);
-                imgIdx = insertLogoRow(track, set, imgIdx, clickable, alignRight);
-                rowCount += 1;
-                logoCount += 1;
-            } else {
-                var art = set[imgIdx++ % set.length];
-                var useTall = art.tall && !lastWasTall;
-                lastWasTall = useTall;
-                track.appendChild(makeCell({src: art.src, url: art.url, tall: useTall}, clickable));
-                rowCount++;
-            }
+            var art = set[imgIdx++];
+            var useTall = art.tall && !lastWasTall;
+            lastWasTall = useTall;
+            track.appendChild(makeCell({src: art.src, url: art.url, tall: useTall}, clickable));
         }
 
         if (!clickable) {
@@ -290,47 +267,82 @@
         }
     }
 
-    // ---- MODE ----
+    // ---- MODE: freeze-in-place then make clickable ----
     var isAmbient = true;
     var navArtwork = document.getElementById('nav-artwork');
+    var vp = document.getElementById('grid-vp');
+    var track = document.getElementById('grid-track');
 
-    function setAmbient() {
-        isAmbient = true;
-        document.getElementById('grid-vp').classList.remove('browse');
-        navArtwork.classList.remove('active');
-        buildGrid(false);
-    }
-    function setBrowse() {
+    function enterBrowse() {
+        if (!isAmbient) return;
         isAmbient = false;
-        document.getElementById('grid-vp').classList.add('browse');
+
+        // Capture current translateY mid-scroll and lock it
+        var style = window.getComputedStyle(track);
+        var matrix = style.transform || style.webkitTransform;
+        var currentY = 0;
+        if (matrix && matrix !== 'none') {
+            var match = matrix.match(/matrix.*\((.+)\)/);
+            if (match) {
+                var vals = match[1].split(', ');
+                currentY = parseFloat(vals[5]) || 0;
+            }
+        }
+        track.classList.remove('scrolling');
+        track.style.transform = 'translateY(' + currentY + 'px)';
+        track.style.animation = 'none';
+
+        // Switch to scrollable, make images clickable (rebuild in place)
+        vp.classList.add('browse');
+        track.style.transform = '';
+        track.style.position = '';
         navArtwork.classList.add('active');
         buildGrid(true);
     }
 
-    navArtwork.addEventListener('click', function(e) { e.preventDefault(); isAmbient ? setBrowse() : setAmbient(); });
-    document.addEventListener('keydown', function(e) {
-        if (e.code === 'Space' && document.activeElement === document.body) { e.preventDefault(); isAmbient ? setBrowse() : setAmbient(); }
+    function exitBrowse() {
+        if (isAmbient) return;
+        isAmbient = true;
+        vp.classList.remove('browse');
+        navArtwork.classList.remove('active');
+        buildGrid(false);
+    }
+
+    // artwork nav link
+    navArtwork.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        isAmbient ? enterBrowse() : exitBrowse();
     });
 
-    // Touch: tap to enter browse mode
-    var touchHintShown = false, hintTimer;
-    document.getElementById('grid-vp').addEventListener('touchstart', function() {
+    // Spacebar
+    document.addEventListener('keydown', function(e) {
+        if (e.code === 'Space') {
+            e.preventDefault();
+            isAmbient ? enterBrowse() : exitBrowse();
+        }
+    });
+
+    // Any click on the grid in ambient mode = enter browse
+    vp.addEventListener('click', function(e) {
+        if (isAmbient) { enterBrowse(); }
+    });
+
+    // Any touch on the grid in ambient mode = enter browse
+    vp.addEventListener('touchstart', function(e) {
         if (isAmbient) {
-            setBrowse();
-            if (!touchHintShown) {
-                touchHintShown = true;
-                var hint = document.getElementById('touch-hint');
-                hint.classList.add('show');
-                clearTimeout(hintTimer);
-                hintTimer = setTimeout(function() { hint.classList.remove('show'); }, 2000);
-            }
+            enterBrowse();
+            var hint = document.getElementById('touch-hint');
+            if (hint) { hint.classList.add('show'); setTimeout(function() { hint.classList.remove('show'); }, 1800); }
         }
     }, { passive: true });
 
     // ---- MENU ----
     var pBtn = document.getElementById('pancake-btn'), pDrop = document.getElementById('pancake-drop');
     pBtn.addEventListener('click', function(e) { e.stopPropagation(); pBtn.classList.toggle('open'); pDrop.classList.toggle('open'); });
-    document.addEventListener('click', function() { pBtn.classList.remove('open'); pDrop.classList.remove('open'); });
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.pancake-wrap')) { pBtn.classList.remove('open'); pDrop.classList.remove('open'); }
+    });
 
     buildGrid(false);
     </script>
