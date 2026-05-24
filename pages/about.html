@@ -10,12 +10,30 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Nunito:wght@600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', -apple-system, sans-serif; color: #1a1a1a; background: #fff; min-height: 100vh; }
+        body { font-family: 'Inter', -apple-system, sans-serif; color: #1a1a1a; background: #fff; min-height: 100vh; padding-top: 56px; }
 
-        /* ---- NAV ---- */
-        
-        
-        .pancake-wrap { position: relative; }
+        /* ---- TOP BAR ---- */
+        .top-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 56px;
+            background: rgba(255,255,255,0.97);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #eee;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            padding: 0 18px;
+            gap: 12px;
+        }
+        .nav-logo {
+            display: block;
+            height: 26px; width: auto;
+            transition: opacity 0.2s;
+            flex-shrink: 0;
+        }
+        .nav-logo:hover { opacity: 0.7; }
+        .pancake-wrap { position: relative; flex-shrink: 0; }
         .pancake-btn {
             background: none; border: none; cursor: pointer;
             padding: 4px;
@@ -31,198 +49,141 @@
         .pancake-dropdown {
             display: none;
             position: absolute;
-            top: calc(100% + 10px);
+            top: calc(100% + 8px);
             left: 0;
             background: #fff;
             border: 1px solid #eee;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            min-width: 180px;
             border-radius: 6px;
             overflow: hidden;
-            z-index: 200;
+            min-width: 160px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            z-index: 300;
         }
         .pancake-dropdown.open { display: block; }
         .pancake-dropdown a {
             display: block; padding: 13px 20px;
-            font-size: 0.92rem; color: #444; text-decoration: none;
-            border-bottom: 1px solid #f5f5f5;
+            font-size: 0.9rem; color: #444; text-decoration: none;
+            border-bottom: 1px solid #f0f0f0;
             transition: background 0.15s, color 0.15s;
         }
         .pancake-dropdown a:last-child { border-bottom: none; }
         .pancake-dropdown a:hover { background: #fafafa; color: #1a1a1a; }
         .pancake-dropdown a.join { font-weight: 600; color: #1a1a1a; }
+        .nav-city {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            text-decoration: none;
+            letter-spacing: 0.03em;
+            transition: opacity 0.2s;
+        }
+        .nav-city:hover { opacity: 0.6; }
 
         /* ---- CONTENT ---- */
         .text-page {
-            max-width: 680px;
-            margin: 60px auto;
-            padding: 0 40px;
+            max-width: 620px;
+            margin: 52px auto 80px;
+            padding: 0 28px;
         }
-        h1 {
+        .tagline {
             font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-            font-size: 2.2rem;
+            font-size: 1.6rem;
             font-weight: 700;
-            letter-spacing: -0.01em;
+            line-height: 1.2;
             margin-bottom: 32px;
-        }
-        h2 {
-            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin: 40px 0 12px;
-            color: #1a1a1a;
+            letter-spacing: -0.01em;
         }
         p {
             font-size: 1.05rem;
             color: #444;
             font-weight: 300;
             line-height: 1.8;
-            margin-bottom: 18px;
+            margin-bottom: 22px;
         }
-        p a { color: #1a1a1a; text-underline-offset: 4px; }
+        p a {
+            color: #1a1a1a;
+            text-underline-offset: 4px;
+        }
+
+        /* ---- CONTACT ---- */
         .contact-block {
-            margin-top: 48px;
+            margin-top: 52px;
             padding-top: 36px;
             border-top: 1px solid #f0f0f0;
         }
-        .contact-detail {
+        .contact-label-head {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .contact-row {
             display: flex;
             gap: 16px;
             align-items: baseline;
             margin-bottom: 10px;
             font-size: 0.95rem;
-            color: #444;
         }
-        .contact-label {
+        .contact-key {
             font-size: 0.72rem;
             text-transform: uppercase;
             letter-spacing: 0.14em;
             color: #aaa;
-            width: 60px;
+            width: 56px;
             flex-shrink: 0;
         }
-        .contact-detail a { color: #1a1a1a; text-underline-offset: 4px; }
+        .contact-row a { color: #1a1a1a; text-underline-offset: 4px; }
 
         footer {
-            padding: 48px 40px;
+            padding: 40px 28px;
             text-align: center;
             color: #bbb;
             font-size: 0.78rem;
             letter-spacing: 0.05em;
             border-top: 1px solid #f5f5f5;
-            margin-top: 80px;
         }
-        @media (max-width: 600px) {
-            .text-page { padding: 0 24px; }
-            h1 { font-size: 1.8rem; }
-        }
-    
-    /* ---- TOP NAV ---- */
-    .top-nav {
-        position: fixed;
-        top: 0; left: 0;
-        z-index: 200;
-        padding: 18px 22px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-    .nav-logo {
-        display: block;
-        height: 28px; width: auto;
-        transition: opacity 0.2s;
-    }
-    .nav-logo:hover { opacity: 0.7; }
-    .nav-city-link {
-        font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: #1a1a1a;
-        text-decoration: none;
-        letter-spacing: 0.03em;
-        transition: opacity 0.2s;
-    }
-    .nav-city-link:hover { opacity: 0.6; }
-    .pancake-wrap { position: relative; }
-    .pancake-btn {
-        background: none; border: none; cursor: pointer;
-        padding: 4px;
-        display: flex; flex-direction: column; gap: 5px;
-    }
-    .pancake-btn span {
-        display: block; width: 20px; height: 1.5px;
-        background: #1a1a1a; transition: all 0.25s;
-    }
-    .pancake-btn.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
-    .pancake-btn.open span:nth-child(2) { opacity: 0; }
-    .pancake-btn.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
-    .pancake-dropdown {
-        display: none;
-        position: absolute;
-        top: calc(100% + 8px);
-        left: 0;
-        background: #fff;
-        border: 1px solid #eee;
-        border-radius: 6px;
-        overflow: hidden;
-        min-width: 160px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        z-index: 300;
-    }
-    .pancake-dropdown.open { display: block; }
-    .pancake-dropdown a {
-        display: block; padding: 13px 20px;
-        font-size: 0.9rem; color: #444; text-decoration: none;
-        border-bottom: 1px solid #f0f0f0;
-        transition: background 0.15s, color 0.15s;
-    }
-    .pancake-dropdown a:last-child { border-bottom: none; }
-    .pancake-dropdown a:hover { background: #fafafa; color: #1a1a1a; }
-    .pancake-dropdown a.join { font-weight: 600; color: #1a1a1a; }
-    /* Push content below fixed nav */
-    body { padding-top: 70px; }
 
+        @media (max-width: 600px) {
+            .tagline { font-size: 1.35rem; }
+            p { font-size: 1rem; }
+        }
     </style>
 </head>
 <body>
-    <!-- TOP NAV -->
-    <div class="top-nav">
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
         <a href="../index.html"><img src="../images/arthere-logo-dark.png" alt="Art Here" class="nav-logo"></a>
         <div class="pancake-wrap">
-            <button class="pancake-btn" id="nav-pancake-btn" aria-label="Menu">
+            <button class="pancake-btn" id="pancake-btn" aria-label="Menu">
                 <span></span><span></span><span></span>
             </button>
-            <div class="pancake-dropdown" id="nav-pancake-drop">
+            <div class="pancake-dropdown" id="pancake-drop">
                 <a href="survey.html" class="join">Join Us</a>
                 <a href="about.html">About</a>
                 <a href="about.html#contact">Contact</a>
             </div>
         </div>
-    </div>
-
-    
+        <a href="portland.html" class="nav-city">Portland</a>
     </div>
 
     <section class="text-page">
-        <h1>About Art Here</h1>
-        <p>Art Here makes local creative communities visible and economically connected. We work city by city, listening first, then building tools and gatherings that help artists find each other, find work, and find the people who already love their work.</p>
-        <p>Each city instance of Art Here has its own visual identity, designed through a local flyer competition, and its own living directory of artists, places, and opportunities. Underneath the surface, every city shares the same simple structure: who is here, where they make work, what is happening, and how it all connects.</p>
-        <p>The project is currently piloting in Portland, Oregon, with launches planned in Biloxi, Mississippi and San Jose, California.</p>
-        <p>Art Here is a project of <a href="https://axlab.io" target="_blank" rel="noopener">Art Experience Lab</a>.</p>
+        <p class="tagline">Art Here puts local artists on the map.</p>
+
+        <p>Art Here is a community initiative that makes local artists visible and connects them to economic opportunity. We partner with local organizations to host artist celebrations, capture artist stories, and build a living online directory that helps residents, visitors, and funders find and support local creatives.</p>
+
+        <p>We are piloting in Portland during the summer of 2026, with a presence at the Multnomah Days Festival in partnership with Multnomah Arts Center. Our next stops include Biloxi, MS and San Jose, CA.</p>
+
+        <p>If you're interested in having your artwork or organization featured, <a href="survey.html">share more here</a>.</p>
+
+        <p>If you'd like to partner with us to bring Art Here to your neighborhood or city, <a href="about.html#contact">reach out</a>.</p>
 
         <div class="contact-block" id="contact">
-            <h2>Contact</h2>
-            <div class="contact-detail">
-                <span class="contact-label">Email</span>
+            <div class="contact-label-head">Contact</div>
+            <div class="contact-row">
+                <span class="contact-key">Email</span>
                 <a href="mailto:hello@axlab.io">hello@axlab.io</a>
-            </div>
-            <div class="contact-detail">
-                <span class="contact-label">Instagram</span>
-                <a href="https://www.instagram.com/artishere.pdx" target="_blank" rel="noopener">@artishere.pdx</a>
-            </div>
-            <div class="contact-detail">
-                <span class="contact-label">Web</span>
-                <a href="https://axlab.io" target="_blank" rel="noopener">axlab.io</a>
             </div>
         </div>
     </section>
@@ -231,7 +192,7 @@
 
     <script>
     var btn = document.getElementById('pancake-btn');
-    var drop = document.getElementById('pancake-dropdown');
+    var drop = document.getElementById('pancake-drop');
     btn.addEventListener('click', function(e) {
         e.stopPropagation();
         btn.classList.toggle('open');
@@ -241,22 +202,6 @@
         btn.classList.remove('open');
         drop.classList.remove('open');
     });
-    </script>
-
-    <script>
-    (function() {
-        var btn = document.getElementById('nav-pancake-btn');
-        var drop = document.getElementById('nav-pancake-drop');
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            btn.classList.toggle('open');
-            drop.classList.toggle('open');
-        });
-        document.addEventListener('click', function() {
-            btn.classList.remove('open');
-            drop.classList.remove('open');
-        });
-    })();
     </script>
 </body>
 </html>

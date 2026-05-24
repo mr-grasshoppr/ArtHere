@@ -166,7 +166,6 @@ h1, h2.section-title, .page-hero h1, .place-name-large { font-family: 'Nunito', 
             <div class="legend-item"><div class="legend-dot" style="background:#1a1a1a"></div>Artist</div>
             <div class="legend-item"><div class="legend-dot" style="background:#c89a6a"></div>Place</div>
             <div class="legend-item"><div class="legend-dot" style="background:#888"></div>Project / Event</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#a83c4a"></div>Opportunity</div>
         </div>
     </div>
 
@@ -190,8 +189,6 @@ h1, h2.section-title, .page-hero h1, .place-name-large { font-family: 'Nunito', 
         {id: "NWMAW Open Studios", type: "project"},
         {id: "Multnomah Days 2026", type: "project"},
         // Opportunities
-        {id: "RACC Project Grant", type: "opp"},
-        {id: "Make|Learn|Build", type: "opp"},
     ];
 
     const links = [
@@ -201,7 +198,6 @@ h1, h2.section-title, .page-hero h1, .place-name-large { font-family: 'Nunito', 
         {source: "Beth Bundy", target: "ComeUnity PDX"},
         // Yong Hong Zhong
         {source: "Yong Hong Zhong", target: "Alberta Street Gallery"},
-        {source: "Yong Hong Zhong", target: "RACC Project Grant"},
         // Lindsey Fox
         {source: "Lindsey Fox", target: "NW Marine Art Works"},
         {source: "Lindsey Fox", target: "ComeUnity PDX"},
@@ -214,17 +210,14 @@ h1, h2.section-title, .page-hero h1, .place-name-large { font-family: 'Nunito', 
         {source: "NW Marine Art Works", target: "NWMAW Open Studios"},
         {source: "Multnomah Arts Center", target: "Multnomah Days 2026"},
         // Opportunities
-        {source: "Beth Bundy", target: "Make|Learn|Build"},
-        {source: "Kurtis Piltz", target: "RACC Project Grant"},
     ];
 
     const colors = {
         artist: "#1a1a1a",
         place: "#c89a6a",
         project: "#888",
-        opp: "#a83c4a"
     };
-    const sizes = { artist: 10, place: 9, project: 6, opp: 7 };
+    const sizes = { artist: 10, place: 9, project: 6 };
 
     const svg = d3.select("#network");
     const container = document.querySelector(".network-svg-container");
