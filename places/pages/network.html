@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network - Art Here Portland</title>
+    <link rel="icon" type="image/png" href="../images/ArtHere_favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Nunito:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .network-wrap {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 40px 80px;
+        }
+        .network-header {
+            margin-bottom: 30px;
+        }
+        .network-svg-container {
+            width: 100%;
+            height: 70vh;
+            min-height: 500px;
+            background: #fafafa;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            position: relative;
+        }
+        .network-svg-container svg { width: 100%; height: 100%; display: block; }
+        .legend {
+            display: flex;
+            gap: 28px;
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: #666;
+            flex-wrap: wrap;
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .node-label {
+            font-size: 10px;
+            fill: #444;
+            pointer-events: none;
+            font-family: 'Inter', sans-serif;
+        }
+        .node-tooltip {
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            z-index: 100;
+        }
+    
+/* Nunito for all display headers */
+h1, h2.section-title, .page-hero h1, .place-name-large { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; }
+
+    /* ---- TOP NAV ---- */
+    .top-nav {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        z-index: 200;
+        padding: 14px 18px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        height: 56px;
+        background: rgba(10,10,10,0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid #1a1a1a;
+    }
+    .nav-logo {
+        display: block;
+        height: 28px; width: auto;
+        transition: opacity 0.2s;
+    }
+    .nav-logo:hover { opacity: 0.7; }
+    .nav-city-link {
+        font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #fff;
+        text-decoration: none;
+        letter-spacing: 0.03em;
+        transition: opacity 0.2s;
+    }
+    .nav-city-link:hover { opacity: 0.6; }
+    .pancake-wrap { position: relative; }
+    .pancake-btn {
+        background: none; border: none; cursor: pointer;
+        padding: 4px;
+        display: flex; flex-direction: column; gap: 5px;
+    }
+    .pancake-btn span {
+        display: block; width: 20px; height: 1.5px;
+        background: rgba(255,255,255,0.8); transition: all 0.25s;
+    }
+    .pancake-btn.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .pancake-btn.open span:nth-child(2) { opacity: 0; }
+    .pancake-btn.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+    .pancake-dropdown {
+        display: none;
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 6px;
+        overflow: hidden;
+        min-width: 160px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        z-index: 300;
+    }
+    .pancake-dropdown.open { display: block; }
+    .pancake-dropdown a {
+        display: block; padding: 13px 20px;
+        font-size: 0.9rem; color: #ccc; text-decoration: none;
+        border-bottom: 1px solid #222;
+        transition: background 0.15s, color 0.15s;
+    }
+    .pancake-dropdown a:last-child { border-bottom: none; }
+    .pancake-dropdown a:hover { background: #222; color: #fff; }
+    .pancake-dropdown a.join { font-weight: 600; color: #fff; }
+    /* Push content below fixed nav */
+    body { padding-top: 70px; }
+
+    </style>
+</head>
+<body>
+    <!-- TOP NAV -->
+    <div class="top-nav">
+        <a href="../index.html"><img src="../images/arthere-logo-white.png" alt="Art Here" class="nav-logo"></a>
+        <div class="pancake-wrap">
+            <button class="pancake-btn" id="nav-pancake-btn" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="pancake-dropdown" id="nav-pancake-drop">
+                <a href="survey.html" class="join">Join Us</a>
+                <a href="about.html">About</a>
+                <a href="about.html#contact">Contact</a>
+            </div>
+        </div>
+        <a href="portland.html" class="nav-city-link">Portland</a>
+    </div>
+    
+
+    <div class="network-wrap">
+        <div class="network-header">
+            <a href="portland.html" style="color: #888; text-decoration: none; font-size: 0.88rem;">&larr; back to Portland</a>
+            <h1 style="font-size: 2.4rem; font-weight: 400; letter-spacing: -0.02em; margin: 16px 0 10px;">Portland Network</h1>
+            <p style="color: #666; font-weight: 300; max-width: 720px;">Drag nodes to explore. Each connection represents an exhibition, collaboration, residency, or shared space.</p>
+        </div>
+
+        <div class="network-svg-container">
+            <svg id="network"></svg>
+            <div class="node-tooltip" id="tooltip"></div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#1a1a1a"></div>Artist</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#c89a6a"></div>Place</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#888"></div>Project / Event</div>
+        </div>
+    </div>
+
+    <footer>&copy; 2026 Art Here &middot; A project of Art Experience Lab</footer>
+
+    <script>
+    const nodes = [
+        // Real artists
+        {id: "Kurtis Piltz", type: "artist", url: "../artists/kurtis-piltz.html"},
+        {id: "Beth Bundy", type: "artist", url: "../artists/beth-bundy.html"},
+        {id: "Yong Hong Zhong", type: "artist", url: "../artists/yong-hong-zhong.html"},
+        {id: "Lindsey Fox", type: "artist", url: "../artists/lindsey-fox.html"},
+        {id: "Jennifer Eaton White", type: "artist", url: "../artists/jennifer-eaton-white.html"},
+        // Places
+        {id: "Multnomah Arts Center", type: "place", url: "../places/multnomah-arts-center.html"},
+        {id: "ComeUnity PDX", type: "place", url: "../places/comeunity-pdx.html"},
+        {id: "NW Marine Art Works", type: "place", url: "../places/nw-marine-art-works.html"},
+        {id: "Alberta Street Gallery", type: "place"},
+        {id: "Portland Art Studios", type: "place", url: "../places/portland-art-studios.html"},
+        // Events
+        {id: "NWMAW Open Studios", type: "project"},
+        {id: "Multnomah Days 2026", type: "project"},
+        // Opportunities
+    ];
+
+    const links = [
+        // Kurtis Piltz
+        {source: "Kurtis Piltz", target: "Multnomah Arts Center"},
+        // Beth Bundy
+        {source: "Beth Bundy", target: "ComeUnity PDX"},
+        // Yong Hong Zhong
+        {source: "Yong Hong Zhong", target: "Alberta Street Gallery"},
+        // Lindsey Fox
+        {source: "Lindsey Fox", target: "NW Marine Art Works"},
+        {source: "Lindsey Fox", target: "ComeUnity PDX"},
+        {source: "Lindsey Fox", target: "NWMAW Open Studios"},
+        // Jennifer Eaton White
+        {source: "Jennifer Eaton White", target: "Alberta Street Gallery"},
+        // Place <-> Place
+        {source: "NW Marine Art Works", target: "Portland Art Studios"},
+        // Place <-> Event
+        {source: "NW Marine Art Works", target: "NWMAW Open Studios"},
+        {source: "Multnomah Arts Center", target: "Multnomah Days 2026"},
+        // Opportunities
+    ];
+
+    const colors = {
+        artist: "#1a1a1a",
+        place: "#c89a6a",
+        project: "#888",
+    };
+    const sizes = { artist: 10, place: 9, project: 6 };
+
+    const svg = d3.select("#network");
+    const container = document.querySelector(".network-svg-container");
+    const tooltip = document.getElementById("tooltip");
+
+    function getDimensions() {
+        return { width: container.clientWidth, height: container.clientHeight };
+    }
+
+    let { width, height } = getDimensions();
+    svg.attr("viewBox", [0, 0, width, height]);
+
+    const sim = d3.forceSimulation(nodes)
+        .force("link", d3.forceLink(links).id(d => d.id).distance(90).strength(0.5))
+        .force("charge", d3.forceManyBody().strength(-280))
+        .force("center", d3.forceCenter(width / 2, height / 2))
+        .force("collide", d3.forceCollide().radius(d => sizes[d.type] + 8));
+
+    const link = svg.append("g")
+        .attr("stroke", "#d4d4d4")
+        .attr("stroke-opacity", 0.7)
+        .selectAll("line")
+        .data(links)
+        .join("line")
+        .attr("stroke-width", 0.8);
+
+    const node = svg.append("g")
+        .selectAll("g")
+        .data(nodes)
+        .join("g")
+        .style("cursor", d => d.url ? "pointer" : "grab");
+
+    node.append("circle")
+        .attr("r", d => sizes[d.type])
+        .attr("fill", d => colors[d.type])
+        .attr("stroke", "white")
+        .attr("stroke-width", 2);
+
+    node.append("text")
+        .attr("class", "node-label")
+        .attr("dy", d => sizes[d.type] + 14)
+        .attr("text-anchor", "middle")
+        .text(d => d.id);
+
+    node.on("mouseover", function(event, d) {
+        d3.select(this).select("circle").transition().duration(200).attr("r", sizes[d.type] + 3);
+        // highlight connected links
+        link.attr("stroke-opacity", l => (l.source.id === d.id || l.target.id === d.id) ? 1 : 0.15)
+            .attr("stroke", l => (l.source.id === d.id || l.target.id === d.id) ? "#1a1a1a" : "#d4d4d4");
+    })
+    .on("mouseout", function(event, d) {
+        d3.select(this).select("circle").transition().duration(200).attr("r", sizes[d.type]);
+        link.attr("stroke-opacity", 0.7).attr("stroke", "#d4d4d4");
+    })
+    .on("click", function(event, d) {
+        if (d.url) window.location.href = d.url;
+    });
+
+    node.call(d3.drag()
+        .on("start", (event, d) => {
+            if (!event.active) sim.alphaTarget(0.3).restart();
+            d.fx = d.x; d.fy = d.y;
+        })
+        .on("drag", (event, d) => { d.fx = event.x; d.fy = event.y; })
+        .on("end", (event, d) => {
+            if (!event.active) sim.alphaTarget(0);
+            d.fx = null; d.fy = null;
+        }));
+
+    sim.on("tick", () => {
+        link.attr("x1", d => d.source.x).attr("y1", d => d.source.y)
+            .attr("x2", d => d.target.x).attr("y2", d => d.target.y);
+        node.attr("transform", d => `translate(${d.x},${d.y})`);
+    });
+
+    window.addEventListener("resize", () => {
+        const d = getDimensions();
+        width = d.width; height = d.height;
+        svg.attr("viewBox", [0, 0, width, height]);
+        sim.force("center", d3.forceCenter(width / 2, height / 2));
+        sim.alpha(0.3).restart();
+    });
+    </script>
+
+    <script>
+    (function() {
+        var btn = document.getElementById('nav-pancake-btn');
+        var drop = document.getElementById('nav-pancake-drop');
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            btn.classList.toggle('open');
+            drop.classList.toggle('open');
+        });
+        document.addEventListener('click', function() {
+            btn.classList.remove('open');
+            drop.classList.remove('open');
+        });
+    })();
+    </script>
+</body>
+</html>

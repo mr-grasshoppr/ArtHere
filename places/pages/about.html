@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Art Here</title>
+    <link rel="icon" type="image/png" href="../images/ArtHere_favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Nunito:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, sans-serif; color: #1a1a1a; background: #fff; min-height: 100vh; padding-top: 56px; }
+
+        /* ---- TOP BAR ---- */
+        .top-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 56px;
+            background: rgba(255,255,255,0.97);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #eee;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            padding: 0 18px;
+            gap: 12px;
+        }
+        .nav-logo {
+            display: block;
+            height: 26px; width: auto;
+            transition: opacity 0.2s;
+            flex-shrink: 0;
+        }
+        .nav-logo:hover { opacity: 0.7; }
+        .pancake-wrap { position: relative; flex-shrink: 0; }
+        .pancake-btn {
+            background: none; border: none; cursor: pointer;
+            padding: 4px;
+            display: flex; flex-direction: column; gap: 5px;
+        }
+        .pancake-btn span {
+            display: block; width: 20px; height: 1.5px;
+            background: #1a1a1a; transition: all 0.25s;
+        }
+        .pancake-btn.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+        .pancake-btn.open span:nth-child(2) { opacity: 0; }
+        .pancake-btn.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+        .pancake-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            overflow: hidden;
+            min-width: 160px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            z-index: 300;
+        }
+        .pancake-dropdown.open { display: block; }
+        .pancake-dropdown a {
+            display: block; padding: 13px 20px;
+            font-size: 0.9rem; color: #444; text-decoration: none;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.15s, color 0.15s;
+        }
+        .pancake-dropdown a:last-child { border-bottom: none; }
+        .pancake-dropdown a:hover { background: #fafafa; color: #1a1a1a; }
+        .pancake-dropdown a.join { font-weight: 600; color: #1a1a1a; }
+        .nav-city {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            text-decoration: none;
+            letter-spacing: 0.03em;
+            transition: opacity 0.2s;
+        }
+        .nav-city:hover { opacity: 0.6; }
+
+        /* ---- CONTENT ---- */
+        .text-page {
+            max-width: 620px;
+            margin: 52px auto 80px;
+            padding: 0 28px;
+        }
+        .tagline {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 32px;
+            letter-spacing: -0.01em;
+        }
+        p {
+            font-size: 1.05rem;
+            color: #444;
+            font-weight: 300;
+            line-height: 1.8;
+            margin-bottom: 22px;
+        }
+        p a {
+            color: #1a1a1a;
+            text-underline-offset: 4px;
+        }
+
+        /* ---- CONTACT ---- */
+        .contact-block {
+            margin-top: 52px;
+            padding-top: 36px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .contact-label-head {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .contact-row {
+            display: flex;
+            gap: 16px;
+            align-items: baseline;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+        .contact-key {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: #aaa;
+            width: 56px;
+            flex-shrink: 0;
+        }
+        .contact-row a { color: #1a1a1a; text-underline-offset: 4px; }
+
+        footer {
+            padding: 40px 28px;
+            text-align: center;
+            color: #bbb;
+            font-size: 0.78rem;
+            letter-spacing: 0.05em;
+            border-top: 1px solid #f5f5f5;
+        }
+
+        @media (max-width: 600px) {
+            .tagline { font-size: 1.35rem; }
+            p { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <a href="../index.html"><img src="../images/arthere-logo-dark.png" alt="Art Here" class="nav-logo"></a>
+        <div class="pancake-wrap">
+            <button class="pancake-btn" id="pancake-btn" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="pancake-dropdown" id="pancake-drop">
+                <a href="survey.html" class="join">Join Us</a>
+                <a href="about.html">About</a>
+                <a href="about.html#contact">Contact</a>
+            </div>
+        </div>
+        <a href="portland.html" class="nav-city">Portland</a>
+    </div>
+
+    <section class="text-page">
+        <p class="tagline">Art Here puts local artists on the map.</p>
+
+        <p>Art Here is a community initiative that makes local artists visible and connects them to economic opportunity. We partner with local organizations to host artist celebrations, capture artist stories, and build a living online directory that helps residents, visitors, and funders find and support local creatives.</p>
+
+        <p>We are piloting in Portland during the summer of 2026, with a presence at the Multnomah Days Festival in partnership with Multnomah Arts Center. Our next stops include Biloxi, MS and San Jose, CA.</p>
+
+        <p>If you're interested in having your artwork or organization featured, <a href="survey.html">share more here</a>.</p>
+
+        <p>If you'd like to partner with us to bring Art Here to your neighborhood or city, <a href="about.html#contact">reach out</a>.</p>
+
+        <div class="contact-block" id="contact">
+            <div class="contact-label-head">Contact</div>
+            <div class="contact-row">
+                <span class="contact-key">Email</span>
+                <a href="mailto:hello@axlab.io">hello@axlab.io</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>&copy; 2026 Art Here &middot; A project of Art Experience Lab</footer>
+
+    <script>
+    var btn = document.getElementById('pancake-btn');
+    var drop = document.getElementById('pancake-drop');
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        btn.classList.toggle('open');
+        drop.classList.toggle('open');
+    });
+    document.addEventListener('click', function() {
+        btn.classList.remove('open');
+        drop.classList.remove('open');
+    });
+    </script>
+</body>
+</html>
