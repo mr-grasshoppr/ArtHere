@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Nunito:wght@600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', -apple-system, sans-serif; color: #1a1a1a; background: #fff; padding-top: 56px; }
+        body { font-family: 'Inter', -apple-system, sans-serif; color: #1a1a1a; background: #fff; padding-top: 56px; padding-bottom: 56px; }
 
         .top-bar {
             position: fixed; top: 0; left: 0; right: 0; height: 56px;
@@ -63,6 +63,29 @@
             .places-grid { grid-template-columns: 1fr; padding: 20px; }
             .page-header { padding: 32px 20px 24px; }
         }
+
+        /* ---- BOTTOM BAR ---- */
+        .bottom-bar {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 56px;
+            background: rgba(255,255,255,0.97); backdrop-filter: blur(8px);
+            border-top: 1px solid #eee; z-index: 100;
+            display: flex; align-items: center; padding: 0 18px; gap: 0;
+        }
+        .bottom-bar-city {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-size: 0.95rem; font-weight: 700; color: #1a1a1a;
+            letter-spacing: 0.03em; flex-shrink: 0;
+        }
+        .bottom-bar-divider { color: #ccc; margin: 0 14px; flex-shrink: 0; }
+        .bottom-bar-links { display: flex; gap: 24px; align-items: center; }
+        .bottom-bar-links a {
+            color: #aaa; text-decoration: none; font-size: 0.88rem;
+            font-weight: 500; letter-spacing: 0.03em;
+            transition: color 0.2s; padding: 4px 0;
+            border-bottom: 1.5px solid transparent;
+        }
+        .bottom-bar-links a:hover { color: #1a1a1a; }
+        .bottom-bar-links a.active { color: #1a1a1a; border-color: #1a1a1a; }
     </style>
 </head>
 <body>
@@ -78,12 +101,12 @@
                 <a href="about.html#contact">Contact</a>
             </div>
         </div>
-        <a href="portland.html" class="nav-city">Portland</a>
+        <a href="portland.html" class="nav-city">Portland, OR</a>
     </div>
 
     <div class="page-header">
         <h1>Portland Community</h1>
-        <p>Studios, galleries, and gathering places that support Portland's creative life.</p>
+        <p>The places and people that support our community's artists.</p>
     </div>
 
     <div class="places-grid">
@@ -124,5 +147,15 @@
     btn.addEventListener('click', function(e) { e.stopPropagation(); btn.classList.toggle('open'); drop.classList.toggle('open'); });
     document.addEventListener('click', function() { btn.classList.remove('open'); drop.classList.remove('open'); });
     </script>
+    <nav class="bottom-bar">
+        <span class="bottom-bar-city">Portland, OR</span>
+        <span class="bottom-bar-divider">|</span>
+        <div class="bottom-bar-links">
+            <a href="portland.html">artwork</a>
+            <a href="artists.html">artists</a>
+            <a href="community.html" class="active">community</a>
+            <a href="network.html">network</a>
+        </div>
+    </nav>
 </body>
 </html>

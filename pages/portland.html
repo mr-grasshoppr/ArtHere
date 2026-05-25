@@ -71,13 +71,17 @@
             background: #0a0a0a;
             position: relative;
         }
+        /* Artwork shows dimly in the background */
         .logo-cell-img {
             position: absolute; inset: 0;
             width: 100%; height: 100%;
             object-fit: cover; object-position: center 35%;
+            opacity: 0.25;
         }
-        .logo-cell-mask {
+        /* Dark overlay masked to logo shape — artwork shows through letterforms */
+        .logo-cell-overlay {
             position: absolute; inset: 0;
+            background: #0a0a0a;
             -webkit-mask-image: url('../images/arthere-mask.png');
             mask-image: url('../images/arthere-mask.png');
             -webkit-mask-repeat: no-repeat;
@@ -86,20 +90,40 @@
             mask-position: center;
             -webkit-mask-size: 72% auto;
             mask-size: 72% auto;
-            width: 100%; height: 100%;
-            object-fit: cover; object-position: center 35%;
+        }
+        /* Full artwork as background-image div, masked to logo shape */
+        .logo-cell-art {
+            position: absolute; inset: 0;
+            background-size: cover;
+            background-position: center 35%;
+            -webkit-mask-image: url('../images/arthere-mask.png');
+            mask-image: url('../images/arthere-mask.png');
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-position: center;
+            -webkit-mask-size: 72% auto;
+            mask-size: 72% auto;
         }
 
         /* ---- BOTTOM BAR ---- */
         .bottom-bar {
             position: fixed; bottom: 0; left: 0; right: 0; height: 56px;
             background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100;
-            display: flex; justify-content: center; align-items: center; gap: 36px;
+            display: flex; align-items: center; padding: 0 18px; gap: 28px;
+        }
+        .bottom-bar-city {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-size: 0.95rem; font-weight: 700; color: #fff;
+            letter-spacing: 0.03em; flex-shrink: 0;
+        }
+        .bottom-bar-divider {
+            color: #444; margin: 0 14px; font-size: 0.9rem; flex-shrink: 0;
         }
         .bottom-bar a {
-            color: rgba(255,255,255,0.65); text-decoration: none;
-            font-size: 0.92rem; font-weight: 600; letter-spacing: 0.06em; text-transform: lowercase;
-            transition: color 0.2s; padding: 4px 0; border-bottom: 2px solid transparent;
+            color: rgba(255,255,255,0.55); text-decoration: none;
+            font-size: 0.88rem; font-weight: 500; letter-spacing: 0.04em;
+            transition: color 0.2s; padding: 4px 0; border-bottom: 1.5px solid transparent;
         }
         .bottom-bar a:hover, .bottom-bar a.active { color: #fff; border-color: rgba(255,255,255,0.6); }
 
@@ -126,7 +150,7 @@
                 <a href="about.html#contact">Contact</a>
             </div>
         </div>
-        <a href="portland.html" class="nav-city">Portland</a>
+        <a href="portland.html" class="nav-city">Portland, OR</a>
     </div>
 
     <div class="grid-viewport" id="grid-vp">
@@ -136,6 +160,8 @@
     <div class="touch-hint" id="touch-hint">tap to browse artwork</div>
 
     <nav class="bottom-bar">
+        <span class="bottom-bar-city">Portland, OR</span>
+        <span class="bottom-bar-divider">|</span>
         <a href="#" id="nav-artwork">artwork</a>
         <a href="artists.html">artists</a>
         <a href="community.html">community</a>
@@ -183,26 +209,30 @@
         return arr;
     }
 
-    // Logo cell: 2col x 2row, full logo mask over one random artwork
+    // Logo cell: 2col x 2row — dark bg, dim artwork, logo shape cut-out with full artwork
     function makeLogoCell(artSrc) {
         var cell = document.createElement('div');
         cell.className = 'logo-cell';
         cell.style.setProperty('--row-px', ROW + 'px');
         cell.style.setProperty('--gap-px', GAP + 'px');
 
-        // Artwork behind the mask
+        // Dim artwork fills entire background
         var bg = document.createElement('img');
         bg.src = artSrc;
         bg.alt = '';
         bg.className = 'logo-cell-img';
         cell.appendChild(bg);
 
-        // Mask layer (same image, masked to logo shape)
-        var masked = document.createElement('img');
-        masked.src = artSrc;
-        masked.alt = '';
-        masked.className = 'logo-cell-mask';
-        cell.appendChild(masked);
+        // Dark overlay masked to logo — creates the "dark bg, logo cut-out" effect
+        var overlay = document.createElement('div');
+        overlay.className = 'logo-cell-overlay';
+        cell.appendChild(overlay);
+
+        // Full-brightness artwork as background-image div, masked to logo shape
+        var art = document.createElement('div');
+        art.className = 'logo-cell-art';
+        art.style.backgroundImage = 'url(' + artSrc + ')';
+        cell.appendChild(art);
 
         return cell;
     }

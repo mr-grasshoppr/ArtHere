@@ -84,7 +84,7 @@
         .pancake-dropdown a.join { font-weight: 600; color: #1a1a1a; }
         .nav-city { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; font-size: 0.95rem; font-weight: 700; color: #1a1a1a; text-decoration: none; letter-spacing: 0.03em; transition: opacity 0.2s; }
         .nav-city:hover { opacity: 0.6; }
-        body { padding-top: 56px; }
+        body { padding-top: 56px; padding-bottom: 56px; padding-bottom: 56px; }
         /* ---- ARTWORK GALLERY: 3 equal squares desktop, 1-col mobile ---- */
         .artwork-gallery {
             max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
@@ -104,6 +104,29 @@
             .artwork-gallery { grid-template-columns: 1fr; gap: 8px; }
             .artwork-gallery .art-cell { aspect-ratio: 4 / 3; }
         }
+
+        /* ---- BOTTOM BAR ---- */
+        .bottom-bar {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 56px;
+            background: rgba(255,255,255,0.97); backdrop-filter: blur(8px);
+            border-top: 1px solid #eee; z-index: 100;
+            display: flex; align-items: center; padding: 0 18px; gap: 0;
+        }
+        .bottom-bar-city {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-size: 0.95rem; font-weight: 700; color: #1a1a1a;
+            letter-spacing: 0.03em; flex-shrink: 0;
+        }
+        .bottom-bar-divider { color: #ccc; margin: 0 14px; flex-shrink: 0; }
+        .bottom-bar-links { display: flex; gap: 24px; align-items: center; }
+        .bottom-bar-links a {
+            color: #aaa; text-decoration: none; font-size: 0.88rem;
+            font-weight: 500; letter-spacing: 0.03em;
+            transition: color 0.2s; padding: 4px 0;
+            border-bottom: 1.5px solid transparent;
+        }
+        .bottom-bar-links a:hover { color: #1a1a1a; }
+        .bottom-bar-links a.active { color: #1a1a1a; border-color: #1a1a1a; }
     </style>
 </head>
 <body>
@@ -119,7 +142,7 @@
                 <a href="../pages/about.html#contact">Contact</a>
             </div>
         </div>
-        <a href="../pages/portland.html" class="nav-city">Portland</a>
+        <a href="../pages/portland.html" class="nav-city">Portland, OR</a>
     </div>
 
 <section class="artist-hero">
@@ -166,5 +189,15 @@
     btn.addEventListener('click', function(e) { e.stopPropagation(); btn.classList.toggle('open'); drop.classList.toggle('open'); });
     document.addEventListener('click', function() { btn.classList.remove('open'); drop.classList.remove('open'); });
     </script>
+    <nav class="bottom-bar">
+        <span class="bottom-bar-city">Portland, OR</span>
+        <span class="bottom-bar-divider">|</span>
+        <div class="bottom-bar-links">
+            <a href="../pages/portland.html">artwork</a>
+            <a href="../pages/artists.html">artists</a>
+            <a href="../pages/community.html">community</a>
+            <a href="../pages/network.html">network</a>
+        </div>
+    </nav>
 </body>
 </html>

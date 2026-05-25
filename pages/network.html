@@ -128,8 +128,31 @@ h1, h2.section-title, .page-hero h1, .place-name-large { font-family: 'Nunito', 
     .pancake-dropdown a:hover { background: #222; color: #fff; }
     .pancake-dropdown a.join { font-weight: 600; color: #fff; }
     /* Push content below fixed nav */
-    body { padding-top: 70px; }
+    body { padding-top: 70px; padding-bottom: 56px; }
 
+
+        /* ---- BOTTOM BAR ---- */
+        .bottom-bar {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 56px;
+            background: rgba(0,0,0,0.92); backdrop-filter: blur(8px);
+            border-top: 1px solid #1a1a1a; z-index: 100;
+            display: flex; align-items: center; padding: 0 18px; gap: 0;
+        }
+        .bottom-bar-city {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-size: 0.95rem; font-weight: 700; color: #fff;
+            letter-spacing: 0.03em; flex-shrink: 0;
+        }
+        .bottom-bar-divider { color: #444; margin: 0 14px; flex-shrink: 0; }
+        .bottom-bar-links { display: flex; gap: 24px; align-items: center; }
+        .bottom-bar-links a {
+            color: rgba(255,255,255,0.45); text-decoration: none; font-size: 0.88rem;
+            font-weight: 500; letter-spacing: 0.03em;
+            transition: color 0.2s; padding: 4px 0;
+            border-bottom: 1.5px solid transparent;
+        }
+        .bottom-bar-links a:hover { color: #fff; }
+        .bottom-bar-links a.active { color: #fff; border-color: rgba(255,255,255,0.6); }
     </style>
 </head>
 <body>
@@ -146,7 +169,7 @@ h1, h2.section-title, .page-hero h1, .place-name-large { font-family: 'Nunito', 
                 <a href="about.html#contact">Contact</a>
             </div>
         </div>
-        <a href="portland.html" class="nav-city-link">Portland</a>
+        <a href="portland.html" class="nav-city-link">Portland, OR</a>
     </div>
     
 
@@ -317,5 +340,15 @@ h1, h2.section-title, .page-hero h1, .place-name-large { font-family: 'Nunito', 
         });
     })();
     </script>
+    <nav class="bottom-bar">
+        <span class="bottom-bar-city">Portland, OR</span>
+        <span class="bottom-bar-divider">|</span>
+        <div class="bottom-bar-links">
+            <a href="portland.html">artwork</a>
+            <a href="artists.html">artists</a>
+            <a href="community.html">community</a>
+            <a href="network.html" class="active">network</a>
+        </div>
+    </nav>
 </body>
 </html>

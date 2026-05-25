@@ -75,101 +75,74 @@ footer { padding: 40px; text-align: center; color: #bbb; font-size: 0.78rem; fon
 /* Nunito for all display headers */
 h1, h2.section-title, .page-hero h1, .place-name-large { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; }
 
-    /* ---- TOP NAV ---- */
-    .top-nav {
-        position: fixed;
-        top: 0; left: 0;
-        z-index: 200;
-        padding: 18px 22px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-    .nav-logo {
-        display: block;
-        height: 28px; width: auto;
-        transition: opacity 0.2s;
-    }
-    .nav-logo:hover { opacity: 0.7; }
-    .nav-city-link {
-        font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: #1a1a1a;
-        text-decoration: none;
-        letter-spacing: 0.03em;
-        transition: opacity 0.2s;
-    }
-    .nav-city-link:hover { opacity: 0.6; }
-    .pancake-wrap { position: relative; }
-    .pancake-btn {
-        background: none; border: none; cursor: pointer;
-        padding: 4px;
-        display: flex; flex-direction: column; gap: 5px;
-    }
-    .pancake-btn span {
-        display: block; width: 20px; height: 1.5px;
-        background: #1a1a1a; transition: all 0.25s;
-    }
-    .pancake-btn.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
-    .pancake-btn.open span:nth-child(2) { opacity: 0; }
-    .pancake-btn.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
-    .pancake-dropdown {
-        display: none;
-        position: absolute;
-        top: calc(100% + 8px);
-        left: 0;
-        background: #fff;
-        border: 1px solid #eee;
-        border-radius: 6px;
-        overflow: hidden;
-        min-width: 160px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        z-index: 300;
-    }
-    .pancake-dropdown.open { display: block; }
-    .pancake-dropdown a {
-        display: block; padding: 13px 20px;
-        font-size: 0.9rem; color: #444; text-decoration: none;
-        border-bottom: 1px solid #f0f0f0;
-        transition: background 0.15s, color 0.15s;
-    }
-    .pancake-dropdown a:last-child { border-bottom: none; }
-    .pancake-dropdown a:hover { background: #fafafa; color: #1a1a1a; }
-    .pancake-dropdown a.join { font-weight: 600; color: #1a1a1a; }
-    /* Push content below fixed nav */
-    body { padding-top: 70px; }
-
     
-    /* Solid top bar for nav visibility */
-    .top-nav {
-        background: rgba(255,255,255,0.97) !important;
-        backdrop-filter: blur(10px);
-        border-bottom: 1px solid #eee;
-        padding: 14px 18px !important;
-        left: 0; right: 0;
-        height: 56px;
-    }
-    body { padding-top: 56px !important; }
 
+
+        /* ---- TOP BAR ---- */
+        .top-bar {
+            position: fixed; top: 0; left: 0; right: 0; height: 56px;
+            background: rgba(255,255,255,0.97); backdrop-filter: blur(10px);
+            border-bottom: 1px solid #eee; z-index: 200;
+            display: flex; align-items: center; padding: 0 18px; gap: 12px;
+        }
+        .nav-logo { display: block; height: 26px; width: auto; transition: opacity 0.2s; }
+        .nav-logo:hover { opacity: 0.7; }
+        .pancake-wrap { position: relative; }
+        .pancake-btn { background: none; border: none; cursor: pointer; padding: 4px; display: flex; flex-direction: column; gap: 5px; }
+        .pancake-btn span { display: block; width: 20px; height: 1.5px; background: #1a1a1a; transition: all 0.25s; }
+        .pancake-btn.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+        .pancake-btn.open span:nth-child(2) { opacity: 0; }
+        .pancake-btn.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+        .pancake-dropdown { display: none; position: absolute; top: calc(100% + 8px); left: 0; background: #fff; border: 1px solid #eee; border-radius: 6px; overflow: hidden; min-width: 160px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); z-index: 300; }
+        .pancake-dropdown.open { display: block; }
+        .pancake-dropdown a { display: block; padding: 13px 20px; font-size: 0.9rem; color: #444; text-decoration: none; border-bottom: 1px solid #f0f0f0; transition: background 0.15s, color 0.15s; }
+        .pancake-dropdown a:last-child { border-bottom: none; }
+        .pancake-dropdown a:hover { background: #fafafa; color: #1a1a1a; }
+        .pancake-dropdown a.join { font-weight: 600; color: #1a1a1a; }
+        .nav-city { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; font-size: 0.95rem; font-weight: 700; color: #1a1a1a; text-decoration: none; letter-spacing: 0.03em; transition: opacity 0.2s; }
+        .nav-city:hover { opacity: 0.6; }
+        body { padding-top: 56px; padding-bottom: 56px; }
+
+        /* ---- BOTTOM BAR ---- */
+        .bottom-bar {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 56px;
+            background: rgba(255,255,255,0.97); backdrop-filter: blur(8px);
+            border-top: 1px solid #eee; z-index: 100;
+            display: flex; align-items: center; padding: 0 18px; gap: 0;
+        }
+        .bottom-bar-city {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-size: 0.95rem; font-weight: 700; color: #1a1a1a;
+            letter-spacing: 0.03em; flex-shrink: 0;
+        }
+        .bottom-bar-divider { color: #ccc; margin: 0 14px; flex-shrink: 0; }
+        .bottom-bar-links { display: flex; gap: 24px; align-items: center; }
+        .bottom-bar-links a {
+            color: #aaa; text-decoration: none; font-size: 0.88rem;
+            font-weight: 500; letter-spacing: 0.03em;
+            transition: color 0.2s; padding: 4px 0;
+            border-bottom: 1.5px solid transparent;
+        }
+        .bottom-bar-links a:hover { color: #1a1a1a; }
+        .bottom-bar-links a.active { color: #1a1a1a; border-color: #1a1a1a; }
     </style>
 </head>
 <body>
-    <!-- TOP NAV -->
-    <div class="top-nav">
+        <div class="top-bar">
         <a href="../index.html"><img src="../images/arthere-logo-dark.png" alt="Art Here" class="nav-logo"></a>
         <div class="pancake-wrap">
-            <button class="pancake-btn" id="nav-pancake-btn" aria-label="Menu">
+            <button class="pancake-btn" id="pancake-btn" aria-label="Menu">
                 <span></span><span></span><span></span>
             </button>
-            <div class="pancake-dropdown" id="nav-pancake-drop">
+            <div class="pancake-dropdown" id="pancake-drop">
                 <a href="../pages/survey.html" class="join">Join Us</a>
                 <a href="../pages/about.html">About</a>
                 <a href="../pages/about.html#contact">Contact</a>
             </div>
         </div>
-        <a href="../pages/portland.html" class="nav-city-link">Portland</a>
+        <a href="../pages/portland.html" class="nav-city">Portland, OR</a>
     </div>
+        </div>    </div>
 
 <section class="place-hero"><img src="../images/places/nwmarine-header.jpg" alt="NW Marine Art Works exterior"></section>
 <div class="place-identity-no-circle" style="margin-top:40px;">
@@ -179,13 +152,13 @@ h1, h2.section-title, .page-hero h1, .place-name-large { font-family: 'Nunito', 
 <section class="bio-section" style="padding-top:24px;"><div class="bio-text">
     <div class="event-box">
       <div class="event-label">Upcoming event</div>
-      <div class="event-title">Open Studios &mdash; Spring 2026</div>
+      <div class="event-title">Open Studios &middot; Spring 2026</div>
       <div class="event-detail">Preview Night: May 29, 5 &ndash; 8 pm</div>
       <div class="event-detail">Open Studios: May 30 &ndash; 31, 10 am &ndash; 5 pm</div>
       <div class="event-detail" style="margin-top:4px;">2516 NW 29th Ave, Portland OR 97210</div>
     </div>
     <p>NW Marine Art Works is one of Portland's best-kept secrets: a sprawling complex of WWII-era industrial buildings in the NW hills, transformed into a community of 75+ fine artist studios. Painters, sculptors, printmakers, ceramicists, photographers, and mixed media artists work here side by side in converted warehouse space that retains the bones of its industrial past.</p>
-    <p>The complex hosts two Open Studios events each year — spring and winter — giving the public a rare chance to visit artists at work, watch demos, and buy directly from makers. Building 5 is a dedicated 5,000 square foot space for site-specific installation, performance, and community exhibition.</p>
+    <p>The complex hosts two Open Studios events each year · spring and winter · giving the public a rare chance to visit artists at work, watch demos, and buy directly from makers. Building 5 is a dedicated 5,000 square foot space for site-specific installation, performance, and community exhibition.</p>
     <p>NW Marine Art Works is part of the Portland Art Studios collective, which also includes Carton Service Studios, North Coast Seed Studios, and River Street Studios.</p>
     <p class="link-line"><a href="https://www.nwmarineartworks.com" target="_blank" rel="noopener">nwmarineartworks.com</a> &middot; <a href="https://www.instagram.com/nwmarineartworks/" target="_blank" rel="noopener">@nwmarineartworks</a></p>
 </div></section>
@@ -207,4 +180,19 @@ h1, h2.section-title, .page-hero h1, .place-name-large { font-family: 'Nunito', 
 
 <a href="../pages/community.html" class="back-link">&larr; community</a>
 <footer>&copy; 2026 Art Here &middot; A project of Art Experience Lab</footer>
+    <nav class="bottom-bar">
+        <span class="bottom-bar-city">Portland</span>
+        <span class="bottom-bar-divider">|</span>
+        <div class="bottom-bar-links">
+            <a href="../pages/portland.html">artwork</a>
+            <a href="../pages/artists.html">artists</a>
+            <a href="../pages/community.html">community</a>
+            <a href="../pages/network.html">network</a>
+        </div>
+    </nav>
+    <script>
+    var btn = document.getElementById('pancake-btn'), drop = document.getElementById('pancake-drop');
+    btn.addEventListener('click', function(e) { e.stopPropagation(); btn.classList.toggle('open'); drop.classList.toggle('open'); });
+    document.addEventListener('click', function() { btn.classList.remove('open'); drop.classList.remove('open'); });
+    </script>
 </body></html>
