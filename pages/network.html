@@ -128,10 +128,12 @@
 
         /* ---- LEGEND ---- */
         .legend {
-            position: fixed; bottom: 68px; left: 18px;
-            display: flex; gap: 18px; z-index: 100;
+            position: fixed; bottom: 68px; left: 18px; right: 18px;
+            display: flex; gap: 18px; z-index: 100; align-items: center; flex-wrap: wrap;
         }
         .legend-item { display: flex; align-items: center; gap: 7px; font-size: 0.75rem; color: #555; }
+        .legend-suggest { font-size: 0.75rem; color: #444; text-decoration: none; transition: color 0.2s; }
+        .legend-suggest:hover { color: #aaa; }
         .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
 
         /* ---- BOTTOM BAR ---- */
@@ -213,6 +215,7 @@
     <div class="legend">
         <div class="legend-item"><div class="legend-dot" style="background:#00e5ff"></div>Artist</div>
         <div class="legend-item"><div class="legend-dot" style="background:#ff00aa"></div>Community</div>
+        <a href="mailto:hello@axlab.io" class="legend-suggest">Know a connection we're missing? Let us know &rarr;</a>
     </div>
 
     <!-- BOTTOM BAR -->
