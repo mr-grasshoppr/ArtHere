@@ -56,6 +56,26 @@
         .filter-btn.active-place { background: #ff00aa; border-color: #ff00aa; color: #000; font-weight: 600; }
         .filter-btn.active-all { background: #fff; border-color: #fff; color: #000; font-weight: 600; }
         .filter-sep { width: 1px; height: 20px; background: #222; margin: 0 4px; }
+        /* ---- DROPDOWNS ---- */
+        .dropdown-wrap { position: relative; }
+        .dropdown-menu {
+            display: none; position: absolute; top: calc(100% + 6px); left: 0;
+            background: #111; border: 1px solid #2a2a2a; border-radius: 8px;
+            overflow: hidden; min-width: 160px; z-index: 400;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        .dropdown-menu.open { display: block; }
+        .dropdown-item {
+            display: block; width: 100%; text-align: left;
+            padding: 10px 16px; background: none; border: none;
+            color: #888; font-size: 0.82rem; font-family: 'Inter', sans-serif;
+            cursor: pointer; transition: background 0.15s, color 0.15s;
+            border-bottom: 1px solid #1a1a1a; letter-spacing: 0.03em;
+        }
+        .dropdown-item:last-child { border-bottom: none; }
+        .dropdown-item:hover { background: #1a1a1a; color: #fff; }
+        .dropdown-item.active { color: #00e5ff; font-weight: 600; }
+        .dropdown-trigger.selected { border-color: #555; color: #fff; }
         .download-btn {
             margin-left: auto; padding: 5px 12px; border-radius: 20px;
             border: 1px solid #333; background: transparent; color: #666;
@@ -160,15 +180,24 @@
         <button class="filter-btn" data-filter="artist">Artists</button>
         <button class="filter-btn" data-filter="place">Community</button>
         <div class="filter-sep"></div>
-        <span class="filter-label">Medium</span>
-        <button class="filter-btn" data-medium="Ceramicist">Ceramicist</button>
-        <button class="filter-btn" data-medium="Painter">Painter</button>
-        <button class="filter-btn" data-medium="Illustrator">Illustrator</button>
-        <div class="filter-sep"></div>
-        <span class="filter-label">Neighborhood</span>
-        <button class="filter-btn" data-neighborhood="Multnomah Village">Multnomah Village</button>
-        <button class="filter-btn" data-neighborhood="Alberta Arts District">Alberta Arts District</button>
-        <button class="filter-btn" data-neighborhood="Portland">Portland</button>
+        <div class="dropdown-wrap">
+            <button class="filter-btn dropdown-trigger" id="medium-trigger">Medium &#9662;</button>
+            <div class="dropdown-menu" id="medium-menu">
+                <button class="dropdown-item" data-medium="Ceramicist">Ceramicist</button>
+                <button class="dropdown-item" data-medium="Painter">Painter</button>
+                <button class="dropdown-item" data-medium="Illustrator">Illustrator</button>
+            </div>
+        </div>
+        <div class="dropdown-wrap">
+            <button class="filter-btn dropdown-trigger" id="neighborhood-trigger">Neighborhood &#9662;</button>
+            <div class="dropdown-menu" id="neighborhood-menu">
+                <button class="dropdown-item" data-neighborhood="Multnomah Village">Multnomah Village</button>
+                <button class="dropdown-item" data-neighborhood="Alberta Arts District">Alberta Arts District</button>
+                <button class="dropdown-item" data-neighborhood="Slabtown">Slabtown</button>
+                <button class="dropdown-item" data-neighborhood="Portland">Portland</button>
+                <button class="dropdown-item" data-neighborhood="Vancouver, WA">Vancouver, WA</button>
+            </div>
+        </div>
         <button class="download-btn" id="download-btn">&#8595; CSV</button>
     </div>
 
@@ -206,11 +235,11 @@
         { id: "Beth Bundy",          type: "artist", medium: "Illustrator", neighborhood: "Alberta Arts District", url: "../artists/beth-bundy.html",            photo: "../images/artists/beth-bundy-bio.jpg" },
         { id: "Yong Hong Zhong",     type: "artist", medium: "Painter",     neighborhood: "Portland",             url: "../artists/yong-hong-zhong.html",       photo: "../images/artists/yong-hong-zhong-bio.jpg" },
         { id: "Lindsey Fox",         type: "artist", medium: "Painter",     neighborhood: "Portland",             url: "../artists/lindsey-fox.html",           photo: "../images/artists/lindsey-fox-bio.jpg" },
-        { id: "Jennifer Eaton White",type: "artist", medium: "Painter",     neighborhood: "Portland",             url: "../artists/jennifer-eaton-white.html",  photo: "../images/artists/jennifer-eaton-white-bio.jpg" },
+        { id: "Jennifer Eaton White",type: "artist", medium: "Painter",     neighborhood: "Vancouver, WA",             url: "../artists/jennifer-eaton-white.html",  photo: "../images/artists/jennifer-eaton-white-bio.jpg" },
         // Community places
         { id: "Multnomah Arts Center",  type: "place", neighborhood: "Multnomah Village",    url: "../places/multnomah-arts-center.html",  image: "../images/places/multnomah.jpg" },
-        { id: "ComeUnity PDX",          type: "place", neighborhood: "NE Portland",          url: "../places/comeunity-pdx.html",          image: "../images/places/communitypdx.jpg" },
-        { id: "NW Marine Art Works",    type: "place", neighborhood: "NW Industrial",        url: "../places/nw-marine-art-works.html",    image: "../images/places/nwmarine-header.jpg" },
+        { id: "ComeUnity PDX",          type: "place", neighborhood: "Multnomah Village",          url: "../places/comeunity-pdx.html",          image: "../images/places/communitypdx.jpg" },
+        { id: "NW Marine Art Works",    type: "place", neighborhood: "Slabtown",        url: "../places/nw-marine-art-works.html",    image: "../images/places/nwmarine-header.jpg" },
         { id: "Alberta Street Gallery", type: "place", neighborhood: "Alberta Arts District", url: "https://www.albertastreetgallery.com" },
         { id: "PAM Rental Sales",       type: "place", neighborhood: "Portland",             image: null },
         { id: "Catlin Gabel",           type: "place", neighborhood: "Portland",             image: null },
@@ -236,7 +265,6 @@
         { source: "Yong Hong Zhong",      target: "Alberta Street Gallery" },
         { source: "Jennifer Eaton White", target: "Alberta Street Gallery" },
         { source: "Jennifer Eaton White", target: "Casa Luna" },
-        { source: "NW Marine Art Works",  target: "Multnomah Arts Center" },
     ];
 
     // ── STATE ─────────────────────────────────────────────────────────────────
@@ -416,29 +444,71 @@
         });
     });
 
-    document.querySelectorAll('.filter-btn[data-medium]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const already = activeMedium === btn.dataset.medium;
-            document.querySelectorAll('.filter-btn[data-medium]').forEach(b => b.className = 'filter-btn');
-            activeMedium = already ? null : btn.dataset.medium;
+    // ── DROPDOWNS ────────────────────────────────────────────────────────────
+    function setupDropdown(triggerId, menuId) {
+        const trigger = document.getElementById(triggerId);
+        const menu = document.getElementById(menuId);
+        trigger.addEventListener('click', e => {
+            e.stopPropagation();
+            document.querySelectorAll('.dropdown-menu').forEach(m => { if (m !== menu) m.classList.remove('open'); });
+            menu.classList.toggle('open');
+        });
+        return { trigger, menu };
+    }
+
+    const mediumDD = setupDropdown('medium-trigger', 'medium-menu');
+    const neighborhoodDD = setupDropdown('neighborhood-trigger', 'neighborhood-menu');
+
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
+    });
+
+    document.querySelectorAll('.dropdown-item[data-medium]').forEach(item => {
+        item.addEventListener('click', e => {
+            e.stopPropagation();
+            const already = activeMedium === item.dataset.medium;
+            document.querySelectorAll('.dropdown-item[data-medium]').forEach(i => i.classList.remove('active'));
+            activeMedium = already ? null : item.dataset.medium;
             activeNeighborhood = null;
-            document.querySelectorAll('.filter-btn[data-neighborhood]').forEach(b => b.className = 'filter-btn');
-            if (!already) { btn.className = 'filter-btn active-artist'; activeType = 'artist'; }
-            else activeType = null;
+            document.querySelectorAll('.dropdown-item[data-neighborhood]').forEach(i => i.classList.remove('active'));
+            if (!already) {
+                item.classList.add('active');
+                activeType = 'artist';
+                mediumDD.trigger.classList.add('selected');
+                mediumDD.trigger.textContent = item.dataset.medium + ' ▾';
+            } else {
+                activeType = null;
+                mediumDD.trigger.classList.remove('selected');
+                mediumDD.trigger.innerHTML = 'Medium &#9662;';
+            }
+            neighborhoodDD.trigger.classList.remove('selected');
+            neighborhoodDD.trigger.innerHTML = 'Neighborhood &#9662;';
             document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.className = 'filter-btn');
             document.querySelector('.filter-btn[data-filter="' + (activeType || 'all') + '"]').className = 'filter-btn active-' + (activeType || 'all');
+            document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
             render();
         });
     });
 
-    document.querySelectorAll('.filter-btn[data-neighborhood]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const already = activeNeighborhood === btn.dataset.neighborhood;
-            document.querySelectorAll('.filter-btn[data-neighborhood]').forEach(b => b.className = 'filter-btn');
-            activeNeighborhood = already ? null : btn.dataset.neighborhood;
+    document.querySelectorAll('.dropdown-item[data-neighborhood]').forEach(item => {
+        item.addEventListener('click', e => {
+            e.stopPropagation();
+            const already = activeNeighborhood === item.dataset.neighborhood;
+            document.querySelectorAll('.dropdown-item[data-neighborhood]').forEach(i => i.classList.remove('active'));
+            activeNeighborhood = already ? null : item.dataset.neighborhood;
             activeMedium = null;
-            document.querySelectorAll('.filter-btn[data-medium]').forEach(b => b.className = 'filter-btn');
-            if (!already) btn.className = 'filter-btn active-all';
+            document.querySelectorAll('.dropdown-item[data-medium]').forEach(i => i.classList.remove('active'));
+            if (!already) {
+                item.classList.add('active');
+                neighborhoodDD.trigger.classList.add('selected');
+                neighborhoodDD.trigger.textContent = item.dataset.neighborhood + ' ▾';
+            } else {
+                neighborhoodDD.trigger.classList.remove('selected');
+                neighborhoodDD.trigger.innerHTML = 'Neighborhood &#9662;';
+            }
+            mediumDD.trigger.classList.remove('selected');
+            mediumDD.trigger.innerHTML = 'Medium &#9662;';
+            document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
             render();
         });
     });
