@@ -90,25 +90,32 @@ h1, h2.section-title, .page-hero h1, .place-name-large { font-family: 'Nunito', 
         /* ---- BOTTOM BAR ---- */
         .bottom-bar {
             position: fixed; bottom: 0; left: 0; right: 0; height: 56px;
-            background: rgba(255,255,255,0.97); backdrop-filter: blur(8px);
-            border-top: 1px solid #eee; z-index: 100;
+            background: rgba(0,0,0,0.95); backdrop-filter: blur(8px);
+            border-top: 1px solid #111; z-index: 100;
             display: flex; align-items: center; padding: 0 18px; gap: 0;
         }
         .bottom-bar-city {
             font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-            font-size: 0.95rem; font-weight: 700; color: #1a1a1a;
+            font-size: 0.95rem; font-weight: 700; color: #fff;
             letter-spacing: 0.03em; flex-shrink: 0;
         }
-        .bottom-bar-divider { color: #ccc; margin: 0 14px; flex-shrink: 0; }
+        .bottom-bar-divider { color: #444; margin: 0 14px; flex-shrink: 0; }
         .bottom-bar-links { display: flex; gap: 24px; align-items: center; }
         .bottom-bar-links a {
-            color: #aaa; text-decoration: none; font-size: 0.88rem;
+            color: rgba(255,255,255,0.45); text-decoration: none; font-size: 0.88rem;
             font-weight: 500; letter-spacing: 0.03em;
             transition: color 0.2s; padding: 4px 0;
             border-bottom: 1.5px solid transparent;
         }
-        .bottom-bar-links a:hover { color: #1a1a1a; }
-        .bottom-bar-links a.active { color: #1a1a1a; border-color: #1a1a1a; }
+        .bottom-bar-links a:hover { color: #fff; }
+        .bottom-bar-links a.active { color: #fff; border-color: rgba(255,255,255,0.6); }
+    
+        @media (max-width: 600px) {
+            .bottom-bar-city,
+            .bottom-bar-divider { display: none; }
+            .bottom-bar { justify-content: center; }
+            .bottom-bar-links { gap: 20px; }
+        }
     </style>
 </head>
 <body>

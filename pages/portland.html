@@ -82,8 +82,8 @@
             mask-repeat: no-repeat;
             -webkit-mask-position: center;
             mask-position: center;
-            -webkit-mask-size: 72% auto;
-            mask-size: 72% auto;
+            -webkit-mask-size: 95% auto;
+            mask-size: 95% auto;
         }
 
         /* ---- BOTTOM BAR ---- */
@@ -115,6 +115,13 @@
             pointer-events: none; opacity: 0; transition: opacity 0.5s; z-index: 90;
         }
         .touch-hint.show { opacity: 1; }
+    
+        @media (max-width: 600px) {
+            .bottom-bar-city,
+            .bottom-bar-divider { display: none; }
+            .bottom-bar { justify-content: center; }
+            .bottom-bar-links { gap: 20px; }
+        }
     </style>
 </head>
 <body>

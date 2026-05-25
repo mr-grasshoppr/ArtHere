@@ -153,6 +153,13 @@ h1, h2.section-title, .page-hero h1, .place-name-large { font-family: 'Nunito', 
         }
         .bottom-bar-links a:hover { color: #fff; }
         .bottom-bar-links a.active { color: #fff; border-color: rgba(255,255,255,0.6); }
+    
+        @media (max-width: 600px) {
+            .bottom-bar-city,
+            .bottom-bar-divider { display: none; }
+            .bottom-bar { justify-content: center; }
+            .bottom-bar-links { gap: 20px; }
+        }
     </style>
 </head>
 <body>
