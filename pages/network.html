@@ -2,351 +2,191 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Network - Art Here Portland</title>
     <link rel="icon" type="image/png" href="../images/ArtHere_favicon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Nunito:wght@600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../styles.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
-        .network-wrap {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 40px 40px 80px;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, sans-serif; color: #fff; background: #0a0a0a; padding-top: 56px; padding-bottom: 56px; overflow: hidden; }
+
+        /* ---- TOP BAR ---- */
+        .top-bar {
+            position: fixed; top: 0; left: 0; right: 0; height: 56px;
+            background: rgba(0,0,0,0.95); backdrop-filter: blur(10px);
+            border-bottom: 1px solid #1a1a1a; z-index: 200;
+            display: flex; align-items: center; padding: 0 18px; gap: 12px;
         }
-        .network-header {
-            margin-bottom: 30px;
+        .nav-logo { display: block; height: 26px; width: auto; transition: opacity 0.2s; }
+        .nav-logo:hover { opacity: 0.7; }
+        .pancake-wrap { position: relative; }
+        .pancake-btn { background: none; border: none; cursor: pointer; padding: 4px; display: flex; flex-direction: column; gap: 5px; }
+        .pancake-btn span { display: block; width: 20px; height: 1.5px; background: rgba(255,255,255,0.8); transition: all 0.25s; }
+        .pancake-btn.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+        .pancake-btn.open span:nth-child(2) { opacity: 0; }
+        .pancake-btn.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+        .pancake-dropdown { display: none; position: absolute; top: calc(100% + 8px); left: 0; background: #1a1a1a; border: 1px solid #333; border-radius: 6px; overflow: hidden; min-width: 160px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); z-index: 300; }
+        .pancake-dropdown.open { display: block; }
+        .pancake-dropdown a { display: block; padding: 13px 20px; font-size: 0.9rem; color: #ccc; text-decoration: none; border-bottom: 1px solid #222; transition: background 0.15s; }
+        .pancake-dropdown a:last-child { border-bottom: none; }
+        .pancake-dropdown a:hover { background: #222; color: #fff; }
+        .pancake-dropdown a.join { font-weight: 600; color: #fff; }
+        .nav-city { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; font-size: 0.95rem; font-weight: 700; color: #fff; text-decoration: none; letter-spacing: 0.03em; transition: opacity 0.2s; }
+        .nav-city:hover { opacity: 0.6; }
+
+        /* ---- FILTER BAR ---- */
+        .filter-bar {
+            position: fixed; top: 56px; left: 0; right: 0;
+            z-index: 100; padding: 10px 18px;
+            display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+            border-bottom: 1px solid #1a1a1a;
         }
-        .network-svg-container {
-            width: 100%;
-            height: 70vh;
-            min-height: 500px;
-            background: #fafafa;
-            border: 1px solid #eee;
-            border-radius: 4px;
-            position: relative;
+        .filter-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.14em; color: #555; margin-right: 4px; }
+        .filter-btn {
+            padding: 5px 12px; border-radius: 20px; border: 1px solid #333;
+            background: transparent; color: #888; font-size: 0.78rem; font-family: 'Inter', sans-serif;
+            cursor: pointer; transition: all 0.2s; letter-spacing: 0.03em;
         }
-        .network-svg-container svg { width: 100%; height: 100%; display: block; }
-        .legend {
-            display: flex;
-            gap: 28px;
-            margin-top: 20px;
-            font-size: 0.85rem;
-            color: #666;
-            flex-wrap: wrap;
+        .filter-btn:hover { border-color: #666; color: #ccc; }
+        .filter-btn.active-artist { background: #00e5ff; border-color: #00e5ff; color: #000; font-weight: 600; }
+        .filter-btn.active-place { background: #ff00aa; border-color: #ff00aa; color: #000; font-weight: 600; }
+        .filter-btn.active-all { background: #fff; border-color: #fff; color: #000; font-weight: 600; }
+        .filter-sep { width: 1px; height: 20px; background: #222; margin: 0 4px; }
+        .download-btn {
+            margin-left: auto; padding: 5px 12px; border-radius: 20px;
+            border: 1px solid #333; background: transparent; color: #666;
+            font-size: 0.78rem; font-family: 'Inter', sans-serif; cursor: pointer;
+            transition: all 0.2s; display: flex; align-items: center; gap: 6px;
         }
-        .legend-item { display: flex; align-items: center; gap: 8px; }
-        .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .download-btn:hover { border-color: #666; color: #ccc; }
+
+        /* ---- GRAPH ---- */
+        #graph-container {
+            position: fixed;
+            top: 56px; /* will be adjusted by JS for filter bar height */
+            left: 0; right: 0; bottom: 56px;
+            overflow: hidden;
+            touch-action: none;
+        }
+        #graph-container svg { width: 100%; height: 100%; display: block; }
+
         .node-label {
-            font-size: 10px;
-            fill: #444;
-            pointer-events: none;
-            font-family: 'Inter', sans-serif;
+            font-size: 11px; fill: #888;
+            pointer-events: none; font-family: 'Inter', sans-serif;
         }
-        .node-tooltip {
-            position: absolute;
-            background: white;
-            border: 1px solid #ddd;
-            padding: 10px 14px;
-            font-size: 0.85rem;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-            z-index: 100;
+        .node-label.artist-label { fill: #00e5ff; opacity: 0.8; }
+        .node-label.place-label { fill: #ff00aa; opacity: 0.8; }
+
+        /* ---- HOVER CARD ---- */
+        .hover-card {
+            position: fixed; z-index: 500;
+            background: #111; border: 1px solid #222; border-radius: 8px;
+            overflow: hidden; width: 240px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+            pointer-events: none; opacity: 0;
+            transition: opacity 0.15s;
         }
-    
-/* Nunito for all display headers */
-h1, h2.section-title, .page-hero h1, .place-name-large { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; }
+        .hover-card.visible { opacity: 1; }
+        /* Artist card: circle photo + text */
+        .hc-artist { display: flex; align-items: center; gap: 12px; padding: 14px; }
+        .hc-artist-photo { width: 52px; height: 52px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #222; }
+        .hc-artist-photo img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+        .hc-artist-text {}
+        .hc-name { font-family: 'Nunito', sans-serif; font-size: 0.88rem; font-weight: 700; color: #fff; margin-bottom: 3px; }
+        .hc-meta { font-size: 0.72rem; color: #888; line-height: 1.4; }
+        /* Place card: rect image + text */
+        .hc-place { display: flex; align-items: stretch; }
+        .hc-place-img { width: 90px; flex-shrink: 0; overflow: hidden; background: #222; }
+        .hc-place-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .hc-place-text { padding: 14px 12px; }
+        /* No-image fallback */
+        .hc-simple { padding: 14px; }
 
-    /* ---- TOP NAV ---- */
-    .top-nav {
-        position: fixed;
-        top: 0; left: 0; right: 0;
-        z-index: 200;
-        padding: 14px 18px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        height: 56px;
-        background: rgba(10,10,10,0.95);
-        backdrop-filter: blur(10px);
-        border-bottom: 1px solid #1a1a1a;
-    }
-    .nav-logo {
-        display: block;
-        height: 28px; width: auto;
-        transition: opacity 0.2s;
-    }
-    .nav-logo:hover { opacity: 0.7; }
-    .nav-city-link {
-        font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: #fff;
-        text-decoration: none;
-        letter-spacing: 0.03em;
-        transition: opacity 0.2s;
-    }
-    .nav-city-link:hover { opacity: 0.6; }
-    .pancake-wrap { position: relative; }
-    .pancake-btn {
-        background: none; border: none; cursor: pointer;
-        padding: 4px;
-        display: flex; flex-direction: column; gap: 5px;
-    }
-    .pancake-btn span {
-        display: block; width: 20px; height: 1.5px;
-        background: rgba(255,255,255,0.8); transition: all 0.25s;
-    }
-    .pancake-btn.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
-    .pancake-btn.open span:nth-child(2) { opacity: 0; }
-    .pancake-btn.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
-    .pancake-dropdown {
-        display: none;
-        position: absolute;
-        top: calc(100% + 8px);
-        left: 0;
-        background: #1a1a1a;
-        border: 1px solid #333;
-        border-radius: 6px;
-        overflow: hidden;
-        min-width: 160px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        z-index: 300;
-    }
-    .pancake-dropdown.open { display: block; }
-    .pancake-dropdown a {
-        display: block; padding: 13px 20px;
-        font-size: 0.9rem; color: #ccc; text-decoration: none;
-        border-bottom: 1px solid #222;
-        transition: background 0.15s, color 0.15s;
-    }
-    .pancake-dropdown a:last-child { border-bottom: none; }
-    .pancake-dropdown a:hover { background: #222; color: #fff; }
-    .pancake-dropdown a.join { font-weight: 600; color: #fff; }
-    /* Push content below fixed nav */
-    body { padding-top: 70px; padding-bottom: 56px; }
-
+        /* ---- LEGEND ---- */
+        .legend {
+            position: fixed; bottom: 68px; left: 18px;
+            display: flex; gap: 18px; z-index: 100;
+        }
+        .legend-item { display: flex; align-items: center; gap: 7px; font-size: 0.75rem; color: #555; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
 
         /* ---- BOTTOM BAR ---- */
         .bottom-bar {
             position: fixed; bottom: 0; left: 0; right: 0; height: 56px;
-            background: rgba(0,0,0,0.92); backdrop-filter: blur(8px);
-            border-top: 1px solid #1a1a1a; z-index: 100;
+            background: rgba(0,0,0,0.95); backdrop-filter: blur(8px);
+            border-top: 1px solid #111; z-index: 100;
             display: flex; align-items: center; padding: 0 18px; gap: 0;
         }
-        .bottom-bar-city {
-            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-            font-size: 0.95rem; font-weight: 700; color: #fff;
-            letter-spacing: 0.03em; flex-shrink: 0;
-        }
+        .bottom-bar-city { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; font-size: 0.95rem; font-weight: 700; color: #fff; letter-spacing: 0.03em; flex-shrink: 0; }
         .bottom-bar-divider { color: #444; margin: 0 14px; flex-shrink: 0; }
         .bottom-bar-links { display: flex; gap: 24px; align-items: center; }
-        .bottom-bar-links a {
-            color: rgba(255,255,255,0.45); text-decoration: none; font-size: 0.88rem;
-            font-weight: 500; letter-spacing: 0.03em;
-            transition: color 0.2s; padding: 4px 0;
-            border-bottom: 1.5px solid transparent;
-        }
+        .bottom-bar-links a { color: rgba(255,255,255,0.45); text-decoration: none; font-size: 0.88rem; font-weight: 500; letter-spacing: 0.03em; transition: color 0.2s; padding: 4px 0; border-bottom: 1.5px solid transparent; }
         .bottom-bar-links a:hover { color: #fff; }
         .bottom-bar-links a.active { color: #fff; border-color: rgba(255,255,255,0.6); }
-    
         @media (max-width: 600px) {
-            .bottom-bar-city,
-            .bottom-bar-divider { display: none; }
+            .bottom-bar-city, .bottom-bar-divider { display: none; }
             .bottom-bar { justify-content: center; }
             .bottom-bar-links { gap: 20px; }
+            .filter-label { display: none; }
         }
     </style>
 </head>
 <body>
-    <!-- TOP NAV -->
-    <div class="top-nav">
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
         <a href="../index.html"><img src="../images/arthere-logo-white.png" alt="Art Here" class="nav-logo"></a>
         <div class="pancake-wrap">
-            <button class="pancake-btn" id="nav-pancake-btn" aria-label="Menu">
+            <button class="pancake-btn" id="pancake-btn" aria-label="Menu">
                 <span></span><span></span><span></span>
             </button>
-            <div class="pancake-dropdown" id="nav-pancake-drop">
+            <div class="pancake-dropdown" id="pancake-drop">
                 <a href="survey.html" class="join">Join Us</a>
                 <a href="about.html">About</a>
                 <a href="about.html#contact">Contact</a>
             </div>
         </div>
-        <a href="portland.html" class="nav-city-link">Portland, OR</a>
-    </div>
-    
-
-    <div class="network-wrap">
-        <div class="network-header">
-            <a href="portland.html" style="color: #888; text-decoration: none; font-size: 0.88rem;">&larr; back to Portland</a>
-            <h1 style="font-size: 2.4rem; font-weight: 400; letter-spacing: -0.02em; margin: 16px 0 10px;">Portland Network</h1>
-            <p style="color: #666; font-weight: 300; max-width: 720px;">Drag nodes to explore. Each connection represents an exhibition, collaboration, residency, or shared space.</p>
-        </div>
-
-        <div class="network-svg-container">
-            <svg id="network"></svg>
-            <div class="node-tooltip" id="tooltip"></div>
-        </div>
-
-        <div class="legend">
-            <div class="legend-item"><div class="legend-dot" style="background:#1a1a1a"></div>Artist</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#c89a6a"></div>Place</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#888"></div>Project / Event</div>
-        </div>
+        <a href="portland.html" class="nav-city">Portland, OR</a>
     </div>
 
-    <footer>&copy; 2026 Art Here &middot; A project of Art Experience Lab</footer>
+    <!-- FILTER BAR -->
+    <div class="filter-bar" id="filter-bar">
+        <span class="filter-label">Show</span>
+        <button class="filter-btn active-all" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="artist">Artists</button>
+        <button class="filter-btn" data-filter="place">Community</button>
+        <div class="filter-sep"></div>
+        <span class="filter-label">Medium</span>
+        <button class="filter-btn" data-medium="Ceramicist">Ceramicist</button>
+        <button class="filter-btn" data-medium="Painter">Painter</button>
+        <button class="filter-btn" data-medium="Illustrator">Illustrator</button>
+        <div class="filter-sep"></div>
+        <span class="filter-label">Neighborhood</span>
+        <button class="filter-btn" data-neighborhood="Multnomah Village">Multnomah Village</button>
+        <button class="filter-btn" data-neighborhood="Alberta Arts District">Alberta Arts District</button>
+        <button class="filter-btn" data-neighborhood="Portland">Portland</button>
+        <button class="download-btn" id="download-btn">&#8595; CSV</button>
+    </div>
 
-    <script>
-    const nodes = [
-        // Real artists
-        {id: "Kurtis Piltz", type: "artist", url: "../artists/kurtis-piltz.html"},
-        {id: "Beth Bundy", type: "artist", url: "../artists/beth-bundy.html"},
-        {id: "Yong Hong Zhong", type: "artist", url: "../artists/yong-hong-zhong.html"},
-        {id: "Lindsey Fox", type: "artist", url: "../artists/lindsey-fox.html"},
-        {id: "Jennifer Eaton White", type: "artist", url: "../artists/jennifer-eaton-white.html"},
-        // Places
-        {id: "Multnomah Arts Center", type: "place", url: "../places/multnomah-arts-center.html"},
-        {id: "ComeUnity PDX", type: "place", url: "../places/comeunity-pdx.html"},
-        {id: "NW Marine Art Works", type: "place", url: "../places/nw-marine-art-works.html"},
-        {id: "Alberta Street Gallery", type: "place"},
-        {id: "Portland Art Studios", type: "place", url: "../places/portland-art-studios.html"},
-        // Events
-        {id: "NWMAW Open Studios", type: "project"},
-        {id: "Multnomah Days 2026", type: "project"},
-        // Opportunities
-    ];
+    <!-- GRAPH -->
+    <div id="graph-container">
+        <svg id="network"></svg>
+    </div>
 
-    const links = [
-        // Kurtis Piltz
-        {source: "Kurtis Piltz", target: "Multnomah Arts Center"},
-        // Beth Bundy
-        {source: "Beth Bundy", target: "ComeUnity PDX"},
-        // Yong Hong Zhong
-        {source: "Yong Hong Zhong", target: "Alberta Street Gallery"},
-        // Lindsey Fox
-        {source: "Lindsey Fox", target: "NW Marine Art Works"},
-        {source: "Lindsey Fox", target: "ComeUnity PDX"},
-        {source: "Lindsey Fox", target: "NWMAW Open Studios"},
-        // Jennifer Eaton White
-        {source: "Jennifer Eaton White", target: "Alberta Street Gallery"},
-        // Place <-> Place
-        {source: "NW Marine Art Works", target: "Portland Art Studios"},
-        // Place <-> Event
-        {source: "NW Marine Art Works", target: "NWMAW Open Studios"},
-        {source: "Multnomah Arts Center", target: "Multnomah Days 2026"},
-        // Opportunities
-    ];
+    <!-- HOVER CARD -->
+    <div class="hover-card" id="hover-card"></div>
 
-    const colors = {
-        artist: "#1a1a1a",
-        place: "#c89a6a",
-        project: "#888",
-    };
-    const sizes = { artist: 10, place: 9, project: 6 };
+    <!-- LEGEND -->
+    <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#00e5ff"></div>Artist</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ff00aa"></div>Community</div>
+    </div>
 
-    const svg = d3.select("#network");
-    const container = document.querySelector(".network-svg-container");
-    const tooltip = document.getElementById("tooltip");
-
-    function getDimensions() {
-        return { width: container.clientWidth, height: container.clientHeight };
-    }
-
-    let { width, height } = getDimensions();
-    svg.attr("viewBox", [0, 0, width, height]);
-
-    const sim = d3.forceSimulation(nodes)
-        .force("link", d3.forceLink(links).id(d => d.id).distance(90).strength(0.5))
-        .force("charge", d3.forceManyBody().strength(-280))
-        .force("center", d3.forceCenter(width / 2, height / 2))
-        .force("collide", d3.forceCollide().radius(d => sizes[d.type] + 8));
-
-    const link = svg.append("g")
-        .attr("stroke", "#d4d4d4")
-        .attr("stroke-opacity", 0.7)
-        .selectAll("line")
-        .data(links)
-        .join("line")
-        .attr("stroke-width", 0.8);
-
-    const node = svg.append("g")
-        .selectAll("g")
-        .data(nodes)
-        .join("g")
-        .style("cursor", d => d.url ? "pointer" : "grab");
-
-    node.append("circle")
-        .attr("r", d => sizes[d.type])
-        .attr("fill", d => colors[d.type])
-        .attr("stroke", "white")
-        .attr("stroke-width", 2);
-
-    node.append("text")
-        .attr("class", "node-label")
-        .attr("dy", d => sizes[d.type] + 14)
-        .attr("text-anchor", "middle")
-        .text(d => d.id);
-
-    node.on("mouseover", function(event, d) {
-        d3.select(this).select("circle").transition().duration(200).attr("r", sizes[d.type] + 3);
-        // highlight connected links
-        link.attr("stroke-opacity", l => (l.source.id === d.id || l.target.id === d.id) ? 1 : 0.15)
-            .attr("stroke", l => (l.source.id === d.id || l.target.id === d.id) ? "#1a1a1a" : "#d4d4d4");
-    })
-    .on("mouseout", function(event, d) {
-        d3.select(this).select("circle").transition().duration(200).attr("r", sizes[d.type]);
-        link.attr("stroke-opacity", 0.7).attr("stroke", "#d4d4d4");
-    })
-    .on("click", function(event, d) {
-        if (d.url) window.location.href = d.url;
-    });
-
-    node.call(d3.drag()
-        .on("start", (event, d) => {
-            if (!event.active) sim.alphaTarget(0.3).restart();
-            d.fx = d.x; d.fy = d.y;
-        })
-        .on("drag", (event, d) => { d.fx = event.x; d.fy = event.y; })
-        .on("end", (event, d) => {
-            if (!event.active) sim.alphaTarget(0);
-            d.fx = null; d.fy = null;
-        }));
-
-    sim.on("tick", () => {
-        link.attr("x1", d => d.source.x).attr("y1", d => d.source.y)
-            .attr("x2", d => d.target.x).attr("y2", d => d.target.y);
-        node.attr("transform", d => `translate(${d.x},${d.y})`);
-    });
-
-    window.addEventListener("resize", () => {
-        const d = getDimensions();
-        width = d.width; height = d.height;
-        svg.attr("viewBox", [0, 0, width, height]);
-        sim.force("center", d3.forceCenter(width / 2, height / 2));
-        sim.alpha(0.3).restart();
-    });
-    </script>
-
-    <script>
-    (function() {
-        var btn = document.getElementById('nav-pancake-btn');
-        var drop = document.getElementById('nav-pancake-drop');
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            btn.classList.toggle('open');
-            drop.classList.toggle('open');
-        });
-        document.addEventListener('click', function() {
-            btn.classList.remove('open');
-            drop.classList.remove('open');
-        });
-    })();
-    </script>
+    <!-- BOTTOM BAR -->
     <nav class="bottom-bar">
         <span class="bottom-bar-city">Portland, OR</span>
         <span class="bottom-bar-divider">|</span>
@@ -357,5 +197,275 @@ h1, h2.section-title, .page-hero h1, .place-name-large { font-family: 'Nunito', 
             <a href="network.html" class="active">network</a>
         </div>
     </nav>
+
+    <script>
+    // ── DATA ──────────────────────────────────────────────────────────────────
+    const allNodes = [
+        // Artists
+        { id: "Kurtis Piltz",        type: "artist", medium: "Ceramicist",  neighborhood: "Multnomah Village",    url: "../artists/kurtis-piltz.html",          photo: "../images/artists/kurtis-piltz-bio.jpg" },
+        { id: "Beth Bundy",          type: "artist", medium: "Illustrator", neighborhood: "Alberta Arts District", url: "../artists/beth-bundy.html",            photo: "../images/artists/beth-bundy-bio.jpg" },
+        { id: "Yong Hong Zhong",     type: "artist", medium: "Painter",     neighborhood: "Portland",             url: "../artists/yong-hong-zhong.html",       photo: "../images/artists/yong-hong-zhong-bio.jpg" },
+        { id: "Lindsey Fox",         type: "artist", medium: "Painter",     neighborhood: "Portland",             url: "../artists/lindsey-fox.html",           photo: "../images/artists/lindsey-fox-bio.jpg" },
+        { id: "Jennifer Eaton White",type: "artist", medium: "Painter",     neighborhood: "Portland",             url: "../artists/jennifer-eaton-white.html",  photo: "../images/artists/jennifer-eaton-white-bio.jpg" },
+        // Community places
+        { id: "Multnomah Arts Center",  type: "place", neighborhood: "Multnomah Village",    url: "../places/multnomah-arts-center.html",  image: "../images/places/multnomah.jpg" },
+        { id: "ComeUnity PDX",          type: "place", neighborhood: "NE Portland",          url: "../places/comeunity-pdx.html",          image: "../images/places/communitypdx.jpg" },
+        { id: "NW Marine Art Works",    type: "place", neighborhood: "NW Industrial",        url: "../places/nw-marine-art-works.html",    image: "../images/places/nwmarine-header.jpg" },
+        { id: "Alberta Street Gallery", type: "place", neighborhood: "Alberta Arts District" },
+        { id: "Grey Raven Gallery",     type: "place", neighborhood: "Portland",             image: null },
+        { id: "PAM Rental Sales",       type: "place", neighborhood: "Portland",             image: null },
+        { id: "Catlin Gabel",           type: "place", neighborhood: "Portland",             image: null },
+        { id: "Lincoln High School",    type: "place", neighborhood: "Portland",             image: null },
+        { id: "Clinton St Coffeehouse", type: "place", neighborhood: "Portland",             image: null },
+        { id: "Rudy's Barbershop",      type: "place", neighborhood: "Alberta Arts District",image: null },
+        { id: "Casa Luna",              type: "place", neighborhood: "Portland",             image: null },
+        { id: "PSU",                    type: "place", neighborhood: "Portland",             image: null },
+        { id: "PCC",                    type: "place", neighborhood: "Portland",             image: null },
+    ];
+
+    const allLinks = [
+        { source: "Kurtis Piltz",         target: "Multnomah Arts Center" },
+        { source: "Kurtis Piltz",         target: "Catlin Gabel" },
+        { source: "Kurtis Piltz",         target: "PSU" },
+        { source: "Kurtis Piltz",         target: "PCC" },
+        { source: "Beth Bundy",           target: "Lincoln High School" },
+        { source: "Beth Bundy",           target: "Clinton St Coffeehouse" },
+        { source: "Beth Bundy",           target: "Rudy's Barbershop" },
+        { source: "Yong Hong Zhong",      target: "Grey Raven Gallery" },
+        { source: "Yong Hong Zhong",      target: "PAM Rental Sales" },
+        { source: "Lindsey Fox",          target: "NW Marine Art Works" },
+        { source: "Lindsey Fox",          target: "ComeUnity PDX" },
+        { source: "Jennifer Eaton White", target: "Alberta Street Gallery" },
+        { source: "Jennifer Eaton White", target: "Casa Luna" },
+        { source: "NW Marine Art Works",  target: "Multnomah Arts Center" },
+    ];
+
+    // ── STATE ─────────────────────────────────────────────────────────────────
+    let activeType = null, activeMedium = null, activeNeighborhood = null;
+
+    // ── SETUP ─────────────────────────────────────────────────────────────────
+    const filterBar = document.getElementById('filter-bar');
+    const container = document.getElementById('graph-container');
+
+    function reposition() {
+        const fbH = filterBar.offsetHeight;
+        container.style.top = (56 + fbH) + 'px';
+    }
+    reposition();
+    window.addEventListener('resize', reposition);
+
+    const svg = d3.select('#network');
+    let W, H;
+
+    function getDims() {
+        W = container.clientWidth;
+        H = container.clientHeight;
+    }
+    getDims();
+
+    // zoom/pan
+    const zoomG = svg.append('g');
+    const zoom = d3.zoom().scaleExtent([0.3, 4]).on('zoom', e => zoomG.attr('transform', e.transform));
+    svg.call(zoom);
+
+    // double-tap to reset
+    svg.on('dblclick.zoom', () => svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity));
+
+    // ── RENDER ────────────────────────────────────────────────────────────────
+    let linkSel, nodeSel, sim;
+
+    function getVisible() {
+        let nodes = allNodes.filter(n => {
+            if (activeType && n.type !== activeType) return false;
+            if (activeMedium && n.medium !== activeMedium) return false;
+            if (activeNeighborhood && n.neighborhood !== activeNeighborhood) return false;
+            return true;
+        });
+        const nodeIds = new Set(nodes.map(n => n.id));
+        // include place nodes connected to visible artists even if filtered
+        const links = allLinks.filter(l => nodeIds.has(l.source.id || l.source) && nodeIds.has(l.target.id || l.target));
+        return { nodes, links };
+    }
+
+    function nodeRadius(d) {
+        const deg = allLinks.filter(l => l.source === d.id || l.target === d.id || l.source.id === d.id || l.target.id === d.id).length;
+        return d.type === 'artist' ? 10 + deg * 1.5 : 7 + deg * 1.2;
+    }
+
+    const colors = { artist: '#00e5ff', place: '#ff00aa' };
+
+    function render() {
+        zoomG.selectAll('*').remove();
+        getDims();
+
+        const { nodes, links } = getVisible();
+
+        // deep-copy nodes for simulation
+        const simNodes = nodes.map(n => Object.assign({}, n));
+        const idMap = {};
+        simNodes.forEach(n => idMap[n.id] = n);
+        const simLinks = links.map(l => ({
+            source: idMap[l.source.id || l.source],
+            target: idMap[l.target.id || l.target],
+        })).filter(l => l.source && l.target);
+
+        if (sim) sim.stop();
+        sim = d3.forceSimulation(simNodes)
+            .force('link', d3.forceLink(simLinks).id(d => d.id).distance(d => {
+                return (d.source.type === 'artist' && d.target.type === 'artist') ? 140 : 100;
+            }).strength(0.4))
+            .force('charge', d3.forceManyBody().strength(-320))
+            .force('center', d3.forceCenter(W / 2, H / 2))
+            .force('collide', d3.forceCollide().radius(d => nodeRadius(d) + 18));
+
+        linkSel = zoomG.append('g')
+            .attr('stroke', '#2a2a2a').attr('stroke-opacity', 0.8)
+            .selectAll('line').data(simLinks).join('line')
+            .attr('stroke-width', 1);
+
+        nodeSel = zoomG.append('g')
+            .selectAll('g').data(simNodes).join('g')
+            .style('cursor', d => d.url ? 'pointer' : 'default')
+            .call(d3.drag()
+                .on('start', (e, d) => { if (!e.active) sim.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+                .on('drag',  (e, d) => { d.fx = e.x; d.fy = e.y; })
+                .on('end',   (e, d) => { if (!e.active) sim.alphaTarget(0); d.fx = null; d.fy = null; }))
+            .on('click', (e, d) => { if (d.url) window.location.href = d.url; })
+            .on('mouseover', showCard)
+            .on('mousemove', moveCard)
+            .on('mouseout',  hideCard)
+            .on('touchstart', (e, d) => { e.preventDefault(); showCard(e.touches[0], d); }, { passive: false })
+            .on('touchend', hideCard);
+
+        nodeSel.append('circle')
+            .attr('r', d => nodeRadius(d))
+            .attr('fill', d => colors[d.type] || '#888')
+            .attr('stroke', '#0a0a0a').attr('stroke-width', 2)
+            .style('opacity', 0)
+            .transition().duration(400).delay((d, i) => i * 30)
+            .style('opacity', 1);
+
+        nodeSel.append('text')
+            .attr('class', d => 'node-label ' + d.type + '-label')
+            .attr('dy', d => nodeRadius(d) + 14)
+            .attr('text-anchor', 'middle')
+            .text(d => d.id)
+            .style('opacity', 0)
+            .transition().duration(400).delay((d, i) => i * 30 + 100)
+            .style('opacity', 1);
+
+        sim.on('tick', () => {
+            linkSel.attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+                   .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+            nodeSel.attr('transform', d => `translate(${d.x},${d.y})`);
+        });
+
+        // center zoom on first render
+        svg.call(zoom.transform, d3.zoomIdentity.translate(0, 0).scale(1));
+    }
+
+    // ── HOVER CARD ────────────────────────────────────────────────────────────
+    const card = document.getElementById('hover-card');
+
+    function showCard(event, d) {
+        if (d.type === 'artist') {
+            card.innerHTML = `<div class="hc-artist">
+                <div class="hc-artist-photo"><img src="${d.photo}" alt="${d.id}" onerror="this.style.display='none'"></div>
+                <div class="hc-artist-text">
+                    <div class="hc-name">${d.id}</div>
+                    <div class="hc-meta">${d.medium}<br>${d.neighborhood}</div>
+                </div>
+            </div>`;
+        } else if (d.image) {
+            card.innerHTML = `<div class="hc-place">
+                <div class="hc-place-img"><img src="${d.image}" alt="${d.id}" onerror="this.parentElement.style.display='none'"></div>
+                <div class="hc-place-text">
+                    <div class="hc-name">${d.id}</div>
+                    <div class="hc-meta">${d.neighborhood || ''}</div>
+                </div>
+            </div>`;
+        } else {
+            card.innerHTML = `<div class="hc-simple">
+                <div class="hc-name">${d.id}</div>
+                <div class="hc-meta">${d.neighborhood || ''}</div>
+            </div>`;
+        }
+        card.classList.add('visible');
+        moveCard(event);
+    }
+
+    function moveCard(event) {
+        const x = event.clientX, y = event.clientY;
+        const cw = 240, ch = card.offsetHeight;
+        const vw = window.innerWidth, vh = window.innerHeight;
+        card.style.left = (x + 14 + cw > vw ? x - cw - 14 : x + 14) + 'px';
+        card.style.top  = (y + 14 + ch > vh ? y - ch - 14 : y + 14) + 'px';
+    }
+
+    function hideCard() { card.classList.remove('visible'); }
+
+    // ── FILTERS ───────────────────────────────────────────────────────────────
+    document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.className = 'filter-btn');
+            const f = btn.dataset.filter;
+            activeType = f === 'all' ? null : f;
+            activeMedium = null; activeNeighborhood = null;
+            document.querySelectorAll('.filter-btn[data-medium], .filter-btn[data-neighborhood]').forEach(b => b.className = 'filter-btn');
+            btn.className = 'filter-btn active-' + f;
+            render();
+        });
+    });
+
+    document.querySelectorAll('.filter-btn[data-medium]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const already = activeMedium === btn.dataset.medium;
+            document.querySelectorAll('.filter-btn[data-medium]').forEach(b => b.className = 'filter-btn');
+            activeMedium = already ? null : btn.dataset.medium;
+            activeNeighborhood = null;
+            document.querySelectorAll('.filter-btn[data-neighborhood]').forEach(b => b.className = 'filter-btn');
+            if (!already) { btn.className = 'filter-btn active-artist'; activeType = 'artist'; }
+            else activeType = null;
+            document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.className = 'filter-btn');
+            document.querySelector('.filter-btn[data-filter="' + (activeType || 'all') + '"]').className = 'filter-btn active-' + (activeType || 'all');
+            render();
+        });
+    });
+
+    document.querySelectorAll('.filter-btn[data-neighborhood]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const already = activeNeighborhood === btn.dataset.neighborhood;
+            document.querySelectorAll('.filter-btn[data-neighborhood]').forEach(b => b.className = 'filter-btn');
+            activeNeighborhood = already ? null : btn.dataset.neighborhood;
+            activeMedium = null;
+            document.querySelectorAll('.filter-btn[data-medium]').forEach(b => b.className = 'filter-btn');
+            if (!already) btn.className = 'filter-btn active-all';
+            render();
+        });
+    });
+
+    // ── CSV DOWNLOAD ──────────────────────────────────────────────────────────
+    document.getElementById('download-btn').addEventListener('click', () => {
+        const rows = [['Name','Type','Medium','Neighborhood','URL']];
+        allNodes.forEach(n => rows.push([n.id, n.type, n.medium||'', n.neighborhood||'', n.url||'']));
+        rows.push(['','','','','']);
+        rows.push(['From','To','','','']);
+        allLinks.forEach(l => rows.push([l.source, l.target, '','','']));
+        const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g,'""') + '"').join(',')).join('\n');
+        const a = document.createElement('a');
+        a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+        a.download = 'art-here-portland-network.csv';
+        a.click();
+    });
+
+    // ── PANCAKE ───────────────────────────────────────────────────────────────
+    var btn = document.getElementById('pancake-btn'), drop = document.getElementById('pancake-drop');
+    btn.addEventListener('click', e => { e.stopPropagation(); btn.classList.toggle('open'); drop.classList.toggle('open'); });
+    document.addEventListener('click', () => { btn.classList.remove('open'); drop.classList.remove('open'); });
+
+    // ── INIT ──────────────────────────────────────────────────────────────────
+    render();
+    window.addEventListener('resize', () => { getDims(); render(); });
+    </script>
 </body>
 </html>
