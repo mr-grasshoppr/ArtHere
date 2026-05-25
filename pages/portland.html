@@ -61,7 +61,7 @@
         .grid-cell.clickable img { transition: transform 0.3s; }
         .grid-cell.clickable:hover img { transform: scale(1.04); }
 
-        /* Logo cell: 2col x 2row, full logo mask over random artwork */
+        /* Logo cell: 2col x 2row — dark bg, artwork shows only through letterforms */
         .logo-cell {
             grid-column: span 2;
             grid-row: span 2;
@@ -71,27 +71,7 @@
             background: #0a0a0a;
             position: relative;
         }
-        /* Artwork shows dimly in the background */
-        .logo-cell-img {
-            position: absolute; inset: 0;
-            width: 100%; height: 100%;
-            object-fit: cover; object-position: center 35%;
-            opacity: 0.25;
-        }
-        /* Dark overlay masked to logo shape — artwork shows through letterforms */
-        .logo-cell-overlay {
-            position: absolute; inset: 0;
-            background: #0a0a0a;
-            -webkit-mask-image: url('../images/arthere-mask.png');
-            mask-image: url('../images/arthere-mask.png');
-            -webkit-mask-repeat: no-repeat;
-            mask-repeat: no-repeat;
-            -webkit-mask-position: center;
-            mask-position: center;
-            -webkit-mask-size: 72% auto;
-            mask-size: 72% auto;
-        }
-        /* Full artwork as background-image div, masked to logo shape */
+        /* Artwork masked to logo shape — only shows through the letterforms */
         .logo-cell-art {
             position: absolute; inset: 0;
             background-size: cover;
@@ -216,19 +196,8 @@
         cell.style.setProperty('--row-px', ROW + 'px');
         cell.style.setProperty('--gap-px', GAP + 'px');
 
-        // Dim artwork fills entire background
-        var bg = document.createElement('img');
-        bg.src = artSrc;
-        bg.alt = '';
-        bg.className = 'logo-cell-img';
-        cell.appendChild(bg);
-
-        // Dark overlay masked to logo — creates the "dark bg, logo cut-out" effect
-        var overlay = document.createElement('div');
-        overlay.className = 'logo-cell-overlay';
-        cell.appendChild(overlay);
-
-        // Full-brightness artwork as background-image div, masked to logo shape
+        // Artwork as background-image div, masked to logo shape only
+        // Dark cell background shows everywhere else
         var art = document.createElement('div');
         art.className = 'logo-cell-art';
         art.style.backgroundImage = 'url(' + artSrc + ')';
