@@ -40,22 +40,44 @@
         /* ---- FILTER BAR ---- */
         .filter-bar {
             position: fixed; top: 56px; left: 0; right: 0;
-            z-index: 100; padding: 10px 18px;
-            display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+            z-index: 100; padding: 8px 18px;
+            display: flex; gap: 8px; align-items: center;
+            flex-wrap: nowrap;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
             border-bottom: 1px solid #1a1a1a;
         }
-        .filter-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.14em; color: #555; margin-right: 4px; }
-        .filter-btn {
-            padding: 5px 12px; border-radius: 20px; border: 1px solid #333;
-            background: transparent; color: #888; font-size: 0.78rem; font-family: 'Inter', sans-serif;
-            cursor: pointer; transition: all 0.2s; letter-spacing: 0.03em;
+        .filter-group {
+            display: flex; gap: 6px; align-items: center; flex-shrink: 0;
         }
-        .filter-btn:hover { border-color: #666; color: #ccc; }
+        .filter-group-dropdowns {
+            display: flex; gap: 6px; align-items: center; flex-shrink: 0; margin-left: 4px;
+        }
+        /* Type pills: All / Artists / Community */
+        .filter-btn {
+            padding: 5px 13px; border-radius: 20px; border: 1px solid #2a2a2a;
+            background: transparent; color: #666; font-size: 0.78rem; font-family: 'Inter', sans-serif;
+            cursor: pointer; transition: all 0.2s; letter-spacing: 0.03em; white-space: nowrap;
+        }
+        .filter-btn:hover { border-color: #555; color: #ccc; }
         .filter-btn.active-artist { background: #00e5ff; border-color: #00e5ff; color: #000; font-weight: 600; }
         .filter-btn.active-place { background: #ff00aa; border-color: #ff00aa; color: #000; font-weight: 600; }
         .filter-btn.active-all { background: #fff; border-color: #fff; color: #000; font-weight: 600; }
-        .filter-sep { width: 1px; height: 20px; background: #222; margin: 0 4px; }
+        .filter-sep { width: 1px; height: 20px; background: #222; margin: 0 2px; flex-shrink: 0; }
+        /* Dropdown triggers: square corners, dashed border to look distinct */
+        .dropdown-trigger {
+            border-radius: 6px !important;
+            border: 1px dashed #3a3a3a !important;
+            color: #666 !important;
+            padding: 5px 10px !important;
+        }
+        .dropdown-trigger:hover { border-color: #666 !important; color: #ccc !important; }
+        .dropdown-trigger.selected {
+            border-color: #888 !important; border-style: solid !important; color: #fff !important;
+        }
+        @media (max-width: 600px) {
+            .filter-bar { flex-wrap: wrap; padding: 8px 12px; }
+            .filter-group-dropdowns { width: 100%; margin-left: 0; }
+        }
         /* ---- DROPDOWNS ---- */
         .dropdown-wrap { position: relative; }
         .dropdown-menu {
@@ -76,13 +98,7 @@
         .dropdown-item:hover { background: #1a1a1a; color: #fff; }
         .dropdown-item.active { color: #00e5ff; font-weight: 600; }
         .dropdown-trigger.selected { border-color: #555; color: #fff; }
-        .download-btn {
-            margin-left: auto; padding: 5px 12px; border-radius: 20px;
-            border: 1px solid #333; background: transparent; color: #666;
-            font-size: 0.78rem; font-family: 'Inter', sans-serif; cursor: pointer;
-            transition: all 0.2s; display: flex; align-items: center; gap: 6px;
-        }
-        .download-btn:hover { border-color: #666; color: #ccc; }
+
 
         /* ---- GRAPH ---- */
         #graph-container {
@@ -153,8 +169,33 @@
             .bottom-bar-city, .bottom-bar-divider { display: none; }
             .bottom-bar { justify-content: center; }
             .bottom-bar-links { gap: 20px; }
+            .filter-bar { flex-wrap: wrap; }
+            .filter-group-dropdowns { width: 100%; }
             .filter-label { display: none; }
         }
+
+        /* ---- CITIES SUBMENU ---- */
+        .pancake-dropdown .cities-item { position: relative; }
+        .pancake-dropdown .cities-trigger {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 13px 20px; font-size: 0.9rem; color: #ccc; cursor: pointer;
+            border-bottom: 1px solid #f0f0f0; transition: background 0.15s;
+            background: none; border-left: none; border-right: none; border-top: none;
+            width: 100%; text-align: left; font-family: 'Inter', -apple-system, sans-serif;
+        }
+        .pancake-dropdown .cities-trigger:hover { background: #222; color: #fff; }
+        .pancake-dropdown .cities-arrow { font-size: 0.65rem; color: #555; transition: transform 0.2s; }
+        .pancake-dropdown .cities-trigger.open .cities-arrow { transform: rotate(90deg); }
+        .cities-submenu { display: none; background: #111; border-bottom: 1px solid #222; }
+        .cities-submenu.open { display: block; }
+        .cities-submenu a, .cities-submenu span {
+            display: flex; align-items: baseline; gap: 8px;
+            padding: 9px 20px 9px 28px; font-size: 0.85rem;
+            color: #888; text-decoration: none;
+            transition: background 0.15s;
+        }
+        .cities-submenu a:hover { background: #1a1a1a; color: #fff; }
+        .cities-submenu .city-soon { color: #bbb; font-size: 0.72rem; }
     </style>
 </head>
 <body>
@@ -168,6 +209,14 @@
             </button>
             <div class="pancake-dropdown" id="pancake-drop">
                 <a href="survey.html" class="join">Join Us</a>
+                                <div class="cities-item">
+                    <button class="cities-trigger" id="cities-trigger">Cities <span class="cities-arrow">&#9654;</span></button>
+                    <div class="cities-submenu" id="cities-submenu">
+                        <a href="portland.html">Portland, OR</a>
+                        <span>Biloxi, MS <span class="city-soon">coming soon</span></span>
+                        <span>San Jose, CA <span class="city-soon">coming soon</span></span>
+                    </div>
+                </div>
                 <a href="about.html">About</a>
                 <a href="about.html#contact">Contact</a>
             </div>
@@ -177,30 +226,32 @@
 
     <!-- FILTER BAR -->
     <div class="filter-bar" id="filter-bar">
-        <span class="filter-label">Show</span>
-        <button class="filter-btn active-all" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="artist">Artists</button>
-        <button class="filter-btn" data-filter="place">Community</button>
+        <div class="filter-group">
+            <button class="filter-btn active-all" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="artist">Artists</button>
+            <button class="filter-btn" data-filter="place">Community</button>
+        </div>
         <div class="filter-sep"></div>
-        <div class="dropdown-wrap">
-            <button class="filter-btn dropdown-trigger" id="medium-trigger">Medium &#9662;</button>
-            <div class="dropdown-menu" id="medium-menu">
-                <button class="dropdown-item" data-medium="Ceramicist">Ceramicist</button>
-                <button class="dropdown-item" data-medium="Painter">Painter</button>
-                <button class="dropdown-item" data-medium="Illustrator">Illustrator</button>
+        <div class="filter-group-dropdowns">
+            <div class="dropdown-wrap">
+                <button class="filter-btn dropdown-trigger" id="medium-trigger">Medium &#9662;</button>
+                <div class="dropdown-menu" id="medium-menu">
+                    <button class="dropdown-item" data-medium="Ceramicist">Ceramicist</button>
+                    <button class="dropdown-item" data-medium="Painter">Painter</button>
+                    <button class="dropdown-item" data-medium="Illustrator">Illustrator</button>
+                </div>
+            </div>
+            <div class="dropdown-wrap">
+                <button class="filter-btn dropdown-trigger" id="neighborhood-trigger">Neighborhood &#9662;</button>
+                <div class="dropdown-menu" id="neighborhood-menu">
+                    <button class="dropdown-item" data-neighborhood="Multnomah Village">Multnomah Village</button>
+                    <button class="dropdown-item" data-neighborhood="Alberta Arts District">Alberta Arts District</button>
+                    <button class="dropdown-item" data-neighborhood="Slabtown">Slabtown</button>
+                    <button class="dropdown-item" data-neighborhood="Portland">Portland — all</button>
+                    <button class="dropdown-item" data-neighborhood="Vancouver, WA">Vancouver, WA</button>
+                </div>
             </div>
         </div>
-        <div class="dropdown-wrap">
-            <button class="filter-btn dropdown-trigger" id="neighborhood-trigger">Neighborhood &#9662;</button>
-            <div class="dropdown-menu" id="neighborhood-menu">
-                <button class="dropdown-item" data-neighborhood="Multnomah Village">Multnomah Village</button>
-                <button class="dropdown-item" data-neighborhood="Alberta Arts District">Alberta Arts District</button>
-                <button class="dropdown-item" data-neighborhood="Slabtown">Slabtown</button>
-                <button class="dropdown-item" data-neighborhood="Portland">Portland — all</button>
-                <button class="dropdown-item" data-neighborhood="Vancouver, WA">Vancouver, WA</button>
-            </div>
-        </div>
-        <button class="download-btn" id="download-btn">&#8595; CSV</button>
     </div>
 
     <!-- GRAPH -->
@@ -524,19 +575,6 @@
         });
     });
 
-    // ── CSV DOWNLOAD ──────────────────────────────────────────────────────────
-    document.getElementById('download-btn').addEventListener('click', () => {
-        const rows = [['Name','Type','Medium','Neighborhood','URL']];
-        allNodes.forEach(n => rows.push([n.id, n.type, n.medium||'', n.neighborhood||'', n.url||'']));
-        rows.push(['','','','','']);
-        rows.push(['From','To','','','']);
-        allLinks.forEach(l => rows.push([l.source, l.target, '','','']));
-        const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g,'""') + '"').join(',')).join('\n');
-        const a = document.createElement('a');
-        a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-        a.download = 'art-here-portland-network.csv';
-        a.click();
-    });
 
     // ── PANCAKE ───────────────────────────────────────────────────────────────
     var btn = document.getElementById('pancake-btn'), drop = document.getElementById('pancake-drop');

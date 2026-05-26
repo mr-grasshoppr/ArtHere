@@ -61,21 +61,6 @@
         .grid-cell.clickable img { transition: transform 0.3s; }
         .grid-cell.clickable:hover img { transform: scale(1.04); }
 
-        /* City label inside logo cell */
-        .logo-cell-city {
-            position: absolute;
-            bottom: 6%;
-            left: 53.3%;
-            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-            font-size: calc(var(--col) * 0.11);
-            font-weight: 700;
-            color: rgba(255,255,255,0.75);
-            letter-spacing: 0.04em;
-            line-height: 1;
-            pointer-events: none;
-            white-space: nowrap;
-        }
-
         /* Logo cell: 2col x 2row — dark bg, artwork shows only through letterforms */
         .logo-cell {
             grid-column: span 2;
@@ -97,8 +82,8 @@
             mask-repeat: no-repeat;
             -webkit-mask-position: center;
             mask-position: center;
-            -webkit-mask-size: 100% auto;
-            mask-size: 100% auto;
+            -webkit-mask-size: 95% auto;
+            mask-size: 95% auto;
         }
 
         /* ---- BOTTOM BAR ---- */
@@ -137,6 +122,29 @@
             .bottom-bar { justify-content: center; }
             .bottom-bar-links { gap: 20px; }
         }
+
+        /* ---- CITIES SUBMENU ---- */
+        .pancake-dropdown .cities-item { position: relative; }
+        .pancake-dropdown .cities-trigger {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 13px 20px; font-size: 0.9rem; color: #ccc; cursor: pointer;
+            border-bottom: 1px solid #f0f0f0; transition: background 0.15s;
+            background: none; border-left: none; border-right: none; border-top: none;
+            width: 100%; text-align: left; font-family: 'Inter', -apple-system, sans-serif;
+        }
+        .pancake-dropdown .cities-trigger:hover { background: #222; color: #fff; }
+        .pancake-dropdown .cities-arrow { font-size: 0.65rem; color: #555; transition: transform 0.2s; }
+        .pancake-dropdown .cities-trigger.open .cities-arrow { transform: rotate(90deg); }
+        .cities-submenu { display: none; background: #111; border-bottom: 1px solid #222; }
+        .cities-submenu.open { display: block; }
+        .cities-submenu a, .cities-submenu span {
+            display: flex; align-items: baseline; gap: 8px;
+            padding: 9px 20px 9px 28px; font-size: 0.85rem;
+            color: #888; text-decoration: none;
+            transition: background 0.15s;
+        }
+        .cities-submenu a:hover { background: #1a1a1a; color: #fff; }
+        .cities-submenu .city-soon { color: #bbb; font-size: 0.72rem; }
     </style>
 </head>
 <body>
@@ -148,6 +156,14 @@
             </button>
             <div class="pancake-dropdown" id="pancake-drop">
                 <a href="survey.html" class="join">Join Us</a>
+                                <div class="cities-item">
+                    <button class="cities-trigger" id="cities-trigger">Cities <span class="cities-arrow">&#9654;</span></button>
+                    <div class="cities-submenu" id="cities-submenu">
+                        <a href="portland.html">Portland, OR</a>
+                        <span>Biloxi, MS <span class="city-soon">coming soon</span></span>
+                        <span>San Jose, CA <span class="city-soon">coming soon</span></span>
+                    </div>
+                </div>
                 <a href="about.html">About</a>
                 <a href="about.html#contact">Contact</a>
             </div>
@@ -178,7 +194,6 @@
     var ROW = COL;
 
     document.documentElement.style.setProperty('--gap', GAP + 'px');
-    document.documentElement.style.setProperty('--col', COL + 'px');
     document.getElementById('grid-track').style.gridTemplateColumns = 'repeat(' + COLS + ',' + COL + 'px)';
 
     var ALL = [
@@ -213,23 +228,18 @@
     }
 
     // Logo cell: 2col x 2row — dark bg, dim artwork, logo shape cut-out with full artwork
-    function makeLogoCell(artSrc, cityName) {
+    function makeLogoCell(artSrc) {
         var cell = document.createElement('div');
         cell.className = 'logo-cell';
         cell.style.setProperty('--row-px', ROW + 'px');
         cell.style.setProperty('--gap-px', GAP + 'px');
 
+        // Artwork as background-image div, masked to logo shape only
+        // Dark cell background shows everywhere else
         var art = document.createElement('div');
         art.className = 'logo-cell-art';
         art.style.backgroundImage = 'url(' + artSrc + ')';
         cell.appendChild(art);
-
-        if (cityName) {
-            var label = document.createElement('div');
-            label.className = 'logo-cell-city';
-            label.textContent = cityName;
-            cell.appendChild(label);
-        }
 
         return cell;
     }
@@ -239,7 +249,6 @@
         c.className = 'grid-cell' + (art.tall ? ' tall' : '') + (clickable ? ' clickable' : '');
         c.style.height = (art.tall ? ROW * 2 + GAP : ROW) + 'px';
         if (art.tall) c.style.gridRow = 'span 2';
-        if (art.url) c.setAttribute('data-url', art.url);
         var img = document.createElement('img');
         img.src = art.src; img.alt = ''; img.loading = 'lazy';
         c.appendChild(img);
@@ -298,7 +307,7 @@
         var seq = makeSequence(base);
 
         // Logo cell first
-        track.appendChild(makeLogoCell(seq[0].src, 'Portland'));
+        track.appendChild(makeLogoCell(seq[0].src));
 
         // Fill beside logo (2 rows × remaining cols)
         var sideCount = (COLS - 2) * 2;
@@ -339,7 +348,7 @@
         if (!isAmbient) return;
         isAmbient = false;
 
-        // Read animated position before stopping animation
+        // Capture current translateY mid-scroll and lock it
         var style = window.getComputedStyle(track);
         var matrix = style.transform || style.webkitTransform;
         var currentY = 0;
@@ -350,25 +359,16 @@
                 currentY = parseFloat(vals[5]) || 0;
             }
         }
-
-        // Stop animation — keep existing DOM, no rebuild
         track.classList.remove('scrolling');
+        track.style.transform = 'translateY(' + currentY + 'px)';
         track.style.animation = 'none';
-        track.style.transform = '';
 
-        // Make existing cells clickable in place
-        track.querySelectorAll('.grid-cell[data-url]').forEach(function(cell) {
-            cell.classList.add('clickable');
-            cell.addEventListener('click', function(e) {
-                e.stopPropagation();
-                window.location.href = cell.getAttribute('data-url');
-            });
-        });
-
-        // Switch to native scroll and jump to where the animation was
+        // Switch to scrollable, make images clickable (rebuild in place)
         vp.classList.add('browse');
+        track.style.transform = '';
+        track.style.position = '';
         navArtwork.classList.add('active');
-        vp.scrollTop = Math.abs(currentY);
+        buildGrid(true);
     }
 
     function exitBrowse() {
@@ -379,19 +379,11 @@
         buildGrid(false);
     }
 
-    // artwork nav link — reshuffles when in ambient, exits when in browse
+    // artwork nav link
     navArtwork.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        if (!isAmbient) { exitBrowse(); return; }
-        // Reshuffle: stop animation, rebuild as fresh clickable grid
-        isAmbient = false;
-        track.classList.remove('scrolling');
-        track.style.animation = 'none';
-        track.style.transform = '';
-        vp.classList.add('browse');
-        navArtwork.classList.add('active');
-        buildGrid(true);
+        isAmbient ? enterBrowse() : exitBrowse();
     });
 
     // Spacebar
