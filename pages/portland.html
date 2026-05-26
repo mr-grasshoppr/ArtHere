@@ -272,8 +272,11 @@
             return result;
         }
 
-        var base = shuffle(ALL);
-        var seq = makeSequence(base);
+        if (!currentSeq) {
+            var base = shuffle(ALL);
+            currentSeq = makeSequence(base);
+        }
+        var seq = currentSeq;
 
         // Logo cell first
         track.appendChild(makeLogoCell(seq[0].src));
@@ -308,6 +311,7 @@
     }
 
     // ---- MODE: freeze-in-place then make clickable ----
+    var currentSeq = null; // persists across mode transitions so artwork order is preserved
     var isAmbient = true;
     var navArtwork = document.getElementById('nav-artwork');
     var vp = document.getElementById('grid-vp');
@@ -338,6 +342,8 @@
         track.style.position = '';
         navArtwork.classList.add('active');
         buildGrid(true);
+        // Restore scroll so the same artwork is visible as when the user tapped
+        vp.scrollTop = Math.abs(currentY);
     }
 
     function exitBrowse() {
@@ -345,6 +351,7 @@
         isAmbient = true;
         vp.classList.remove('browse');
         navArtwork.classList.remove('active');
+        currentSeq = null; // allow fresh shuffle for the next ambient cycle
         buildGrid(false);
     }
 
