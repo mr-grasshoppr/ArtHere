@@ -358,11 +358,19 @@
         buildGrid(false);
     }
 
-    // artwork nav link
+    // artwork nav link — reshuffles when in ambient, exits when in browse
     navArtwork.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        isAmbient ? enterBrowse() : exitBrowse();
+        if (!isAmbient) { exitBrowse(); return; }
+        // Reshuffle: stop animation, rebuild as fresh clickable grid
+        isAmbient = false;
+        track.classList.remove('scrolling');
+        track.style.animation = 'none';
+        track.style.transform = '';
+        vp.classList.add('browse');
+        navArtwork.classList.add('active');
+        buildGrid(true);
     });
 
     // Spacebar
