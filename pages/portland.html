@@ -147,7 +147,7 @@
     <div class="touch-hint" id="touch-hint">tap to browse artwork</div>
 
     <nav class="bottom-bar">
-        <span class="bottom-bar-city">Portland, OR</span>
+        <a href="portland.html" class="bottom-bar-city">Portland, OR</a>
         <span class="bottom-bar-divider">|</span>
         <a href="#" id="nav-artwork">artwork</a>
         <a href="artists.html">artists</a>
@@ -235,34 +235,73 @@
         track.innerHTML = '';
         track.classList.remove('scrolling');
 
-        var base = shuffle(ALL);
-        // 3x shuffle for enough content
-        var set = base.concat(shuffle(ALL)).concat(shuffle(ALL));
+        // Build a sequence: each artwork appears 4x, with at least 4 rows (COLS*4 cells) between repeats
+        function makeSequence(artList) {
+            var n = artList.length;
+            var minGap = COLS * 4; // 4 rows apart minimum
+            var result = [];
+            var lastPos = {}; // src -> last index placed
 
-        // Logo cell: spans 2col x 2row, uses first artwork as background
-        track.appendChild(makeLogoCell(set[0].src));
+            // We need 4 copies of each image, spread out
+            // Strategy: place images in passes, ensuring gap constraint
+            var needed = {};
+            artList.forEach(function(a) { needed[a.src] = 4; });
+            var remaining = artList.slice();
+            var attempts = 0;
+            var maxLen = n * 4 + 40; // a bit of buffer
 
-        // Fill the 2 remaining columns in the first row (right of logo)
-        // Logo spans 2 rows, so we need 2 rows * (COLS-2) cells to fill beside it
-        for (var c = 0; c < (COLS - 2) * 2; c++) {
-            track.appendChild(makeCell({src: set[1 + c].src, url: set[1 + c].url, tall: false}, clickable));
+            while (result.length < n * 4 && attempts < 10000) {
+                attempts++;
+                // Pick a random image that still needs placing and respects gap
+                var candidates = artList.filter(function(a) {
+                    if (!needed[a.src]) return false;
+                    var last = lastPos[a.src];
+                    if (last === undefined) return true;
+                    return (result.length - last) >= minGap;
+                });
+                if (candidates.length === 0) {
+                    // Relax: pick any image still needed (gap will be best-effort)
+                    candidates = artList.filter(function(a) { return needed[a.src] > 0; });
+                }
+                if (candidates.length === 0) break;
+                var pick = candidates[Math.floor(Math.random() * candidates.length)];
+                result.push(pick);
+                lastPos[pick.src] = result.length - 1;
+                needed[pick.src]--;
+            }
+            return result;
         }
 
-        // All remaining artwork
-        var imgIdx = 1 + (COLS - 2) * 2;
+        var base = shuffle(ALL);
+        var seq = makeSequence(base);
+
+        // Logo cell first
+        track.appendChild(makeLogoCell(seq[0].src));
+
+        // Fill beside logo (2 rows × remaining cols)
+        var sideCount = (COLS - 2) * 2;
+        for (var c = 0; c < sideCount; c++) {
+            var a = seq[(1 + c) % seq.length];
+            track.appendChild(makeCell({src: a.src, url: a.url, tall: false}, clickable));
+        }
+
+        // Main grid
+        var imgIdx = 1 + sideCount;
         var lastWasTall = false;
-        while (imgIdx < set.length) {
-            var art = set[imgIdx++];
+        while (imgIdx < seq.length) {
+            var art = seq[imgIdx % seq.length];
+            imgIdx++;
             var useTall = art.tall && !lastWasTall;
             lastWasTall = useTall;
             track.appendChild(makeCell({src: art.src, url: art.url, tall: useTall}, clickable));
         }
 
         if (!clickable) {
-            var rows = Math.ceil(ALL.length / COLS);
-            var dist = rows * (ROW + GAP);
+            // Scroll distance = full sequence height
+            var totalRows = Math.ceil((seq.length + sideCount) / COLS);
+            var dist = totalRows * (ROW + GAP);
             document.documentElement.style.setProperty('--dist', '-' + dist + 'px');
-            document.documentElement.style.setProperty('--dur', (rows * 5) + 's');
+            document.documentElement.style.setProperty('--dur', (totalRows * 5) + 's');
             track.offsetHeight;
             track.classList.add('scrolling');
         }

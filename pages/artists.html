@@ -70,8 +70,10 @@
             background: #f4f4f0; margin-bottom: 14px;
         }
         .artist-circle img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+        .artist-card { text-align: center; }
         .artist-name { font-family: 'Nunito', sans-serif; font-size: 1.05rem; font-weight: 700; margin-bottom: 3px; }
-        .artist-medium { font-size: 0.82rem; color: #888; font-weight: 300; }
+        .artist-medium { font-size: 0.82rem; color: #888; font-weight: 300; margin-bottom: 2px; }
+        .artist-location { font-size: 0.78rem; color: #bbb; font-weight: 300; }
 
         @media (max-width: 600px) {
             .artists-grid { grid-template-columns: repeat(2, 1fr); padding: 0 20px 40px; gap: 24px 16px; }
@@ -141,27 +143,32 @@
         <a href="../artists/kurtis-piltz.html" class="artist-card" data-medium="Ceramicist">
             <div class="artist-circle"><img src="../images/artists/kurtis-piltz-bio.jpg" alt="Kurtis Piltz"></div>
             <div class="artist-name">Kurtis Piltz</div>
-            <div class="artist-medium">Ceramicist &middot; Multnomah Village</div>
+            <div class="artist-medium">Ceramicist</div>
+            <div class="artist-location">Multnomah Village</div>
         </a>
         <a href="../artists/beth-bundy.html" class="artist-card" data-medium="Illustrator">
             <div class="artist-circle"><img src="../images/artists/beth-bundy-bio.jpg" alt="Beth Bundy"></div>
             <div class="artist-name">Beth Bundy</div>
-            <div class="artist-medium">Illustrator &amp; Paper Cut &middot; Alberta Arts District</div>
+            <div class="artist-medium">Illustrator &amp; Paper Cut</div>
+            <div class="artist-location">Alberta Arts District</div>
         </a>
         <a href="../artists/yong-hong-zhong.html" class="artist-card" data-medium="Painter">
             <div class="artist-circle"><img src="../images/artists/yong-hong-zhong-bio.jpg" alt="Yong Hong Zhong"></div>
             <div class="artist-name">Yong Hong Zhong</div>
-            <div class="artist-medium">Watercolor Painter &middot; Portland</div>
+            <div class="artist-medium">Watercolor Painter</div>
+            <div class="artist-location">Portland</div>
         </a>
         <a href="../artists/lindsey-fox.html" class="artist-card" data-medium="Painter">
             <div class="artist-circle"><img src="../images/artists/lindsey-fox-bio.jpg" alt="Lindsey Fox"></div>
             <div class="artist-name">Lindsey Fox</div>
-            <div class="artist-medium">Watercolor Painter &middot; Portland</div>
+            <div class="artist-medium">Watercolor Painter</div>
+            <div class="artist-location">Portland</div>
         </a>
         <a href="../artists/jennifer-eaton-white.html" class="artist-card" data-medium="Painter">
             <div class="artist-circle"><img src="../images/artists/jennifer-eaton-white-bio.jpg" alt="Jennifer Eaton White"></div>
             <div class="artist-name">Jennifer Eaton White</div>
-            <div class="artist-medium">Painter &middot; Vancouver, WA</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">Vancouver, WA</div>
         </a>
     </div>
 
@@ -182,7 +189,7 @@
     });
     </script>
     <nav class="bottom-bar">
-        <span class="bottom-bar-city">Portland, OR</span>
+        <a href="portland.html" class="bottom-bar-city">Portland, OR</a>
         <span class="bottom-bar-divider">|</span>
         <div class="bottom-bar-links">
             <a href="portland.html">artwork</a>

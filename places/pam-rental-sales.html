@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAM Rental Sales Gallery - Art Here Portland</title>
+    <link rel="icon" type="image/png" href="../images/ArtHere_favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Nunito:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, sans-serif; color: #1a1a1a; background: #fff; padding-top: 56px; padding-bottom: 56px; }
+
+        /* ---- TOP BAR ---- */
+        .top-bar {
+            position: fixed; top: 0; left: 0; right: 0; height: 56px;
+            background: rgba(255,255,255,0.97); backdrop-filter: blur(10px);
+            border-bottom: 1px solid #eee; z-index: 200;
+            display: flex; align-items: center; padding: 0 18px; gap: 12px;
+        }
+        .nav-logo { display: block; height: 26px; width: auto; transition: opacity 0.2s; }
+        .nav-logo:hover { opacity: 0.7; }
+        .pancake-wrap { position: relative; }
+        .pancake-btn { background: none; border: none; cursor: pointer; padding: 4px; display: flex; flex-direction: column; gap: 5px; }
+        .pancake-btn span { display: block; width: 20px; height: 1.5px; background: #1a1a1a; transition: all 0.25s; }
+        .pancake-btn.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+        .pancake-btn.open span:nth-child(2) { opacity: 0; }
+        .pancake-btn.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+        .pancake-dropdown { display: none; position: absolute; top: calc(100% + 8px); left: 0; background: #fff; border: 1px solid #eee; border-radius: 6px; overflow: hidden; min-width: 160px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); z-index: 300; }
+        .pancake-dropdown.open { display: block; }
+        .pancake-dropdown a { display: block; padding: 13px 20px; font-size: 0.9rem; color: #444; text-decoration: none; border-bottom: 1px solid #f0f0f0; transition: background 0.15s, color 0.15s; }
+        .pancake-dropdown a:last-child { border-bottom: none; }
+        .pancake-dropdown a:hover { background: #fafafa; color: #1a1a1a; }
+        .pancake-dropdown a.join { font-weight: 600; color: #1a1a1a; }
+        .nav-city { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; font-size: 0.95rem; font-weight: 700; color: #1a1a1a; text-decoration: none; letter-spacing: 0.03em; transition: opacity 0.2s; }
+        .nav-city:hover { opacity: 0.6; }
+
+        /* ---- BOTTOM BAR ---- */
+        .bottom-bar {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 56px;
+            background: rgba(0,0,0,0.95); backdrop-filter: blur(8px);
+            border-top: 1px solid #111; z-index: 100;
+            display: flex; align-items: center; padding: 0 18px; gap: 0;
+        }
+        .bottom-bar-city {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-size: 0.95rem; font-weight: 700; color: #fff;
+            letter-spacing: 0.03em; flex-shrink: 0;
+        }
+        .bottom-bar-divider { color: #444; margin: 0 14px; flex-shrink: 0; }
+        .bottom-bar-links { display: flex; gap: 24px; align-items: center; }
+        .bottom-bar-links a {
+            color: rgba(255,255,255,0.45); text-decoration: none; font-size: 0.88rem;
+            font-weight: 500; letter-spacing: 0.03em;
+            transition: color 0.2s; padding: 4px 0;
+            border-bottom: 1.5px solid transparent;
+        }
+        .bottom-bar-links a:hover { color: #fff; }
+        .bottom-bar-links a.active { color: #fff; border-color: rgba(255,255,255,0.6); }
+        /* ---- MOBILE BOTTOM BAR ---- */
+        @media (max-width: 600px) {
+            .bottom-bar-city, .bottom-bar-divider { display: none; }
+            .bottom-bar { justify-content: center; }
+            .bottom-bar-links { gap: 20px; }
+        }
+        /* ---- PAGE ---- */
+        .place-hero { width: 100%; height: 38vh; min-height: 260px; overflow: hidden; background: #f4f4f0; }
+        .place-hero img { width: 100%; height: 100%; object-fit: cover; object-position: center 40%; display: block; }
+        .place-identity { max-width: 980px; margin: 40px auto 0; padding: 0 40px; }
+        .place-name { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; font-size: 2.2rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 8px; }
+        .place-tagline { font-size: 0.88rem; color: #888; font-weight: 300; }
+        .bio-section { max-width: 980px; margin: 0 auto; padding: 28px 40px 40px; }
+        .bio-text { font-size: 1.05rem; color: #444; font-weight: 300; line-height: 1.8; max-width: 680px; }
+        .bio-text p { margin-bottom: 18px; }
+        .link-line { color: #999; font-size: 0.9rem; }
+        .link-line a { color: #999; text-underline-offset: 4px; text-decoration-color: #ddd; transition: color 0.3s; }
+        .link-line a:hover { color: #1a1a1a; }
+        .detail-row { display: flex; gap: 10px; align-items: baseline; margin-bottom: 8px; font-size: 0.9rem; }
+        .detail-key { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.14em; color: #aaa; width: 72px; flex-shrink: 0; }
+        .detail-val { color: #666; font-weight: 300; }
+        .detail-val a { color: #666; text-underline-offset: 4px; }
+        .community-section { max-width: 980px; margin: 0 auto; padding: 0 40px 50px; }
+        .community-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.18em; color: #999; margin-bottom: 12px; }
+        .community-list { display: flex; gap: 24px; flex-wrap: wrap; }
+        .community-list a { font-size: 0.85rem; color: #666; text-decoration: underline; text-underline-offset: 4px; text-decoration-color: #ccc; transition: text-decoration-color 0.3s; }
+        .community-list a:hover { text-decoration-color: #1a1a1a; }
+        .back-link { display: inline-block; margin: 40px 0 32px 40px; color: #888; font-size: 0.88rem; text-decoration: none; transition: color 0.3s; }
+        .back-link:hover { color: #1a1a1a; }
+        footer { padding: 40px; text-align: center; color: #bbb; font-size: 0.78rem; letter-spacing: 0.05em; border-top: 1px solid #f0f0f0; }
+        @media (max-width: 700px) {
+            .place-identity, .bio-section, .community-section { padding-left: 20px; padding-right: 20px; }
+            .place-name { font-size: 1.7rem; }
+            .back-link { margin-left: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <a href="../index.html"><img src="../images/arthere-logo-dark.png" alt="Art Here" class="nav-logo"></a>
+        <div class="pancake-wrap">
+            <button class="pancake-btn" id="pancake-btn" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="pancake-dropdown" id="pancake-drop">
+                <a href="../pages/survey.html" class="join">Join Us</a>
+                <a href="../pages/about.html">About</a>
+                <a href="../pages/about.html#contact">Contact</a>
+            </div>
+        </div>
+        <a href="../pages/portland.html" class="nav-city">Portland, OR</a>
+    </div>
+
+    <section class="place-hero">
+        <img src="../images/places/RSG-Home.jpg" alt="PAM Rental Sales Gallery interior">
+    </section>
+
+    <div class="place-identity">
+        <h1 class="place-name">PAM Rental Sales Gallery</h1>
+        <div class="place-tagline">Downtown Portland &middot; Portland Art Museum</div>
+    </div>
+
+    <section class="bio-section">
+        <div class="bio-text">
+            <p>The Rental Sales Gallery is part of the Portland Art Museum. Founded in 1959, it is a nonprofit gallery representing nearly 200 artists from Oregon and Washington. The gallery holds over 1,000 works spanning painting, sculpture, drawing, collage, photography, printmaking, and more — all available to rent or purchase directly from the artists.</p>
+            <p>The gallery hosts at least two major shows per year, including Spring and Fall Member Artists Shows highlighting new work, and periodic New Member Artist Shows open to submissions.</p>
+            <p class="link-line"><a href="https://www.rentalsalesgallery.com" target="_blank" rel="noopener">rentalsalesgallery.com</a> &middot; <a href="https://www.instagram.com/rentalsalesgallerypam/" target="_blank" rel="noopener">@rentalsalesgallerypam</a></p>
+        </div>
+    </section>
+
+    <section class="bio-section" style="padding-top: 0;">
+        <div class="bio-text">
+            <div class="detail-row"><span class="detail-key">Hours</span><span class="detail-val">Tuesday &ndash; Saturday, 11am &ndash; 5pm</span></div>
+            <div class="detail-row"><span class="detail-key">Address</span><span class="detail-val"><a href="https://goo.gl/maps/46TmdtSJYS92" target="_blank" rel="noopener">1237 SW 10th Ave, Portland, OR 97205</a></span></div>
+            <div class="detail-row"><span class="detail-key">Contact</span><span class="detail-val"><a href="mailto:rentalsales@pam.org">rentalsales@pam.org</a> &middot; 503-224-0674</span></div>
+        </div>
+    </section>
+
+    <section class="community-section">
+        <div class="community-label">Artists featured</div>
+        <div class="community-list">
+            <a href="../artists/yong-hong-zhong.html">Yong Hong Zhong</a>
+        </div>
+    </section>
+
+    <a href="../pages/community.html" class="back-link">&larr; community</a>
+    <footer>&copy; 2026 Art Here &middot; A project of Art Experience Lab</footer>
+
+    <nav class="bottom-bar">
+        <a href="../pages/portland.html" class="bottom-bar-city">Portland, OR</a>
+        <span class="bottom-bar-divider">|</span>
+        <div class="bottom-bar-links">
+            <a href="../pages/portland.html">artwork</a>
+            <a href="../pages/artists.html">artists</a>
+            <a href="../pages/community.html" class="active">community</a>
+            <a href="../pages/network.html">network</a>
+        </div>
+    </nav>
+
+    <script>
+    var btn = document.getElementById('pancake-btn'), drop = document.getElementById('pancake-drop');
+    btn.addEventListener('click', function(e) { e.stopPropagation(); btn.classList.toggle('open'); drop.classList.toggle('open'); });
+    document.addEventListener('click', function() { btn.classList.remove('open'); drop.classList.remove('open'); });
+    </script>
+</body>
+</html>
