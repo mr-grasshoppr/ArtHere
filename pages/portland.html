@@ -218,6 +218,7 @@
         c.className = 'grid-cell' + (art.tall ? ' tall' : '') + (clickable ? ' clickable' : '');
         c.style.height = (art.tall ? ROW * 2 + GAP : ROW) + 'px';
         if (art.tall) c.style.gridRow = 'span 2';
+        if (art.url) c.setAttribute('data-url', art.url);
         var img = document.createElement('img');
         img.src = art.src; img.alt = ''; img.loading = 'lazy';
         c.appendChild(img);
@@ -272,11 +273,8 @@
             return result;
         }
 
-        if (!currentSeq) {
-            var base = shuffle(ALL);
-            currentSeq = makeSequence(base);
-        }
-        var seq = currentSeq;
+        var base = shuffle(ALL);
+        var seq = makeSequence(base);
 
         // Logo cell first
         track.appendChild(makeLogoCell(seq[0].src));
@@ -311,7 +309,6 @@
     }
 
     // ---- MODE: freeze-in-place then make clickable ----
-    var currentSeq = null; // persists across mode transitions so artwork order is preserved
     var isAmbient = true;
     var navArtwork = document.getElementById('nav-artwork');
     var vp = document.getElementById('grid-vp');
@@ -321,7 +318,7 @@
         if (!isAmbient) return;
         isAmbient = false;
 
-        // Capture current translateY mid-scroll and lock it
+        // Read animated position before stopping animation
         var style = window.getComputedStyle(track);
         var matrix = style.transform || style.webkitTransform;
         var currentY = 0;
@@ -332,17 +329,24 @@
                 currentY = parseFloat(vals[5]) || 0;
             }
         }
-        track.classList.remove('scrolling');
-        track.style.transform = 'translateY(' + currentY + 'px)';
-        track.style.animation = 'none';
 
-        // Switch to scrollable, make images clickable (rebuild in place)
-        vp.classList.add('browse');
+        // Stop animation — keep existing DOM, no rebuild
+        track.classList.remove('scrolling');
+        track.style.animation = 'none';
         track.style.transform = '';
-        track.style.position = '';
+
+        // Make existing cells clickable in place
+        track.querySelectorAll('.grid-cell[data-url]').forEach(function(cell) {
+            cell.classList.add('clickable');
+            cell.addEventListener('click', function(e) {
+                e.stopPropagation();
+                window.location.href = cell.getAttribute('data-url');
+            });
+        });
+
+        // Switch to native scroll and jump to where the animation was
+        vp.classList.add('browse');
         navArtwork.classList.add('active');
-        buildGrid(true);
-        // Restore scroll so the same artwork is visible as when the user tapped
         vp.scrollTop = Math.abs(currentY);
     }
 
@@ -351,7 +355,6 @@
         isAmbient = true;
         vp.classList.remove('browse');
         navArtwork.classList.remove('active');
-        currentSeq = null; // allow fresh shuffle for the next ambient cycle
         buildGrid(false);
     }
 
