@@ -257,15 +257,18 @@
     </nav>
 
     <script>
-    var COLS = window.innerWidth < 500 ? 3 : 4;
-    var GAP = 5;
-    var VW = window.innerWidth;
-    var COL = Math.floor((VW - GAP * (COLS + 1)) / COLS);
-    var ROW = COL;
+    var COLS, GAP = 5, VW, COL, ROW;
 
-    document.documentElement.style.setProperty('--gap', GAP + 'px');
-    document.documentElement.style.setProperty('--col', COL + 'px');
-    document.getElementById('grid-track').style.gridTemplateColumns = 'repeat(' + COLS + ',' + COL + 'px)';
+    function recalcDims() {
+        COLS = window.innerWidth < 500 ? 3 : 4;
+        VW   = window.innerWidth;
+        COL  = Math.floor((VW - GAP * (COLS + 1)) / COLS);
+        ROW  = COL;
+        document.documentElement.style.setProperty('--gap', GAP + 'px');
+        document.documentElement.style.setProperty('--col', COL + 'px');
+        document.getElementById('grid-track').style.gridTemplateColumns = 'repeat(' + COLS + ',' + COL + 'px)';
+    }
+    recalcDims();
 
     var ALL = [
         { src: '../images/artwork/beth-bundy-hero.jpg',           url: '../artists/beth-bundy.html',            tall: true,  medium: 'illustration', neighborhood: 'Alberta Arts District' },
@@ -583,6 +586,22 @@
             pBtn.classList.remove('open'); pDrop.classList.remove('open');
             if (citiesSubmenu) { citiesSubmenu.classList.remove('open'); if(citiesTrigger) citiesTrigger.classList.remove('open'); }
         }
+    });
+
+    // Rebuild grid on window resize (debounced)
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            recalcDims();
+            if (isAmbient) {
+                buildGrid(false);
+            } else {
+                var st = vp.scrollTop;
+                buildGrid(true);
+                vp.scrollTop = st;
+            }
+        }, 150);
     });
 
     buildGrid(false);
