@@ -48,7 +48,7 @@
         .page-header p { font-size: 0.95rem; color: #888; font-weight: 300; }
 
         /* Filter bar */
-        .filter-bar { max-width: 1400px; margin: 0 auto; padding: 24px 40px; display: flex; gap: 8px; flex-wrap: wrap; }
+        .filter-bar { max-width: 1400px; margin: 0 auto; padding: 20px 40px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
         .filter-btn {
             padding: 7px 16px; border: 0.5px solid #ddd; border-radius: 20px;
             background: transparent; font-size: 0.82rem; color: #888; cursor: pointer;
@@ -56,6 +56,24 @@
         }
         .filter-btn:hover { border-color: #999; color: #444; }
         .filter-btn.active { background: #1a1a1a; border-color: #1a1a1a; color: #fff; }
+        /* Dropdown filters */
+        .filter-wrap { position: relative; }
+        .filter-dropdown {
+            display: none; position: absolute; top: calc(100% + 6px); left: 0;
+            background: #fff; border: 1px solid #ddd; border-radius: 8px;
+            overflow: hidden; min-width: 180px; z-index: 200;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        .filter-dropdown.open { display: block; }
+        .filter-dropdown button {
+            display: block; width: 100%; padding: 10px 18px; text-align: left;
+            background: none; border: none; border-bottom: 1px solid #f5f5f5;
+            color: #666; font-size: 0.85rem; font-family: 'Inter', sans-serif;
+            cursor: pointer; transition: background 0.15s, color 0.15s;
+        }
+        .filter-dropdown button:last-child { border-bottom: none; }
+        .filter-dropdown button:hover { background: #fafafa; color: #1a1a1a; }
+        .filter-dropdown button.chosen { color: #1a1a1a; font-weight: 500; }
 
         /* Artist grid */
         .artists-grid {
@@ -164,38 +182,54 @@
     </div>
 
     <div class="filter-bar">
-        <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="Painter">Painter</button>
-        <button class="filter-btn" data-filter="Ceramicist">Ceramicist</button>
-        <button class="filter-btn" data-filter="Illustrator">Illustrator</button>
+        <button class="filter-btn active" id="filter-all">All</button>
+        <div class="filter-wrap">
+            <button class="filter-btn" id="filter-medium-btn">Medium ▾</button>
+            <div class="filter-dropdown" id="filter-medium-drop">
+                <button data-medium="">All mediums</button>
+                <button data-medium="Painter">Painting</button>
+                <button data-medium="Ceramicist">Ceramics</button>
+                <button data-medium="Illustrator">Illustration</button>
+            </div>
+        </div>
+        <div class="filter-wrap">
+            <button class="filter-btn" id="filter-nbhd-btn">Neighborhood ▾</button>
+            <div class="filter-dropdown" id="filter-nbhd-drop">
+                <button data-nbhd="">All neighborhoods</button>
+                <button data-nbhd="Alberta Arts District">Alberta Arts District</button>
+                <button data-nbhd="Multnomah Village">Multnomah Village</button>
+                <button data-nbhd="Portland">Portland</button>
+                <button data-nbhd="Vancouver, WA">Vancouver, WA</button>
+            </div>
+        </div>
     </div>
 
     <div class="artists-grid">
-        <a href="../artists/kurtis-piltz.html" class="artist-card" data-medium="Ceramicist">
+        <a href="../artists/kurtis-piltz.html" class="artist-card" data-medium="Ceramicist" data-neighborhood="Multnomah Village">
             <div class="artist-circle"><img src="../images/artists/kurtis-piltz-bio.jpg" alt="Kurtis Piltz"></div>
             <div class="artist-name">Kurtis Piltz</div>
             <div class="artist-medium">Ceramicist</div>
             <div class="artist-location">Multnomah Village</div>
         </a>
-        <a href="../artists/beth-bundy.html" class="artist-card" data-medium="Illustrator">
+        <a href="../artists/beth-bundy.html" class="artist-card" data-medium="Illustrator" data-neighborhood="Alberta Arts District">
             <div class="artist-circle"><img src="../images/artists/beth-bundy-bio.jpg" alt="Beth Bundy"></div>
             <div class="artist-name">Beth Bundy</div>
             <div class="artist-medium">Illustrator &amp; Paper Cut</div>
             <div class="artist-location">Alberta Arts District</div>
         </a>
-        <a href="../artists/yong-hong-zhong.html" class="artist-card" data-medium="Painter">
+        <a href="../artists/yong-hong-zhong.html" class="artist-card" data-medium="Painter" data-neighborhood="Portland">
             <div class="artist-circle"><img src="../images/artists/yong-hong-zhong-bio.jpg" alt="Yong Hong Zhong"></div>
             <div class="artist-name">Yong Hong Zhong</div>
             <div class="artist-medium">Watercolor Painter</div>
             <div class="artist-location">Portland</div>
         </a>
-        <a href="../artists/lindsey-fox.html" class="artist-card" data-medium="Painter">
+        <a href="../artists/lindsey-fox.html" class="artist-card" data-medium="Painter" data-neighborhood="Portland">
             <div class="artist-circle"><img src="../images/artists/lindsey-fox-bio.jpg" alt="Lindsey Fox"></div>
             <div class="artist-name">Lindsey Fox</div>
             <div class="artist-medium">Watercolor Painter</div>
             <div class="artist-location">Portland</div>
         </a>
-        <a href="../artists/jennifer-eaton-white.html" class="artist-card" data-medium="Painter">
+        <a href="../artists/jennifer-eaton-white.html" class="artist-card" data-medium="Painter" data-neighborhood="Vancouver, WA">
             <div class="artist-circle"><img src="../images/artists/jennifer-eaton-white-bio.jpg" alt="Jennifer Eaton White"></div>
             <div class="artist-name">Jennifer Eaton White</div>
             <div class="artist-medium">Painter</div>
@@ -219,15 +253,84 @@
         });
     }
 
-    document.querySelectorAll('.filter-btn').forEach(function(b) {
-        b.addEventListener('click', function() {
-            document.querySelectorAll('.filter-btn').forEach(function(x) { x.classList.remove('active'); });
-            this.classList.add('active');
-            var f = this.dataset.filter;
-            document.querySelectorAll('.artist-card').forEach(function(c) {
-                c.classList.toggle('hidden', f !== 'all' && c.dataset.medium !== f);
-            });
+    // Filter state
+    var filterMedium = '';
+    var filterNeighborhood = '';
+
+    var filterAllBtn = document.getElementById('filter-all');
+    var filterMediumBtn = document.getElementById('filter-medium-btn');
+    var filterMediumDrop = document.getElementById('filter-medium-drop');
+    var filterNbhdBtn = document.getElementById('filter-nbhd-btn');
+    var filterNbhdDrop = document.getElementById('filter-nbhd-drop');
+
+    function applyFilters() {
+        var hasFilter = filterMedium || filterNeighborhood;
+        filterAllBtn.classList.toggle('active', !hasFilter);
+        filterMediumBtn.classList.toggle('active', !!filterMedium);
+        filterNbhdBtn.classList.toggle('active', !!filterNeighborhood);
+        document.querySelectorAll('.artist-card').forEach(function(c) {
+            var mediumMatch = !filterMedium || c.dataset.medium === filterMedium;
+            var nbhdMatch = !filterNeighborhood || c.dataset.neighborhood === filterNeighborhood;
+            c.classList.toggle('hidden', !(mediumMatch && nbhdMatch));
         });
+    }
+
+    // All button — reset both filters
+    filterAllBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        filterMedium = '';
+        filterNeighborhood = '';
+        filterMediumBtn.textContent = 'Medium ▾';
+        filterNbhdBtn.textContent = 'Neighborhood ▾';
+        filterMediumDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
+        filterNbhdDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
+        applyFilters();
+    });
+
+    // Medium dropdown toggle
+    filterMediumBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        filterMediumDrop.classList.toggle('open');
+        filterNbhdDrop.classList.remove('open');
+    });
+
+    // Neighborhood dropdown toggle
+    filterNbhdBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        filterNbhdDrop.classList.toggle('open');
+        filterMediumDrop.classList.remove('open');
+    });
+
+    // Medium dropdown choices
+    filterMediumDrop.querySelectorAll('button').forEach(function(b) {
+        b.addEventListener('click', function(e) {
+            e.stopPropagation();
+            filterMedium = b.dataset.medium;
+            filterMediumBtn.textContent = filterMedium ? b.textContent + ' ▾' : 'Medium ▾';
+            filterMediumDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
+            if (filterMedium) b.classList.add('chosen');
+            filterMediumDrop.classList.remove('open');
+            applyFilters();
+        });
+    });
+
+    // Neighborhood dropdown choices
+    filterNbhdDrop.querySelectorAll('button').forEach(function(b) {
+        b.addEventListener('click', function(e) {
+            e.stopPropagation();
+            filterNeighborhood = b.dataset.nbhd;
+            filterNbhdBtn.textContent = filterNeighborhood ? b.textContent + ' ▾' : 'Neighborhood ▾';
+            filterNbhdDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
+            if (filterNeighborhood) b.classList.add('chosen');
+            filterNbhdDrop.classList.remove('open');
+            applyFilters();
+        });
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function() {
+        filterMediumDrop.classList.remove('open');
+        filterNbhdDrop.classList.remove('open');
     });
     </script>
     <nav class="bottom-bar">
