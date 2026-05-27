@@ -95,24 +95,14 @@
         .grid-cell.clickable img { transition: transform 0.3s; }
         .grid-cell.clickable:hover img { transform: scale(1.04); }
 
-        /* Full-width ambient header: small logo + city name, bottom-left */
-        .city-header-cell {
-            grid-row: span 2;
-            height: calc(var(--row-px) * 2 + var(--gap-px));
+        /* Logo cell: single grid square, artwork through letterforms */
+        .logo-cell {
             background: #0a0a0a;
-            display: flex;
-            align-items: flex-end;
-            padding: 0 var(--gap) calc(var(--gap) * 2) var(--gap);
-            gap: 12px;
+            border-radius: 6px;
             overflow: hidden;
-        }
-        .header-logo-mask {
-            flex-shrink: 0;
-            height: calc(var(--row-px) * 0.8);
-            aspect-ratio: 1668 / 1457;
             position: relative;
         }
-        .header-logo-art {
+        .logo-cell-art {
             position: absolute; inset: 0;
             background-size: cover;
             background-position: center 35%;
@@ -125,19 +115,9 @@
             -webkit-mask-size: contain;
             mask-size: contain;
         }
-        .city-header-text {
-            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-            font-size: calc(var(--row-px) * 0.18);
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: -0.01em;
-            line-height: 1;
-            white-space: nowrap;
-            padding-bottom: 2px;
-        }
         /* Browse mode page header (inside grid track) */
         .art-page-header-cell {
-            padding: 28px 4px 20px;
+            padding: 0 4px 16px;
         }
         .art-page-header-cell h1 {
             font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
@@ -318,25 +298,15 @@
         return arr;
     }
 
-    // Ambient header: full-width cell, small logo + city name at bottom-left
-    function makeAmbientHeaderCell(artSrc, cityName) {
+    // Logo cell: single grid square, artwork masked to Art Here letterforms
+    function makeLogoCell(artSrc) {
         var cell = document.createElement('div');
-        cell.className = 'city-header-cell';
-        cell.style.setProperty('--row-px', ROW + 'px');
-        cell.style.setProperty('--gap-px', GAP + 'px');
-        cell.style.gridColumn = '1 / -1';
-        cell.style.gridRow = 'span 2';
-        var logoWrap = document.createElement('div');
-        logoWrap.className = 'header-logo-mask';
-        var logoArt = document.createElement('div');
-        logoArt.className = 'header-logo-art';
-        logoArt.style.backgroundImage = 'url(' + artSrc + ')';
-        logoWrap.appendChild(logoArt);
-        var text = document.createElement('div');
-        text.className = 'city-header-text';
-        text.textContent = cityName;
-        cell.appendChild(logoWrap);
-        cell.appendChild(text);
+        cell.className = 'logo-cell';
+        cell.style.height = ROW + 'px';
+        var art = document.createElement('div');
+        art.className = 'logo-cell-art';
+        art.style.backgroundImage = 'url(' + artSrc + ')';
+        cell.appendChild(art);
         return cell;
     }
 
@@ -432,8 +402,8 @@
             track.appendChild(makeBrowseHeaderCell());
             imgIdx = 0;
         } else {
-            // Ambient mode: small logo + city name at bottom-left, first image as logo bg
-            track.appendChild(makeAmbientHeaderCell(seq[0].src, 'Portland, OR'));
+            // Ambient mode: logo in top-left grid cell, artwork fills the rest
+            track.appendChild(makeLogoCell(seq[0].src));
             imgIdx = 1;
         }
         var lastWasTall = false;
@@ -446,7 +416,7 @@
         }
 
         if (!clickable) {
-            var totalRows = 2 + Math.ceil((seq.length - 1) / COLS);
+            var totalRows = 1 + Math.ceil((seq.length - 1) / COLS);
             var dist = totalRows * (ROW + GAP);
             document.documentElement.style.setProperty('--dist', '-' + dist + 'px');
             document.documentElement.style.setProperty('--dur', (totalRows * 5) + 's');
