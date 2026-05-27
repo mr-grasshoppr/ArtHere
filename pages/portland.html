@@ -95,8 +95,10 @@
         .grid-cell.clickable img { transition: transform 0.3s; }
         .grid-cell.clickable:hover img { transform: scale(1.04); }
 
-        /* Logo cell: single grid square, artwork through letterforms */
+        /* Logo cell: 2-col × 2-row, artwork through letterforms */
         .logo-cell {
+            grid-column: span 2;
+            grid-row: span 2;
             background: #0a0a0a;
             border-radius: 6px;
             overflow: hidden;
@@ -110,10 +112,24 @@
             mask-image: url('../images/arthere-mask.png');
             -webkit-mask-repeat: no-repeat;
             mask-repeat: no-repeat;
-            -webkit-mask-position: center;
-            mask-position: center;
-            -webkit-mask-size: contain;
-            mask-size: contain;
+            -webkit-mask-position: 21% center;
+            mask-position: 21% center;
+            -webkit-mask-size: 90% auto;
+            mask-size: 90% auto;
+        }
+        .logo-city-text {
+            position: absolute;
+            bottom: 14px;
+            right: 16px;
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-style: italic;
+            font-weight: 700;
+            font-size: calc(var(--row-px) * 0.11);
+            color: rgba(255,255,255,0.72);
+            letter-spacing: 0.02em;
+            text-align: right;
+            line-height: 1;
+            pointer-events: none;
         }
         /* Browse mode page header (inside grid track) */
         .art-page-header-cell {
@@ -301,15 +317,20 @@
         return arr;
     }
 
-    // Logo cell: single grid square, artwork masked to Art Here letterforms
+    // Logo cell: 2-col × 2-row, artwork through letterforms + city name below
     function makeLogoCell(artSrc) {
         var cell = document.createElement('div');
         cell.className = 'logo-cell';
-        cell.style.height = ROW + 'px';
+        cell.style.setProperty('--row-px', ROW + 'px');
+        cell.style.height = (ROW * 2 + GAP) + 'px';
         var art = document.createElement('div');
         art.className = 'logo-cell-art';
         art.style.backgroundImage = 'url(' + artSrc + ')';
         cell.appendChild(art);
+        var city = document.createElement('div');
+        city.className = 'logo-city-text';
+        city.textContent = 'Portland, OR';
+        cell.appendChild(city);
         return cell;
     }
 
@@ -419,7 +440,7 @@
         }
 
         if (!clickable) {
-            var totalRows = 1 + Math.ceil((seq.length - 1) / COLS);
+            var totalRows = 2 + Math.ceil((seq.length - 1) / COLS);
             var dist = totalRows * (ROW + GAP);
             document.documentElement.style.setProperty('--dist', '-' + dist + 'px');
             document.documentElement.style.setProperty('--dur', (totalRows * 5) + 's');
@@ -527,12 +548,16 @@
         buildGrid(false);
     }
 
-    // Artwork nav: grid click/touch freezes; Artwork button reshuffles
+    // Artwork nav: enters browse and reshuffles; never exits (spacebar exits)
     navArtwork.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        if (!isAmbient) { exitBrowse(); return; }
-        // Reshuffle: stop animation, rebuild as fresh clickable grid
+        if (!isAmbient) {
+            // Already in browse — reshuffle in place
+            buildGrid(true);
+            return;
+        }
+        // Enter browse from ambient
         isAmbient = false;
         track.classList.remove('scrolling');
         track.style.animation = 'none';
