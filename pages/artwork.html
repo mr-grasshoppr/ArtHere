@@ -60,10 +60,11 @@
         .cities-submenu a, .cities-submenu span {
             display: flex; align-items: baseline; gap: 8px;
             padding: 9px 20px 9px 28px; font-size: 0.85rem;
-            color: #888; text-decoration: none; transition: background 0.15s;
+            text-decoration: none; transition: background 0.15s;
         }
+        .cities-submenu a { color: #ccc; }
+        .cities-submenu span { color: #333; cursor: default; }
         .cities-submenu a:hover { background: #1a1a1a; color: #fff; }
-        .cities-submenu .city-soon { color: #bbb; font-size: 0.72rem; }
 
         /* ---- PAGE HEADER ---- */
         .page-header { padding: 40px 20px 12px; }
@@ -151,8 +152,8 @@
                     <button class="cities-trigger" id="cities-trigger">Cities <span class="cities-arrow">&#9654;</span></button>
                     <div class="cities-submenu" id="cities-submenu">
                         <a href="portland.html">Portland, OR</a>
-                        <span>Biloxi, MS <span class="city-soon">coming soon</span></span>
-                        <span>San Jose, CA <span class="city-soon">coming soon</span></span>
+                        <span>Biloxi, MS</span>
+                        <span>San Jose, CA</span>
                     </div>
                 </div>
                 <a href="about.html">About</a>

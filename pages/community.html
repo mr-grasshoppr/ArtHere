@@ -46,6 +46,19 @@
         .page-header h1 { font-family: 'Nunito', sans-serif; font-size: 2rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 6px; }
         .page-header p { font-size: 0.95rem; color: #888; font-weight: 300; }
 
+        /* Section labels (shown when both events + places are visible) */
+        .section-label { max-width: 1400px; margin: 0 auto; padding: 40px 40px 0; }
+        .section-label h2 {
+            font-family: 'Nunito', sans-serif; font-size: 1.05rem; font-weight: 700;
+            color: #1a1a1a; letter-spacing: 0.01em;
+        }
+
+        /* Events grid (JS-populated, mirrors places-grid layout) */
+        #events-grid {
+            max-width: 1400px; margin: 0 auto; padding: 24px 40px 0;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;
+        }
+
         /* Places grid */
         .places-grid {
             max-width: 1400px; margin: 0 auto; padding: 40px;
@@ -53,14 +66,25 @@
         }
         .place-card { text-decoration: none; color: inherit; display: block; border-radius: 8px; overflow: hidden; border: 1px solid #f0f0f0; transition: box-shadow 0.2s, transform 0.2s; }
         .place-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); transform: translateY(-2px); }
-        .place-image { width: 100%; aspect-ratio: 16/9; overflow: hidden; background: #f4f4f0; }
+        .place-image { position: relative; width: 100%; aspect-ratio: 16/9; overflow: hidden; background: #f4f4f0; }
         .place-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .place-info { padding: 16px 18px; }
         .place-name { font-family: 'Nunito', sans-serif; font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
         .place-meta { font-size: 0.82rem; color: #888; font-weight: 300; }
 
+        /* Date badge on event card images */
+        .event-date-badge {
+            position: absolute; top: 10px; left: 10px;
+            background: rgba(0,0,0,0.72); color: #fff;
+            padding: 4px 9px; border-radius: 4px;
+            font-size: 0.72rem; font-weight: 600; letter-spacing: 0.05em;
+            text-transform: uppercase; pointer-events: none;
+        }
+
         @media (max-width: 600px) {
             .places-grid { grid-template-columns: 1fr; padding: 20px; }
+            #events-grid { grid-template-columns: 1fr; padding: 16px 20px 0; }
+            .section-label { padding: 32px 20px 0; }
             .page-header { padding: 32px 20px 24px; }
         }
 
@@ -86,10 +110,9 @@
         }
         .bottom-bar-links a:hover { color: #fff; }
         .bottom-bar-links a.active { color: #fff; border-color: rgba(255,255,255,0.6); }
-    
+
         @media (max-width: 600px) {
-            .bottom-bar-city,
-            .bottom-bar-divider { display: none; }
+            .bottom-bar-city, .bottom-bar-divider { display: none; }
             .bottom-bar { justify-content: center; }
             .bottom-bar-links { gap: 20px; }
         }
@@ -111,11 +134,11 @@
         .cities-submenu a, .cities-submenu span {
             display: flex; align-items: baseline; gap: 8px;
             padding: 9px 20px 9px 28px; font-size: 0.85rem;
-            color: #555; text-decoration: none;
-            transition: background 0.15s;
+            text-decoration: none; transition: background 0.15s;
         }
+        .cities-submenu a { color: #1a1a1a; }
+        .cities-submenu span { color: #ccc; cursor: default; }
         .cities-submenu a:hover { background: #f0f0f0; color: #1a1a1a; }
-        .cities-submenu .city-soon { color: #bbb; font-size: 0.72rem; }
     </style>
 </head>
 <body>
@@ -127,12 +150,12 @@
             </button>
             <div class="pancake-dropdown" id="pancake-drop">
                 <a href="survey.html" class="join">Join Us</a>
-                                <div class="cities-item">
+                <div class="cities-item">
                     <button class="cities-trigger" id="cities-trigger">Cities <span class="cities-arrow">&#9654;</span></button>
                     <div class="cities-submenu" id="cities-submenu">
                         <a href="portland.html">Portland, OR</a>
-                        <span>Biloxi, MS <span class="city-soon">coming soon</span></span>
-                        <span>San Jose, CA <span class="city-soon">coming soon</span></span>
+                        <span>Biloxi, MS</span>
+                        <span>San Jose, CA</span>
                     </div>
                 </div>
                 <a href="about.html">About</a>
@@ -145,6 +168,17 @@
     <div class="page-header">
         <h1>Portland Community</h1>
         <p>The places and people that support our community's artists.</p>
+    </div>
+
+    <!-- Events section — shown only when upcoming events exist -->
+    <div id="events-section" style="display:none;">
+        <div class="section-label"><h2>Upcoming Events</h2></div>
+        <div id="events-grid"></div>
+    </div>
+
+    <!-- Places label — shown alongside events so sections are distinct -->
+    <div id="places-label" class="section-label" style="display:none;">
+        <h2>Community Places</h2>
     </div>
 
     <div class="places-grid">
@@ -183,12 +217,123 @@
     <div style="max-width:1400px; margin:0 auto; padding: 24px 40px 8px;">
         <a href="portland.html" style="color:#aaa; font-size:0.88rem; text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='#1a1a1a'" onmouseout="this.style.color='#aaa'">&larr; back to Portland</a>
     </div>
+
     <script>
+    // ── EVENTS ───────────────────────────────────────────────────────────────
+    // Add events here. They disappear automatically after their date passes.
+    // date format: "YYYY-MM-DD"
+    var EVENTS = [
+        {
+            title: "Beth Bundy: Illustration Workshop",
+            venue: "ComeUnity PDX",
+            date: "2026-06-14",
+            time: "2:00 – 5:00 PM",
+            url: "../artists/beth-bundy.html",
+            image: "../images/artwork/beth-bundy-hero.jpg"
+        },
+        {
+            title: "Kurtis Piltz: Studio Sale",
+            venue: "Multnomah Arts Center",
+            date: "2026-07-19",
+            time: "10:00 AM – 4:00 PM",
+            url: "../artists/kurtis-piltz.html",
+            image: "../images/artwork/kurtis-piltz-hero.jpg"
+        },
+        {
+            title: "Summer Group Exhibition Opening",
+            venue: "NW Marine Art Works",
+            date: "2026-08-08",
+            time: "5:00 – 8:00 PM",
+            image: "../images/places/nwmarine-header.jpg"
+        }
+    ];
+
+    // Parse "YYYY-MM-DD" as local date (avoids UTC timezone offset issues)
+    function parseLocalDate(str) {
+        var p = str.split('-');
+        return new Date(+p[0], +p[1] - 1, +p[2]);
+    }
+
+    // "2026-06-14" → "Jun 14"
+    function formatDate(str) {
+        return parseLocalDate(str).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    function renderEvents() {
+        var today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Keep only future events, sorted soonest first
+        var upcoming = EVENTS.filter(function(e) {
+            return parseLocalDate(e.date) >= today;
+        }).sort(function(a, b) {
+            return parseLocalDate(a.date) - parseLocalDate(b.date);
+        });
+
+        var section = document.getElementById('events-section');
+        var placesLabel = document.getElementById('places-label');
+
+        if (upcoming.length === 0) return; // nothing to show — section stays hidden
+
+        var grid = document.getElementById('events-grid');
+        upcoming.forEach(function(e) {
+            // Card element: <a> if there's a URL, <div> otherwise
+            var card = document.createElement(e.url ? 'a' : 'div');
+            card.className = 'place-card';
+            if (e.url) card.href = e.url;
+
+            // Image area + date badge
+            var imgWrap = document.createElement('div');
+            imgWrap.className = 'place-image';
+
+            if (e.image) {
+                var img = document.createElement('img');
+                img.src = e.image;
+                img.alt = e.title;
+                imgWrap.appendChild(img);
+            } else {
+                imgWrap.style.cssText = 'background:#f0ede8; display:flex; align-items:center; justify-content:center;';
+                var fallback = document.createElement('span');
+                fallback.style.cssText = "font-family:'Nunito',sans-serif; font-size:0.9rem; color:#999;";
+                fallback.textContent = e.venue;
+                imgWrap.appendChild(fallback);
+            }
+
+            var badge = document.createElement('div');
+            badge.className = 'event-date-badge';
+            badge.textContent = formatDate(e.date);
+            imgWrap.appendChild(badge);
+
+            card.appendChild(imgWrap);
+
+            // Info area
+            var info = document.createElement('div');
+            info.className = 'place-info';
+
+            var name = document.createElement('div');
+            name.className = 'place-name';
+            name.textContent = e.title;
+
+            var meta = document.createElement('div');
+            meta.className = 'place-meta';
+            meta.textContent = e.venue + (e.time ? ' · ' + e.time : '');
+
+            info.appendChild(name);
+            info.appendChild(meta);
+            card.appendChild(info);
+            grid.appendChild(card);
+        });
+
+        section.style.display = '';
+        placesLabel.style.display = '';
+    }
+
+    renderEvents();
+
+    // ── MENU ─────────────────────────────────────────────────────────────────
     var btn = document.getElementById('pancake-btn'), drop = document.getElementById('pancake-drop');
     btn.addEventListener('click', function(e) { e.stopPropagation(); btn.classList.toggle('open'); drop.classList.toggle('open'); });
-    document.addEventListener('click', function() { btn.classList.remove('open'); drop.classList.remove('open'); if(citiesSubmenu){citiesSubmenu.classList.remove('open');citiesTrigger.classList.remove('open');} });
 
-    // Cities submenu toggle
     var citiesTrigger = document.getElementById('cities-trigger');
     var citiesSubmenu = document.getElementById('cities-submenu');
     if (citiesTrigger) {
@@ -198,7 +343,14 @@
             citiesSubmenu.classList.toggle('open');
         });
     }
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.pancake-wrap')) {
+            btn.classList.remove('open'); drop.classList.remove('open');
+            if (citiesSubmenu) { citiesSubmenu.classList.remove('open'); citiesTrigger.classList.remove('open'); }
+        }
+    });
     </script>
+
     <nav class="bottom-bar">
         <a href="portland.html" class="bottom-bar-city">Portland, OR</a>
         <span class="bottom-bar-divider">|</span>

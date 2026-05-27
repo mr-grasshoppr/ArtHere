@@ -137,7 +137,7 @@
             width: 12px; height: 12px; border-radius: 50%;
             transition: background 0.2s;
         }
-        .legend-suggest { font-size: 0.75rem; color: #999; text-decoration: none; transition: color 0.2s; }
+        .legend-suggest { font-size: 0.75rem; color: #999; text-decoration: none; transition: color 0.2s; font-style: italic; margin-left: auto; }
         .legend-suggest:hover { color: #fff; }
 
         /* ---- BOTTOM BAR ---- */
@@ -177,10 +177,11 @@
         .cities-submenu a, .cities-submenu span {
             display: flex; align-items: baseline; gap: 8px;
             padding: 9px 20px 9px 28px; font-size: 0.85rem;
-            color: #888; text-decoration: none; transition: background 0.15s;
+            text-decoration: none; transition: background 0.15s;
         }
+        .cities-submenu a { color: #ccc; }
+        .cities-submenu span { color: #333; cursor: default; }
         .cities-submenu a:hover { background: #1a1a1a; color: #fff; }
-        .cities-submenu .city-soon { color: #bbb; font-size: 0.72rem; }
     </style>
 </head>
 <body>
@@ -198,8 +199,8 @@
                     <button class="cities-trigger" id="cities-trigger">Cities <span class="cities-arrow">&#9654;</span></button>
                     <div class="cities-submenu" id="cities-submenu">
                         <a href="portland.html">Portland, OR</a>
-                        <span>Biloxi, MS <span class="city-soon">coming soon</span></span>
-                        <span>San Jose, CA <span class="city-soon">coming soon</span></span>
+                        <span>Biloxi, MS</span>
+                        <span>San Jose, CA</span>
                     </div>
                 </div>
                 <a href="about.html">About</a>
@@ -255,7 +256,7 @@
             </div>
             <span>Community</span>
         </div>
-        <a href="mailto:hello@axlab.io" class="legend-suggest">Know a connection we're missing? Let us know &rarr;</a>
+        <a href="mailto:hello@axlab.io" class="legend-suggest">Share a connection &rarr;</a>
     </div>
 
     <!-- BOTTOM BAR -->

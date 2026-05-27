@@ -9,6 +9,30 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Nunito:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../styles.css">
+    <style>
+        /* Cities submenu */
+        .pancake-dropdown .cities-item { position: relative; }
+        .pancake-dropdown .cities-trigger {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 13px 20px; font-size: 0.9rem; color: #444; cursor: pointer;
+            border-bottom: 1px solid #f0f0f0; transition: background 0.15s;
+            background: none; border-left: none; border-right: none; border-top: none;
+            width: 100%; text-align: left; font-family: 'Inter', -apple-system, sans-serif;
+        }
+        .pancake-dropdown .cities-trigger:hover { background: #fafafa; color: #1a1a1a; }
+        .pancake-dropdown .cities-arrow { font-size: 0.65rem; color: #ccc; transition: transform 0.2s; }
+        .pancake-dropdown .cities-trigger.open .cities-arrow { transform: rotate(90deg); }
+        .cities-submenu { display: none; background: #fafafa; border-bottom: 1px solid #f0f0f0; }
+        .cities-submenu.open { display: block; }
+        .cities-submenu a, .cities-submenu span {
+            display: flex; align-items: baseline; gap: 8px;
+            padding: 9px 20px 9px 28px; font-size: 0.85rem;
+            text-decoration: none; transition: background 0.15s;
+        }
+        .cities-submenu a { color: #1a1a1a; }
+        .cities-submenu span { color: #ccc; cursor: default; }
+        .cities-submenu a:hover { background: #f0f0f0; color: #1a1a1a; }
+    </style>
 </head>
 <body>
     <!-- TOP NAV -->
@@ -20,6 +44,14 @@
             </button>
             <div class="pancake-dropdown" id="nav-pancake-drop">
                 <a href="survey.html" class="join">Join Us</a>
+                <div class="cities-item">
+                    <button class="cities-trigger" id="cities-trigger">Cities <span class="cities-arrow">&#9654;</span></button>
+                    <div class="cities-submenu" id="cities-submenu">
+                        <a href="portland.html">Portland, OR</a>
+                        <span>Biloxi, MS</span>
+                        <span>San Jose, CA</span>
+                    </div>
+                </div>
                 <a href="about.html">About</a>
                 <a href="about.html#contact">Contact</a>
             </div>
@@ -35,5 +67,24 @@
     </section>
 
     <footer>&copy; 2026 Art Here &middot; A project of Art Experience Lab</footer>
+    <script>
+    var pBtn = document.getElementById('nav-pancake-btn'), pDrop = document.getElementById('nav-pancake-drop');
+    pBtn.addEventListener('click', function(e) { e.stopPropagation(); pBtn.classList.toggle('open'); pDrop.classList.toggle('open'); });
+    var citiesTrigger = document.getElementById('cities-trigger');
+    var citiesSubmenu = document.getElementById('cities-submenu');
+    if (citiesTrigger) {
+        citiesTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            citiesTrigger.classList.toggle('open');
+            citiesSubmenu.classList.toggle('open');
+        });
+    }
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest || !e.target.closest('.pancake-wrap')) {
+            pBtn.classList.remove('open'); pDrop.classList.remove('open');
+            if (citiesSubmenu) { citiesSubmenu.classList.remove('open'); citiesTrigger.classList.remove('open'); }
+        }
+    });
+    </script>
 </body>
 </html>
