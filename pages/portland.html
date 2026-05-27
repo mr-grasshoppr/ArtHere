@@ -95,18 +95,24 @@
         .grid-cell.clickable img { transition: transform 0.3s; }
         .grid-cell.clickable:hover img { transform: scale(1.04); }
 
-        /* Logo cell: 2col x 2row — dark bg, artwork shows only through letterforms */
-        .logo-cell {
-            grid-column: span 2;
+        /* Full-width ambient header: small logo + city name, bottom-left */
+        .city-header-cell {
             grid-row: span 2;
             height: calc(var(--row-px) * 2 + var(--gap-px));
-            border-radius: 6px;
-            overflow: hidden;
             background: #0a0a0a;
+            display: flex;
+            align-items: flex-end;
+            padding: 0 var(--gap) calc(var(--gap) * 2) var(--gap);
+            gap: 12px;
+            overflow: hidden;
+        }
+        .header-logo-mask {
+            flex-shrink: 0;
+            height: calc(var(--row-px) * 0.8);
+            aspect-ratio: 1668 / 1457;
             position: relative;
         }
-        /* Artwork masked to logo shape — only shows through the letterforms */
-        .logo-cell-art {
+        .header-logo-art {
             position: absolute; inset: 0;
             background-size: cover;
             background-position: center 35%;
@@ -114,31 +120,37 @@
             mask-image: url('../images/arthere-mask.png');
             -webkit-mask-repeat: no-repeat;
             mask-repeat: no-repeat;
-            -webkit-mask-position: 21% center;
-            mask-position: 21% center;
-            -webkit-mask-size: 90% auto;
-            mask-size: 90% auto;
-        }
-
-        /* City name header cell beside logo */
-        .city-header-cell {
-            grid-column: span 2;
-            grid-row: span 2;
-            height: calc(var(--row-px) * 2 + var(--gap-px));
-            background: #0a0a0a;
-            display: flex;
-            align-items: center;
-            padding-left: var(--gap);
-            overflow: hidden;
+            -webkit-mask-position: center;
+            mask-position: center;
+            -webkit-mask-size: contain;
+            mask-size: contain;
         }
         .city-header-text {
             font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-            font-size: calc(var(--col) * 0.2);
+            font-size: calc(var(--row-px) * 0.18);
             font-weight: 700;
             color: #fff;
             letter-spacing: -0.01em;
-            line-height: 1.1;
+            line-height: 1;
             white-space: nowrap;
+            padding-bottom: 2px;
+        }
+        /* Browse mode page header (inside grid track) */
+        .art-page-header-cell {
+            padding: 28px 4px 20px;
+        }
+        .art-page-header-cell h1 {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.01em;
+            margin-bottom: 5px;
+        }
+        .art-page-header-cell p {
+            font-size: 0.88rem;
+            color: #666;
+            font-weight: 300;
         }
 
         /* ---- BOTTOM BAR ---- */
@@ -306,31 +318,39 @@
         return arr;
     }
 
-    // Logo cell: 2col x 2row — art shows through letterforms via mask
-    function makeLogoCell(artSrc) {
-        var cell = document.createElement('div');
-        cell.className = 'logo-cell';
-        cell.style.setProperty('--row-px', ROW + 'px');
-        cell.style.setProperty('--gap-px', GAP + 'px');
-        var art = document.createElement('div');
-        art.className = 'logo-cell-art';
-        art.style.backgroundImage = 'url(' + artSrc + ')';
-        cell.appendChild(art);
-        return cell;
-    }
-
-    // City name cell: spans remaining cols x 2 rows, shows city name in large type
-    function makeCityHeaderCell(cityName) {
+    // Ambient header: full-width cell, small logo + city name at bottom-left
+    function makeAmbientHeaderCell(artSrc, cityName) {
         var cell = document.createElement('div');
         cell.className = 'city-header-cell';
         cell.style.setProperty('--row-px', ROW + 'px');
         cell.style.setProperty('--gap-px', GAP + 'px');
-        cell.style.gridColumn = 'span ' + (COLS - 2);
+        cell.style.gridColumn = '1 / -1';
         cell.style.gridRow = 'span 2';
+        var logoWrap = document.createElement('div');
+        logoWrap.className = 'header-logo-mask';
+        var logoArt = document.createElement('div');
+        logoArt.className = 'header-logo-art';
+        logoArt.style.backgroundImage = 'url(' + artSrc + ')';
+        logoWrap.appendChild(logoArt);
         var text = document.createElement('div');
         text.className = 'city-header-text';
         text.textContent = cityName;
+        cell.appendChild(logoWrap);
         cell.appendChild(text);
+        return cell;
+    }
+
+    // Browse header: page title + subtitle (no logo)
+    function makeBrowseHeaderCell() {
+        var cell = document.createElement('div');
+        cell.className = 'art-page-header-cell';
+        cell.style.gridColumn = '1 / -1';
+        var h1 = document.createElement('h1');
+        h1.textContent = 'Portland Artwork';
+        var p = document.createElement('p');
+        p.textContent = 'Browse work from Portland metro artists.';
+        cell.appendChild(h1);
+        cell.appendChild(p);
         return cell;
     }
 
@@ -405,12 +425,17 @@
         var base = shuffle(artList);
         var seq = makeSequence(base);
 
-        // Logo cell + city header (top 2 rows)
-        track.appendChild(makeLogoCell(seq[0].src));
-        track.appendChild(makeCityHeaderCell('Portland, OR'));
-
-        // Main artwork grid starts immediately after header
-        var imgIdx = 1;
+        // Header row
+        var imgIdx;
+        if (clickable) {
+            // Browse mode: page title, no logo, use all images for artwork
+            track.appendChild(makeBrowseHeaderCell());
+            imgIdx = 0;
+        } else {
+            // Ambient mode: small logo + city name at bottom-left, first image as logo bg
+            track.appendChild(makeAmbientHeaderCell(seq[0].src, 'Portland, OR'));
+            imgIdx = 1;
+        }
         var lastWasTall = false;
         while (imgIdx < seq.length) {
             var art = seq[imgIdx % seq.length];
