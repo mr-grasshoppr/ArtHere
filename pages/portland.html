@@ -43,7 +43,11 @@
         .nav-city:hover { opacity: 0.7; }
 
         /* ---- GRID ---- */
-        .grid-viewport { position: fixed; top: 56px; left: 0; right: 0; bottom: 56px; overflow: hidden; cursor: pointer; }
+        .grid-viewport {
+            position: fixed; top: 56px; left: 0; right: 0; bottom: 56px;
+            overflow: hidden; cursor: pointer;
+        }
+        .grid-viewport.frozen { cursor: default; }
         .grid-track {
             position: absolute; top: 0; left: 0; right: 0;
             display: grid; gap: var(--gap); padding: var(--gap);
@@ -56,8 +60,11 @@
         .grid-cell { overflow: hidden; border-radius: 6px; background: #111; }
         .grid-cell img { width: 100%; height: 100%; object-fit: cover; object-position: center 35%; display: block; }
         .grid-cell.tall { grid-row: span 2; }
+        .grid-cell.clickable { cursor: pointer; }
+        .grid-cell.clickable img { transition: transform 0.3s; }
+        .grid-cell.clickable:hover img { transform: scale(1.04); }
 
-        /* Logo cell: 2-col × 2-row, artwork through letterforms */
+        /* Logo cell: 2-col × 2-row */
         .logo-cell {
             grid-column: span 2; grid-row: span 2;
             background: #0a0a0a; border-radius: 6px;
@@ -81,6 +88,18 @@
             letter-spacing: 0.02em; text-align: right; line-height: 1;
             pointer-events: none;
         }
+
+        /* ---- RESUME BUTTON ---- */
+        .resume-btn {
+            position: fixed; bottom: 68px; left: 50%; transform: translateX(-50%);
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);
+            color: rgba(255,255,255,0.65); border-radius: 20px; padding: 7px 18px;
+            font-size: 0.75rem; font-family: 'Inter', sans-serif; letter-spacing: 0.06em;
+            cursor: pointer; transition: all 0.2s; z-index: 90;
+            opacity: 0; pointer-events: none;
+        }
+        .resume-btn.visible { opacity: 1; pointer-events: auto; }
+        .resume-btn:hover { background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.35); }
 
         /* ---- BOTTOM BAR ---- */
         .bottom-bar {
@@ -157,6 +176,8 @@
         <div class="grid-track" id="grid-track"></div>
     </div>
 
+    <button class="resume-btn" id="resume-btn">&#9654; resume</button>
+
     <nav class="bottom-bar">
         <a href="portland.html" class="bottom-bar-city">Portland, OR</a>
         <span class="bottom-bar-divider">|</span>
@@ -168,6 +189,7 @@
 
     <script>
     var COLS, GAP = 5, VW, COL, ROW;
+    var frozen = false;
 
     function recalcDims() {
         COLS = window.innerWidth < 500 ? 3 : 4;
@@ -180,25 +202,25 @@
     recalcDims();
 
     var ALL = [
-        { src: '../images/artwork/beth-bundy-hero.jpg',           tall: true,  medium: 'illustration', neighborhood: 'Alberta Arts District' },
-        { src: '../images/artwork/beth-bundy-1.jpg',              tall: false, medium: 'illustration', neighborhood: 'Alberta Arts District' },
-        { src: '../images/artwork/beth-bundy-2.jpg',              tall: false, medium: 'illustration', neighborhood: 'Alberta Arts District' },
-        { src: '../images/artwork/beth-bundy-3.jpg',              tall: false, medium: 'illustration', neighborhood: 'Alberta Arts District' },
-        { src: '../images/artwork/jennifer-eaton-white-hero.jpg', tall: true,  medium: 'painting',      neighborhood: 'Vancouver, WA'        },
-        { src: '../images/artwork/jennifer-eaton-white-1.jpg',    tall: false, medium: 'painting',      neighborhood: 'Vancouver, WA'        },
-        { src: '../images/artwork/jennifer-eaton-white-2.jpg',    tall: false, medium: 'painting',      neighborhood: 'Vancouver, WA'        },
-        { src: '../images/artwork/kurtis-piltz-hero.jpg',         tall: true,  medium: 'ceramics',      neighborhood: 'Multnomah Village'    },
-        { src: '../images/artwork/kurtis-piltz-1.jpg',            tall: false, medium: 'ceramics',      neighborhood: 'Multnomah Village'    },
-        { src: '../images/artwork/kurtis-piltz-2.jpg',            tall: false, medium: 'ceramics',      neighborhood: 'Multnomah Village'    },
-        { src: '../images/artwork/kurtis-piltz-3.jpg',            tall: false, medium: 'ceramics',      neighborhood: 'Multnomah Village'    },
-        { src: '../images/artwork/lindsey-fox-hero.jpg',          tall: true,  medium: 'painting',      neighborhood: 'Portland'             },
-        { src: '../images/artwork/lindsey-fox-1.jpg',             tall: false, medium: 'painting',      neighborhood: 'Portland'             },
-        { src: '../images/artwork/lindsey-fox-2.jpg',             tall: false, medium: 'painting',      neighborhood: 'Portland'             },
-        { src: '../images/artwork/lindsey-fox-3.jpg',             tall: false, medium: 'painting',      neighborhood: 'Portland'             },
-        { src: '../images/artwork/yong-hong-zhong-1.jpg',         tall: true,  medium: 'painting',      neighborhood: 'Portland'             },
-        { src: '../images/artwork/yong-hong-zhong-2.jpg',         tall: false, medium: 'painting',      neighborhood: 'Portland'             },
-        { src: '../images/artwork/yong-hong-zhong-3.jpg',         tall: false, medium: 'painting',      neighborhood: 'Portland'             },
-        { src: '../images/artwork/yong-hong-zhong-4.jpg',         tall: false, medium: 'painting',      neighborhood: 'Portland'             },
+        { src: '../images/artwork/beth-bundy-hero.jpg',           url: '../artists/beth-bundy.html',            tall: true  },
+        { src: '../images/artwork/beth-bundy-1.jpg',              url: '../artists/beth-bundy.html',            tall: false },
+        { src: '../images/artwork/beth-bundy-2.jpg',              url: '../artists/beth-bundy.html',            tall: false },
+        { src: '../images/artwork/beth-bundy-3.jpg',              url: '../artists/beth-bundy.html',            tall: false },
+        { src: '../images/artwork/jennifer-eaton-white-hero.jpg', url: '../artists/jennifer-eaton-white.html',  tall: true  },
+        { src: '../images/artwork/jennifer-eaton-white-1.jpg',    url: '../artists/jennifer-eaton-white.html',  tall: false },
+        { src: '../images/artwork/jennifer-eaton-white-2.jpg',    url: '../artists/jennifer-eaton-white.html',  tall: false },
+        { src: '../images/artwork/kurtis-piltz-hero.jpg',         url: '../artists/kurtis-piltz.html',          tall: true  },
+        { src: '../images/artwork/kurtis-piltz-1.jpg',            url: '../artists/kurtis-piltz.html',          tall: false },
+        { src: '../images/artwork/kurtis-piltz-2.jpg',            url: '../artists/kurtis-piltz.html',          tall: false },
+        { src: '../images/artwork/kurtis-piltz-3.jpg',            url: '../artists/kurtis-piltz.html',          tall: false },
+        { src: '../images/artwork/lindsey-fox-hero.jpg',          url: '../artists/lindsey-fox.html',           tall: true  },
+        { src: '../images/artwork/lindsey-fox-1.jpg',             url: '../artists/lindsey-fox.html',           tall: false },
+        { src: '../images/artwork/lindsey-fox-2.jpg',             url: '../artists/lindsey-fox.html',           tall: false },
+        { src: '../images/artwork/lindsey-fox-3.jpg',             url: '../artists/lindsey-fox.html',           tall: false },
+        { src: '../images/artwork/yong-hong-zhong-1.jpg',         url: '../artists/yong-hong-zhong.html',       tall: true  },
+        { src: '../images/artwork/yong-hong-zhong-2.jpg',         url: '../artists/yong-hong-zhong.html',       tall: false },
+        { src: '../images/artwork/yong-hong-zhong-3.jpg',         url: '../artists/yong-hong-zhong.html',       tall: false },
+        { src: '../images/artwork/yong-hong-zhong-4.jpg',         url: '../artists/yong-hong-zhong.html',       tall: false },
     ];
 
     function shuffle(a) {
@@ -231,20 +253,18 @@
         c.className = 'grid-cell' + (art.tall ? ' tall' : '');
         c.style.height = (art.tall ? ROW * 2 + GAP : ROW) + 'px';
         if (art.tall) c.style.gridRow = 'span 2';
+        c.setAttribute('data-url', art.url);
         var img = document.createElement('img');
         img.src = art.src; img.alt = ''; img.loading = 'lazy';
         c.appendChild(img);
         return c;
     }
 
-    // Build sequence: each artwork appears 4×, spread at least 4 rows apart
+    // Sequence: each artwork appears 4×, spread at least 4 rows apart
     function makeSequence(artList) {
         var minGap = COLS * 4;
-        var result = [];
-        var lastPos = {};
-        var needed = {};
+        var result = [], lastPos = {}, needed = {};
         artList.forEach(function(a) { needed[a.src] = 4; });
-
         var attempts = 0;
         while (result.length < artList.length * 4 && attempts < 10000) {
             attempts++;
@@ -253,9 +273,7 @@
                 var last = lastPos[a.src];
                 return last === undefined || (result.length - last) >= minGap;
             });
-            if (candidates.length === 0) {
-                candidates = artList.filter(function(a) { return needed[a.src] > 0; });
-            }
+            if (candidates.length === 0) candidates = artList.filter(function(a) { return needed[a.src] > 0; });
             if (candidates.length === 0) break;
             var pick = candidates[Math.floor(Math.random() * candidates.length)];
             result.push(pick);
@@ -266,8 +284,13 @@
     }
 
     function buildGrid() {
+        frozen = false;
+        vp.classList.remove('frozen');
+        resumeBtn.classList.remove('visible');
+
         var track = document.getElementById('grid-track');
         track.innerHTML = '';
+        track.style.transform = '';
         track.classList.remove('scrolling');
 
         var seq = makeSequence(shuffle(ALL));
@@ -278,25 +301,67 @@
             var art = seq[imgIdx++];
             var useTall = art.tall && !lastWasTall;
             lastWasTall = useTall;
-            track.appendChild(makeCell({src: art.src, tall: useTall}));
+            track.appendChild(makeCell({src: art.src, url: art.url, tall: useTall}));
         }
 
         var totalRows = 2 + Math.ceil((seq.length - 1) / COLS);
         var dist = totalRows * (ROW + GAP);
         document.documentElement.style.setProperty('--dist', '-' + dist + 'px');
         document.documentElement.style.setProperty('--dur', (totalRows * 5) + 's');
-        track.offsetHeight;
+        track.offsetHeight; // force reflow before adding class
         track.classList.add('scrolling');
     }
 
-    // Click or tap anywhere on the grid → go to artwork browse page
-    var vp = document.getElementById('grid-vp');
-    vp.addEventListener('click', function() { window.location.href = 'artwork.html'; });
-    vp.addEventListener('touchstart', function() { window.location.href = 'artwork.html'; }, { passive: true });
+    // Freeze: capture mid-animation Y, stop scrolling, make cells clickable
+    function freeze() {
+        if (frozen) return;
+        frozen = true;
 
-    // Spacebar → artwork browse page
+        var track = document.getElementById('grid-track');
+        var style = window.getComputedStyle(track);
+        var matrix = style.transform || style.webkitTransform;
+        var currentY = 0;
+        if (matrix && matrix !== 'none') {
+            var match = matrix.match(/matrix.*\((.+)\)/);
+            if (match) { var vals = match[1].split(', '); currentY = parseFloat(vals[5]) || 0; }
+        }
+
+        track.classList.remove('scrolling');
+        track.style.transform = 'translateY(' + currentY + 'px)';
+
+        track.querySelectorAll('.grid-cell[data-url]').forEach(function(cell) {
+            cell.classList.add('clickable');
+            cell.addEventListener('click', function(e) {
+                e.stopPropagation();
+                window.location.href = cell.getAttribute('data-url');
+            }, { once: true });
+        });
+
+        vp.classList.add('frozen');
+        resumeBtn.classList.add('visible');
+    }
+
+    // Resume: rebuild with fresh shuffle and restart animation
+    function resume() {
+        if (!frozen) return;
+        recalcDims();
+        buildGrid();
+    }
+
+    var vp = document.getElementById('grid-vp');
+    var resumeBtn = document.getElementById('resume-btn');
+
+    // Click/tap grid to freeze; individual cell clicks navigate (stop propagation)
+    vp.addEventListener('click', function() { if (!frozen) freeze(); });
+    vp.addEventListener('touchstart', function() { if (!frozen) freeze(); }, { passive: true });
+
+    // Resume button
+    resumeBtn.addEventListener('click', function(e) { e.stopPropagation(); resume(); });
+
+    // Keyboard: space freezes/resumes, Escape resumes
     document.addEventListener('keydown', function(e) {
-        if (e.code === 'Space') { e.preventDefault(); window.location.href = 'artwork.html'; }
+        if (e.code === 'Space') { e.preventDefault(); frozen ? resume() : freeze(); }
+        if (e.code === 'Escape') { resume(); }
     });
 
     // Menu
