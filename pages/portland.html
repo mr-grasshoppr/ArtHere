@@ -44,7 +44,8 @@
 
         /* ---- GRID ---- */
         .grid-viewport { position: fixed; top: 56px; left: 0; right: 0; bottom: 56px; overflow: hidden; }
-        .grid-viewport.browse { overflow-y: auto; top: 100px; }
+        .grid-viewport.browse { overflow-y: auto; top: 56px; }
+        .grid-viewport.browse-freeze { overflow-y: auto; top: 100px; }
 
         /* Artwork browse filter bar */
         .art-filter-bar {
@@ -55,6 +56,9 @@
             align-items: center; padding: 0 14px; gap: 8px;
         }
         .art-filter-bar.visible { display: flex; }
+        .art-filter-bar.inline { position: static !important; background: transparent !important;
+            border: none !important; backdrop-filter: none !important;
+            height: auto !important; padding: 16px 0 0 !important; display: flex !important; }
         .art-filter-wrap { position: relative; }
         .art-filter-btn {
             padding: 5px 13px; border: 0.5px solid #444; border-radius: 20px;
@@ -236,6 +240,7 @@
 
     <!-- ARTWORK BROWSE FILTER BAR (visible only in browse mode) -->
     <div class="art-filter-bar" id="art-filter-bar">
+        <button class="art-filter-btn active" id="filter-all-btn">All</button>
         <div class="art-filter-wrap">
             <button class="art-filter-btn" id="filter-medium-btn">Medium ▾</button>
             <div class="art-filter-dropdown" id="filter-medium-drop">
@@ -334,7 +339,7 @@
         return cell;
     }
 
-    // Browse header: page title + subtitle (no logo)
+    // Browse header: page title + subtitle + filter bar (moved inline)
     function makeBrowseHeaderCell() {
         var cell = document.createElement('div');
         cell.className = 'art-page-header-cell';
@@ -345,6 +350,11 @@
         p.textContent = 'Browse work from Portland metro artists.';
         cell.appendChild(h1);
         cell.appendChild(p);
+        // Move filter bar below header (inline, not fixed)
+        filterAllBtn.classList.toggle('active', !filterMedium && !filterNeighborhood);
+        artFilterBar.classList.add('visible');
+        artFilterBar.classList.add('inline');
+        cell.appendChild(artFilterBar);
         return cell;
     }
 
@@ -368,6 +378,12 @@
 
     function buildGrid(clickable) {
         var track = document.getElementById('grid-track');
+        // Rescue filter bar if it was moved inside the track
+        if (artFilterBar && track.contains(artFilterBar)) {
+            vp.parentNode.insertBefore(artFilterBar, vp);
+            artFilterBar.classList.remove('inline');
+            artFilterBar.classList.remove('visible');
+        }
         track.innerHTML = '';
         track.classList.remove('scrolling');
 
@@ -453,10 +469,21 @@
     var filterMedium = null;
     var filterNeighborhood = null;
     var artFilterBar = document.getElementById('art-filter-bar');
+    var filterAllBtn = document.getElementById('filter-all-btn');
     var filterMediumBtn = document.getElementById('filter-medium-btn');
     var filterMediumDrop = document.getElementById('filter-medium-drop');
     var filterNbhdBtn = document.getElementById('filter-nbhd-btn');
     var filterNbhdDrop = document.getElementById('filter-nbhd-drop');
+
+    filterAllBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        filterMedium = null; filterNeighborhood = null;
+        filterMediumBtn.textContent = 'Medium ▾'; filterMediumBtn.classList.remove('active');
+        filterNbhdBtn.textContent = 'Neighborhood ▾'; filterNbhdBtn.classList.remove('active');
+        filterMediumDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
+        filterNbhdDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
+        buildGrid(true);
+    });
 
     filterMediumBtn.addEventListener('click', function(e) {
         e.stopPropagation();
@@ -526,8 +553,8 @@
             });
         });
 
-        // Switch to native scroll, show filter bar, jump to frozen position
-        vp.classList.add('browse');
+        // Switch to native scroll, show fixed filter bar, jump to frozen position
+        vp.classList.add('browse-freeze');
         artFilterBar.classList.add('visible');
         navArtwork.classList.add('active');
         vp.scrollTop = Math.abs(currentY);
@@ -537,12 +564,16 @@
         if (isAmbient) return;
         isAmbient = true;
         vp.classList.remove('browse');
+        vp.classList.remove('browse-freeze');
         artFilterBar.classList.remove('visible');
+        artFilterBar.classList.remove('inline');
+        if (track.contains(artFilterBar)) { vp.parentNode.insertBefore(artFilterBar, vp); }
         navArtwork.classList.remove('active');
         // Reset filters
         filterMedium = null; filterNeighborhood = null;
         filterMediumBtn.textContent = 'Medium ▾'; filterMediumBtn.classList.remove('active');
         filterNbhdBtn.textContent = 'Neighborhood ▾'; filterNbhdBtn.classList.remove('active');
+        filterAllBtn.classList.add('active');
         filterMediumDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
         filterNbhdDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
         buildGrid(false);
@@ -563,7 +594,6 @@
         track.style.animation = 'none';
         track.style.transform = '';
         vp.classList.add('browse');
-        artFilterBar.classList.add('visible');
         navArtwork.classList.add('active');
         buildGrid(true);
     });
@@ -633,7 +663,6 @@
     if (window.location.hash === '#browse') {
         isAmbient = false;
         vp.classList.add('browse');
-        artFilterBar.classList.add('visible');
         navArtwork.classList.add('active');
         buildGrid(true);
     } else {
