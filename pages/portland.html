@@ -629,7 +629,16 @@
         }, 150);
     });
 
-    buildGrid(false);
+    // If linked from another page via #browse, start in browse mode
+    if (window.location.hash === '#browse') {
+        isAmbient = false;
+        vp.classList.add('browse');
+        artFilterBar.classList.add('visible');
+        navArtwork.classList.add('active');
+        buildGrid(true);
+    } else {
+        buildGrid(false);
+    }
     </script>
 </body>
 </html>
