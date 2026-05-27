@@ -220,13 +220,13 @@
         <a href="../artists/yong-hong-zhong.html" class="artist-card" data-medium="Painter" data-neighborhood="Portland">
             <div class="artist-circle"><img src="../images/artists/yong-hong-zhong-bio.jpg" alt="Yong Hong Zhong"></div>
             <div class="artist-name">Yong Hong Zhong</div>
-            <div class="artist-medium">Watercolor Painter</div>
+            <div class="artist-medium">Painter</div>
             <div class="artist-location">Portland</div>
         </a>
         <a href="../artists/lindsey-fox.html" class="artist-card" data-medium="Painter" data-neighborhood="Portland">
             <div class="artist-circle"><img src="../images/artists/lindsey-fox-bio.jpg" alt="Lindsey Fox"></div>
             <div class="artist-name">Lindsey Fox</div>
-            <div class="artist-medium">Watercolor Painter</div>
+            <div class="artist-medium">Painter</div>
             <div class="artist-location">Portland</div>
         </a>
         <a href="../artists/jennifer-eaton-white.html" class="artist-card" data-medium="Painter" data-neighborhood="Vancouver, WA">
@@ -332,6 +332,17 @@
         filterMediumDrop.classList.remove('open');
         filterNbhdDrop.classList.remove('open');
     });
+
+    // Shuffle artist cards on every page load
+    (function() {
+        var grid = document.querySelector('.artists-grid');
+        var cards = Array.from(grid.querySelectorAll('.artist-card'));
+        for (var i = cards.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var tmp = cards[i]; cards[i] = cards[j]; cards[j] = tmp;
+        }
+        cards.forEach(function(c) { grid.appendChild(c); });
+    })();
     </script>
     <nav class="bottom-bar">
         <a href="portland.html" class="bottom-bar-city">Portland, OR</a>
