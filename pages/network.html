@@ -40,73 +40,45 @@
         /* ---- FILTER BAR ---- */
         .filter-bar {
             position: fixed; top: 56px; left: 0; right: 0;
-            z-index: 100; padding: 8px 18px;
+            z-index: 100; padding: 10px 14px;
             display: flex; gap: 8px; align-items: center;
-            flex-wrap: nowrap;
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+            background: rgba(0,0,0,0.92); backdrop-filter: blur(8px);
             border-bottom: 1px solid #1a1a1a;
         }
-        .filter-group {
-            display: flex; gap: 6px; align-items: center; flex-shrink: 0;
-        }
-        .filter-group-dropdowns {
-            display: flex; gap: 6px; align-items: center; flex-shrink: 0; margin-left: 4px;
-        }
-        /* Type pills: All / Artists / Community */
+        .filter-wrap { position: relative; }
         .filter-btn {
-            padding: 5px 13px; border-radius: 20px; border: 1px solid #2a2a2a;
-            background: transparent; color: #666; font-size: 0.78rem; font-family: 'Inter', sans-serif;
-            cursor: pointer; transition: all 0.2s; letter-spacing: 0.03em; white-space: nowrap;
+            padding: 5px 13px; border: 0.5px solid #444; border-radius: 20px;
+            background: transparent; font-size: 0.78rem; color: #888; cursor: pointer;
+            font-family: 'Inter', sans-serif; transition: all 0.2s; white-space: nowrap;
         }
-        .filter-btn:hover { border-color: #555; color: #ccc; }
-        .filter-btn.active-artist { background: #00e5ff; border-color: #00e5ff; color: #000; font-weight: 600; }
-        .filter-btn.active-place { background: #ff00aa; border-color: #ff00aa; color: #000; font-weight: 600; }
-        .filter-btn.active-all { background: #fff; border-color: #fff; color: #000; font-weight: 600; }
-        .filter-sep { width: 1px; height: 20px; background: #222; margin: 0 2px; flex-shrink: 0; }
-        /* Dropdown triggers: square corners, dashed border to look distinct */
-        .dropdown-trigger {
-            border-radius: 6px !important;
-            border: 1px dashed #3a3a3a !important;
-            color: #666 !important;
-            padding: 5px 10px !important;
-        }
-        .dropdown-trigger:hover { border-color: #666 !important; color: #ccc !important; }
-        .dropdown-trigger.selected {
-            border-color: #888 !important; border-style: solid !important; color: #fff !important;
-        }
-        @media (max-width: 600px) {
-            .filter-bar { flex-wrap: wrap; padding: 8px 12px; }
-            .filter-group-dropdowns { width: 100%; margin-left: 0; }
-        }
+        .filter-btn:hover { border-color: #888; color: #ccc; }
+        .filter-btn.active { background: #fff; border-color: #fff; color: #000; }
+
         /* ---- DROPDOWNS ---- */
-        .dropdown-wrap { position: relative; }
-        .dropdown-menu {
+        .filter-dropdown {
             display: none; position: absolute; top: calc(100% + 6px); left: 0;
-            background: #111; border: 1px solid #2a2a2a; border-radius: 8px;
-            overflow: hidden; min-width: 160px; z-index: 400;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            background: #1a1a1a; border: 1px solid #333; border-radius: 6px;
+            overflow: hidden; min-width: 170px; z-index: 400;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.5);
         }
-        .dropdown-menu.open { display: block; }
-        .dropdown-item {
-            display: block; width: 100%; text-align: left;
-            padding: 10px 16px; background: none; border: none;
+        .filter-dropdown.open { display: block; }
+        .filter-dropdown button {
+            display: block; width: 100%; padding: 10px 16px; text-align: left;
+            background: none; border: none; border-bottom: 1px solid #222;
             color: #888; font-size: 0.82rem; font-family: 'Inter', sans-serif;
             cursor: pointer; transition: background 0.15s, color 0.15s;
-            border-bottom: 1px solid #1a1a1a; letter-spacing: 0.03em;
+            letter-spacing: 0.02em;
         }
-        .dropdown-item:last-child { border-bottom: none; }
-        .dropdown-item:hover { background: #1a1a1a; color: #fff; }
-        .dropdown-item.active { color: #00e5ff; font-weight: 600; }
-        .dropdown-trigger.selected { border-color: #555; color: #fff; }
-
+        .filter-dropdown button:last-child { border-bottom: none; }
+        .filter-dropdown button:hover { background: #222; color: #fff; }
+        .filter-dropdown button.chosen { color: #fff; }
 
         /* ---- GRAPH ---- */
         #graph-container {
             position: fixed;
-            top: 56px; /* will be adjusted by JS for filter bar height */
+            top: 56px; /* adjusted by JS for filter bar height */
             left: 0; right: 0; bottom: 56px;
-            overflow: hidden;
-            touch-action: none;
+            overflow: hidden; touch-action: none;
         }
         #graph-container svg { width: 100%; height: 100%; display: block; }
 
@@ -115,7 +87,7 @@
             pointer-events: none; font-family: 'Inter', sans-serif;
         }
         .node-label.artist-label { fill: #e8e8e8; opacity: 0.9; }
-        .node-label.place-label { fill: #e8e8e8; opacity: 0.9; }
+        .node-label.place-label  { fill: #e8e8e8; opacity: 0.9; }
 
         /* ---- HOVER CARD ---- */
         .hover-card {
@@ -123,34 +95,50 @@
             background: #111; border: 1px solid #222; border-radius: 8px;
             overflow: hidden; width: 240px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-            pointer-events: none; opacity: 0;
-            transition: opacity 0.15s;
+            pointer-events: none; opacity: 0; transition: opacity 0.15s;
         }
         .hover-card.visible { opacity: 1; }
-        /* Artist card: circle photo + text */
         .hc-artist { display: flex; align-items: center; gap: 12px; padding: 14px; }
         .hc-artist-photo { width: 52px; height: 52px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #222; }
         .hc-artist-photo img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
-        .hc-artist-text {}
         .hc-name { font-family: 'Nunito', sans-serif; font-size: 0.88rem; font-weight: 700; color: #fff; margin-bottom: 3px; }
         .hc-meta { font-size: 0.72rem; color: #888; line-height: 1.4; }
-        /* Place card: rect image + text */
         .hc-place { display: flex; align-items: stretch; }
         .hc-place-img { width: 90px; flex-shrink: 0; overflow: hidden; background: #222; }
         .hc-place-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .hc-place-text { padding: 14px 12px; }
-        /* No-image fallback */
         .hc-simple { padding: 14px; }
 
-        /* ---- LEGEND ---- */
+        /* ---- LEGEND / TOGGLES ---- */
         .legend {
             position: fixed; bottom: 68px; left: 18px; right: 18px;
             display: flex; gap: 18px; z-index: 100; align-items: center; flex-wrap: wrap;
         }
-        .legend-item { display: flex; align-items: center; gap: 7px; font-size: 0.75rem; color: #bbb; }
+        /* Toggle button */
+        .legend-toggle {
+            display: flex; align-items: center; gap: 8px;
+            cursor: pointer; font-size: 0.75rem; color: #bbb;
+            user-select: none; transition: color 0.2s;
+        }
+        .legend-toggle:hover { color: #fff; }
+        .legend-toggle.off { color: #555; }
+        /* Outer ring + inner dot */
+        .toggle-icon {
+            position: relative; width: 22px; height: 22px;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .toggle-ring {
+            position: absolute; inset: 0; border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.22);
+            transition: border-color 0.2s;
+        }
+        .legend-toggle.off .toggle-ring { border-color: rgba(255,255,255,0.08); }
+        .toggle-dot {
+            width: 12px; height: 12px; border-radius: 50%;
+            transition: background 0.2s;
+        }
         .legend-suggest { font-size: 0.75rem; color: #999; text-decoration: none; transition: color 0.2s; }
         .legend-suggest:hover { color: #fff; }
-        .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
 
         /* ---- BOTTOM BAR ---- */
         .bottom-bar {
@@ -165,13 +153,11 @@
         .bottom-bar-links a { color: rgba(255,255,255,0.45); text-decoration: none; font-size: 0.88rem; font-weight: 500; letter-spacing: 0.03em; transition: color 0.2s; padding: 4px 0; border-bottom: 1.5px solid transparent; }
         .bottom-bar-links a:hover { color: #fff; }
         .bottom-bar-links a.active { color: #fff; border-color: rgba(255,255,255,0.6); }
+
         @media (max-width: 600px) {
             .bottom-bar-city, .bottom-bar-divider { display: none; }
             .bottom-bar { justify-content: center; }
             .bottom-bar-links { gap: 20px; }
-            .filter-bar { flex-wrap: wrap; }
-            .filter-group-dropdowns { width: 100%; }
-            .filter-label { display: none; }
         }
 
         /* ---- CITIES SUBMENU ---- */
@@ -179,7 +165,7 @@
         .pancake-dropdown .cities-trigger {
             display: flex; justify-content: space-between; align-items: center;
             padding: 13px 20px; font-size: 0.9rem; color: #ccc; cursor: pointer;
-            border-bottom: 1px solid #f0f0f0; transition: background 0.15s;
+            border-bottom: 1px solid #222; transition: background 0.15s;
             background: none; border-left: none; border-right: none; border-top: none;
             width: 100%; text-align: left; font-family: 'Inter', -apple-system, sans-serif;
         }
@@ -191,8 +177,7 @@
         .cities-submenu a, .cities-submenu span {
             display: flex; align-items: baseline; gap: 8px;
             padding: 9px 20px 9px 28px; font-size: 0.85rem;
-            color: #888; text-decoration: none;
-            transition: background 0.15s;
+            color: #888; text-decoration: none; transition: background 0.15s;
         }
         .cities-submenu a:hover { background: #1a1a1a; color: #fff; }
         .cities-submenu .city-soon { color: #bbb; font-size: 0.72rem; }
@@ -209,7 +194,7 @@
             </button>
             <div class="pancake-dropdown" id="pancake-drop">
                 <a href="survey.html" class="join">Join Us</a>
-                                <div class="cities-item">
+                <div class="cities-item">
                     <button class="cities-trigger" id="cities-trigger">Cities <span class="cities-arrow">&#9654;</span></button>
                     <div class="cities-submenu" id="cities-submenu">
                         <a href="portland.html">Portland, OR</a>
@@ -226,30 +211,22 @@
 
     <!-- FILTER BAR -->
     <div class="filter-bar" id="filter-bar">
-        <div class="filter-group">
-            <button class="filter-btn active-all" data-filter="all">All</button>
-            <button class="filter-btn" data-filter="artist">Artists</button>
-            <button class="filter-btn" data-filter="place">Community</button>
-        </div>
-        <div class="filter-sep"></div>
-        <div class="filter-group-dropdowns">
-            <div class="dropdown-wrap">
-                <button class="filter-btn dropdown-trigger" id="medium-trigger">Medium &#9662;</button>
-                <div class="dropdown-menu" id="medium-menu">
-                    <button class="dropdown-item" data-medium="Ceramicist">Ceramicist</button>
-                    <button class="dropdown-item" data-medium="Painter">Painter</button>
-                    <button class="dropdown-item" data-medium="Illustrator">Illustrator</button>
-                </div>
+        <div class="filter-wrap">
+            <button class="filter-btn" id="medium-trigger">Medium ▾</button>
+            <div class="filter-dropdown" id="medium-menu">
+                <button data-medium="Ceramicist">Ceramicist</button>
+                <button data-medium="Painter">Painter</button>
+                <button data-medium="Illustrator">Illustrator</button>
             </div>
-            <div class="dropdown-wrap">
-                <button class="filter-btn dropdown-trigger" id="neighborhood-trigger">Neighborhood &#9662;</button>
-                <div class="dropdown-menu" id="neighborhood-menu">
-                    <button class="dropdown-item" data-neighborhood="Multnomah Village">Multnomah Village</button>
-                    <button class="dropdown-item" data-neighborhood="Alberta Arts District">Alberta Arts District</button>
-                    <button class="dropdown-item" data-neighborhood="Slabtown">Slabtown</button>
-                    <button class="dropdown-item" data-neighborhood="Portland">Portland — all</button>
-                    <button class="dropdown-item" data-neighborhood="Vancouver, WA">Vancouver, WA</button>
-                </div>
+        </div>
+        <div class="filter-wrap">
+            <button class="filter-btn" id="neighborhood-trigger">Neighborhood ▾</button>
+            <div class="filter-dropdown" id="neighborhood-menu">
+                <button data-neighborhood="Multnomah Village">Multnomah Village</button>
+                <button data-neighborhood="Alberta Arts District">Alberta Arts District</button>
+                <button data-neighborhood="Slabtown">Slabtown</button>
+                <button data-neighborhood="Portland">Portland — all</button>
+                <button data-neighborhood="Vancouver, WA">Vancouver, WA</button>
             </div>
         </div>
     </div>
@@ -262,10 +239,22 @@
     <!-- HOVER CARD -->
     <div class="hover-card" id="hover-card"></div>
 
-    <!-- LEGEND -->
+    <!-- LEGEND / TOGGLES -->
     <div class="legend">
-        <div class="legend-item"><div class="legend-dot" style="background:#00e5ff"></div>Artist</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#ff00aa"></div>Community</div>
+        <div class="legend-toggle" id="toggle-artist" data-type="artist">
+            <div class="toggle-icon">
+                <div class="toggle-ring"></div>
+                <div class="toggle-dot" style="background:#00e5ff"></div>
+            </div>
+            <span>Artist</span>
+        </div>
+        <div class="legend-toggle" id="toggle-place" data-type="place">
+            <div class="toggle-icon">
+                <div class="toggle-ring"></div>
+                <div class="toggle-dot" style="background:#ff00aa"></div>
+            </div>
+            <span>Community</span>
+        </div>
         <a href="mailto:hello@axlab.io" class="legend-suggest">Know a connection we're missing? Let us know &rarr;</a>
     </div>
 
@@ -274,7 +263,7 @@
         <a href="portland.html" class="bottom-bar-city">Portland, OR</a>
         <span class="bottom-bar-divider">|</span>
         <div class="bottom-bar-links">
-            <a href="portland.html#browse">artwork</a>
+            <a href="artwork.html">artwork</a>
             <a href="artists.html">artists</a>
             <a href="community.html">community</a>
             <a href="network.html" class="active">network</a>
@@ -285,24 +274,24 @@
     // ── DATA ──────────────────────────────────────────────────────────────────
     const allNodes = [
         // Artists
-        { id: "Kurtis Piltz",        type: "artist", medium: "Ceramicist",  neighborhood: "Multnomah Village",    url: "../artists/kurtis-piltz.html",          photo: "../images/artists/kurtis-piltz-bio.jpg" },
-        { id: "Beth Bundy",          type: "artist", medium: "Illustrator", neighborhood: "Alberta Arts District", url: "../artists/beth-bundy.html",            photo: "../images/artists/beth-bundy-bio.jpg" },
-        { id: "Yong Hong Zhong",     type: "artist", medium: "Painter",     neighborhood: "Portland",             url: "../artists/yong-hong-zhong.html",       photo: "../images/artists/yong-hong-zhong-bio.jpg" },
-        { id: "Lindsey Fox",         type: "artist", medium: "Painter",     neighborhood: "Portland",             url: "../artists/lindsey-fox.html",           photo: "../images/artists/lindsey-fox-bio.jpg" },
-        { id: "Jennifer Eaton White",type: "artist", medium: "Painter",     neighborhood: "Vancouver, WA",             url: "../artists/jennifer-eaton-white.html",  photo: "../images/artists/jennifer-eaton-white-bio.jpg" },
+        { id: "Kurtis Piltz",         type: "artist", medium: "Ceramicist",  neighborhood: "Multnomah Village",    url: "../artists/kurtis-piltz.html",         photo: "../images/artists/kurtis-piltz-bio.jpg" },
+        { id: "Beth Bundy",           type: "artist", medium: "Illustrator", neighborhood: "Alberta Arts District", url: "../artists/beth-bundy.html",           photo: "../images/artists/beth-bundy-bio.jpg" },
+        { id: "Yong Hong Zhong",      type: "artist", medium: "Painter",     neighborhood: "Portland",             url: "../artists/yong-hong-zhong.html",      photo: "../images/artists/yong-hong-zhong-bio.jpg" },
+        { id: "Lindsey Fox",          type: "artist", medium: "Painter",     neighborhood: "Portland",             url: "../artists/lindsey-fox.html",          photo: "../images/artists/lindsey-fox-bio.jpg" },
+        { id: "Jennifer Eaton White", type: "artist", medium: "Painter",     neighborhood: "Vancouver, WA",        url: "../artists/jennifer-eaton-white.html", photo: "../images/artists/jennifer-eaton-white-bio.jpg" },
         // Community places
-        { id: "Multnomah Arts Center",  type: "place", neighborhood: "Multnomah Village",    url: "../places/multnomah-arts-center.html",  image: "../images/places/multnomah.jpg" },
-        { id: "ComeUnity PDX",          type: "place", neighborhood: "Multnomah Village",          url: "../places/comeunity-pdx.html",          image: "../images/places/communitypdx.jpg" },
-        { id: "NW Marine Art Works",    type: "place", neighborhood: "Slabtown",        url: "../places/nw-marine-art-works.html",    image: "../images/places/nwmarine-header.jpg" },
-        { id: "Alberta Street Gallery", type: "place", neighborhood: "Alberta Arts District", url: "https://www.albertastreetgallery.com" },
-        { id: "PAM Rental Sales",       type: "place", neighborhood: "Portland",             image: null },
-        { id: "Catlin Gabel",           type: "place", neighborhood: "Portland",             image: null },
-        { id: "Lincoln High School",    type: "place", neighborhood: "Portland",             image: null },
-        { id: "Clinton St Coffeehouse", type: "place", neighborhood: "Portland",             image: null },
-        { id: "Rudy's Barbershop",      type: "place", neighborhood: "Alberta Arts District",image: null },
-        { id: "Casa Luna",              type: "place", neighborhood: "Portland",             image: null },
-        { id: "PSU",                    type: "place", neighborhood: "Portland",             image: null },
-        { id: "PCC",                    type: "place", neighborhood: "Portland",             image: null },
+        { id: "Multnomah Arts Center",  type: "place", neighborhood: "Multnomah Village",    url: "../places/multnomah-arts-center.html", image: "../images/places/multnomah.jpg" },
+        { id: "ComeUnity PDX",          type: "place", neighborhood: "Multnomah Village",    url: "../places/comeunity-pdx.html",         image: "../images/places/communitypdx.jpg" },
+        { id: "NW Marine Art Works",    type: "place", neighborhood: "Slabtown",             url: "../places/nw-marine-art-works.html",   image: "../images/places/nwmarine-header.jpg" },
+        { id: "Alberta Street Gallery", type: "place", neighborhood: "Alberta Arts District", url: "https://www.albertastreetgallery.com", image: null },
+        { id: "PAM Rental Sales",       type: "place", neighborhood: "Portland",  image: null },
+        { id: "Catlin Gabel",           type: "place", neighborhood: "Portland",  image: null },
+        { id: "Lincoln High School",    type: "place", neighborhood: "Portland",  image: null },
+        { id: "Clinton St Coffeehouse", type: "place", neighborhood: "Portland",  image: null },
+        { id: "Rudy's Barbershop",      type: "place", neighborhood: "Alberta Arts District", image: null },
+        { id: "Casa Luna",              type: "place", neighborhood: "Portland",  image: null },
+        { id: "PSU",                    type: "place", neighborhood: "Portland",  image: null },
+        { id: "PCC",                    type: "place", neighborhood: "Portland",  image: null },
     ];
 
     const allLinks = [
@@ -316,21 +305,20 @@
         { source: "Yong Hong Zhong",      target: "PAM Rental Sales" },
         { source: "Lindsey Fox",          target: "NW Marine Art Works" },
         { source: "Lindsey Fox",          target: "ComeUnity PDX" },
-        { source: "Yong Hong Zhong",      target: "Alberta Street Gallery" },
         { source: "Jennifer Eaton White", target: "Alberta Street Gallery" },
         { source: "Jennifer Eaton White", target: "Casa Luna" },
     ];
 
     // ── STATE ─────────────────────────────────────────────────────────────────
-    let activeType = null, activeMedium = null, activeNeighborhood = null;
+    let showArtists = true, showPlaces = true;
+    let activeMedium = null, activeNeighborhood = null;
 
     // ── SETUP ─────────────────────────────────────────────────────────────────
     const filterBar = document.getElementById('filter-bar');
     const container = document.getElementById('graph-container');
 
     function reposition() {
-        const fbH = filterBar.offsetHeight;
-        container.style.top = (56 + fbH) + 'px';
+        container.style.top = (56 + filterBar.offsetHeight) + 'px';
     }
     reposition();
     window.addEventListener('resize', reposition);
@@ -344,25 +332,21 @@
     }
     getDims();
 
-    // zoom/pan
     const zoomG = svg.append('g');
     const zoom = d3.zoom().scaleExtent([0.3, 4]).on('zoom', e => zoomG.attr('transform', e.transform));
     svg.call(zoom);
-
-    // double-tap to reset
     svg.on('dblclick.zoom', () => svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity));
 
     // ── RENDER ────────────────────────────────────────────────────────────────
     let linkSel, nodeSel, sim;
 
     function getVisible() {
-        const portlandSuburbs = ['Multnomah Village','Alberta Arts District','Slabtown','NE Portland'];
         let nodes = allNodes.filter(n => {
-            if (activeType && n.type !== activeType) return false;
-            if (activeMedium && n.medium !== activeMedium) return false;
+            if (n.type === 'artist' && !showArtists) return false;
+            if (n.type === 'place'  && !showPlaces)  return false;
+            if (activeMedium && n.type === 'artist' && n.medium !== activeMedium) return false;
             if (activeNeighborhood) {
                 if (activeNeighborhood === 'Portland') {
-                    // "Portland — all" shows everything in the Portland metro
                     if (!n.neighborhood || n.neighborhood === 'Vancouver, WA') return false;
                 } else {
                     if (n.neighborhood !== activeNeighborhood) return false;
@@ -371,13 +355,17 @@
             return true;
         });
         const nodeIds = new Set(nodes.map(n => n.id));
-        // include place nodes connected to visible artists even if filtered
-        const links = allLinks.filter(l => nodeIds.has(l.source.id || l.source) && nodeIds.has(l.target.id || l.target));
+        const links = allLinks.filter(l =>
+            nodeIds.has(l.source.id || l.source) && nodeIds.has(l.target.id || l.target)
+        );
         return { nodes, links };
     }
 
     function nodeRadius(d) {
-        const deg = allLinks.filter(l => l.source === d.id || l.target === d.id || l.source.id === d.id || l.target.id === d.id).length;
+        const deg = allLinks.filter(l =>
+            l.source === d.id || l.target === d.id ||
+            l.source.id === d.id || l.target.id === d.id
+        ).length;
         return d.type === 'artist' ? 10 + deg * 1.5 : 7 + deg * 1.2;
     }
 
@@ -388,8 +376,6 @@
         getDims();
 
         const { nodes, links } = getVisible();
-
-        // deep-copy nodes for simulation
         const simNodes = nodes.map(n => Object.assign({}, n));
         const idMap = {};
         simNodes.forEach(n => idMap[n.id] = n);
@@ -400,15 +386,15 @@
 
         if (sim) sim.stop();
         sim = d3.forceSimulation(simNodes)
-            .force('link', d3.forceLink(simLinks).id(d => d.id).distance(d => {
-                return (d.source.type === 'artist' && d.target.type === 'artist') ? 140 : 100;
-            }).strength(0.4))
+            .force('link', d3.forceLink(simLinks).id(d => d.id).distance(d =>
+                (d.source.type === 'artist' && d.target.type === 'artist') ? 140 : 100
+            ).strength(0.4))
             .force('charge', d3.forceManyBody().strength(-320))
             .force('center', d3.forceCenter(W / 2, H / 2))
             .force('collide', d3.forceCollide().radius(d => nodeRadius(d) + 18));
 
         linkSel = zoomG.append('g')
-            .attr('stroke', '#2a2a2a').attr('stroke-opacity', 0.8)
+            .attr('stroke', '#484848').attr('stroke-opacity', 0.9)
             .selectAll('line').data(simLinks).join('line')
             .attr('stroke-width', 1);
 
@@ -449,8 +435,7 @@
             nodeSel.attr('transform', d => `translate(${d.x},${d.y})`);
         });
 
-        // center zoom on first render
-        svg.call(zoom.transform, d3.zoomIdentity.translate(0, 0).scale(1));
+        svg.call(zoom.transform, d3.zoomIdentity);
     }
 
     // ── HOVER CARD ────────────────────────────────────────────────────────────
@@ -493,93 +478,102 @@
 
     function hideCard() { card.classList.remove('visible'); }
 
-    // ── FILTERS ───────────────────────────────────────────────────────────────
-    document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.className = 'filter-btn');
-            const f = btn.dataset.filter;
-            activeType = f === 'all' ? null : f;
-            activeMedium = null; activeNeighborhood = null;
-            document.querySelectorAll('.filter-btn[data-medium], .filter-btn[data-neighborhood]').forEach(b => b.className = 'filter-btn');
-            btn.className = 'filter-btn active-' + f;
+    // ── LEGEND TOGGLES ────────────────────────────────────────────────────────
+    document.querySelectorAll('.legend-toggle').forEach(toggle => {
+        const dot = toggle.querySelector('.toggle-dot');
+        const originalColor = dot.style.background;
+        toggle.addEventListener('click', () => {
+            const isOff = toggle.classList.toggle('off');
+            dot.style.background = isOff ? '#444' : originalColor;
+            if (toggle.dataset.type === 'artist') showArtists = !isOff;
+            else showPlaces = !isOff;
             render();
         });
     });
 
-    // ── DROPDOWNS ────────────────────────────────────────────────────────────
-    function setupDropdown(triggerId, menuId) {
-        const trigger = document.getElementById(triggerId);
-        const menu = document.getElementById(menuId);
-        trigger.addEventListener('click', e => {
-            e.stopPropagation();
-            document.querySelectorAll('.dropdown-menu').forEach(m => { if (m !== menu) m.classList.remove('open'); });
-            menu.classList.toggle('open');
-        });
-        return { trigger, menu };
+    // ── FILTER DROPDOWNS ─────────────────────────────────────────────────────
+    const mediumTrigger = document.getElementById('medium-trigger');
+    const mediumMenu    = document.getElementById('medium-menu');
+    const nbhdTrigger   = document.getElementById('neighborhood-trigger');
+    const nbhdMenu      = document.getElementById('neighborhood-menu');
+
+    function closeAllDropdowns() {
+        mediumMenu.classList.remove('open');
+        nbhdMenu.classList.remove('open');
     }
 
-    const mediumDD = setupDropdown('medium-trigger', 'medium-menu');
-    const neighborhoodDD = setupDropdown('neighborhood-trigger', 'neighborhood-menu');
-
-    document.addEventListener('click', () => {
-        document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
+    mediumTrigger.addEventListener('click', e => {
+        e.stopPropagation();
+        const opening = !mediumMenu.classList.contains('open');
+        closeAllDropdowns();
+        if (opening) mediumMenu.classList.add('open');
     });
+    nbhdTrigger.addEventListener('click', e => {
+        e.stopPropagation();
+        const opening = !nbhdMenu.classList.contains('open');
+        closeAllDropdowns();
+        if (opening) nbhdMenu.classList.add('open');
+    });
+    document.addEventListener('click', closeAllDropdowns);
 
-    document.querySelectorAll('.dropdown-item[data-medium]').forEach(item => {
-        item.addEventListener('click', e => {
+    mediumMenu.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', e => {
             e.stopPropagation();
-            const already = activeMedium === item.dataset.medium;
-            document.querySelectorAll('.dropdown-item[data-medium]').forEach(i => i.classList.remove('active'));
-            activeMedium = already ? null : item.dataset.medium;
-            activeNeighborhood = null;
-            document.querySelectorAll('.dropdown-item[data-neighborhood]').forEach(i => i.classList.remove('active'));
-            if (!already) {
-                item.classList.add('active');
-                activeType = 'artist';
-                mediumDD.trigger.classList.add('selected');
-                mediumDD.trigger.textContent = item.dataset.medium + ' ▾';
+            const already = activeMedium === btn.dataset.medium;
+            mediumMenu.querySelectorAll('button').forEach(b => b.classList.remove('chosen'));
+            if (already) {
+                activeMedium = null;
+                mediumTrigger.textContent = 'Medium ▾';
+                mediumTrigger.classList.remove('active');
             } else {
-                activeType = null;
-                mediumDD.trigger.classList.remove('selected');
-                mediumDD.trigger.innerHTML = 'Medium &#9662;';
+                activeMedium = btn.dataset.medium;
+                btn.classList.add('chosen');
+                mediumTrigger.textContent = activeMedium + ' ▾';
+                mediumTrigger.classList.add('active');
             }
-            neighborhoodDD.trigger.classList.remove('selected');
-            neighborhoodDD.trigger.innerHTML = 'Neighborhood &#9662;';
-            document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.className = 'filter-btn');
-            document.querySelector('.filter-btn[data-filter="' + (activeType || 'all') + '"]').className = 'filter-btn active-' + (activeType || 'all');
-            document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
+            closeAllDropdowns();
             render();
         });
     });
 
-    document.querySelectorAll('.dropdown-item[data-neighborhood]').forEach(item => {
-        item.addEventListener('click', e => {
+    nbhdMenu.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', e => {
             e.stopPropagation();
-            const already = activeNeighborhood === item.dataset.neighborhood;
-            document.querySelectorAll('.dropdown-item[data-neighborhood]').forEach(i => i.classList.remove('active'));
-            activeNeighborhood = already ? null : item.dataset.neighborhood;
-            activeMedium = null;
-            document.querySelectorAll('.dropdown-item[data-medium]').forEach(i => i.classList.remove('active'));
-            if (!already) {
-                item.classList.add('active');
-                neighborhoodDD.trigger.classList.add('selected');
-                neighborhoodDD.trigger.textContent = item.dataset.neighborhood + ' ▾';
+            const already = activeNeighborhood === btn.dataset.neighborhood;
+            nbhdMenu.querySelectorAll('button').forEach(b => b.classList.remove('chosen'));
+            if (already) {
+                activeNeighborhood = null;
+                nbhdTrigger.textContent = 'Neighborhood ▾';
+                nbhdTrigger.classList.remove('active');
             } else {
-                neighborhoodDD.trigger.classList.remove('selected');
-                neighborhoodDD.trigger.innerHTML = 'Neighborhood &#9662;';
+                activeNeighborhood = btn.dataset.neighborhood;
+                btn.classList.add('chosen');
+                nbhdTrigger.textContent = activeNeighborhood + ' ▾';
+                nbhdTrigger.classList.add('active');
             }
-            mediumDD.trigger.classList.remove('selected');
-            mediumDD.trigger.innerHTML = 'Medium &#9662;';
-            document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
+            closeAllDropdowns();
             render();
         });
     });
-
 
     // ── PANCAKE ───────────────────────────────────────────────────────────────
-    var btn = document.getElementById('pancake-btn'), drop = document.getElementById('pancake-drop');
-    btn.addEventListener('click', e => { e.stopPropagation(); btn.classList.toggle('open'); drop.classList.toggle('open'); });
-    document.addEventListener('click', () => { btn.classList.remove('open'); drop.classList.remove('open'); });
+    var pBtn = document.getElementById('pancake-btn'), pDrop = document.getElementById('pancake-drop');
+    pBtn.addEventListener('click', e => { e.stopPropagation(); pBtn.classList.toggle('open'); pDrop.classList.toggle('open'); });
+    var citiesTrigger = document.getElementById('cities-trigger');
+    var citiesSubmenu = document.getElementById('cities-submenu');
+    if (citiesTrigger) {
+        citiesTrigger.addEventListener('click', e => {
+            e.stopPropagation();
+            citiesTrigger.classList.toggle('open');
+            citiesSubmenu.classList.toggle('open');
+        });
+    }
+    document.addEventListener('click', e => {
+        if (!e.target.closest('.pancake-wrap')) {
+            pBtn.classList.remove('open'); pDrop.classList.remove('open');
+            if (citiesSubmenu) { citiesSubmenu.classList.remove('open'); if (citiesTrigger) citiesTrigger.classList.remove('open'); }
+        }
+    });
 
     // ── INIT ──────────────────────────────────────────────────────────────────
     render();

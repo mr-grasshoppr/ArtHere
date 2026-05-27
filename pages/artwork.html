@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portland Artwork - Art Here</title>
+    <link rel="icon" type="image/png" href="../images/ArtHere_favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Nunito:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { background: #0a0a0a; color: #fff; font-family: 'Inter', sans-serif; }
+        body { padding-top: 56px; padding-bottom: 56px; }
+
+        /* ---- TOP BAR ---- */
+        .top-bar {
+            position: fixed; top: 0; left: 0; right: 0;
+            height: 56px; background: #000; z-index: 100;
+            display: flex; align-items: center; padding: 0 18px; gap: 12px;
+        }
+        .nav-logo { display: block; height: 26px; width: auto; opacity: 0.9; transition: opacity 0.2s; flex-shrink: 0; }
+        .nav-logo:hover { opacity: 1; }
+        .pancake-wrap { position: relative; flex-shrink: 0; }
+        .pancake-btn {
+            background: none; border: none; cursor: pointer; padding: 4px;
+            display: flex; flex-direction: column; gap: 4px;
+        }
+        .pancake-btn span { display: block; width: 18px; height: 1.5px; background: rgba(255,255,255,0.85); transition: all 0.25s; }
+        .pancake-btn.open span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
+        .pancake-btn.open span:nth-child(2) { opacity: 0; }
+        .pancake-btn.open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
+        .pancake-dropdown {
+            display: none; position: absolute; top: calc(100% + 8px); left: 0;
+            background: #1a1a1a; border: 1px solid #333; border-radius: 6px;
+            overflow: hidden; min-width: 160px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 200;
+        }
+        .pancake-dropdown.open { display: block; }
+        .pancake-dropdown a { display: block; padding: 13px 20px; font-size: 0.9rem; color: #ccc; text-decoration: none; border-bottom: 1px solid #222; transition: background 0.15s, color 0.15s; }
+        .pancake-dropdown a:last-child { border-bottom: none; }
+        .pancake-dropdown a:hover { background: #222; color: #fff; }
+        .pancake-dropdown a.join { font-weight: 600; color: #fff; }
+        .nav-city { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; font-size: 1rem; font-weight: 700; color: rgba(255,255,255,0.85); text-decoration: none; letter-spacing: 0.03em; transition: opacity 0.2s; }
+        .nav-city:hover { opacity: 0.7; }
+
+        /* ---- CITIES SUBMENU ---- */
+        .pancake-dropdown .cities-item { position: relative; }
+        .pancake-dropdown .cities-trigger {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 13px 20px; font-size: 0.9rem; color: #ccc; cursor: pointer;
+            border-bottom: 1px solid #222; transition: background 0.15s;
+            background: none; border-left: none; border-right: none; border-top: none;
+            width: 100%; text-align: left; font-family: 'Inter', -apple-system, sans-serif;
+        }
+        .pancake-dropdown .cities-trigger:hover { background: #222; color: #fff; }
+        .pancake-dropdown .cities-arrow { font-size: 0.65rem; color: #555; transition: transform 0.2s; }
+        .pancake-dropdown .cities-trigger.open .cities-arrow { transform: rotate(90deg); }
+        .cities-submenu { display: none; background: #111; border-bottom: 1px solid #222; }
+        .cities-submenu.open { display: block; }
+        .cities-submenu a, .cities-submenu span {
+            display: flex; align-items: baseline; gap: 8px;
+            padding: 9px 20px 9px 28px; font-size: 0.85rem;
+            color: #888; text-decoration: none; transition: background 0.15s;
+        }
+        .cities-submenu a:hover { background: #1a1a1a; color: #fff; }
+        .cities-submenu .city-soon { color: #bbb; font-size: 0.72rem; }
+
+        /* ---- PAGE HEADER ---- */
+        .page-header { padding: 40px 20px 12px; }
+        .page-header h1 {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-size: 1.8rem; font-weight: 700; color: #fff;
+            letter-spacing: -0.01em; margin-bottom: 5px;
+        }
+        .page-header p { font-size: 0.88rem; color: #666; font-weight: 300; }
+
+        /* ---- FILTER BAR ---- */
+        .filter-bar {
+            position: sticky; top: 56px;
+            background: rgba(10,10,10,0.97); backdrop-filter: blur(8px);
+            border-bottom: 1px solid #222; z-index: 50;
+            display: flex; align-items: center; padding: 10px 14px; gap: 8px;
+        }
+        .filter-wrap { position: relative; }
+        .filter-btn {
+            padding: 5px 13px; border: 0.5px solid #444; border-radius: 20px;
+            background: transparent; font-size: 0.78rem; color: #888; cursor: pointer;
+            font-family: 'Inter', sans-serif; transition: all 0.2s; white-space: nowrap;
+        }
+        .filter-btn:hover { border-color: #888; color: #ccc; }
+        .filter-btn.active { background: #fff; border-color: #fff; color: #000; }
+        .filter-dropdown {
+            display: none; position: absolute; top: calc(100% + 6px); left: 0;
+            background: #1a1a1a; border: 1px solid #333; border-radius: 6px;
+            overflow: hidden; min-width: 170px; z-index: 200;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+        }
+        .filter-dropdown.open { display: block; }
+        .filter-dropdown button {
+            display: block; width: 100%; padding: 10px 16px; text-align: left;
+            background: none; border: none; border-bottom: 1px solid #222;
+            color: #888; font-size: 0.82rem; font-family: 'Inter', sans-serif;
+            cursor: pointer; transition: background 0.15s, color 0.15s;
+        }
+        .filter-dropdown button:last-child { border-bottom: none; }
+        .filter-dropdown button:hover { background: #222; color: #fff; }
+        .filter-dropdown button.chosen { color: #fff; }
+
+        /* ---- ARTWORK GRID ---- */
+        .artwork-track { display: grid; gap: var(--gap); padding: var(--gap); }
+        .grid-cell { overflow: hidden; border-radius: 6px; background: #111; cursor: pointer; }
+        .grid-cell img { width: 100%; height: 100%; object-fit: cover; object-position: center 35%; display: block; transition: transform 0.3s; }
+        .grid-cell:hover img { transform: scale(1.04); }
+        .grid-cell.tall { grid-row: span 2; }
+
+        /* ---- BOTTOM BAR ---- */
+        .bottom-bar {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 56px;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100;
+            display: flex; align-items: center; padding: 0 18px; gap: 28px;
+        }
+        .bottom-bar-city {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-size: 0.95rem; font-weight: 700; color: #fff;
+            letter-spacing: 0.03em; flex-shrink: 0;
+        }
+        .bottom-bar-divider { color: #444; margin: 0 14px; font-size: 0.9rem; flex-shrink: 0; }
+        .bottom-bar a {
+            color: rgba(255,255,255,0.55); text-decoration: none;
+            font-size: 0.88rem; font-weight: 500; letter-spacing: 0.04em;
+            transition: color 0.2s; padding: 4px 0; border-bottom: 1.5px solid transparent;
+        }
+        .bottom-bar a:hover, .bottom-bar a.active { color: #fff; border-color: rgba(255,255,255,0.6); }
+
+        @media (max-width: 600px) {
+            .bottom-bar-city, .bottom-bar-divider { display: none; }
+            .bottom-bar { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="../index.html"><img src="../images/arthere-logo-white.png" alt="Art Here" class="nav-logo"></a>
+        <div class="pancake-wrap">
+            <button class="pancake-btn" id="pancake-btn" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="pancake-dropdown" id="pancake-drop">
+                <a href="survey.html" class="join">Join Us</a>
+                <div class="cities-item">
+                    <button class="cities-trigger" id="cities-trigger">Cities <span class="cities-arrow">&#9654;</span></button>
+                    <div class="cities-submenu" id="cities-submenu">
+                        <a href="portland.html">Portland, OR</a>
+                        <span>Biloxi, MS <span class="city-soon">coming soon</span></span>
+                        <span>San Jose, CA <span class="city-soon">coming soon</span></span>
+                    </div>
+                </div>
+                <a href="about.html">About</a>
+                <a href="about.html#contact">Contact</a>
+            </div>
+        </div>
+        <a href="portland.html" class="nav-city">Portland, OR</a>
+    </div>
+
+    <div class="page-header">
+        <h1>Portland Artwork</h1>
+        <p>Browse work from Portland metro artists.</p>
+    </div>
+
+    <div class="filter-bar">
+        <button class="filter-btn active" id="filter-all-btn">All</button>
+        <div class="filter-wrap">
+            <button class="filter-btn" id="filter-medium-btn">Medium ▾</button>
+            <div class="filter-dropdown" id="filter-medium-drop">
+                <button data-medium="">All mediums</button>
+                <button data-medium="painting">Painting</button>
+                <button data-medium="illustration">Illustration</button>
+                <button data-medium="ceramics">Ceramics</button>
+            </div>
+        </div>
+        <div class="filter-wrap">
+            <button class="filter-btn" id="filter-nbhd-btn">Neighborhood ▾</button>
+            <div class="filter-dropdown" id="filter-nbhd-drop">
+                <button data-nbhd="">All neighborhoods</button>
+                <button data-nbhd="Alberta Arts District">Alberta Arts District</button>
+                <button data-nbhd="Multnomah Village">Multnomah Village</button>
+                <button data-nbhd="Portland">Portland</button>
+                <button data-nbhd="Vancouver, WA">Vancouver, WA</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="artwork-track" id="artwork-track"></div>
+
+    <nav class="bottom-bar">
+        <a href="portland.html" class="bottom-bar-city">Portland, OR</a>
+        <span class="bottom-bar-divider">|</span>
+        <a href="artwork.html" class="active">artwork</a>
+        <a href="artists.html">artists</a>
+        <a href="community.html">community</a>
+        <a href="network.html">network</a>
+    </nav>
+
+    <script>
+    var COLS, GAP = 5, VW, COL, ROW;
+
+    function recalcDims() {
+        COLS = window.innerWidth < 500 ? 3 : 4;
+        VW = window.innerWidth;
+        COL = Math.floor((VW - GAP * (COLS + 1)) / COLS);
+        ROW = COL;
+        document.documentElement.style.setProperty('--gap', GAP + 'px');
+        document.getElementById('artwork-track').style.gridTemplateColumns = 'repeat(' + COLS + ',' + COL + 'px)';
+    }
+
+    var ALL = [
+        { src: '../images/artwork/beth-bundy-hero.jpg',           url: '../artists/beth-bundy.html',            tall: true,  medium: 'illustration', neighborhood: 'Alberta Arts District' },
+        { src: '../images/artwork/beth-bundy-1.jpg',              url: '../artists/beth-bundy.html',            tall: false, medium: 'illustration', neighborhood: 'Alberta Arts District' },
+        { src: '../images/artwork/beth-bundy-2.jpg',              url: '../artists/beth-bundy.html',            tall: false, medium: 'illustration', neighborhood: 'Alberta Arts District' },
+        { src: '../images/artwork/beth-bundy-3.jpg',              url: '../artists/beth-bundy.html',            tall: false, medium: 'illustration', neighborhood: 'Alberta Arts District' },
+        { src: '../images/artwork/jennifer-eaton-white-hero.jpg', url: '../artists/jennifer-eaton-white.html',  tall: true,  medium: 'painting',      neighborhood: 'Vancouver, WA'        },
+        { src: '../images/artwork/jennifer-eaton-white-1.jpg',    url: '../artists/jennifer-eaton-white.html',  tall: false, medium: 'painting',      neighborhood: 'Vancouver, WA'        },
+        { src: '../images/artwork/jennifer-eaton-white-2.jpg',    url: '../artists/jennifer-eaton-white.html',  tall: false, medium: 'painting',      neighborhood: 'Vancouver, WA'        },
+        { src: '../images/artwork/kurtis-piltz-hero.jpg',         url: '../artists/kurtis-piltz.html',          tall: true,  medium: 'ceramics',      neighborhood: 'Multnomah Village'    },
+        { src: '../images/artwork/kurtis-piltz-1.jpg',            url: '../artists/kurtis-piltz.html',          tall: false, medium: 'ceramics',      neighborhood: 'Multnomah Village'    },
+        { src: '../images/artwork/kurtis-piltz-2.jpg',            url: '../artists/kurtis-piltz.html',          tall: false, medium: 'ceramics',      neighborhood: 'Multnomah Village'    },
+        { src: '../images/artwork/kurtis-piltz-3.jpg',            url: '../artists/kurtis-piltz.html',          tall: false, medium: 'ceramics',      neighborhood: 'Multnomah Village'    },
+        { src: '../images/artwork/lindsey-fox-hero.jpg',          url: '../artists/lindsey-fox.html',           tall: true,  medium: 'painting',      neighborhood: 'Portland'             },
+        { src: '../images/artwork/lindsey-fox-1.jpg',             url: '../artists/lindsey-fox.html',           tall: false, medium: 'painting',      neighborhood: 'Portland'             },
+        { src: '../images/artwork/lindsey-fox-2.jpg',             url: '../artists/lindsey-fox.html',           tall: false, medium: 'painting',      neighborhood: 'Portland'             },
+        { src: '../images/artwork/lindsey-fox-3.jpg',             url: '../artists/lindsey-fox.html',           tall: false, medium: 'painting',      neighborhood: 'Portland'             },
+        { src: '../images/artwork/yong-hong-zhong-1.jpg',         url: '../artists/yong-hong-zhong.html',       tall: true,  medium: 'painting',      neighborhood: 'Portland'             },
+        { src: '../images/artwork/yong-hong-zhong-2.jpg',         url: '../artists/yong-hong-zhong.html',       tall: false, medium: 'painting',      neighborhood: 'Portland'             },
+        { src: '../images/artwork/yong-hong-zhong-3.jpg',         url: '../artists/yong-hong-zhong.html',       tall: false, medium: 'painting',      neighborhood: 'Portland'             },
+        { src: '../images/artwork/yong-hong-zhong-4.jpg',         url: '../artists/yong-hong-zhong.html',       tall: false, medium: 'painting',      neighborhood: 'Portland'             },
+    ];
+
+    function shuffle(a) {
+        var arr = a.slice();
+        for (var i = arr.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+        }
+        return arr;
+    }
+
+    var filterMedium = null, filterNeighborhood = null;
+    var filterAllBtn = document.getElementById('filter-all-btn');
+    var filterMediumBtn = document.getElementById('filter-medium-btn');
+    var filterMediumDrop = document.getElementById('filter-medium-drop');
+    var filterNbhdBtn = document.getElementById('filter-nbhd-btn');
+    var filterNbhdDrop = document.getElementById('filter-nbhd-drop');
+
+    function buildGrid() {
+        var track = document.getElementById('artwork-track');
+        track.innerHTML = '';
+
+        var artList = ALL;
+        if (filterMedium) artList = artList.filter(function(a) { return a.medium === filterMedium; });
+        if (filterNeighborhood) artList = artList.filter(function(a) { return a.neighborhood === filterNeighborhood; });
+        if (artList.length === 0) artList = ALL;
+
+        var seq = shuffle(artList);
+        var lastWasTall = false;
+        seq.forEach(function(art) {
+            var useTall = art.tall && !lastWasTall;
+            lastWasTall = useTall;
+            var c = document.createElement('div');
+            c.className = 'grid-cell' + (useTall ? ' tall' : '');
+            c.style.height = (useTall ? ROW * 2 + GAP : ROW) + 'px';
+            if (useTall) c.style.gridRow = 'span 2';
+            var img = document.createElement('img');
+            img.src = art.src; img.alt = ''; img.loading = 'lazy';
+            c.appendChild(img);
+            c.addEventListener('click', function() { window.location.href = art.url; });
+            track.appendChild(c);
+        });
+    }
+
+    filterAllBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        filterMedium = null; filterNeighborhood = null;
+        filterMediumBtn.textContent = 'Medium ▾'; filterMediumBtn.classList.remove('active');
+        filterNbhdBtn.textContent = 'Neighborhood ▾'; filterNbhdBtn.classList.remove('active');
+        filterAllBtn.classList.add('active');
+        filterMediumDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
+        filterNbhdDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
+        buildGrid();
+    });
+
+    filterMediumBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        filterMediumDrop.classList.toggle('open');
+        filterNbhdDrop.classList.remove('open');
+    });
+    filterNbhdBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        filterNbhdDrop.classList.toggle('open');
+        filterMediumDrop.classList.remove('open');
+    });
+
+    filterMediumDrop.querySelectorAll('button').forEach(function(b) {
+        b.addEventListener('click', function(e) {
+            e.stopPropagation();
+            filterMedium = b.dataset.medium || null;
+            filterMediumBtn.textContent = filterMedium ? (filterMedium.charAt(0).toUpperCase() + filterMedium.slice(1) + ' ▾') : 'Medium ▾';
+            filterMediumBtn.classList.toggle('active', !!filterMedium);
+            filterAllBtn.classList.toggle('active', !filterMedium && !filterNeighborhood);
+            filterMediumDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
+            b.classList.add('chosen');
+            filterMediumDrop.classList.remove('open');
+            buildGrid();
+        });
+    });
+
+    filterNbhdDrop.querySelectorAll('button').forEach(function(b) {
+        b.addEventListener('click', function(e) {
+            e.stopPropagation();
+            filterNeighborhood = b.dataset.nbhd || null;
+            filterNbhdBtn.textContent = filterNeighborhood ? (filterNeighborhood + ' ▾') : 'Neighborhood ▾';
+            filterNbhdBtn.classList.toggle('active', !!filterNeighborhood);
+            filterAllBtn.classList.toggle('active', !filterMedium && !filterNeighborhood);
+            filterNbhdDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
+            b.classList.add('chosen');
+            filterNbhdDrop.classList.remove('open');
+            buildGrid();
+        });
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.filter-wrap')) {
+            filterMediumDrop.classList.remove('open');
+            filterNbhdDrop.classList.remove('open');
+        }
+    });
+
+    var pBtn = document.getElementById('pancake-btn'), pDrop = document.getElementById('pancake-drop');
+    pBtn.addEventListener('click', function(e) { e.stopPropagation(); pBtn.classList.toggle('open'); pDrop.classList.toggle('open'); });
+    var citiesTrigger = document.getElementById('cities-trigger');
+    var citiesSubmenu = document.getElementById('cities-submenu');
+    if (citiesTrigger) {
+        citiesTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            citiesTrigger.classList.toggle('open');
+            citiesSubmenu.classList.toggle('open');
+        });
+    }
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.pancake-wrap')) {
+            pBtn.classList.remove('open'); pDrop.classList.remove('open');
+            if (citiesSubmenu) { citiesSubmenu.classList.remove('open'); if (citiesTrigger) citiesTrigger.classList.remove('open'); }
+        }
+    });
+
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            var st = window.scrollY;
+            recalcDims();
+            buildGrid();
+            window.scrollTo(0, st);
+        }, 150);
+    });
+
+    recalcDims();
+    buildGrid();
+    </script>
+</body>
+</html>

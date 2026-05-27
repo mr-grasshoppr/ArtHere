@@ -43,46 +43,7 @@
         .nav-city:hover { opacity: 0.7; }
 
         /* ---- GRID ---- */
-        .grid-viewport { position: fixed; top: 56px; left: 0; right: 0; bottom: 56px; overflow: hidden; }
-        .grid-viewport.browse { overflow-y: auto; top: 56px; }
-        .grid-viewport.browse-freeze { overflow-y: auto; top: 100px; }
-
-        /* Artwork browse filter bar */
-        .art-filter-bar {
-            display: none;
-            position: fixed; top: 56px; left: 0; right: 0; height: 44px;
-            background: rgba(0,0,0,0.92); backdrop-filter: blur(8px);
-            border-bottom: 1px solid #222; z-index: 50;
-            align-items: center; padding: 0 14px; gap: 8px;
-        }
-        .art-filter-bar.visible { display: flex; }
-        .art-filter-bar.inline { position: static !important; background: transparent !important;
-            border: none !important; backdrop-filter: none !important;
-            height: auto !important; padding: 16px 0 0 !important; display: flex !important; }
-        .art-filter-wrap { position: relative; }
-        .art-filter-btn {
-            padding: 5px 13px; border: 0.5px solid #444; border-radius: 20px;
-            background: transparent; font-size: 0.78rem; color: #888; cursor: pointer;
-            font-family: 'Inter', sans-serif; transition: all 0.2s; white-space: nowrap;
-        }
-        .art-filter-btn:hover { border-color: #888; color: #ccc; }
-        .art-filter-btn.active { background: #fff; border-color: #fff; color: #000; }
-        .art-filter-dropdown {
-            display: none; position: absolute; top: calc(100% + 6px); left: 0;
-            background: #1a1a1a; border: 1px solid #333; border-radius: 6px;
-            overflow: hidden; min-width: 170px; z-index: 200;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.5);
-        }
-        .art-filter-dropdown.open { display: block; }
-        .art-filter-dropdown button {
-            display: block; width: 100%; padding: 10px 16px; text-align: left;
-            background: none; border: none; border-bottom: 1px solid #222;
-            color: #888; font-size: 0.82rem; font-family: 'Inter', sans-serif;
-            cursor: pointer; transition: background 0.15s, color 0.15s;
-        }
-        .art-filter-dropdown button:last-child { border-bottom: none; }
-        .art-filter-dropdown button:hover { background: #222; color: #fff; }
-        .art-filter-dropdown button.chosen { color: #fff; }
+        .grid-viewport { position: fixed; top: 56px; left: 0; right: 0; bottom: 56px; overflow: hidden; cursor: pointer; }
         .grid-track {
             position: absolute; top: 0; left: 0; right: 0;
             display: grid; gap: var(--gap); padding: var(--gap);
@@ -95,62 +56,30 @@
         .grid-cell { overflow: hidden; border-radius: 6px; background: #111; }
         .grid-cell img { width: 100%; height: 100%; object-fit: cover; object-position: center 35%; display: block; }
         .grid-cell.tall { grid-row: span 2; }
-        .grid-cell.clickable { cursor: pointer; }
-        .grid-cell.clickable img { transition: transform 0.3s; }
-        .grid-cell.clickable:hover img { transform: scale(1.04); }
 
         /* Logo cell: 2-col × 2-row, artwork through letterforms */
         .logo-cell {
-            grid-column: span 2;
-            grid-row: span 2;
-            background: #0a0a0a;
-            border-radius: 6px;
-            overflow: hidden;
-            position: relative;
+            grid-column: span 2; grid-row: span 2;
+            background: #0a0a0a; border-radius: 6px;
+            overflow: hidden; position: relative;
         }
         .logo-cell-art {
             position: absolute; inset: 0;
-            background-size: cover;
-            background-position: center 35%;
+            background-size: cover; background-position: center 35%;
             -webkit-mask-image: url('../images/arthere-mask.png');
             mask-image: url('../images/arthere-mask.png');
-            -webkit-mask-repeat: no-repeat;
-            mask-repeat: no-repeat;
-            -webkit-mask-position: 21% center;
-            mask-position: 21% center;
-            -webkit-mask-size: 90% auto;
-            mask-size: 90% auto;
+            -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+            -webkit-mask-position: 21% center; mask-position: 21% center;
+            -webkit-mask-size: 90% auto; mask-size: 90% auto;
         }
         .logo-city-text {
-            position: absolute;
-            bottom: 14px;
-            right: 16px;
+            position: absolute; bottom: 14px; right: 16px;
             font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-            font-style: italic;
-            font-weight: 700;
+            font-style: italic; font-weight: 700;
             font-size: calc(var(--row-px) * 0.11);
             color: rgba(255,255,255,0.72);
-            letter-spacing: 0.02em;
-            text-align: right;
-            line-height: 1;
+            letter-spacing: 0.02em; text-align: right; line-height: 1;
             pointer-events: none;
-        }
-        /* Browse mode page header (inside grid track) */
-        .art-page-header-cell {
-            padding: 0 4px 16px;
-        }
-        .art-page-header-cell h1 {
-            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: -0.01em;
-            margin-bottom: 5px;
-        }
-        .art-page-header-cell p {
-            font-size: 0.88rem;
-            color: #666;
-            font-weight: 300;
         }
 
         /* ---- BOTTOM BAR ---- */
@@ -164,9 +93,7 @@
             font-size: 0.95rem; font-weight: 700; color: #fff;
             letter-spacing: 0.03em; flex-shrink: 0;
         }
-        .bottom-bar-divider {
-            color: #444; margin: 0 14px; font-size: 0.9rem; flex-shrink: 0;
-        }
+        .bottom-bar-divider { color: #444; margin: 0 14px; font-size: 0.9rem; flex-shrink: 0; }
         .bottom-bar a {
             color: rgba(255,255,255,0.55); text-decoration: none;
             font-size: 0.88rem; font-weight: 500; letter-spacing: 0.04em;
@@ -174,20 +101,9 @@
         }
         .bottom-bar a:hover, .bottom-bar a.active { color: #fff; border-color: rgba(255,255,255,0.6); }
 
-        /* Touch hint */
-        .touch-hint {
-            position: fixed; bottom: 68px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.6); color: rgba(255,255,255,0.6); font-size: 0.75rem;
-            letter-spacing: 0.08em; padding: 6px 14px; border-radius: 20px;
-            pointer-events: none; opacity: 0; transition: opacity 0.5s; z-index: 90;
-        }
-        .touch-hint.show { opacity: 1; }
-    
         @media (max-width: 600px) {
-            .bottom-bar-city,
-            .bottom-bar-divider { display: none; }
+            .bottom-bar-city, .bottom-bar-divider { display: none; }
             .bottom-bar { justify-content: center; }
-            .bottom-bar-links { gap: 20px; }
         }
 
         /* ---- CITIES SUBMENU ---- */
@@ -195,7 +111,7 @@
         .pancake-dropdown .cities-trigger {
             display: flex; justify-content: space-between; align-items: center;
             padding: 13px 20px; font-size: 0.9rem; color: #ccc; cursor: pointer;
-            border-bottom: 1px solid #f0f0f0; transition: background 0.15s;
+            border-bottom: 1px solid #222; transition: background 0.15s;
             background: none; border-left: none; border-right: none; border-top: none;
             width: 100%; text-align: left; font-family: 'Inter', -apple-system, sans-serif;
         }
@@ -207,8 +123,7 @@
         .cities-submenu a, .cities-submenu span {
             display: flex; align-items: baseline; gap: 8px;
             padding: 9px 20px 9px 28px; font-size: 0.85rem;
-            color: #888; text-decoration: none;
-            transition: background 0.15s;
+            color: #888; text-decoration: none; transition: background 0.15s;
         }
         .cities-submenu a:hover { background: #1a1a1a; color: #fff; }
         .cities-submenu .city-soon { color: #bbb; font-size: 0.72rem; }
@@ -223,7 +138,7 @@
             </button>
             <div class="pancake-dropdown" id="pancake-drop">
                 <a href="survey.html" class="join">Join Us</a>
-                                <div class="cities-item">
+                <div class="cities-item">
                     <button class="cities-trigger" id="cities-trigger">Cities <span class="cities-arrow">&#9654;</span></button>
                     <div class="cities-submenu" id="cities-submenu">
                         <a href="portland.html">Portland, OR</a>
@@ -238,40 +153,14 @@
         <a href="portland.html" class="nav-city">Portland, OR</a>
     </div>
 
-    <!-- ARTWORK BROWSE FILTER BAR (visible only in browse mode) -->
-    <div class="art-filter-bar" id="art-filter-bar">
-        <button class="art-filter-btn active" id="filter-all-btn">All</button>
-        <div class="art-filter-wrap">
-            <button class="art-filter-btn" id="filter-medium-btn">Medium ▾</button>
-            <div class="art-filter-dropdown" id="filter-medium-drop">
-                <button data-medium="">All mediums</button>
-                <button data-medium="painting">Painting</button>
-                <button data-medium="illustration">Illustration</button>
-                <button data-medium="ceramics">Ceramics</button>
-            </div>
-        </div>
-        <div class="art-filter-wrap">
-            <button class="art-filter-btn" id="filter-nbhd-btn">Neighborhood ▾</button>
-            <div class="art-filter-dropdown" id="filter-nbhd-drop">
-                <button data-nbhd="">All neighborhoods</button>
-                <button data-nbhd="Alberta Arts District">Alberta Arts District</button>
-                <button data-nbhd="Multnomah Village">Multnomah Village</button>
-                <button data-nbhd="Portland">Portland</button>
-                <button data-nbhd="Vancouver, WA">Vancouver, WA</button>
-            </div>
-        </div>
-    </div>
-
     <div class="grid-viewport" id="grid-vp">
         <div class="grid-track" id="grid-track"></div>
     </div>
 
-    <div class="touch-hint" id="touch-hint">tap to browse artwork</div>
-
     <nav class="bottom-bar">
         <a href="portland.html" class="bottom-bar-city">Portland, OR</a>
         <span class="bottom-bar-divider">|</span>
-        <a href="#" id="nav-artwork">artwork</a>
+        <a href="artwork.html">artwork</a>
         <a href="artists.html">artists</a>
         <a href="community.html">community</a>
         <a href="network.html">network</a>
@@ -282,35 +171,34 @@
 
     function recalcDims() {
         COLS = window.innerWidth < 500 ? 3 : 4;
-        VW   = window.innerWidth;
-        COL  = Math.floor((VW - GAP * (COLS + 1)) / COLS);
-        ROW  = COL;
+        VW = window.innerWidth;
+        COL = Math.floor((VW - GAP * (COLS + 1)) / COLS);
+        ROW = COL;
         document.documentElement.style.setProperty('--gap', GAP + 'px');
-        document.documentElement.style.setProperty('--col', COL + 'px');
         document.getElementById('grid-track').style.gridTemplateColumns = 'repeat(' + COLS + ',' + COL + 'px)';
     }
     recalcDims();
 
     var ALL = [
-        { src: '../images/artwork/beth-bundy-hero.jpg',           url: '../artists/beth-bundy.html',            tall: true,  medium: 'illustration', neighborhood: 'Alberta Arts District' },
-        { src: '../images/artwork/beth-bundy-1.jpg',              url: '../artists/beth-bundy.html',            tall: false, medium: 'illustration', neighborhood: 'Alberta Arts District' },
-        { src: '../images/artwork/beth-bundy-2.jpg',              url: '../artists/beth-bundy.html',            tall: false, medium: 'illustration', neighborhood: 'Alberta Arts District' },
-        { src: '../images/artwork/beth-bundy-3.jpg',              url: '../artists/beth-bundy.html',            tall: false, medium: 'illustration', neighborhood: 'Alberta Arts District' },
-        { src: '../images/artwork/jennifer-eaton-white-hero.jpg', url: '../artists/jennifer-eaton-white.html',  tall: true,  medium: 'painting',      neighborhood: 'Vancouver, WA'        },
-        { src: '../images/artwork/jennifer-eaton-white-1.jpg',    url: '../artists/jennifer-eaton-white.html',  tall: false, medium: 'painting',      neighborhood: 'Vancouver, WA'        },
-        { src: '../images/artwork/jennifer-eaton-white-2.jpg',    url: '../artists/jennifer-eaton-white.html',  tall: false, medium: 'painting',      neighborhood: 'Vancouver, WA'        },
-        { src: '../images/artwork/kurtis-piltz-hero.jpg',         url: '../artists/kurtis-piltz.html',          tall: true,  medium: 'ceramics',      neighborhood: 'Multnomah Village'    },
-        { src: '../images/artwork/kurtis-piltz-1.jpg',            url: '../artists/kurtis-piltz.html',          tall: false, medium: 'ceramics',      neighborhood: 'Multnomah Village'    },
-        { src: '../images/artwork/kurtis-piltz-2.jpg',            url: '../artists/kurtis-piltz.html',          tall: false, medium: 'ceramics',      neighborhood: 'Multnomah Village'    },
-        { src: '../images/artwork/kurtis-piltz-3.jpg',            url: '../artists/kurtis-piltz.html',          tall: false, medium: 'ceramics',      neighborhood: 'Multnomah Village'    },
-        { src: '../images/artwork/lindsey-fox-hero.jpg',          url: '../artists/lindsey-fox.html',           tall: true,  medium: 'painting',      neighborhood: 'Portland'             },
-        { src: '../images/artwork/lindsey-fox-1.jpg',             url: '../artists/lindsey-fox.html',           tall: false, medium: 'painting',      neighborhood: 'Portland'             },
-        { src: '../images/artwork/lindsey-fox-2.jpg',             url: '../artists/lindsey-fox.html',           tall: false, medium: 'painting',      neighborhood: 'Portland'             },
-        { src: '../images/artwork/lindsey-fox-3.jpg',             url: '../artists/lindsey-fox.html',           tall: false, medium: 'painting',      neighborhood: 'Portland'             },
-        { src: '../images/artwork/yong-hong-zhong-1.jpg',         url: '../artists/yong-hong-zhong.html',       tall: true,  medium: 'painting',      neighborhood: 'Portland'             },
-        { src: '../images/artwork/yong-hong-zhong-2.jpg',         url: '../artists/yong-hong-zhong.html',       tall: false, medium: 'painting',      neighborhood: 'Portland'             },
-        { src: '../images/artwork/yong-hong-zhong-3.jpg',         url: '../artists/yong-hong-zhong.html',       tall: false, medium: 'painting',      neighborhood: 'Portland'             },
-        { src: '../images/artwork/yong-hong-zhong-4.jpg',         url: '../artists/yong-hong-zhong.html',       tall: false, medium: 'painting',      neighborhood: 'Portland'             },
+        { src: '../images/artwork/beth-bundy-hero.jpg',           tall: true,  medium: 'illustration', neighborhood: 'Alberta Arts District' },
+        { src: '../images/artwork/beth-bundy-1.jpg',              tall: false, medium: 'illustration', neighborhood: 'Alberta Arts District' },
+        { src: '../images/artwork/beth-bundy-2.jpg',              tall: false, medium: 'illustration', neighborhood: 'Alberta Arts District' },
+        { src: '../images/artwork/beth-bundy-3.jpg',              tall: false, medium: 'illustration', neighborhood: 'Alberta Arts District' },
+        { src: '../images/artwork/jennifer-eaton-white-hero.jpg', tall: true,  medium: 'painting',      neighborhood: 'Vancouver, WA'        },
+        { src: '../images/artwork/jennifer-eaton-white-1.jpg',    tall: false, medium: 'painting',      neighborhood: 'Vancouver, WA'        },
+        { src: '../images/artwork/jennifer-eaton-white-2.jpg',    tall: false, medium: 'painting',      neighborhood: 'Vancouver, WA'        },
+        { src: '../images/artwork/kurtis-piltz-hero.jpg',         tall: true,  medium: 'ceramics',      neighborhood: 'Multnomah Village'    },
+        { src: '../images/artwork/kurtis-piltz-1.jpg',            tall: false, medium: 'ceramics',      neighborhood: 'Multnomah Village'    },
+        { src: '../images/artwork/kurtis-piltz-2.jpg',            tall: false, medium: 'ceramics',      neighborhood: 'Multnomah Village'    },
+        { src: '../images/artwork/kurtis-piltz-3.jpg',            tall: false, medium: 'ceramics',      neighborhood: 'Multnomah Village'    },
+        { src: '../images/artwork/lindsey-fox-hero.jpg',          tall: true,  medium: 'painting',      neighborhood: 'Portland'             },
+        { src: '../images/artwork/lindsey-fox-1.jpg',             tall: false, medium: 'painting',      neighborhood: 'Portland'             },
+        { src: '../images/artwork/lindsey-fox-2.jpg',             tall: false, medium: 'painting',      neighborhood: 'Portland'             },
+        { src: '../images/artwork/lindsey-fox-3.jpg',             tall: false, medium: 'painting',      neighborhood: 'Portland'             },
+        { src: '../images/artwork/yong-hong-zhong-1.jpg',         tall: true,  medium: 'painting',      neighborhood: 'Portland'             },
+        { src: '../images/artwork/yong-hong-zhong-2.jpg',         tall: false, medium: 'painting',      neighborhood: 'Portland'             },
+        { src: '../images/artwork/yong-hong-zhong-3.jpg',         tall: false, medium: 'painting',      neighborhood: 'Portland'             },
+        { src: '../images/artwork/yong-hong-zhong-4.jpg',         tall: false, medium: 'painting',      neighborhood: 'Portland'             },
     ];
 
     function shuffle(a) {
@@ -322,7 +210,6 @@
         return arr;
     }
 
-    // Logo cell: 2-col × 2-row, artwork through letterforms + city name below
     function makeLogoCell(artSrc) {
         var cell = document.createElement('div');
         cell.className = 'logo-cell';
@@ -339,294 +226,82 @@
         return cell;
     }
 
-    // Browse header: page title + subtitle + filter bar (moved inline)
-    function makeBrowseHeaderCell() {
-        var cell = document.createElement('div');
-        cell.className = 'art-page-header-cell';
-        cell.style.gridColumn = '1 / -1';
-        var h1 = document.createElement('h1');
-        h1.textContent = 'Portland Artwork';
-        var p = document.createElement('p');
-        p.textContent = 'Browse work from Portland metro artists.';
-        cell.appendChild(h1);
-        cell.appendChild(p);
-        // Move filter bar below header (inline, not fixed)
-        filterAllBtn.classList.toggle('active', !filterMedium && !filterNeighborhood);
-        artFilterBar.classList.add('visible');
-        artFilterBar.classList.add('inline');
-        cell.appendChild(artFilterBar);
-        return cell;
-    }
-
-    function makeCell(art, clickable) {
+    function makeCell(art) {
         var c = document.createElement('div');
-        c.className = 'grid-cell' + (art.tall ? ' tall' : '') + (clickable ? ' clickable' : '');
+        c.className = 'grid-cell' + (art.tall ? ' tall' : '');
         c.style.height = (art.tall ? ROW * 2 + GAP : ROW) + 'px';
         if (art.tall) c.style.gridRow = 'span 2';
-        if (art.url) c.setAttribute('data-url', art.url);
         var img = document.createElement('img');
         img.src = art.src; img.alt = ''; img.loading = 'lazy';
         c.appendChild(img);
-        if (clickable) {
-            c.addEventListener('click', function(e) {
-                e.stopPropagation();
-                window.location.href = art.url;
-            });
-        }
         return c;
     }
 
-    function buildGrid(clickable) {
-        var track = document.getElementById('grid-track');
-        // Rescue filter bar if it was moved inside the track
-        if (artFilterBar && track.contains(artFilterBar)) {
-            vp.parentNode.insertBefore(artFilterBar, vp);
-            artFilterBar.classList.remove('inline');
-            artFilterBar.classList.remove('visible');
+    // Build sequence: each artwork appears 4×, spread at least 4 rows apart
+    function makeSequence(artList) {
+        var minGap = COLS * 4;
+        var result = [];
+        var lastPos = {};
+        var needed = {};
+        artList.forEach(function(a) { needed[a.src] = 4; });
+
+        var attempts = 0;
+        while (result.length < artList.length * 4 && attempts < 10000) {
+            attempts++;
+            var candidates = artList.filter(function(a) {
+                if (!needed[a.src]) return false;
+                var last = lastPos[a.src];
+                return last === undefined || (result.length - last) >= minGap;
+            });
+            if (candidates.length === 0) {
+                candidates = artList.filter(function(a) { return needed[a.src] > 0; });
+            }
+            if (candidates.length === 0) break;
+            var pick = candidates[Math.floor(Math.random() * candidates.length)];
+            result.push(pick);
+            lastPos[pick.src] = result.length - 1;
+            needed[pick.src]--;
         }
+        return result;
+    }
+
+    function buildGrid() {
+        var track = document.getElementById('grid-track');
         track.innerHTML = '';
         track.classList.remove('scrolling');
 
-        // Build a sequence: each artwork appears 4x, with at least 4 rows (COLS*4 cells) between repeats
-        function makeSequence(artList) {
-            var n = artList.length;
-            var minGap = COLS * 4; // 4 rows apart minimum
-            var result = [];
-            var lastPos = {}; // src -> last index placed
+        var seq = makeSequence(shuffle(ALL));
+        track.appendChild(makeLogoCell(seq[0].src));
 
-            // We need 4 copies of each image, spread out
-            // Strategy: place images in passes, ensuring gap constraint
-            var needed = {};
-            artList.forEach(function(a) { needed[a.src] = 4; });
-            var remaining = artList.slice();
-            var attempts = 0;
-            var maxLen = n * 4 + 40; // a bit of buffer
-
-            while (result.length < n * 4 && attempts < 10000) {
-                attempts++;
-                // Pick a random image that still needs placing and respects gap
-                var candidates = artList.filter(function(a) {
-                    if (!needed[a.src]) return false;
-                    var last = lastPos[a.src];
-                    if (last === undefined) return true;
-                    return (result.length - last) >= minGap;
-                });
-                if (candidates.length === 0) {
-                    // Relax: pick any image still needed (gap will be best-effort)
-                    candidates = artList.filter(function(a) { return needed[a.src] > 0; });
-                }
-                if (candidates.length === 0) break;
-                var pick = candidates[Math.floor(Math.random() * candidates.length)];
-                result.push(pick);
-                lastPos[pick.src] = result.length - 1;
-                needed[pick.src]--;
-            }
-            return result;
-        }
-
-        // Apply filters when in browse mode
-        var artList = ALL;
-        if (clickable) {
-            if (filterMedium) artList = artList.filter(function(a) { return a.medium === filterMedium; });
-            if (filterNeighborhood) artList = artList.filter(function(a) { return a.neighborhood === filterNeighborhood; });
-        }
-        if (artList.length === 0) artList = ALL; // fallback if filters produce nothing
-
-        var base = shuffle(artList);
-        var seq = makeSequence(base);
-
-        // Header row
-        var imgIdx;
-        if (clickable) {
-            // Browse mode: page title, no logo, use all images for artwork
-            track.appendChild(makeBrowseHeaderCell());
-            imgIdx = 0;
-        } else {
-            // Ambient mode: logo in top-left grid cell, artwork fills the rest
-            track.appendChild(makeLogoCell(seq[0].src));
-            imgIdx = 1;
-        }
-        var lastWasTall = false;
+        var imgIdx = 1, lastWasTall = false;
         while (imgIdx < seq.length) {
-            var art = seq[imgIdx % seq.length];
-            imgIdx++;
+            var art = seq[imgIdx++];
             var useTall = art.tall && !lastWasTall;
             lastWasTall = useTall;
-            track.appendChild(makeCell({src: art.src, url: art.url, tall: useTall}, clickable));
+            track.appendChild(makeCell({src: art.src, tall: useTall}));
         }
 
-        if (!clickable) {
-            var totalRows = 2 + Math.ceil((seq.length - 1) / COLS);
-            var dist = totalRows * (ROW + GAP);
-            document.documentElement.style.setProperty('--dist', '-' + dist + 'px');
-            document.documentElement.style.setProperty('--dur', (totalRows * 5) + 's');
-            track.offsetHeight;
-            track.classList.add('scrolling');
-        }
+        var totalRows = 2 + Math.ceil((seq.length - 1) / COLS);
+        var dist = totalRows * (ROW + GAP);
+        document.documentElement.style.setProperty('--dist', '-' + dist + 'px');
+        document.documentElement.style.setProperty('--dur', (totalRows * 5) + 's');
+        track.offsetHeight;
+        track.classList.add('scrolling');
     }
 
-    // ---- FILTER STATE ----
-    var filterMedium = null;
-    var filterNeighborhood = null;
-    var artFilterBar = document.getElementById('art-filter-bar');
-    var filterAllBtn = document.getElementById('filter-all-btn');
-    var filterMediumBtn = document.getElementById('filter-medium-btn');
-    var filterMediumDrop = document.getElementById('filter-medium-drop');
-    var filterNbhdBtn = document.getElementById('filter-nbhd-btn');
-    var filterNbhdDrop = document.getElementById('filter-nbhd-drop');
-
-    filterAllBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        filterMedium = null; filterNeighborhood = null;
-        filterMediumBtn.textContent = 'Medium ▾'; filterMediumBtn.classList.remove('active');
-        filterNbhdBtn.textContent = 'Neighborhood ▾'; filterNbhdBtn.classList.remove('active');
-        filterMediumDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
-        filterNbhdDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
-        buildGrid(true);
-    });
-
-    filterMediumBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        filterMediumDrop.classList.toggle('open');
-        filterNbhdDrop.classList.remove('open');
-    });
-    filterNbhdBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        filterNbhdDrop.classList.toggle('open');
-        filterMediumDrop.classList.remove('open');
-    });
-    filterMediumDrop.querySelectorAll('button').forEach(function(b) {
-        b.addEventListener('click', function(e) {
-            e.stopPropagation();
-            filterMedium = b.dataset.medium || null;
-            filterMediumBtn.textContent = filterMedium ? (filterMedium.charAt(0).toUpperCase() + filterMedium.slice(1) + ' ▾') : 'Medium ▾';
-            filterMediumBtn.classList.toggle('active', !!filterMedium);
-            filterMediumDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
-            b.classList.add('chosen');
-            filterMediumDrop.classList.remove('open');
-            buildGrid(true);
-        });
-    });
-    filterNbhdDrop.querySelectorAll('button').forEach(function(b) {
-        b.addEventListener('click', function(e) {
-            e.stopPropagation();
-            filterNeighborhood = b.dataset.nbhd || null;
-            filterNbhdBtn.textContent = filterNeighborhood ? (filterNeighborhood + ' ▾') : 'Neighborhood ▾';
-            filterNbhdBtn.classList.toggle('active', !!filterNeighborhood);
-            filterNbhdDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
-            b.classList.add('chosen');
-            filterNbhdDrop.classList.remove('open');
-            buildGrid(true);
-        });
-    });
-
-    // ---- MODE: freeze-in-place then make clickable ----
-    var isAmbient = true;
-    var navArtwork = document.getElementById('nav-artwork');
+    // Click or tap anywhere on the grid → go to artwork browse page
     var vp = document.getElementById('grid-vp');
-    var track = document.getElementById('grid-track');
+    vp.addEventListener('click', function() { window.location.href = 'artwork.html'; });
+    vp.addEventListener('touchstart', function() { window.location.href = 'artwork.html'; }, { passive: true });
 
-    function enterBrowse() {
-        if (!isAmbient) return;
-        isAmbient = false;
-
-        // Read animated position before stopping
-        var style = window.getComputedStyle(track);
-        var matrix = style.transform || style.webkitTransform;
-        var currentY = 0;
-        if (matrix && matrix !== 'none') {
-            var match = matrix.match(/matrix.*\((.+)\)/);
-            if (match) { var vals = match[1].split(', '); currentY = parseFloat(vals[5]) || 0; }
-        }
-
-        // Stop animation — keep existing DOM, no rebuild
-        track.classList.remove('scrolling');
-        track.style.animation = 'none';
-        track.style.transform = '';
-
-        // Make existing cells clickable in place
-        track.querySelectorAll('.grid-cell[data-url]').forEach(function(cell) {
-            cell.classList.add('clickable');
-            cell.addEventListener('click', function(e) {
-                e.stopPropagation();
-                window.location.href = cell.getAttribute('data-url');
-            });
-        });
-
-        // Switch to native scroll, show fixed filter bar, jump to frozen position
-        vp.classList.add('browse-freeze');
-        artFilterBar.classList.add('visible');
-        navArtwork.classList.add('active');
-        vp.scrollTop = Math.abs(currentY);
-    }
-
-    function exitBrowse() {
-        if (isAmbient) return;
-        isAmbient = true;
-        vp.classList.remove('browse');
-        vp.classList.remove('browse-freeze');
-        artFilterBar.classList.remove('visible');
-        artFilterBar.classList.remove('inline');
-        if (track.contains(artFilterBar)) { vp.parentNode.insertBefore(artFilterBar, vp); }
-        navArtwork.classList.remove('active');
-        // Reset filters
-        filterMedium = null; filterNeighborhood = null;
-        filterMediumBtn.textContent = 'Medium ▾'; filterMediumBtn.classList.remove('active');
-        filterNbhdBtn.textContent = 'Neighborhood ▾'; filterNbhdBtn.classList.remove('active');
-        filterAllBtn.classList.add('active');
-        filterMediumDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
-        filterNbhdDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
-        buildGrid(false);
-    }
-
-    // Artwork nav: enters browse and reshuffles; never exits (spacebar exits)
-    navArtwork.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (!isAmbient) {
-            // Already in browse — reshuffle in place
-            buildGrid(true);
-            return;
-        }
-        // Enter browse from ambient
-        isAmbient = false;
-        track.classList.remove('scrolling');
-        track.style.animation = 'none';
-        track.style.transform = '';
-        vp.classList.add('browse');
-        navArtwork.classList.add('active');
-        buildGrid(true);
-    });
-
-    // Spacebar toggles
+    // Spacebar → artwork browse page
     document.addEventListener('keydown', function(e) {
-        if (e.code === 'Space') { e.preventDefault(); isAmbient ? enterBrowse() : exitBrowse(); }
+        if (e.code === 'Space') { e.preventDefault(); window.location.href = 'artwork.html'; }
     });
 
-    // Grid click/touch in ambient = freeze in place
-    vp.addEventListener('click', function(e) {
-        if (isAmbient) { enterBrowse(); }
-    });
-    vp.addEventListener('touchstart', function(e) {
-        if (isAmbient) {
-            enterBrowse();
-            var hint = document.getElementById('touch-hint');
-            if (hint) { hint.classList.add('show'); setTimeout(function() { hint.classList.remove('show'); }, 1800); }
-        }
-    }, { passive: true });
-
-    // Close filter dropdowns on outside click
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.art-filter-wrap')) {
-            filterMediumDrop.classList.remove('open');
-            filterNbhdDrop.classList.remove('open');
-        }
-    });
-
-    // ---- MENU ----
+    // Menu
     var pBtn = document.getElementById('pancake-btn'), pDrop = document.getElementById('pancake-drop');
     pBtn.addEventListener('click', function(e) { e.stopPropagation(); pBtn.classList.toggle('open'); pDrop.classList.toggle('open'); });
-    // Cities submenu
     var citiesTrigger = document.getElementById('cities-trigger');
     var citiesSubmenu = document.getElementById('cities-submenu');
     if (citiesTrigger) {
@@ -639,35 +314,18 @@
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.pancake-wrap')) {
             pBtn.classList.remove('open'); pDrop.classList.remove('open');
-            if (citiesSubmenu) { citiesSubmenu.classList.remove('open'); if(citiesTrigger) citiesTrigger.classList.remove('open'); }
+            if (citiesSubmenu) { citiesSubmenu.classList.remove('open'); if (citiesTrigger) citiesTrigger.classList.remove('open'); }
         }
     });
 
-    // Rebuild grid on window resize (debounced)
+    // Rebuild on resize (debounced)
     var resizeTimer;
     window.addEventListener('resize', function() {
         clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(function() {
-            recalcDims();
-            if (isAmbient) {
-                buildGrid(false);
-            } else {
-                var st = vp.scrollTop;
-                buildGrid(true);
-                vp.scrollTop = st;
-            }
-        }, 150);
+        resizeTimer = setTimeout(function() { recalcDims(); buildGrid(); }, 150);
     });
 
-    // If linked from another page via #browse, start in browse mode
-    if (window.location.hash === '#browse') {
-        isAmbient = false;
-        vp.classList.add('browse');
-        navArtwork.classList.add('active');
-        buildGrid(true);
-    } else {
-        buildGrid(false);
-    }
+    buildGrid();
     </script>
 </body>
 </html>
