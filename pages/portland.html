@@ -80,12 +80,12 @@
             -webkit-mask-size: 90% auto; mask-size: 90% auto;
         }
         .logo-city-text {
-            position: absolute; bottom: 8px; right: 33%;
+            position: absolute; bottom: 8px; left: 0;
             font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
             font-style: italic; font-weight: 700;
             font-size: calc(var(--row-px) * 0.13);
             color: rgba(255,255,255,0.72);
-            letter-spacing: 0.02em; text-align: right; line-height: 1;
+            letter-spacing: 0.02em; text-align: left; line-height: 1;
             pointer-events: none;
         }
 
@@ -245,6 +245,10 @@
         var city = document.createElement('div');
         city.className = 'logo-city-text';
         city.textContent = 'Portland, OR';
+        // Align left edge of text to the H in the logo:
+        // mask-size: 90%, mask-position: 21% → left offset = (cellWidth − 0.9·cellWidth) × 0.21 = cellWidth × 0.021
+        var cellWidth = 2 * COL + GAP;
+        city.style.left = Math.round(cellWidth * 0.021) + 'px';
         cell.appendChild(city);
         return cell;
     }
@@ -288,10 +292,14 @@
         frozen = false;
         vp.classList.remove('frozen');
         resumeBtn.classList.remove('visible');
+        vp.style.overflowY = '';   // restore CSS overflow: hidden
+        vp.scrollTop = 0;
 
         var track = document.getElementById('grid-track');
         track.innerHTML = '';
         track.style.transform = '';
+        track.style.position = '';  // restore CSS position: absolute
+        track.style.width = '';
         track.classList.remove('scrolling');
 
         var seq = makeSequence(shuffle(ALL));
@@ -313,7 +321,7 @@
         track.classList.add('scrolling');
     }
 
-    // Freeze: capture mid-animation Y, stop scrolling, make cells clickable
+    // Freeze: capture mid-animation Y, stop scrolling, switch to native scroll
     function freeze() {
         if (frozen) return;
         frozen = true;
@@ -327,8 +335,13 @@
             if (match) { var vals = match[1].split(', '); currentY = parseFloat(vals[5]) || 0; }
         }
 
+        // Stop the CSS animation and convert the Y offset to scrollTop
         track.classList.remove('scrolling');
-        track.style.transform = 'translateY(' + currentY + 'px)';
+        track.style.transform = 'none';
+        track.style.position = 'relative';
+        track.style.width = '100%';
+        vp.style.overflowY = 'auto';
+        vp.scrollTop = Math.max(0, -currentY);
 
         track.querySelectorAll('.grid-cell[data-url]').forEach(function(cell) {
             cell.classList.add('clickable');
