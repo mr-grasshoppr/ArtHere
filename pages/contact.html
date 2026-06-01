@@ -43,17 +43,8 @@
                 <span></span><span></span><span></span>
             </button>
             <div class="pancake-dropdown" id="nav-pancake-drop">
-                <a href="survey.html" class="join">Join Us</a>
-                <div class="cities-item">
-                    <button class="cities-trigger" id="cities-trigger">Cities <span class="cities-arrow">&#9654;</span></button>
-                    <div class="cities-submenu" id="cities-submenu">
-                        <a href="portland.html">Portland, OR</a>
-                        <span>Biloxi, MS</span>
-                        <span>San Jose, CA</span>
-                    </div>
-                </div>
                 <a href="about.html">About</a>
-                <a href="about.html#contact">Contact</a>
+                <a href="contact.html">Contact</a>
             </div>
         </div>
     </div>
@@ -70,19 +61,9 @@
     <script>
     var pBtn = document.getElementById('nav-pancake-btn'), pDrop = document.getElementById('nav-pancake-drop');
     pBtn.addEventListener('click', function(e) { e.stopPropagation(); pBtn.classList.toggle('open'); pDrop.classList.toggle('open'); });
-    var citiesTrigger = document.getElementById('cities-trigger');
-    var citiesSubmenu = document.getElementById('cities-submenu');
-    if (citiesTrigger) {
-        citiesTrigger.addEventListener('click', function(e) {
-            e.stopPropagation();
-            citiesTrigger.classList.toggle('open');
-            citiesSubmenu.classList.toggle('open');
-        });
-    }
     document.addEventListener('click', function(e) {
         if (!e.target.closest || !e.target.closest('.pancake-wrap')) {
             pBtn.classList.remove('open'); pDrop.classList.remove('open');
-            if (citiesSubmenu) { citiesSubmenu.classList.remove('open'); citiesTrigger.classList.remove('open'); }
         }
     });
     </script>

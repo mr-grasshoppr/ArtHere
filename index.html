@@ -19,24 +19,60 @@
             flex-direction: column;
         }
 
-        /* ---- TOP BAR ---- */
-        .top-bar {
+        /* ---- PANCAKE NAV ---- */
+        .top-nav {
             position: fixed;
-            top: 0; left: 0; right: 0;
-            padding: 20px 28px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 24px;
+            top: 0; left: 0;
+            width: 100%;
             z-index: 100;
+            padding: 22px 28px;
+            display: flex;
+            align-items: center;
         }
-        .top-bar a {
-            font-size: 0.85rem;
-            color: #666;
+        .pancake-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .pancake-btn span {
+            display: block;
+            width: 22px;
+            height: 1.5px;
+            background: #1a1a1a;
+            transition: all 0.25s;
+        }
+        .pancake-btn.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+        .pancake-btn.open span:nth-child(2) { opacity: 0; }
+        .pancake-btn.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+        .pancake-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            background: #fff;
+            border: 1px solid #eee;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            min-width: 160px;
+            border-radius: 6px;
+            overflow: hidden;
+            z-index: 200;
+        }
+        .pancake-menu.open { display: block; }
+        .pancake-menu a {
+            display: block;
+            padding: 13px 20px;
+            font-size: 0.92rem;
+            color: #444;
             text-decoration: none;
-            letter-spacing: 0.03em;
-            transition: color 0.15s;
+            border-bottom: 1px solid #f5f5f5;
+            transition: background 0.15s, color 0.15s;
         }
-        .top-bar a:hover { color: #1a1a1a; }
+        .pancake-menu a:last-child { border-bottom: none; }
+        .pancake-menu a:hover { background: #fafafa; color: #1a1a1a; }
 
         /* ---- LOGO + CITIES ---- */
         .main {
@@ -119,9 +155,16 @@
 </head>
 <body>
 
-    <div class="top-bar">
-        <a href="pages/about.html">About</a>
-        <a href="pages/contact.html">Contact</a>
+    <div class="top-nav">
+        <div style="position:relative;">
+            <button class="pancake-btn" id="pancake-btn" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="pancake-menu" id="pancake-menu">
+                <a href="pages/about.html">About</a>
+                <a href="pages/contact.html">Contact</a>
+            </div>
+        </div>
     </div>
 
     <div class="main">
@@ -152,5 +195,18 @@
 
     <footer>&copy; 2026 Art Here &middot; A project of Art Experience Lab</footer>
 
+    <script>
+    var btn = document.getElementById('pancake-btn');
+    var menu = document.getElementById('pancake-menu');
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        btn.classList.toggle('open');
+        menu.classList.toggle('open');
+    });
+    document.addEventListener('click', function() {
+        btn.classList.remove('open');
+        menu.classList.remove('open');
+    });
+    </script>
 </body>
 </html>
