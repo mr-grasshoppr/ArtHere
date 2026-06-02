@@ -177,17 +177,22 @@
                 <button data-medium="painting">Painting</button>
                 <button data-medium="illustration">Illustration</button>
                 <button data-medium="ceramics">Ceramics</button>
-            </div>
+                <button data-medium="photography">Photography</button>
+                <button data-medium="sculpture">Sculpture</button>
+                <button data-medium="mixed-media">Mixed Media</button>
+                <button data-medium="fiber">Fiber Arts</button>
+        </div>
         </div>
         <div class="filter-wrap">
             <button class="filter-btn" id="filter-nbhd-btn">Neighborhood ▾</button>
             <div class="filter-dropdown" id="filter-nbhd-drop">
                 <button data-nbhd="">All neighborhoods</button>
+                <button data-nbhd="Slabtown">Slabtown (NW Marine)</button>
                 <button data-nbhd="Alberta Arts District">Alberta Arts District</button>
                 <button data-nbhd="Multnomah Village">Multnomah Village</button>
                 <button data-nbhd="Portland">Portland</button>
                 <button data-nbhd="Vancouver, WA">Vancouver, WA</button>
-            </div>
+        </div>
         </div>
     </div>
 
@@ -234,7 +239,58 @@
         { src: '../images/artwork/yong-hong-zhong-2.jpg',         url: '../artists/yong-hong-zhong.html',       tall: false, medium: 'painting',      neighborhood: 'Portland'             },
         { src: '../images/artwork/yong-hong-zhong-3.jpg',         url: '../artists/yong-hong-zhong.html',       tall: false, medium: 'painting',      neighborhood: 'Portland'             },
         { src: '../images/artwork/yong-hong-zhong-4.jpg',         url: '../artists/yong-hong-zhong.html',       tall: false, medium: 'painting',      neighborhood: 'Portland'             },
-    ];
+
+        // NW Marine Art Works
+        { src: '../images/artists/kim-stafford-bio.jpg', url: '../artists/kim-stafford.html', tall: true, medium: 'mixed-media', neighborhood: 'Slabtown' },
+        { src: '../images/artists/archer-mayo-bio.png', url: '../artists/archer-mayo.html', tall: false, medium: 'sculpture', neighborhood: 'Slabtown' },
+        { src: '../images/artists/vonda-martin-bio.jpg', url: '../artists/vonda-martin.html', tall: false, medium: 'mixed-media', neighborhood: 'Slabtown' },
+        { src: '../images/artists/kirsten-rian-bio.jpg', url: '../artists/kirsten-rian.html', tall: false, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/angel-morrow-bio.jpg', url: '../artists/angel-morrow.html', tall: false, medium: 'ceramics', neighborhood: 'Slabtown' },
+        { src: '../images/artists/erin-dengerink-bio.jpg', url: '../artists/erin-dengerink.html', tall: true, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/carol-crump-bryner-bio.jpg', url: '../artists/carol-crump-bryner.html', tall: false, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/f-lauren-carrera-bio.jpg', url: '../artists/f-lauren-carrera.html', tall: false, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/clement-lee-bio.jpg', url: '../artists/clement-lee.html', tall: false, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/claudia-cosgrove-bio.jpg', url: '../artists/claudia-cosgrove.html', tall: false, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/daniel-duford-bio.png', url: '../artists/daniel-duford.html', tall: true, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/david-brandt-bio.jpg', url: '../artists/david-brandt.html', tall: false, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/deanna-schuerbeke-bio.jpg', url: '../artists/deanna-schuerbeke.html', tall: false, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/drew-laughery-bio.jpg', url: '../artists/drew-laughery.html', tall: false, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/ellen-goldschmidt-bio.jpg', url: '../artists/ellen-goldschmidt.html', tall: false, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/eric-rue-bio.png', url: '../artists/eric-rue.html', tall: true, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/felicia-murray-bio.jpg', url: '../artists/felicia-murray.html', tall: false, medium: 'fiber', neighborhood: 'Slabtown' },
+        { src: '../images/artists/gloria-baker-feinstein-bio.jpg', url: '../artists/gloria-baker-feinstein.html', tall: false, medium: 'photography', neighborhood: 'Slabtown' },
+        { src: '../images/artists/hsin-yi-huang-bio.jpg', url: '../artists/hsin-yi-huang.html', tall: false, medium: 'ceramics', neighborhood: 'Slabtown' },
+        { src: '../images/artists/isabella-cassini-bio.jpg', url: '../artists/isabella-cassini.html', tall: false, medium: 'photography', neighborhood: 'Slabtown' },
+        { src: '../images/artists/jessalyn-haggenjos-bio.jpg', url: '../artists/jessalyn-haggenjos.html', tall: true, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/julie-rall-bio.jpg', url: '../artists/julie-rall.html', tall: false, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/kim-donnet-bio.png', url: '../artists/kim-donnet.html', tall: false, medium: 'ceramics', neighborhood: 'Slabtown' },
+        { src: '../images/artists/kim-lakin-bio.jpg', url: '../artists/kim-lakin.html', tall: false, medium: 'mixed-media', neighborhood: 'Slabtown' },
+        { src: '../images/artists/kim-marcucci-bio.png', url: '../artists/kim-marcucci.html', tall: false, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/andrew-moran-bio.jpg', url: '../artists/andrew-moran.html', tall: true, medium: 'mixed-media', neighborhood: 'Slabtown' },
+        { src: '../images/artists/tina-jeffers-bio.jpg', url: '../artists/tina-jeffers.html', tall: false, medium: 'ceramics', neighborhood: 'Slabtown' },
+        { src: '../images/artists/kristi-palmer-bio.jpg', url: '../artists/kristi-palmer.html', tall: false, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/lisa-cox-bio.png', url: '../artists/lisa-cox.html', tall: false, medium: 'fiber', neighborhood: 'Slabtown' },
+        { src: '../images/artists/lynda-moss-bio.jpg', url: '../artists/lynda-moss.html', tall: false, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/marie-lo-bio.jpg', url: '../artists/marie-lo.html', tall: true, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/mary-t-lee-bio.jpg', url: '../artists/mary-t-lee.html', tall: false, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/meaghan-kunzmann-bio.jpg', url: '../artists/meaghan-kunzmann.html', tall: false, medium: 'ceramics', neighborhood: 'Slabtown' },
+        { src: '../images/artists/miriam-dean-bio.jpg', url: '../artists/miriam-dean.html', tall: false, medium: 'ceramics', neighborhood: 'Slabtown' },
+        { src: '../images/artists/michele-suchland-bio.jpg', url: '../artists/michele-suchland.html', tall: false, medium: 'sculpture', neighborhood: 'Slabtown' },
+        { src: '../images/artists/myra-clark-bio.jpg', url: '../artists/myra-clark.html', tall: true, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/nick-gundry-bio.jpg', url: '../artists/nick-gundry.html', tall: false, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/noah-alexander-stein-bio.jpg', url: '../artists/noah-alexander-stein.html', tall: false, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/pamela-chipman-bio.jpg', url: '../artists/pamela-chipman.html', tall: false, medium: 'photography', neighborhood: 'Slabtown' },
+        { src: '../images/artists/elizabeth-williams-bio.jpg', url: '../artists/elizabeth-williams.html', tall: false, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/pheo-bell-bio.jpg', url: '../artists/pheo-bell.html', tall: true, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/eva-morris-bio.jpg', url: '../artists/eva-morris.html', tall: false, medium: 'mixed-media', neighborhood: 'Slabtown' },
+        { src: '../images/artists/rosemary-cohen-bio.jpg', url: '../artists/rosemary-cohen.html', tall: false, medium: 'mixed-media', neighborhood: 'Slabtown' },
+        { src: '../images/artists/ross-mercer-bio.jpg', url: '../artists/ross-mercer.html', tall: false, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/sarah-faulkner-haug-bio.jpg', url: '../artists/sarah-faulkner-haug.html', tall: false, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/benjamin-posin-bio.jpg', url: '../artists/benjamin-posin.html', tall: true, medium: 'mixed-media', neighborhood: 'Slabtown' },
+        { src: '../images/artists/susan-harrington-bio.jpg', url: '../artists/susan-harrington.html', tall: false, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/tanith-hawthorne-bio.jpg', url: '../artists/tanith-hawthorne.html', tall: false, medium: 'painting', neighborhood: 'Slabtown' },
+        { src: '../images/artists/todd-j-elliott-bio.jpg', url: '../artists/todd-j-elliott.html', tall: false, medium: 'painting', neighborhood: 'Slabtown' },
+        ];
 
     function shuffle(a) {
         var arr = a.slice();
