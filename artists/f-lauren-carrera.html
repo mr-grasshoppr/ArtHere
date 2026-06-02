@@ -67,7 +67,25 @@ footer { padding: 40px; text-align: center; color: #bbb; font-size: 0.78rem; let
 .city-soon { color: #bbb; font-size: 0.72rem; }
 @media (max-width: 700px) { .artist-identity { padding: 0 20px; } .artist-identity-inner { flex-direction: column; align-items: flex-start; gap: 12px; } .artist-bio-photo { width: 110px; height: 110px; margin-top: -55px; } .artist-bio-name { font-size: 1.35rem; } }
 @media (max-width: 600px) { .bottom-bar-city, .bottom-bar-divider { display: none; } .bottom-bar { justify-content: center; } .bottom-bar-links { gap: 20px; } }
-</style>
+
+        /* ---- ARTWORK GALLERY ---- */
+        .artwork-gallery {
+            max-width: 1200px; margin: 0 auto; padding: 0 20px 40px;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+        }
+        .artwork-gallery .art-cell {
+            aspect-ratio: 1 / 1; overflow: hidden; border-radius: 6px; background: #f4f4f0;
+        }
+        .artwork-gallery .art-cell img {
+            width: 100%; height: 100%; object-fit: cover; object-position: center;
+            display: block; transition: transform 0.4s;
+        }
+        .artwork-gallery .art-cell:hover img { transform: scale(1.03); }
+        @media (max-width: 700px) {
+            .artwork-gallery { grid-template-columns: 1fr; gap: 8px; }
+            .artwork-gallery .art-cell { aspect-ratio: 4 / 3; }
+        }
+    </style>
 </head>
 <body>
     <div class="top-bar">
@@ -119,6 +137,12 @@ footer { padding: 40px; text-align: center; color: #bbb; font-size: 0.78rem; let
     </div>
 </section>
 
+
+<div class="artwork-gallery">
+    <div class="art-cell"><img src="../images/artists/f-lauren-carrera-bio.jpg" alt="" loading="lazy"></div>
+    <div class="art-cell"><img src="../images/artists/f-lauren-carrera-bio.jpg" alt="" loading="lazy"></div>
+    <div class="art-cell"><img src="../images/artists/f-lauren-carrera-bio.jpg" alt="" loading="lazy"></div>
+</div>
 <a href="../pages/artists.html" class="back-link">&larr; artists</a>
 <footer>&copy; 2026 Art Here &middot; A project of Art Experience Lab</footer>
     <nav class="bottom-bar">
