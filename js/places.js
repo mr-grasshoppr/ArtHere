@@ -47,4 +47,12 @@ var PLACES = [
     image:        null,
     meta:         'NW Industrial · 4-building artist collective'
   },
+  {
+    id:           'alberta-street-gallery',
+    name:         'Alberta Street Gallery',
+    url:          '../places/alberta-street-gallery.html',
+    neighborhood: 'Alberta Arts District',
+    image:        '../images/places/alberta-street-gallery-hero.jpg',
+    meta:         'Alberta Arts District · Member-run gallery'
+  },
 ];
