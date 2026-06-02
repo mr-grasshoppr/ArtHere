@@ -568,15 +568,24 @@
 
     // Round-robin: each pass picks ONE random image from each artist,
     // shuffles artist order, then repeats for `repeats` total passes.
+    // Images are chosen to avoid repeating the same src within SPREAD tiles
+    // (4 cols × 5 rows = 20), so the same image never appears within 5 rows.
+    var SPREAD = 20;
     function buildSequence(artists, repeats) {
         var seq = [];
+        var recent = []; // rolling window of last SPREAD image srcs
         for (var r = 0; r < repeats; r++) {
             var order = shuffle(artists);
             order.forEach(function(artist) {
                 var imgs = artist.images;
-                var img = imgs[Math.floor(Math.random() * imgs.length)];
+                // Try to pick an image not in the recent window
+                var candidates = imgs.filter(function(im) { return recent.indexOf(im.src) === -1; });
+                if (candidates.length === 0) candidates = imgs; // fallback: any image
+                var img = candidates[Math.floor(Math.random() * candidates.length)];
                 seq.push({ src: img.src, tall: img.tall, url: artist.url,
                            medium: artist.medium, neighborhood: artist.neighborhood });
+                recent.push(img.src);
+                if (recent.length > SPREAD) recent.shift();
             });
         }
         return seq;
@@ -617,7 +626,7 @@
         if (filterPlace) artists = artists.filter(function(a) { return nbhdToPlace[a.neighborhood] === filterPlace; });
         if (artists.length === 0) artists = ARTISTS;
 
-        var seq = buildSequence(artists, 3);
+        var seq = buildSequence(artists, artists.length < 10 ? 1 : 3);
         var lastWasTall = false;
         seq.forEach(function(art) {
             var useTall = art.tall && !lastWasTall;

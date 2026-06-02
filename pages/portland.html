@@ -202,26 +202,62 @@
     }
     recalcDims();
 
-    var ALL = [
-        { src: '../images/artwork/beth-bundy-hero.jpg',           url: '../artists/beth-bundy.html',            tall: true  },
-        { src: '../images/artwork/beth-bundy-1.jpg',              url: '../artists/beth-bundy.html',            tall: false },
-        { src: '../images/artwork/beth-bundy-2.jpg',              url: '../artists/beth-bundy.html',            tall: false },
-        { src: '../images/artwork/beth-bundy-3.jpg',              url: '../artists/beth-bundy.html',            tall: false },
-        { src: '../images/artwork/jennifer-eaton-white-hero.jpg', url: '../artists/jennifer-eaton-white.html',  tall: true  },
-        { src: '../images/artwork/jennifer-eaton-white-1.jpg',    url: '../artists/jennifer-eaton-white.html',  tall: false },
-        { src: '../images/artwork/jennifer-eaton-white-2.jpg',    url: '../artists/jennifer-eaton-white.html',  tall: false },
-        { src: '../images/artwork/kurtis-piltz-hero.jpg',         url: '../artists/kurtis-piltz.html',          tall: true  },
-        { src: '../images/artwork/kurtis-piltz-1.jpg',            url: '../artists/kurtis-piltz.html',          tall: false },
-        { src: '../images/artwork/kurtis-piltz-2.jpg',            url: '../artists/kurtis-piltz.html',          tall: false },
-        { src: '../images/artwork/kurtis-piltz-3.jpg',            url: '../artists/kurtis-piltz.html',          tall: false },
-        { src: '../images/artwork/lindsey-fox-hero.jpg',          url: '../artists/lindsey-fox.html',           tall: true  },
-        { src: '../images/artwork/lindsey-fox-1.jpg',             url: '../artists/lindsey-fox.html',           tall: false },
-        { src: '../images/artwork/lindsey-fox-2.jpg',             url: '../artists/lindsey-fox.html',           tall: false },
-        { src: '../images/artwork/lindsey-fox-3.jpg',             url: '../artists/lindsey-fox.html',           tall: false },
-        { src: '../images/artwork/yong-hong-zhong-1.jpg',         url: '../artists/yong-hong-zhong.html',       tall: true  },
-        { src: '../images/artwork/yong-hong-zhong-2.jpg',         url: '../artists/yong-hong-zhong.html',       tall: false },
-        { src: '../images/artwork/yong-hong-zhong-3.jpg',         url: '../artists/yong-hong-zhong.html',       tall: false },
-        { src: '../images/artwork/yong-hong-zhong-4.jpg',         url: '../artists/yong-hong-zhong.html',       tall: false },
+    // Same artist pool as artwork.html — round-robin across all artists
+    var ARTISTS = [
+      { url: '../artists/beth-bundy.html',           images: [{ src: '../images/artwork/beth-bundy-hero.jpg', tall: true  }, { src: '../images/artwork/beth-bundy-1.jpg', tall: false }, { src: '../images/artwork/beth-bundy-2.jpg', tall: false }, { src: '../images/artwork/beth-bundy-3.jpg', tall: false }] },
+      { url: '../artists/jennifer-eaton-white.html', images: [{ src: '../images/artwork/jennifer-eaton-white-hero.jpg', tall: true  }, { src: '../images/artwork/jennifer-eaton-white-1.jpg', tall: false }, { src: '../images/artwork/jennifer-eaton-white-2.jpg', tall: false }, { src: '../images/artwork/jennifer-eaton-white-3.jpg', tall: false }] },
+      { url: '../artists/kurtis-piltz.html',         images: [{ src: '../images/artwork/kurtis-piltz-hero.jpg', tall: true  }, { src: '../images/artwork/kurtis-piltz-1.jpg', tall: false }, { src: '../images/artwork/kurtis-piltz-2.jpg', tall: false }, { src: '../images/artwork/kurtis-piltz-3.jpg', tall: false }] },
+      { url: '../artists/lindsey-fox.html',          images: [{ src: '../images/artwork/lindsey-fox-hero.jpg', tall: true  }, { src: '../images/artwork/lindsey-fox-1.jpg', tall: false }, { src: '../images/artwork/lindsey-fox-2.jpg', tall: false }, { src: '../images/artwork/lindsey-fox-3.jpg', tall: false }] },
+      { url: '../artists/yong-hong-zhong.html',      images: [{ src: '../images/artwork/yong-hong-zhong-1.jpg', tall: true  }, { src: '../images/artwork/yong-hong-zhong-2.jpg', tall: false }, { src: '../images/artwork/yong-hong-zhong-3.jpg', tall: false }, { src: '../images/artwork/yong-hong-zhong-4.jpg', tall: false }] },
+      { url: '../artists/angel-morrow.html',         images: [{ src: '../images/artwork/angel-morrow-hero.jpg', tall: true  }, { src: '../images/artwork/angel-morrow-1.jpg', tall: false }, { src: '../images/artwork/angel-morrow-2.jpg', tall: false }, { src: '../images/artwork/angel-morrow-3.jpg', tall: false }] },
+      { url: '../artists/andrew-moran.html',         images: [{ src: '../images/artwork/andrew-moran-hero.jpg', tall: false }, { src: '../images/artwork/andrew-moran-1.jpg', tall: false }, { src: '../images/artwork/andrew-moran-2.jpg', tall: false }, { src: '../images/artwork/andrew-moran-3.jpg', tall: false }] },
+      { url: '../artists/archer-mayo.html',          images: [{ src: '../images/artwork/archer-mayo-hero.jpg', tall: true  }, { src: '../images/artwork/archer-mayo-1.jpg', tall: false }, { src: '../images/artwork/archer-mayo-2.jpg', tall: false }, { src: '../images/artwork/archer-mayo-3.jpg', tall: false }] },
+      { url: '../artists/benjamin-posin.html',       images: [{ src: '../images/artwork/benjamin-posin-hero.jpg', tall: true  }, { src: '../images/artwork/benjamin-posin-1.jpg', tall: false }, { src: '../images/artwork/benjamin-posin-2.jpg', tall: false }, { src: '../images/artwork/benjamin-posin-3.jpg', tall: false }] },
+      { url: '../artists/carol-crump-bryner.html',   images: [{ src: '../images/artwork/carol-crump-bryner-hero.jpg', tall: false }, { src: '../images/artwork/carol-crump-bryner-1.jpg', tall: false }, { src: '../images/artwork/carol-crump-bryner-2.jpg', tall: false }, { src: '../images/artwork/carol-crump-bryner-3.jpg', tall: false }] },
+      { url: '../artists/claudia-cosgrove.html',     images: [{ src: '../images/artwork/claudia-cosgrove-hero.jpg', tall: false }, { src: '../images/artwork/claudia-cosgrove-1.jpg', tall: false }, { src: '../images/artwork/claudia-cosgrove-2.jpg', tall: false }, { src: '../images/artwork/claudia-cosgrove-3.jpg', tall: false }] },
+      { url: '../artists/clement-lee.html',          images: [{ src: '../images/artwork/clement-lee-hero.jpg', tall: false }, { src: '../images/artwork/clement-lee-1.jpg', tall: false }, { src: '../images/artwork/clement-lee-2.jpg', tall: false }, { src: '../images/artwork/clement-lee-3.jpg', tall: false }] },
+      { url: '../artists/daniel-duford.html',        images: [{ src: '../images/artwork/daniel-duford-hero.jpg', tall: true  }, { src: '../images/artwork/daniel-duford-1.jpg', tall: false }, { src: '../images/artwork/daniel-duford-2.jpg', tall: false }, { src: '../images/artwork/daniel-duford-3.jpg', tall: false }] },
+      { url: '../artists/david-brandt.html',         images: [{ src: '../images/artwork/david-brandt-hero.jpg', tall: false }, { src: '../images/artwork/david-brandt-1.jpg', tall: false }, { src: '../images/artwork/david-brandt-2.jpg', tall: false }, { src: '../images/artwork/david-brandt-3.jpg', tall: false }] },
+      { url: '../artists/deanna-schuerbeke.html',    images: [{ src: '../images/artwork/deanna-schuerbeke-hero.jpg', tall: false }, { src: '../images/artwork/deanna-schuerbeke-1.jpg', tall: false }, { src: '../images/artwork/deanna-schuerbeke-2.jpg', tall: false }, { src: '../images/artwork/deanna-schuerbeke-3.jpg', tall: false }] },
+      { url: '../artists/drew-laughery.html',        images: [{ src: '../images/artwork/drew-laughery-hero.jpg', tall: false }, { src: '../images/artwork/drew-laughery-1.jpg', tall: false }, { src: '../images/artwork/drew-laughery-2.jpg', tall: false }, { src: '../images/artwork/drew-laughery-3.jpg', tall: false }] },
+      { url: '../artists/elizabeth-williams.html',   images: [{ src: '../images/artwork/elizabeth-williams-hero.jpg', tall: true  }, { src: '../images/artwork/elizabeth-williams-1.jpg', tall: false }, { src: '../images/artwork/elizabeth-williams-2.jpg', tall: false }, { src: '../images/artwork/elizabeth-williams-3.jpg', tall: false }] },
+      { url: '../artists/ellen-goldschmidt.html',    images: [{ src: '../images/artwork/ellen-goldschmidt-hero.jpg', tall: false }, { src: '../images/artwork/ellen-goldschmidt-1.jpg', tall: false }, { src: '../images/artwork/ellen-goldschmidt-2.jpg', tall: false }, { src: '../images/artwork/ellen-goldschmidt-3.jpg', tall: false }] },
+      { url: '../artists/eric-rue.html',             images: [{ src: '../images/artwork/eric-rue-hero.jpg', tall: true  }, { src: '../images/artwork/eric-rue-1.jpg', tall: false }, { src: '../images/artwork/eric-rue-2.jpg', tall: false }, { src: '../images/artwork/eric-rue-3.jpg', tall: false }] },
+      { url: '../artists/erin-dengerink.html',       images: [{ src: '../images/artwork/erin-dengerink-hero.jpg', tall: false }, { src: '../images/artwork/erin-dengerink-1.jpg', tall: false }, { src: '../images/artwork/erin-dengerink-2.jpg', tall: false }, { src: '../images/artwork/erin-dengerink-3.jpg', tall: false }] },
+      { url: '../artists/eva-morris.html',           images: [{ src: '../images/artwork/eva-morris-hero.jpg', tall: false }, { src: '../images/artwork/eva-morris-1.jpg', tall: false }, { src: '../images/artwork/eva-morris-2.jpg', tall: false }, { src: '../images/artwork/eva-morris-3.jpg', tall: false }] },
+      { url: '../artists/f-lauren-carrera.html',     images: [{ src: '../images/artwork/f-lauren-carrera-hero.jpg', tall: false }, { src: '../images/artwork/f-lauren-carrera-1.jpg', tall: false }, { src: '../images/artwork/f-lauren-carrera-2.jpg', tall: false }, { src: '../images/artwork/f-lauren-carrera-3.jpg', tall: false }] },
+      { url: '../artists/felicia-murray.html',       images: [{ src: '../images/artwork/felicia-murray-hero.jpg', tall: false }, { src: '../images/artwork/felicia-murray-1.jpg', tall: false }, { src: '../images/artwork/felicia-murray-2.jpg', tall: false }, { src: '../images/artwork/felicia-murray-3.jpg', tall: false }] },
+      { url: '../artists/gloria-baker-feinstein.html', images: [{ src: '../images/artwork/gloria-baker-feinstein-hero.jpg', tall: false }, { src: '../images/artwork/gloria-baker-feinstein-1.jpg', tall: false }, { src: '../images/artwork/gloria-baker-feinstein-2.jpg', tall: false }, { src: '../images/artwork/gloria-baker-feinstein-3.jpg', tall: false }] },
+      { url: '../artists/hsin-yi-huang.html',        images: [{ src: '../images/artwork/hsin-yi-huang-hero.jpg', tall: false }, { src: '../images/artwork/hsin-yi-huang-1.jpg', tall: false }, { src: '../images/artwork/hsin-yi-huang-2.jpg', tall: false }, { src: '../images/artwork/hsin-yi-huang-3.jpg', tall: false }] },
+      { url: '../artists/isabella-cassini.html',     images: [{ src: '../images/artwork/isabella-cassini-hero.jpg', tall: false }, { src: '../images/artwork/isabella-cassini-1.jpg', tall: false }, { src: '../images/artwork/isabella-cassini-2.jpg', tall: false }, { src: '../images/artwork/isabella-cassini-3.jpg', tall: false }] },
+      { url: '../artists/jessalyn-haggenjos.html',   images: [{ src: '../images/artwork/jessalyn-haggenjos-hero.jpg', tall: true  }, { src: '../images/artwork/jessalyn-haggenjos-1.jpg', tall: false }, { src: '../images/artwork/jessalyn-haggenjos-2.jpg', tall: false }, { src: '../images/artwork/jessalyn-haggenjos-3.jpg', tall: false }] },
+      { url: '../artists/julie-rall.html',           images: [{ src: '../images/artwork/julie-rall-hero.jpg', tall: false }, { src: '../images/artwork/julie-rall-1.jpg', tall: false }, { src: '../images/artwork/julie-rall-2.jpg', tall: false }, { src: '../images/artwork/julie-rall-3.jpg', tall: false }] },
+      { url: '../artists/kim-donnet.html',           images: [{ src: '../images/artwork/kim-donnet-hero.jpg', tall: false }, { src: '../images/artwork/kim-donnet-1.jpg', tall: false }, { src: '../images/artwork/kim-donnet-2.jpg', tall: false }, { src: '../images/artwork/kim-donnet-3.jpg', tall: false }] },
+      { url: '../artists/kim-lakin.html',            images: [{ src: '../images/artwork/kim-lakin-hero.jpg', tall: false }, { src: '../images/artwork/kim-lakin-1.jpg', tall: false }, { src: '../images/artwork/kim-lakin-2.jpg', tall: false }, { src: '../images/artwork/kim-lakin-3.jpg', tall: false }] },
+      { url: '../artists/kim-marcucci.html',         images: [{ src: '../images/artwork/kim-marcucci-hero.jpg', tall: false }, { src: '../images/artwork/kim-marcucci-1.jpg', tall: false }, { src: '../images/artwork/kim-marcucci-2.jpg', tall: false }, { src: '../images/artwork/kim-marcucci-3.jpg', tall: false }] },
+      { url: '../artists/kim-stafford.html',         images: [{ src: '../images/artwork/kim-stafford-hero.jpg', tall: true  }, { src: '../images/artwork/kim-stafford-1.jpg', tall: false }, { src: '../images/artwork/kim-stafford-2.jpg', tall: false }, { src: '../images/artwork/kim-stafford-3.jpg', tall: false }] },
+      { url: '../artists/kirsten-rian.html',         images: [{ src: '../images/artwork/kirsten-rian-hero.jpg', tall: false }, { src: '../images/artwork/kirsten-rian-1.jpg', tall: false }, { src: '../images/artwork/kirsten-rian-2.jpg', tall: false }, { src: '../images/artwork/kirsten-rian-3.jpg', tall: false }] },
+      { url: '../artists/kristi-palmer.html',        images: [{ src: '../images/artwork/kristi-palmer-hero.jpg', tall: false }, { src: '../images/artwork/kristi-palmer-1.jpg', tall: false }, { src: '../images/artwork/kristi-palmer-2.jpg', tall: false }, { src: '../images/artwork/kristi-palmer-3.jpg', tall: false }] },
+      { url: '../artists/lisa-cox.html',             images: [{ src: '../images/artwork/lisa-cox-hero.jpg', tall: false }, { src: '../images/artwork/lisa-cox-1.jpg', tall: false }, { src: '../images/artwork/lisa-cox-2.jpg', tall: false }, { src: '../images/artwork/lisa-cox-3.jpg', tall: false }] },
+      { url: '../artists/lynda-moss.html',           images: [{ src: '../images/artwork/lynda-moss-hero.jpg', tall: false }, { src: '../images/artwork/lynda-moss-1.jpg', tall: false }, { src: '../images/artwork/lynda-moss-2.jpg', tall: false }, { src: '../images/artwork/lynda-moss-3.jpg', tall: false }] },
+      { url: '../artists/marie-lo.html',             images: [{ src: '../images/artwork/marie-lo-hero.jpg', tall: true  }, { src: '../images/artwork/marie-lo-1.jpg', tall: false }, { src: '../images/artwork/marie-lo-2.jpg', tall: false }, { src: '../images/artwork/marie-lo-3.jpg', tall: false }] },
+      { url: '../artists/mary-t-lee.html',           images: [{ src: '../images/artwork/mary-t-lee-hero.jpg', tall: false }, { src: '../images/artwork/mary-t-lee-1.jpg', tall: false }, { src: '../images/artwork/mary-t-lee-2.jpg', tall: false }, { src: '../images/artwork/mary-t-lee-3.jpg', tall: false }] },
+      { url: '../artists/meaghan-kunzmann.html',     images: [{ src: '../images/artwork/meaghan-kunzmann-hero.jpg', tall: false }, { src: '../images/artwork/meaghan-kunzmann-1.jpg', tall: false }, { src: '../images/artwork/meaghan-kunzmann-2.jpg', tall: false }, { src: '../images/artwork/meaghan-kunzmann-3.jpg', tall: false }] },
+      { url: '../artists/michele-suchland.html',     images: [{ src: '../images/artwork/michele-suchland-hero.jpg', tall: false }, { src: '../images/artwork/michele-suchland-1.jpg', tall: false }, { src: '../images/artwork/michele-suchland-2.jpg', tall: false }, { src: '../images/artwork/michele-suchland-3.jpg', tall: false }] },
+      { url: '../artists/miriam-dean.html',          images: [{ src: '../images/artwork/miriam-dean-hero.jpg', tall: false }, { src: '../images/artwork/miriam-dean-1.jpg', tall: false }, { src: '../images/artwork/miriam-dean-2.jpg', tall: false }, { src: '../images/artwork/miriam-dean-3.jpg', tall: false }] },
+      { url: '../artists/myra-clark.html',           images: [{ src: '../images/artwork/myra-clark-hero.jpg', tall: true  }, { src: '../images/artwork/myra-clark-1.jpg', tall: false }, { src: '../images/artwork/myra-clark-2.jpg', tall: false }, { src: '../images/artwork/myra-clark-3.jpg', tall: false }] },
+      { url: '../artists/nick-gundry.html',          images: [{ src: '../images/artwork/nick-gundry-hero.jpg', tall: false }, { src: '../images/artwork/nick-gundry-1.jpg', tall: false }, { src: '../images/artwork/nick-gundry-2.jpg', tall: false }, { src: '../images/artwork/nick-gundry-3.jpg', tall: false }] },
+      { url: '../artists/noah-alexander-stein.html', images: [{ src: '../images/artwork/noah-alexander-stein-hero.jpg', tall: false }, { src: '../images/artwork/noah-alexander-stein-1.jpg', tall: false }, { src: '../images/artwork/noah-alexander-stein-2.jpg', tall: false }, { src: '../images/artwork/noah-alexander-stein-3.jpg', tall: false }] },
+      { url: '../artists/pamela-chipman.html',       images: [{ src: '../images/artwork/pamela-chipman-hero.jpg', tall: false }, { src: '../images/artwork/pamela-chipman-1.jpg', tall: false }, { src: '../images/artwork/pamela-chipman-2.jpg', tall: false }, { src: '../images/artwork/pamela-chipman-3.jpg', tall: false }] },
+      { url: '../artists/pheo-bell.html',            images: [{ src: '../images/artwork/pheo-bell-hero.jpg', tall: true  }, { src: '../images/artwork/pheo-bell-1.jpg', tall: false }, { src: '../images/artwork/pheo-bell-2.jpg', tall: false }, { src: '../images/artwork/pheo-bell-3.jpg', tall: false }] },
+      { url: '../artists/rosemary-cohen.html',       images: [{ src: '../images/artwork/rosemary-cohen-hero.jpg', tall: false }, { src: '../images/artwork/rosemary-cohen-1.jpg', tall: false }, { src: '../images/artwork/rosemary-cohen-2.jpg', tall: false }, { src: '../images/artwork/rosemary-cohen-3.jpg', tall: false }] },
+      { url: '../artists/ross-mercer.html',          images: [{ src: '../images/artwork/ross-mercer-hero.jpg', tall: false }, { src: '../images/artwork/ross-mercer-1.jpg', tall: false }, { src: '../images/artwork/ross-mercer-2.jpg', tall: false }, { src: '../images/artwork/ross-mercer-3.jpg', tall: false }] },
+      { url: '../artists/sarah-faulkner-haug.html',  images: [{ src: '../images/artwork/sarah-faulkner-haug-hero.jpg', tall: false }, { src: '../images/artwork/sarah-faulkner-haug-1.jpg', tall: false }, { src: '../images/artwork/sarah-faulkner-haug-2.jpg', tall: false }, { src: '../images/artwork/sarah-faulkner-haug-3.jpg', tall: false }] },
+      { url: '../artists/susan-harrington.html',     images: [{ src: '../images/artwork/susan-harrington-hero.jpg', tall: false }, { src: '../images/artwork/susan-harrington-1.jpg', tall: false }, { src: '../images/artwork/susan-harrington-2.jpg', tall: false }, { src: '../images/artwork/susan-harrington-3.jpg', tall: false }] },
+      { url: '../artists/tanith-hawthorne.html',     images: [{ src: '../images/artwork/tanith-hawthorne-hero.jpg', tall: false }, { src: '../images/artwork/tanith-hawthorne-1.jpg', tall: false }, { src: '../images/artwork/tanith-hawthorne-2.jpg', tall: false }, { src: '../images/artwork/tanith-hawthorne-3.jpg', tall: false }] },
+      { url: '../artists/tina-jeffers.html',         images: [{ src: '../images/artwork/tina-jeffers-hero.jpg', tall: false }, { src: '../images/artwork/tina-jeffers-1.jpg', tall: false }, { src: '../images/artwork/tina-jeffers-2.jpg', tall: false }, { src: '../images/artwork/tina-jeffers-3.jpg', tall: false }] },
+      { url: '../artists/todd-j-elliott.html',       images: [{ src: '../images/artwork/todd-j-elliott-hero.jpg', tall: false }, { src: '../images/artwork/todd-j-elliott-1.jpg', tall: false }, { src: '../images/artwork/todd-j-elliott-2.jpg', tall: false }, { src: '../images/artwork/todd-j-elliott-3.jpg', tall: false }] },
+      { url: '../artists/vonda-martin.html',         images: [{ src: '../images/artwork/vonda-martin-hero.jpg', tall: false }, { src: '../images/artwork/vonda-martin-1.jpg', tall: false }, { src: '../images/artwork/vonda-martin-2.jpg', tall: false }, { src: '../images/artwork/vonda-martin-3.jpg', tall: false }] },
     ];
 
     function shuffle(a) {
@@ -231,6 +267,27 @@
             var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
         }
         return arr;
+    }
+
+    // Round-robin: each pass picks ONE random image per artist (avoiding recent 5 rows),
+    // shuffles artist order, repeats 3× so the grid is long enough to scroll.
+    var SPREAD = COLS * 5;
+    function buildSequence(artists) {
+        var repeats = artists.length < 10 ? 1 : 3;
+        var seq = [], recent = [];
+        for (var r = 0; r < repeats; r++) {
+            var order = shuffle(artists);
+            order.forEach(function(artist) {
+                var imgs = artist.images;
+                var candidates = imgs.filter(function(im) { return recent.indexOf(im.src) === -1; });
+                if (candidates.length === 0) candidates = imgs;
+                var img = candidates[Math.floor(Math.random() * candidates.length)];
+                seq.push({ src: img.src, tall: img.tall, url: artist.url });
+                recent.push(img.src);
+                if (recent.length > SPREAD) recent.shift();
+            });
+        }
+        return seq;
     }
 
     function makeLogoCell(artSrc) {
@@ -265,29 +322,6 @@
         return c;
     }
 
-    // Sequence: each artwork appears 4×, spread at least 4 rows apart
-    function makeSequence(artList) {
-        var minGap = COLS * 4;
-        var result = [], lastPos = {}, needed = {};
-        artList.forEach(function(a) { needed[a.src] = 4; });
-        var attempts = 0;
-        while (result.length < artList.length * 4 && attempts < 10000) {
-            attempts++;
-            var candidates = artList.filter(function(a) {
-                if (!needed[a.src]) return false;
-                var last = lastPos[a.src];
-                return last === undefined || (result.length - last) >= minGap;
-            });
-            if (candidates.length === 0) candidates = artList.filter(function(a) { return needed[a.src] > 0; });
-            if (candidates.length === 0) break;
-            var pick = candidates[Math.floor(Math.random() * candidates.length)];
-            result.push(pick);
-            lastPos[pick.src] = result.length - 1;
-            needed[pick.src]--;
-        }
-        return result;
-    }
-
     function buildGrid() {
         frozen = false;
         vp.classList.remove('frozen');
@@ -302,7 +336,7 @@
         track.style.width = '';
         track.classList.remove('scrolling');
 
-        var seq = makeSequence(shuffle(ALL));
+        var seq = buildSequence(ARTISTS);
         track.appendChild(makeLogoCell(seq[0].src));
 
         var imgIdx = 1, lastWasTall = false;
