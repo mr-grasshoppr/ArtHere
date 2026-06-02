@@ -42,6 +42,38 @@
         .nav-city { font-family: 'Nunito', sans-serif; font-size: 0.95rem; font-weight: 700; color: #1a1a1a; text-decoration: none; letter-spacing: 0.03em; transition: opacity 0.2s; }
         .nav-city:hover { opacity: 0.6; }
 
+        /* ---- FILTER BAR ---- */
+        .filter-bar {
+            max-width: 1400px; margin: 0 auto;
+            padding: 16px 40px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .filter-wrap { position: relative; }
+        .filter-btn {
+            padding: 5px 14px; border: 0.5px solid #ccc; border-radius: 20px;
+            background: transparent; font-size: 0.78rem; color: #888; cursor: pointer;
+            font-family: 'Inter', sans-serif; transition: all 0.2s; white-space: nowrap;
+        }
+        .filter-btn:hover { border-color: #999; color: #444; }
+        .filter-btn.active { background: #1a1a1a; border-color: #1a1a1a; color: #fff; }
+        .filter-dropdown {
+            display: none; position: absolute; top: calc(100% + 6px); left: 0;
+            background: #fff; border: 1px solid #eee; border-radius: 6px;
+            overflow: hidden; min-width: 200px; z-index: 200;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+        .filter-dropdown.open { display: block; }
+        .filter-dropdown button {
+            display: block; width: 100%; padding: 10px 16px; text-align: left;
+            background: none; border: none; border-bottom: 1px solid #f0f0f0;
+            color: #888; font-size: 0.82rem; font-family: 'Inter', sans-serif;
+            cursor: pointer; transition: background 0.15s, color 0.15s;
+        }
+        .filter-dropdown button:last-child { border-bottom: none; }
+        .filter-dropdown button:hover { background: #fafafa; color: #1a1a1a; }
+        .filter-dropdown button.chosen { color: #1a1a1a; font-weight: 500; }
+        @media (max-width: 600px) { .filter-bar { padding: 12px 20px; } }
+
         .page-header { padding: 48px 40px 32px; max-width: 1400px; margin: 0 auto; border-bottom: 1px solid #f0f0f0; }
         .page-header h1 { font-family: 'Nunito', sans-serif; font-size: 2rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 6px; }
         .page-header p { font-size: 0.95rem; color: #888; font-weight: 300; }
@@ -170,6 +202,17 @@
         <p>The places and people that support our community's artists.</p>
     </div>
 
+    <!-- Place filter bar -->
+    <div class="filter-bar" id="place-filter-bar">
+        <button class="filter-btn active" id="place-filter-all">All</button>
+        <div class="filter-wrap">
+            <button class="filter-btn" id="place-filter-btn">Place ▾</button>
+            <div class="filter-dropdown" id="place-filter-drop">
+                <!-- populated from js/places.js -->
+            </div>
+        </div>
+    </div>
+
     <!-- Events section — shown only when upcoming events exist -->
     <div id="events-section" style="display:none;">
         <div class="section-label"><h2>Upcoming Events</h2></div>
@@ -181,44 +224,109 @@
         <h2>Community Places</h2>
     </div>
 
-    <div class="places-grid">
-        <a href="../places/multnomah-arts-center.html" class="place-card">
-            <div class="place-image"><img src="../images/places/multnomah.jpg" alt="Multnomah Arts Center"></div>
-            <div class="place-info">
-                <div class="place-name">Multnomah Arts Center</div>
-                <div class="place-meta">Multnomah Village &middot; Classes, Studios, Gallery</div>
-            </div>
-        </a>
-        <a href="../places/comeunity-pdx.html" class="place-card">
-            <div class="place-image"><img src="../images/places/communitypdx.jpg" alt="ComeUnity PDX"></div>
-            <div class="place-info">
-                <div class="place-name">ComeUnity PDX</div>
-                <div class="place-meta">NE Portland &middot; Retail, Gallery &amp; Events</div>
-            </div>
-        </a>
-        <a href="../places/nw-marine-art-works.html" class="place-card">
-            <div class="place-image"><img src="../images/places/nwmarine-header.jpg" alt="NW Marine Art Works"></div>
-            <div class="place-info">
-                <div class="place-name">NW Marine Art Works</div>
-                <div class="place-meta">NW Industrial &middot; 75+ Artist Studios</div>
-            </div>
-        </a>
-        <a href="../places/portland-art-studios.html" class="place-card">
-            <div class="place-image" style="background:#f0ede8; display:flex; align-items:center; justify-content:center;">
-                <span style="font-family:'Nunito',sans-serif;font-size:0.9rem;color:#999;">Portland Art Studios</span>
-            </div>
-            <div class="place-info">
-                <div class="place-name">Portland Art Studios</div>
-                <div class="place-meta">NW Industrial &middot; 4-building artist collective</div>
-            </div>
-        </a>
-    </div>
+    <!-- Place cards rendered by JS from places.js -->
+    <div class="places-grid" id="places-grid"></div>
 
     <div style="max-width:1400px; margin:0 auto; padding: 24px 40px 8px;">
         <a href="portland.html" style="color:#aaa; font-size:0.88rem; text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='#1a1a1a'" onmouseout="this.style.color='#aaa'">&larr; back to Portland</a>
     </div>
 
+    <script src="../js/places.js"></script>
     <script>
+    // ── PLACE CARDS — rendered from js/places.js ─────────────────────────────
+    var activePlaceFilter = '';
+    var placesGrid = document.getElementById('places-grid');
+
+    function renderPlaceCards() {
+        placesGrid.innerHTML = '';
+        PLACES.forEach(function(p) {
+            if (activePlaceFilter && activePlaceFilter !== p.id) return;
+            var card = document.createElement('a');
+            card.href = p.url;
+            card.className = 'place-card';
+
+            var imgWrap = document.createElement('div');
+            imgWrap.className = 'place-image';
+            if (p.image) {
+                var img = document.createElement('img');
+                img.src = p.image; img.alt = p.name;
+                imgWrap.appendChild(img);
+            } else {
+                imgWrap.style.cssText = 'background:#f0ede8; display:flex; align-items:center; justify-content:center;';
+                var fallback = document.createElement('span');
+                fallback.style.cssText = "font-family:'Nunito',sans-serif; font-size:0.9rem; color:#999;";
+                fallback.textContent = p.name;
+                imgWrap.appendChild(fallback);
+            }
+            card.appendChild(imgWrap);
+
+            var info = document.createElement('div');
+            info.className = 'place-info';
+            var nameEl = document.createElement('div');
+            nameEl.className = 'place-name';
+            nameEl.textContent = p.name;
+            var metaEl = document.createElement('div');
+            metaEl.className = 'place-meta';
+            metaEl.innerHTML = p.meta;
+            info.appendChild(nameEl);
+            info.appendChild(metaEl);
+            card.appendChild(info);
+            placesGrid.appendChild(card);
+        });
+    }
+
+    // Build Place filter dropdown from PLACES
+    (function() {
+        var drop = document.getElementById('place-filter-drop');
+        var clearBtn = document.createElement('button');
+        clearBtn.dataset.place = ''; clearBtn.textContent = 'All places';
+        drop.appendChild(clearBtn);
+        PLACES.forEach(function(p) {
+            var btn = document.createElement('button');
+            btn.dataset.place = p.id; btn.textContent = p.name;
+            drop.appendChild(btn);
+        });
+    })();
+
+    var placeFilterAllBtn = document.getElementById('place-filter-all');
+    var placeFilterBtn    = document.getElementById('place-filter-btn');
+    var placeFilterDrop   = document.getElementById('place-filter-drop');
+
+    placeFilterAllBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        activePlaceFilter = '';
+        placeFilterBtn.textContent = 'Place ▾';
+        placeFilterBtn.classList.remove('active');
+        placeFilterAllBtn.classList.add('active');
+        placeFilterDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
+        renderPlaceCards();
+    });
+
+    placeFilterBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        placeFilterDrop.classList.toggle('open');
+    });
+
+    placeFilterDrop.addEventListener('click', function(e) {
+        var b = e.target.closest('button');
+        if (!b) return;
+        e.stopPropagation();
+        activePlaceFilter = b.dataset.place;
+        placeFilterBtn.textContent = activePlaceFilter ? b.textContent + ' ▾' : 'Place ▾';
+        placeFilterBtn.classList.toggle('active', !!activePlaceFilter);
+        placeFilterAllBtn.classList.toggle('active', !activePlaceFilter);
+        placeFilterDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
+        if (activePlaceFilter) b.classList.add('chosen');
+        placeFilterDrop.classList.remove('open');
+        renderPlaceCards();
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.filter-wrap')) placeFilterDrop.classList.remove('open');
+    });
+
+    renderPlaceCards();
+
     // ── EVENTS ───────────────────────────────────────────────────────────────
     // Add events here. They disappear automatically after their date passes.
     // date format: "YYYY-MM-DD"

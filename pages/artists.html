@@ -215,6 +215,12 @@
                 <button data-nbhd="Vancouver, WA">Vancouver, WA</button>
             </div>
         </div>
+        <div class="filter-wrap">
+            <button class="filter-btn" id="filter-place-btn">Place ▾</button>
+            <div class="filter-dropdown" id="filter-place-drop">
+                <!-- populated from js/places.js -->
+            </div>
+        </div>
     </div>
 
     <div class="artists-grid">
@@ -826,6 +832,7 @@
         </a>
     </div>
 
+    <script src="../js/places.js"></script>
     <script>
     var btn = document.getElementById('pancake-btn'), drop = document.getElementById('pancake-drop');
     btn.addEventListener('click', function(e) { e.stopPropagation(); btn.classList.toggle('open'); drop.classList.toggle('open'); });
@@ -842,9 +849,31 @@
         });
     }
 
-    // Filter state
+    // ── PLACE FILTER — built from js/places.js ───────────────────────────────
+    // Build neighbourhood→placeId lookup and populate the Place dropdown
+    var nbhdToPlace = {};  // e.g. { 'Slabtown': 'nw-marine-art-works', ... }
+    var filterPlaceDrop = document.getElementById('filter-place-drop');
+    var filterPlaceBtn  = document.getElementById('filter-place-btn');
+
+    (function() {
+        var clearBtn = document.createElement('button');
+        clearBtn.dataset.place = '';
+        clearBtn.textContent = 'All places';
+        filterPlaceDrop.appendChild(clearBtn);
+
+        PLACES.forEach(function(p) {
+            if (p.neighborhood) nbhdToPlace[p.neighborhood] = p.id;
+            var btn = document.createElement('button');
+            btn.dataset.place = p.id;
+            btn.textContent = p.name;
+            filterPlaceDrop.appendChild(btn);
+        });
+    })();
+
+    // ── FILTER STATE ─────────────────────────────────────────────────────────
     var filterMedium = '';
     var filterNeighborhood = '';
+    var filterPlace = '';
 
     var filterAllBtn = document.getElementById('filter-all');
     var filterMediumBtn = document.getElementById('filter-medium-btn');
@@ -853,26 +882,29 @@
     var filterNbhdDrop = document.getElementById('filter-nbhd-drop');
 
     function applyFilters() {
-        var hasFilter = filterMedium || filterNeighborhood;
+        var hasFilter = filterMedium || filterNeighborhood || filterPlace;
         filterAllBtn.classList.toggle('active', !hasFilter);
         filterMediumBtn.classList.toggle('active', !!filterMedium);
         filterNbhdBtn.classList.toggle('active', !!filterNeighborhood);
+        filterPlaceBtn.classList.toggle('active', !!filterPlace);
         document.querySelectorAll('.artist-card').forEach(function(c) {
             var mediumMatch = !filterMedium || c.dataset.medium === filterMedium;
-            var nbhdMatch = !filterNeighborhood || c.dataset.neighborhood === filterNeighborhood;
-            c.classList.toggle('hidden', !(mediumMatch && nbhdMatch));
+            var nbhdMatch   = !filterNeighborhood || c.dataset.neighborhood === filterNeighborhood;
+            var placeMatch  = !filterPlace || nbhdToPlace[c.dataset.neighborhood] === filterPlace;
+            c.classList.toggle('hidden', !(mediumMatch && nbhdMatch && placeMatch));
         });
     }
 
-    // All button — reset both filters
+    // All button — reset all filters
     filterAllBtn.addEventListener('click', function(e) {
         e.stopPropagation();
-        filterMedium = '';
-        filterNeighborhood = '';
+        filterMedium = ''; filterNeighborhood = ''; filterPlace = '';
         filterMediumBtn.textContent = 'Medium ▾';
         filterNbhdBtn.textContent = 'Neighborhood ▾';
-        filterMediumDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
-        filterNbhdDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
+        filterPlaceBtn.textContent = 'Place ▾';
+        [filterMediumDrop, filterNbhdDrop, filterPlaceDrop].forEach(function(d) {
+            d.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
+        });
         applyFilters();
     });
 
@@ -881,6 +913,7 @@
         e.stopPropagation();
         filterMediumDrop.classList.toggle('open');
         filterNbhdDrop.classList.remove('open');
+        filterPlaceDrop.classList.remove('open');
     });
 
     // Neighborhood dropdown toggle
@@ -888,6 +921,15 @@
         e.stopPropagation();
         filterNbhdDrop.classList.toggle('open');
         filterMediumDrop.classList.remove('open');
+        filterPlaceDrop.classList.remove('open');
+    });
+
+    // Place dropdown toggle
+    filterPlaceBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        filterPlaceDrop.classList.toggle('open');
+        filterMediumDrop.classList.remove('open');
+        filterNbhdDrop.classList.remove('open');
     });
 
     // Medium dropdown choices
@@ -916,10 +958,24 @@
         });
     });
 
+    // Place dropdown choices (delegated — buttons built dynamically)
+    filterPlaceDrop.addEventListener('click', function(e) {
+        var b = e.target.closest('button');
+        if (!b) return;
+        e.stopPropagation();
+        filterPlace = b.dataset.place;
+        filterPlaceBtn.textContent = filterPlace ? b.textContent + ' ▾' : 'Place ▾';
+        filterPlaceDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
+        if (filterPlace) b.classList.add('chosen');
+        filterPlaceDrop.classList.remove('open');
+        applyFilters();
+    });
+
     // Close dropdowns when clicking outside
     document.addEventListener('click', function() {
         filterMediumDrop.classList.remove('open');
         filterNbhdDrop.classList.remove('open');
+        filterPlaceDrop.classList.remove('open');
     });
 
     // Shuffle artist cards on every page load
