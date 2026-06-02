@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kelly Mason - Art Here Portland</title>
+<link rel="icon" type="image/png" href="../images/ArtHere_favicon.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Nunito:wght@600;700&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', -apple-system, sans-serif; color: #1a1a1a; background: #fff; line-height: 1.7; padding-top: 56px; padding-bottom: 56px; }
+.artist-hero { width: 100%; height: 38vh; min-height: 260px; overflow: hidden; background: #e8e4dc; }
+.artist-hero img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+.artist-identity { max-width: 980px; margin: 0 auto; padding: 0 40px; position: relative; z-index: 10; }
+.artist-identity-inner { display: flex; align-items: flex-end; gap: 24px; padding-bottom: 12px; }
+.artist-bio-photo { width: 140px; height: 140px; border-radius: 50%; overflow: hidden; background: #e0ddd6; border: 4px solid #fff; flex-shrink: 0; margin-top: -70px; }
+.artist-bio-photo img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+.artist-bio-meta { padding-bottom: 4px; }
+.artist-bio-name { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.1; margin-bottom: 6px; }
+.artist-bio-meta-row { font-size: 0.88rem; color: #888; font-weight: 300; }
+.artist-bio-section { max-width: 980px; margin: 0 auto; padding: 28px 40px 40px; }
+.artist-bio-text { font-size: 1.05rem; color: #444; font-weight: 300; line-height: 1.8; max-width: 680px; }
+.artist-bio-text p { margin-bottom: 18px; }
+.link-line { color: #999; font-size: 0.9rem; }
+.link-line a { color: #999; text-underline-offset: 4px; text-decoration-color: #ddd; transition: color 0.3s; }
+.link-line a:hover { color: #1a1a1a; text-decoration-color: #aaa; }
+.community-section { max-width: 980px; margin: 0 auto; padding: 0 40px 50px; }
+.community-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.18em; color: #999; margin-bottom: 12px; }
+.community-list { display: flex; gap: 24px; flex-wrap: wrap; align-items: baseline; }
+.community-list a { font-size: 0.85rem; color: #666; text-decoration: underline; text-underline-offset: 4px; text-decoration-color: #ccc; transition: text-decoration-color 0.3s; }
+.community-list a:hover { text-decoration-color: #1a1a1a; }
+.back-link { display: inline-block; margin: 40px 0 60px 40px; color: #888; font-size: 0.88rem; text-decoration: none; transition: color 0.3s; }
+.back-link:hover { color: #1a1a1a; }
+footer { padding: 40px; text-align: center; color: #bbb; font-size: 0.78rem; letter-spacing: 0.05em; border-top: 1px solid #f0f0f0; }
+.top-bar { position: fixed; top: 0; left: 0; right: 0; height: 56px; background: rgba(255,255,255,0.97); backdrop-filter: blur(10px); border-bottom: 1px solid #eee; z-index: 200; display: flex; align-items: center; padding: 0 18px; gap: 12px; }
+.nav-logo { display: block; height: 26px; width: auto; transition: opacity 0.2s; }
+.nav-logo:hover { opacity: 0.7; }
+.pancake-wrap { position: relative; }
+.pancake-btn { background: none; border: none; cursor: pointer; padding: 4px; display: flex; flex-direction: column; gap: 5px; }
+.pancake-btn span { display: block; width: 20px; height: 1.5px; background: #1a1a1a; transition: all 0.25s; }
+.pancake-btn.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.pancake-btn.open span:nth-child(2) { opacity: 0; }
+.pancake-btn.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+.pancake-dropdown { display: none; position: absolute; top: calc(100% + 8px); left: 0; background: #fff; border: 1px solid #eee; border-radius: 6px; overflow: hidden; min-width: 160px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); z-index: 300; }
+.pancake-dropdown.open { display: block; }
+.pancake-dropdown a { display: block; padding: 13px 20px; font-size: 0.9rem; color: #444; text-decoration: none; border-bottom: 1px solid #f0f0f0; transition: background 0.15s, color 0.15s; }
+.pancake-dropdown a:last-child { border-bottom: none; }
+.pancake-dropdown a:hover { background: #fafafa; color: #1a1a1a; }
+.pancake-dropdown a.join { font-weight: 600; color: #1a1a1a; }
+.nav-city { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; font-size: 0.95rem; font-weight: 700; color: #1a1a1a; text-decoration: none; letter-spacing: 0.03em; transition: opacity 0.2s; }
+.nav-city:hover { opacity: 0.6; }
+.bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 56px; background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); border-top: 1px solid #111; z-index: 100; display: flex; align-items: center; padding: 0 18px; gap: 0; }
+.bottom-bar-city { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; font-size: 0.95rem; font-weight: 700; color: #fff; letter-spacing: 0.03em; flex-shrink: 0; }
+.bottom-bar-divider { color: #444; margin: 0 14px; flex-shrink: 0; }
+.bottom-bar-links { display: flex; gap: 24px; align-items: center; }
+.bottom-bar-links a { color: rgba(255,255,255,0.45); text-decoration: none; font-size: 0.88rem; font-weight: 500; letter-spacing: 0.03em; transition: color 0.2s; padding: 4px 0; border-bottom: 1.5px solid transparent; }
+.bottom-bar-links a:hover { color: #fff; }
+.bottom-bar-links a.active { color: #fff; border-color: rgba(255,255,255,0.6); }
+.cities-item { position: relative; }
+.cities-trigger { display: flex; justify-content: space-between; align-items: center; padding: 13px 20px; font-size: 0.9rem; color: #444; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background 0.15s; background: none; border-left: none; border-right: none; border-top: none; width: 100%; text-align: left; font-family: 'Inter', -apple-system, sans-serif; }
+.cities-trigger:hover { background: #fafafa; color: #1a1a1a; }
+.cities-arrow { font-size: 0.65rem; color: #ccc; transition: transform 0.2s; }
+.cities-trigger.open .cities-arrow { transform: rotate(90deg); }
+.cities-submenu { display: none; background: #fafafa; border-bottom: 1px solid #f0f0f0; }
+.cities-submenu.open { display: block; }
+.cities-submenu a, .cities-submenu span { display: flex; align-items: baseline; gap: 8px; padding: 9px 20px 9px 28px; font-size: 0.85rem; color: #555; text-decoration: none; transition: background 0.15s; }
+.cities-submenu a:hover { background: #f0f0f0; color: #1a1a1a; }
+.city-soon { color: #bbb; font-size: 0.72rem; }
+@media (max-width: 700px) { .artist-identity { padding: 0 20px; } .artist-identity-inner { flex-direction: column; align-items: flex-start; gap: 12px; } .artist-bio-photo { width: 110px; height: 110px; margin-top: -55px; } .artist-bio-name { font-size: 1.35rem; } }
+@media (max-width: 600px) { .bottom-bar-city, .bottom-bar-divider { display: none; } .bottom-bar { justify-content: center; } .bottom-bar-links { gap: 20px; } }
+</style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="../index.html"><img src="../images/arthere-logo-dark.png" alt="Art Here" class="nav-logo"></a>
+        <div class="pancake-wrap">
+            <button class="pancake-btn" id="pancake-btn" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="pancake-dropdown" id="pancake-drop">
+                <a href="../pages/survey.html" class="join">Join Us</a>
+                <div class="cities-item">
+                    <button class="cities-trigger" id="cities-trigger">Cities <span class="cities-arrow">&#9654;</span></button>
+                    <div class="cities-submenu" id="cities-submenu">
+                        <a href="../pages/portland.html">Portland, OR</a>
+                        <span>Biloxi, MS <span class="city-soon">coming soon</span></span>
+                        <span>San Jose, CA <span class="city-soon">coming soon</span></span>
+                    </div>
+                </div>
+                <a href="../pages/about.html">About</a>
+                <a href="../pages/about.html#contact">Contact</a>
+            </div>
+        </div>
+        <a href="../pages/portland.html" class="nav-city">Portland, OR</a>
+    </div>
+
+<section class="artist-hero"></section>
+
+<div class="artist-identity">
+    <div class="artist-identity-inner">
+        <div class="artist-bio-photo"></div>
+        <div class="artist-bio-meta">
+            <h1 class="artist-bio-name">Kelly Mason</h1>
+            <div class="artist-bio-meta-row">Musician — Band, Songwriting &middot; Portland, OR</div>
+        </div>
+    </div>
+</div>
+
+<section class="artist-bio-section">
+    <div class="artist-bio-text">
+        <p>Kelly Mason is an instructor at Multnomah Arts Center in Portland's Multnomah Village neighborhood, teaching musician — band, songwriting. MAC is a program of Portland Parks &amp; Recreation offering high-quality arts instruction to the community.</p>
+        
+    </div>
+</section>
+
+<section class="community-section">
+    <div class="community-label">Community</div>
+    <div class="community-list">
+        <a href="../places/multnomah-arts-center.html">Multnomah Arts Center</a>
+    </div>
+</section>
+
+<a href="../pages/artists.html" class="back-link">&larr; artists</a>
+<footer>&copy; 2026 Art Here &middot; A project of Art Experience Lab</footer>
+    <nav class="bottom-bar">
+        <span class="bottom-bar-city">Portland</span>
+        <span class="bottom-bar-divider">|</span>
+        <div class="bottom-bar-links">
+            <a href="../pages/portland.html">artwork</a>
+            <a href="../pages/artists.html">artists</a>
+            <a href="../pages/community.html">community</a>
+            <a href="../pages/network.html">network</a>
+        </div>
+    </nav>
+    <script>
+    var btn = document.getElementById('pancake-btn'), drop = document.getElementById('pancake-drop');
+    btn.addEventListener('click', function(e) { e.stopPropagation(); btn.classList.toggle('open'); drop.classList.toggle('open'); });
+    document.addEventListener('click', function() { btn.classList.remove('open'); drop.classList.remove('open'); if(citiesSubmenu){citiesSubmenu.classList.remove('open');citiesTrigger.classList.remove('open');} });
+    var citiesTrigger = document.getElementById('cities-trigger');
+    var citiesSubmenu = document.getElementById('cities-submenu');
+    if (citiesTrigger) {
+        citiesTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            citiesTrigger.classList.toggle('open');
+            citiesSubmenu.classList.toggle('open');
+        });
+    }
+    </script>
+</body></html>
