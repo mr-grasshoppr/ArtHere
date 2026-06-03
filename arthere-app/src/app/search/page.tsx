@@ -69,13 +69,13 @@ export default function SearchPage() {
   return (
     <main className="max-w-4xl mx-auto px-4 py-12">
       <div className="mb-6">
-        <Link href="/" className="text-stone-400 text-sm hover:text-stone-600 transition-colors">
+        <Link href="/" className="text-stone-400 dark:text-stone-500 text-sm hover:text-stone-600 dark:hover:text-stone-300 transition-colors">
           ← Art Here Portland
         </Link>
       </div>
 
-      <h1 className="text-3xl font-medium text-stone-900 mb-2">Find art</h1>
-      <p className="text-stone-500 mb-8">
+      <h1 className="text-3xl font-medium text-stone-900 dark:text-stone-100 mb-2">Find art</h1>
+      <p className="text-stone-500 dark:text-stone-400 mb-8">
         Describe what you&rsquo;re looking for in plain language.
       </p>
 
@@ -88,12 +88,12 @@ export default function SearchPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="e.g. a large oil painting with warm colors for my living room"
-            className="flex-1 px-4 py-3 border border-stone-200 rounded-md text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300 text-base"
+            className="flex-1 px-4 py-3 border border-stone-200 dark:border-stone-700 rounded-md bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-stone-400 dark:focus:ring-stone-500 text-base"
           />
           <button
             type="submit"
             disabled={loading || !query.trim()}
-            className="px-6 py-3 bg-stone-900 text-white rounded-md font-medium hover:bg-stone-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+            className="px-6 py-3 bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 rounded-md font-medium hover:bg-stone-700 dark:hover:bg-stone-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
           >
             {loading ? "Searching…" : "Search"}
           </button>
@@ -103,13 +103,13 @@ export default function SearchPage() {
       {/* Example queries */}
       {!results && !loading && (
         <div className="mb-10">
-          <p className="text-stone-400 text-sm mb-3">Try an example:</p>
+          <p className="text-stone-400 dark:text-stone-500 text-sm mb-3">Try an example:</p>
           <div className="flex flex-wrap gap-2">
             {EXAMPLE_QUERIES.map((q) => (
               <button
                 key={q}
                 onClick={() => useExample(q)}
-                className="px-3 py-1.5 text-sm border border-stone-200 rounded-full text-stone-600 hover:border-stone-400 hover:text-stone-900 transition"
+                className="px-3 py-1.5 text-sm border border-stone-200 dark:border-stone-700 rounded-full text-stone-600 dark:text-stone-300 hover:border-stone-400 dark:hover:border-stone-500 hover:text-stone-900 dark:hover:text-stone-100 transition"
               >
                 {q}
               </button>
@@ -119,13 +119,13 @@ export default function SearchPage() {
       )}
 
       {/* Error */}
-      {error && <p className="text-red-600 mb-6">{error}</p>}
+      {error && <p className="text-red-600 dark:text-red-400 mb-6">{error}</p>}
 
       {/* Loading */}
       {loading && (
         <div className="py-16 text-center">
-          <div className="inline-block w-6 h-6 border-2 border-stone-300 border-t-stone-700 rounded-full animate-spin mb-4" />
-          <p className="text-stone-400">Finding matching artwork…</p>
+          <div className="inline-block w-6 h-6 border-2 border-stone-300 dark:border-stone-600 border-t-stone-700 dark:border-t-stone-300 rounded-full animate-spin mb-4" />
+          <p className="text-stone-400 dark:text-stone-500">Finding matching artwork…</p>
         </div>
       )}
 
@@ -133,11 +133,11 @@ export default function SearchPage() {
       {results !== null && !loading && (
         <>
           {explanation && (
-            <p className="text-stone-500 text-sm mb-6 italic">{explanation}</p>
+            <p className="text-stone-500 dark:text-stone-400 text-sm mb-6 italic">{explanation}</p>
           )}
 
           {results.length === 0 ? (
-            <p className="text-stone-500 py-8">
+            <p className="text-stone-500 dark:text-stone-400 py-8">
               No strong matches found. Try rephrasing — for example, mention the medium, color, or size.
             </p>
           ) : (
@@ -146,9 +146,9 @@ export default function SearchPage() {
                 <Link
                   key={i}
                   href={`/artists/${r.artist.slug}`}
-                  className="group block rounded-lg overflow-hidden border border-stone-100 hover:border-stone-300 transition-colors"
+                  className="group block rounded-lg overflow-hidden border border-stone-100 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-600 transition-colors"
                 >
-                  <div className="aspect-square bg-stone-100">
+                  <div className="aspect-square bg-stone-100 dark:bg-stone-800">
                     <Image
                       src={r.artwork.url}
                       alt={r.artwork.altText ?? r.artist.name}
@@ -158,20 +158,20 @@ export default function SearchPage() {
                     />
                   </div>
                   <div className="p-3">
-                    <p className="font-medium text-stone-900 text-sm group-hover:text-stone-600 transition-colors">
+                    <p className="font-medium text-stone-900 dark:text-stone-100 text-sm group-hover:text-stone-600 dark:group-hover:text-stone-300 transition-colors">
                       {r.artist.name}
                     </p>
                     {r.artist.placeRelations[0] && (
-                      <p className="text-stone-400 text-xs mt-0.5">
+                      <p className="text-stone-400 dark:text-stone-500 text-xs mt-0.5">
                         {r.artist.placeRelations[0].place.name}
                       </p>
                     )}
                     {r.artist.commissionStatus === "OPEN" && (
-                      <span className="inline-block mt-1.5 text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full">
+                      <span className="inline-block mt-1.5 text-xs bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full">
                         Open for commissions
                       </span>
                     )}
-                    <p className="text-stone-400 text-xs mt-1.5 italic">{r.reason}</p>
+                    <p className="text-stone-400 dark:text-stone-500 text-xs mt-1.5 italic">{r.reason}</p>
                   </div>
                 </Link>
               ))}

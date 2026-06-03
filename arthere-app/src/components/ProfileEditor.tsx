@@ -12,6 +12,7 @@ type ArtistData = {
   id: string;
   name: string;
   bio: string | null;
+  hireFor: string | null;
   website: string | null;
   instagram: string | null;
   commissionStatus: string;
@@ -52,6 +53,7 @@ export default function ProfileEditor({
 
   const [name, setName] = useState(initialArtist?.name ?? "");
   const [bio, setBio] = useState(initialArtist?.bio ?? "");
+  const [hireFor, setHireFor] = useState(initialArtist?.hireFor ?? "");
   const [website, setWebsite] = useState(initialArtist?.website ?? "");
   const [instagram, setInstagram] = useState(initialArtist?.instagram ?? "");
   const [commissionStatus, setCommissionStatus] = useState(
@@ -148,6 +150,7 @@ export default function ProfileEditor({
       body: JSON.stringify({
         name,
         bio,
+        hireFor,
         website,
         instagram,
         commissionStatus,
@@ -170,21 +173,26 @@ export default function ProfileEditor({
     router.push("/profile");
   }
 
+  const inputCls = "w-full px-4 py-3 border border-stone-200 dark:border-stone-700 rounded-md bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-stone-300 dark:focus:ring-stone-600";
+  const labelCls = "block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2";
+  const sectionHeadCls = "text-lg font-medium text-stone-900 dark:text-stone-100 border-b border-stone-100 dark:border-stone-800 pb-2";
+  const selectCls = "px-3 py-2 border border-stone-200 dark:border-stone-700 rounded-md bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-stone-300 dark:focus:ring-stone-600";
+
   return (
     <form onSubmit={handleSave} className="space-y-10">
       {/* Email (read-only) */}
       <div>
-        <label className="block text-sm font-medium text-stone-500 mb-1">Email</label>
-        <p className="text-stone-800">{userEmail}</p>
-        <p className="text-stone-400 text-xs mt-1">Your email is used for sign-in only and is never shown publicly.</p>
+        <label className="block text-sm font-medium text-stone-500 dark:text-stone-400 mb-1">Email</label>
+        <p className="text-stone-800 dark:text-stone-200">{userEmail}</p>
+        <p className="text-stone-400 dark:text-stone-500 text-xs mt-1">Your email is used for sign-in only and is never shown publicly.</p>
       </div>
 
       {/* Basic info */}
       <section className="space-y-5">
-        <h2 className="text-lg font-medium text-stone-900 border-b border-stone-100 pb-2">Basic info</h2>
+        <h2 className={sectionHeadCls}>Basic info</h2>
 
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-2" htmlFor="name">
+          <label className={labelCls} htmlFor="name">
             Your name <span className="text-red-500">*</span>
           </label>
           <input
@@ -193,12 +201,12 @@ export default function ProfileEditor({
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="w-full px-4 py-3 border border-stone-200 rounded-md text-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-300"
+            className={inputCls}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-2" htmlFor="bio">
+          <label className={labelCls} htmlFor="bio">
             Bio
           </label>
           <textarea
@@ -207,13 +215,27 @@ export default function ProfileEditor({
             onChange={(e) => setBio(e.target.value)}
             rows={5}
             placeholder="Tell visitors about yourself and your work…"
-            className="w-full px-4 py-3 border border-stone-200 rounded-md text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300 resize-y"
+            className={`${inputCls} resize-y`}
+          />
+        </div>
+
+        <div>
+          <label className={labelCls} htmlFor="hireFor">
+            If someone could hire you, what would they hire you for?
+          </label>
+          <textarea
+            id="hireFor"
+            value={hireFor}
+            onChange={(e) => setHireFor(e.target.value)}
+            rows={3}
+            placeholder="e.g. I paint large scale murals for businesses and public spaces, or I teach printmaking workshops and take custom portrait commissions"
+            className={`${inputCls} resize-y`}
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-2" htmlFor="website">
+            <label className={labelCls} htmlFor="website">
               Website
             </label>
             <input
@@ -222,11 +244,11 @@ export default function ProfileEditor({
               value={website}
               onChange={(e) => setWebsite(e.target.value)}
               placeholder="https://yoursite.com"
-              className="w-full px-4 py-3 border border-stone-200 rounded-md text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300"
+              className={inputCls}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-2" htmlFor="instagram">
+            <label className={labelCls} htmlFor="instagram">
               Instagram
             </label>
             <input
@@ -235,7 +257,7 @@ export default function ProfileEditor({
               value={instagram}
               onChange={(e) => setInstagram(e.target.value)}
               placeholder="@yourhandle"
-              className="w-full px-4 py-3 border border-stone-200 rounded-md text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300"
+              className={inputCls}
             />
           </div>
         </div>
@@ -243,8 +265,8 @@ export default function ProfileEditor({
 
       {/* Photos */}
       <section className="space-y-4">
-        <h2 className="text-lg font-medium text-stone-900 border-b border-stone-100 pb-2">Photos</h2>
-        <p className="text-stone-500 text-sm">
+        <h2 className={sectionHeadCls}>Photos</h2>
+        <p className="text-stone-500 dark:text-stone-400 text-sm">
           Upload artwork images. The first photo becomes your header; click any photo to make it the header.
           Your images are used only to power search within Art Here Portland and are not used to train AI models.
         </p>
@@ -255,8 +277,8 @@ export default function ProfileEditor({
               <div
                 key={img.id}
                 onClick={() => setHero(img.id)}
-                className={`relative cursor-pointer rounded-lg overflow-hidden aspect-square bg-stone-100 ring-2 transition ${
-                  img.isHero ? "ring-stone-800" : "ring-transparent hover:ring-stone-300"
+                className={`relative cursor-pointer rounded-lg overflow-hidden aspect-square bg-stone-100 dark:bg-stone-800 ring-2 transition ${
+                  img.isHero ? "ring-stone-800 dark:ring-stone-300" : "ring-transparent hover:ring-stone-300 dark:hover:ring-stone-600"
                 }`}
               >
                 <Image src={img.url} alt={img.altText ?? ""} fill className="object-cover" />
@@ -282,20 +304,20 @@ export default function ProfileEditor({
           />
           <label
             htmlFor="file-upload"
-            className={`inline-flex items-center gap-2 px-4 py-2 border border-stone-200 rounded-md text-sm text-stone-600 cursor-pointer hover:border-stone-400 transition ${
+            className={`inline-flex items-center gap-2 px-4 py-2 border border-stone-200 dark:border-stone-700 rounded-md text-sm text-stone-600 dark:text-stone-300 cursor-pointer hover:border-stone-400 dark:hover:border-stone-500 transition ${
               uploading ? "opacity-50 pointer-events-none" : ""
             }`}
           >
             {uploading ? "Uploading…" : "+ Add photos"}
           </label>
-          {uploadError && <p className="text-red-600 text-sm mt-2">{uploadError}</p>}
+          {uploadError && <p className="text-red-600 dark:text-red-400 text-sm mt-2">{uploadError}</p>}
         </div>
       </section>
 
       {/* Place connections */}
       <section className="space-y-4">
-        <h2 className="text-lg font-medium text-stone-900 border-b border-stone-100 pb-2">Places</h2>
-        <p className="text-stone-500 text-sm">
+        <h2 className={sectionHeadCls}>Places</h2>
+        <p className="text-stone-500 dark:text-stone-400 text-sm">
           Connect yourself to the studios, galleries, and arts centers you&rsquo;re part of.
         </p>
 
@@ -304,7 +326,7 @@ export default function ProfileEditor({
             <select
               value={rel.placeId}
               onChange={(e) => updatePlaceRelation(i, "placeId", e.target.value)}
-              className="flex-1 px-3 py-2 border border-stone-200 rounded-md text-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-300"
+              className={`flex-1 ${selectCls}`}
             >
               <option value="">Select a place…</option>
               {places.map((p) => (
@@ -316,7 +338,7 @@ export default function ProfileEditor({
             <select
               value={rel.relationship}
               onChange={(e) => updatePlaceRelation(i, "relationship", e.target.value)}
-              className="px-3 py-2 border border-stone-200 rounded-md text-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-300"
+              className={selectCls}
             >
               {RELATIONSHIP_TYPES.map((rt) => (
                 <option key={rt.value} value={rt.value}>{rt.label}</option>
@@ -325,7 +347,7 @@ export default function ProfileEditor({
             <button
               type="button"
               onClick={() => removePlaceRelation(i)}
-              className="text-stone-400 hover:text-red-500 transition-colors text-lg leading-none"
+              className="text-stone-400 hover:text-red-500 dark:hover:text-red-400 transition-colors text-lg leading-none"
             >
               ×
             </button>
@@ -335,7 +357,7 @@ export default function ProfileEditor({
         <button
           type="button"
           onClick={addPlaceRelation}
-          className="text-sm text-stone-500 hover:text-stone-800 border border-dashed border-stone-200 px-4 py-2 rounded-md hover:border-stone-400 transition"
+          className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-100 border border-dashed border-stone-200 dark:border-stone-700 px-4 py-2 rounded-md hover:border-stone-400 dark:hover:border-stone-500 transition"
         >
           + Add place connection
         </button>
@@ -343,10 +365,10 @@ export default function ProfileEditor({
 
       {/* Commission & pricing */}
       <section className="space-y-5">
-        <h2 className="text-lg font-medium text-stone-900 border-b border-stone-100 pb-2">Commissions &amp; pricing</h2>
+        <h2 className={sectionHeadCls}>Commissions &amp; pricing</h2>
 
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-2">Commission availability</label>
+          <label className={labelCls}>Commission availability</label>
           <div className="flex flex-wrap gap-3">
             {[
               { value: "OPEN", label: "Open" },
@@ -361,9 +383,9 @@ export default function ProfileEditor({
                   value={opt.value}
                   checked={commissionStatus === opt.value}
                   onChange={() => setCommissionStatus(opt.value)}
-                  className="text-stone-800"
+                  className="text-stone-800 dark:text-stone-200"
                 />
-                <span className="text-stone-700 text-sm">{opt.label}</span>
+                <span className="text-stone-700 dark:text-stone-300 text-sm">{opt.label}</span>
               </label>
             ))}
           </div>
@@ -371,7 +393,7 @@ export default function ProfileEditor({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-2">Price range (USD)</label>
+            <label className={labelCls}>Price range (USD)</label>
             <div className="flex items-center gap-2">
               <input
                 type="number"
@@ -379,21 +401,21 @@ export default function ProfileEditor({
                 value={priceMin}
                 onChange={(e) => setPriceMin(e.target.value)}
                 placeholder="Min"
-                className="flex-1 px-3 py-2 border border-stone-200 rounded-md text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300"
+                className={inputCls}
               />
-              <span className="text-stone-400">–</span>
+              <span className="text-stone-400 dark:text-stone-500">–</span>
               <input
                 type="number"
                 min="0"
                 value={priceMax}
                 onChange={(e) => setPriceMax(e.target.value)}
                 placeholder="Max"
-                className="flex-1 px-3 py-2 border border-stone-200 rounded-md text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300"
+                className={inputCls}
               />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-2">Size range (inches)</label>
+            <label className={labelCls}>Size range (inches)</label>
             <div className="flex items-center gap-2">
               <input
                 type="number"
@@ -401,25 +423,25 @@ export default function ProfileEditor({
                 value={sizeMin}
                 onChange={(e) => setSizeMin(e.target.value)}
                 placeholder="Min"
-                className="flex-1 px-3 py-2 border border-stone-200 rounded-md text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300"
+                className={inputCls}
               />
-              <span className="text-stone-400">–</span>
+              <span className="text-stone-400 dark:text-stone-500">–</span>
               <input
                 type="number"
                 min="0"
                 value={sizeMax}
                 onChange={(e) => setSizeMax(e.target.value)}
                 placeholder="Max"
-                className="flex-1 px-3 py-2 border border-stone-200 rounded-md text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300"
+                className={inputCls}
               />
             </div>
           </div>
         </div>
 
         {commissionStatus !== "CLOSED" && commissionStatus !== "UNSPECIFIED" && (
-          <div className="space-y-4 pt-2 border-t border-stone-100">
+          <div className="space-y-4 pt-2 border-t border-stone-100 dark:border-stone-800">
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-2">Types of commissions you take</label>
+              <label className={labelCls}>Types of commissions you take</label>
               <input
                 type="text"
                 value={intake.commissionTypes.join(", ")}
@@ -430,12 +452,12 @@ export default function ProfileEditor({
                   }))
                 }
                 placeholder="e.g. portrait, illustration, mural, pet portrait"
-                className="w-full px-4 py-3 border border-stone-200 rounded-md text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300"
+                className={inputCls}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-2">Typical turnaround (weeks)</label>
+                <label className={labelCls}>Typical turnaround (weeks)</label>
                 <input
                   type="number"
                   min="1"
@@ -444,7 +466,7 @@ export default function ProfileEditor({
                     setIntake((prev) => ({ ...prev, turnaroundWeeks: e.target.value ? Number(e.target.value) : null }))
                   }
                   placeholder="e.g. 6"
-                  className="w-full px-4 py-3 border border-stone-200 rounded-md text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300"
+                  className={inputCls}
                 />
               </div>
               <div className="flex flex-col gap-3 pt-6">
@@ -454,7 +476,7 @@ export default function ProfileEditor({
                     checked={intake.shipsInternationally}
                     onChange={(e) => setIntake((prev) => ({ ...prev, shipsInternationally: e.target.checked }))}
                   />
-                  <span className="text-stone-700 text-sm">Ships internationally</span>
+                  <span className="text-stone-700 dark:text-stone-300 text-sm">Ships internationally</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -462,18 +484,18 @@ export default function ProfileEditor({
                     checked={intake.worksInPerson}
                     onChange={(e) => setIntake((prev) => ({ ...prev, worksInPerson: e.target.checked }))}
                   />
-                  <span className="text-stone-700 text-sm">Available to work in person</span>
+                  <span className="text-stone-700 dark:text-stone-300 text-sm">Available to work in person</span>
                 </label>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-2">Notes for collectors</label>
+              <label className={labelCls}>Notes for collectors</label>
               <textarea
                 value={intake.notes ?? ""}
                 onChange={(e) => setIntake((prev) => ({ ...prev, notes: e.target.value }))}
                 rows={3}
                 placeholder="Anything else collectors should know about working with you…"
-                className="w-full px-4 py-3 border border-stone-200 rounded-md text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300 resize-y"
+                className={`${inputCls} resize-y`}
               />
             </div>
           </div>
@@ -481,18 +503,18 @@ export default function ProfileEditor({
       </section>
 
       {/* Submit */}
-      {saveError && <p className="text-red-600 text-sm">{saveError}</p>}
+      {saveError && <p className="text-red-600 dark:text-red-400 text-sm">{saveError}</p>}
       <div className="flex gap-4 pt-2">
         <button
           type="submit"
           disabled={saving}
-          className="bg-stone-900 text-white px-8 py-3 rounded-md font-medium hover:bg-stone-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 px-8 py-3 rounded-md font-medium hover:bg-stone-700 dark:hover:bg-stone-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {saving ? "Saving…" : "Save profile"}
         </button>
         <a
           href="/profile"
-          className="px-8 py-3 rounded-md font-medium text-stone-500 hover:text-stone-800 transition-colors"
+          className="px-8 py-3 rounded-md font-medium text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-100 transition-colors"
         >
           Cancel
         </a>

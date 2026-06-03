@@ -168,3 +168,40 @@ Score 80+ only for strong matches. Return ONLY the JSON array.`,
   const text = response.content[0].type === "text" ? response.content[0].text : "[]";
   return JSON.parse(text) as ScoredArtwork[];
 }
+
+// ─── Hire Text Parsing ────────────────────────────────────────────────────────
+
+export interface HireTags {
+  services: string[];       // e.g. ["mural painting", "portrait commissions", "printmaking workshops"]
+  contexts: string[];       // e.g. ["businesses", "public spaces", "private clients"]
+  formats: string[];        // e.g. ["in person", "remote", "workshops", "one-on-one"]
+  keywords: string[];       // flat list of searchable keywords derived from above
+}
+
+export async function parseHireText(text: string): Promise<HireTags> {
+  const response = await client.messages.create({
+    model: "claude-haiku-4-5",
+    max_tokens: 400,
+    messages: [
+      {
+        role: "user",
+        content: `An artist wrote this description of what they do for hire:
+
+"${text}"
+
+Extract structured tags for search. Return a JSON object:
+{
+  "services": ["specific things they do, as short phrases"],
+  "contexts": ["who they work for or where, as short phrases"],
+  "formats": ["how they work: workshops, commissions, in-person, remote, etc."],
+  "keywords": ["flat list of all searchable terms derived from the above"]
+}
+
+Be specific and concrete. Return ONLY the JSON object.`,
+      },
+    ],
+  });
+
+  const raw = response.content[0].type === "text" ? response.content[0].text : "{}";
+  return JSON.parse(raw) as HireTags;
+}

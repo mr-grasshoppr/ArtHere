@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { PlaceRelationship } from "@prisma/client";
+import { parseHireText } from "@/lib/claude";
 
 function slugify(name: string) {
   return name
@@ -36,6 +37,7 @@ export async function POST(req: NextRequest) {
   const {
     name,
     bio,
+    hireFor,
     website,
     instagram,
     commissionStatus,
@@ -72,9 +74,12 @@ export async function POST(req: NextRequest) {
     slug = existing.slug; // keep existing slug on update
   }
 
+  const hireForClean = hireFor?.trim() || null;
+
   const artistData = {
     name: name.trim(),
     bio: bio?.trim() || null,
+    hireFor: hireForClean,
     website: website?.trim() || null,
     instagram: instagram?.trim().replace(/^@/, "") || null,
     commissionStatus: commissionStatus || "UNSPECIFIED",
@@ -136,5 +141,20 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  return NextResponse.json({ artist });
+  // Fire-and-forget: parse hireFor text into structured tags if present
+  if (hireForClean) {
+    const artistId = artist.id;
+    parseHireText(hireForClean)
+      .then((tags) =>
+        prisma.artist.update({ where: { id: artistId }, data: { hireTags: tags } })
+      )
+      .catch(() => {
+        // Non-critical — tags will populate on next save
+      });
+  }
+
+  // Never expose hireTags to the client
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { hireTags: _omitted, ...safeArtist } = artist as typeof artist & { hireTags?: unknown };
+  return NextResponse.json({ artist: safeArtist });
 }

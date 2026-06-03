@@ -7,6 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // ─── Auth (NextAuth / Auth.js) ────────────────────────────────────────────────
@@ -75,6 +76,8 @@ model Artist {
   priceRangeMax    Int?
   sizeRangeMin     Int?
   sizeRangeMax     Int?
+  hireFor          String?          @db.Text
+  hireTags         Json?
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 

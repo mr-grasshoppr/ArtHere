@@ -11,13 +11,13 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.100.1",
     "@auth/prisma-adapter": "^2.11.2",
-    "@prisma/client": "^7.8.0",
+    "@prisma/client": "^5.22.0",
     "@types/nodemailer": "^8.0.0",
     "@vercel/blob": "^2.4.0",
     "next": "16.2.7",
     "next-auth": "^5.0.0-beta.31",
     "nodemailer": "^7.0.13",
-    "prisma": "^7.8.0",
+    "prisma": "^5.22.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "zod": "^4.4.3"
@@ -33,9 +33,11 @@
     "typescript": "^5"
   },
   "allowScripts": {
-    "@prisma/engines@7.8.0": true,
-    "prisma@7.8.0": true,
     "sharp@0.34.5": true,
-    "unrs-resolver@1.12.2": true
+    "unrs-resolver@1.12.2": true,
+    "@prisma/client@5.22.0": true,
+    "@prisma/engines@5.22.0": true,
+    "@prisma/engines-version@5.22.0-44.605197351a3c8bdd595af2d2a9bc3025bca48ea2": true,
+    "prisma@5.22.0": true
   }
 }

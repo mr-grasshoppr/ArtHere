@@ -28,14 +28,14 @@ export default async function ProfilePage() {
     return (
       <main className="min-h-screen flex items-center justify-center px-4">
         <div className="w-full max-w-md text-center">
-          <h1 className="text-2xl font-medium text-stone-900 mb-4">Welcome to Art Here Portland</h1>
-          <p className="text-stone-500 mb-8 leading-relaxed">
-            You&rsquo;re signed in as <span className="text-stone-700">{user.email}</span>.<br />
+          <h1 className="text-2xl font-medium text-stone-900 dark:text-stone-100 mb-4">Welcome to Art Here Portland</h1>
+          <p className="text-stone-500 dark:text-stone-400 mb-8 leading-relaxed">
+            You&rsquo;re signed in as <span className="text-stone-700 dark:text-stone-300">{user.email}</span>.<br />
             Let&rsquo;s set up your artist profile.
           </p>
           <Link
             href="/profile/edit"
-            className="inline-block bg-stone-900 text-white px-8 py-3 rounded-md font-medium hover:bg-stone-700 transition-colors"
+            className="inline-block bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 px-8 py-3 rounded-md font-medium hover:bg-stone-700 dark:hover:bg-stone-300 transition-colors"
           >
             Create your profile
           </Link>
@@ -65,12 +65,12 @@ export default async function ProfilePage() {
     <main className="max-w-3xl mx-auto px-4 py-12">
       {/* Header / nav */}
       <div className="flex justify-between items-center mb-10">
-        <a href="/" className="text-stone-400 text-sm hover:text-stone-600 transition-colors">
+        <a href="/" className="text-stone-400 dark:text-stone-500 text-sm hover:text-stone-600 dark:hover:text-stone-300 transition-colors">
           ← Art Here Portland
         </a>
         <Link
           href="/profile/edit"
-          className="text-sm text-stone-600 border border-stone-200 px-4 py-2 rounded-md hover:border-stone-400 transition-colors"
+          className="text-sm text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700 px-4 py-2 rounded-md hover:border-stone-400 dark:hover:border-stone-500 transition-colors"
         >
           Edit profile
         </Link>
@@ -78,7 +78,7 @@ export default async function ProfilePage() {
 
       {/* Hero image */}
       {heroImage && (
-        <div className="mb-8 rounded-lg overflow-hidden bg-stone-100">
+        <div className="mb-8 rounded-lg overflow-hidden bg-stone-100 dark:bg-stone-800">
           <Image
             src={heroImage.url}
             alt={heroImage.altText ?? artist.name}
@@ -104,9 +104,9 @@ export default async function ProfilePage() {
           </div>
         )}
         <div>
-          <h1 className="text-3xl font-medium text-stone-900">{artist.name}</h1>
+          <h1 className="text-3xl font-medium text-stone-900 dark:text-stone-100">{artist.name}</h1>
           {artist.placeRelations.length > 0 && (
-            <p className="text-stone-500 mt-1">
+            <p className="text-stone-500 dark:text-stone-400 mt-1">
               {artist.placeRelations
                 .map((r) => `${r.place.name}`)
                 .join(" · ")}
@@ -116,10 +116,10 @@ export default async function ProfilePage() {
             <span
               className={`inline-block mt-2 text-xs font-medium px-2 py-1 rounded-full ${
                 artist.commissionStatus === "OPEN"
-                  ? "bg-green-50 text-green-700"
+                  ? "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-400"
                   : artist.commissionStatus === "ON_REQUEST"
-                  ? "bg-amber-50 text-amber-700"
-                  : "bg-stone-100 text-stone-500"
+                  ? "bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400"
+                  : "bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400"
               }`}
             >
               {commissionLabel[artist.commissionStatus]}
@@ -130,13 +130,13 @@ export default async function ProfilePage() {
 
       {/* Bio */}
       {artist.bio && (
-        <p className="text-stone-600 leading-relaxed mb-10 whitespace-pre-wrap">{artist.bio}</p>
+        <p className="text-stone-600 dark:text-stone-300 leading-relaxed mb-10 whitespace-pre-wrap">{artist.bio}</p>
       )}
 
       {/* Gallery — adaptive grid */}
       {galleryImages.length > 0 && (
         <section className="mb-10">
-          <h2 className="text-sm font-medium text-stone-400 uppercase tracking-wider mb-4">Work</h2>
+          <h2 className="text-sm font-medium text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-4">Work</h2>
           <div
             className={`grid gap-3 ${
               galleryImages.length === 1
@@ -147,7 +147,7 @@ export default async function ProfilePage() {
             }`}
           >
             {galleryImages.map((img) => (
-              <div key={img.id} className="rounded-lg overflow-hidden bg-stone-100 aspect-square">
+              <div key={img.id} className="rounded-lg overflow-hidden bg-stone-100 dark:bg-stone-800 aspect-square">
                 <Image
                   src={img.url}
                   alt={img.altText ?? ""}
@@ -163,13 +163,13 @@ export default async function ProfilePage() {
 
       {/* Links */}
       {(artist.website || artist.instagram) && (
-        <section className="border-t border-stone-100 pt-6 flex gap-4">
+        <section className="border-t border-stone-100 dark:border-stone-800 pt-6 flex gap-4">
           {artist.website && (
             <a
               href={artist.website}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-stone-500 text-sm hover:text-stone-800 transition-colors"
+              className="text-stone-500 dark:text-stone-400 text-sm hover:text-stone-800 dark:hover:text-stone-100 transition-colors"
             >
               Website ↗
             </a>
@@ -179,7 +179,7 @@ export default async function ProfilePage() {
               href={`https://instagram.com/${artist.instagram.replace(/^@/, "")}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-stone-500 text-sm hover:text-stone-800 transition-colors"
+              className="text-stone-500 dark:text-stone-400 text-sm hover:text-stone-800 dark:hover:text-stone-100 transition-colors"
             >
               Instagram ↗
             </a>
