@@ -1,0 +1,46 @@
+# Art Here Portland — robots.txt
+#
+# Artwork images are uploaded by artists for use within this platform only.
+# They may NOT be scraped, indexed, or used for AI training datasets.
+# See our privacy policy for details.
+
+User-agent: *
+Disallow: /api/
+Disallow: /profile/
+
+# Block AI training crawlers explicitly
+User-agent: GPTBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Omgilibot
+Disallow: /
+
+User-agent: FacebookBot
+Disallow: /
+
+# Allow general search engines to index public artist pages and search
+User-agent: Googlebot
+Allow: /artists/
+Allow: /search
+Disallow: /api/
+Disallow: /profile/
+
+User-agent: Bingbot
+Allow: /artists/
+Allow: /search
+Disallow: /api/
+Disallow: /profile/
+
+Sitemap: https://arthere.portland/sitemap.xml
