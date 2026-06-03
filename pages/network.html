@@ -98,10 +98,13 @@
             pointer-events: none; opacity: 0; transition: opacity 0.15s;
         }
         .hover-card.visible { opacity: 1; }
-        .hc-artist { display: flex; align-items: center; gap: 12px; padding: 14px; }
-        .hc-artist-photo { width: 52px; height: 52px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #222; }
+        .hc-artist { display: flex; flex-direction: column; }
+        .hc-artist-art { width: 100%; height: 120px; overflow: hidden; background: #1a1a1a; }
+        .hc-artist-art img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+        .hc-artist-info { display: flex; align-items: center; gap: 10px; padding: 10px 14px 12px; }
+        .hc-artist-photo { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #222; }
         .hc-artist-photo img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
-        .hc-name { font-family: 'Nunito', sans-serif; font-size: 0.88rem; font-weight: 700; color: #fff; margin-bottom: 3px; }
+        .hc-name { font-family: 'Nunito', sans-serif; font-size: 0.88rem; font-weight: 700; color: #fff; margin-bottom: 2px; }
         .hc-meta { font-size: 0.72rem; color: #888; line-height: 1.4; }
         .hc-place { display: flex; align-items: stretch; }
         .hc-place-img { width: 90px; flex-shrink: 0; overflow: hidden; background: #222; }
@@ -293,6 +296,105 @@
         { id: "Casa Luna",              type: "place", neighborhood: "Portland",  image: null },
         { id: "PSU",                    type: "place", neighborhood: "Portland",  image: null },
         { id: "PCC",                    type: "place", neighborhood: "Portland",  image: null },
+
+        // NW Marine Art Works studio artists
+        { id: "Kim Stafford", type: "artist", medium: "Jewelry", neighborhood: "Slabtown", url: "../artists/kim-stafford.html", photo: "../images/artists/kim-stafford-bio.jpg" },
+        { id: "Archer Mayo", type: "artist", medium: "Sculpture", neighborhood: "Slabtown", url: "../artists/archer-mayo.html", photo: "../images/artists/archer-mayo-bio.png" },
+        { id: "Vonda Martin", type: "artist", medium: "Mixed Media", neighborhood: "Slabtown", url: "../artists/vonda-martin.html", photo: "../images/artists/vonda-martin-bio.jpg" },
+        { id: "Kirsten Rian", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/kirsten-rian.html", photo: "../images/artists/kirsten-rian-bio.jpg" },
+        { id: "Angel Morrow", type: "artist", medium: "Ceramicist", neighborhood: "Slabtown", url: "../artists/angel-morrow.html", photo: "../images/artists/angel-morrow-bio.jpg" },
+        { id: "Erin Dengerink", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/erin-dengerink.html", photo: "../images/artists/erin-dengerink-bio.jpg" },
+        { id: "Carol Crump Bryner", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/carol-crump-bryner.html", photo: "../images/artists/carol-crump-bryner-bio.jpg" },
+        { id: "F. Lauren Carrera", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/f-lauren-carrera.html", photo: "../images/artists/f-lauren-carrera-bio.jpg" },
+        { id: "Clement Lee", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/clement-lee.html", photo: "../images/artists/clement-lee-bio.jpg" },
+        { id: "Claudia Cosgrove", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/claudia-cosgrove.html", photo: "../images/artists/claudia-cosgrove-bio.jpg" },
+        { id: "Daniel Duford", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/daniel-duford.html", photo: "../images/artists/daniel-duford-bio.png" },
+        { id: "David Brandt", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/david-brandt.html", photo: "../images/artists/david-brandt-bio.jpg" },
+        { id: "Deanna Schuerbeke", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/deanna-schuerbeke.html", photo: "../images/artists/deanna-schuerbeke-bio.jpg" },
+        { id: "Drew Laughery", type: "artist", medium: "Drawing", neighborhood: "Slabtown", url: "../artists/drew-laughery.html", photo: "../images/artists/drew-laughery-bio.jpg" },
+        { id: "Ellen Goldschmidt", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/ellen-goldschmidt.html", photo: "../images/artists/ellen-goldschmidt-bio.jpg" },
+        { id: "Eric Rue", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/eric-rue.html", photo: "../images/artists/eric-rue-bio.png" },
+        { id: "Felicia Murray", type: "artist", medium: "Fiber Arts", neighborhood: "Slabtown", url: "../artists/felicia-murray.html", photo: "../images/artists/felicia-murray-bio.jpg" },
+        { id: "Gloria Baker Feinstein", type: "artist", medium: "Photographer", neighborhood: "Slabtown", url: "../artists/gloria-baker-feinstein.html", photo: "../images/artists/gloria-baker-feinstein-bio.jpg" },
+        { id: "Hsin-Yi Huang", type: "artist", medium: "Ceramicist", neighborhood: "Slabtown", url: "../artists/hsin-yi-huang.html", photo: "../images/artists/hsin-yi-huang-bio.jpg" },
+        { id: "Isabella Cassini", type: "artist", medium: "Photographer", neighborhood: "Slabtown", url: "../artists/isabella-cassini.html", photo: "../images/artists/isabella-cassini-bio.jpg" },
+        { id: "Jessalyn Haggenjos", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/jessalyn-haggenjos.html", photo: "../images/artists/jessalyn-haggenjos-bio.jpg" },
+        { id: "Julie Rall", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/julie-rall.html", photo: "../images/artists/julie-rall-bio.jpg" },
+        { id: "Kim Donnet", type: "artist", medium: "Ceramicist", neighborhood: "Slabtown", url: "../artists/kim-donnet.html", photo: "../images/artists/kim-donnet-bio.png" },
+        { id: "Kim Lakin", type: "artist", medium: "Mixed Media", neighborhood: "Slabtown", url: "../artists/kim-lakin.html", photo: "../images/artists/kim-lakin-bio.jpg" },
+        { id: "Kim Marcucci", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/kim-marcucci.html", photo: "../images/artists/kim-marcucci-bio.png" },
+        { id: "Andrew Moran", type: "artist", medium: "Mixed Media", neighborhood: "Slabtown", url: "../artists/andrew-moran.html", photo: "../images/artists/andrew-moran-bio.jpg" },
+        { id: "Tina Jeffers", type: "artist", medium: "Ceramicist", neighborhood: "Slabtown", url: "../artists/tina-jeffers.html", photo: "../images/artists/tina-jeffers-bio.jpg" },
+        { id: "Kristi Palmer", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/kristi-palmer.html", photo: "../images/artists/kristi-palmer-bio.jpg" },
+        { id: "Lisa Cox", type: "artist", medium: "Fiber Arts", neighborhood: "Slabtown", url: "../artists/lisa-cox.html", photo: "../images/artists/lisa-cox-bio.png" },
+        { id: "Lynda Moss", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/lynda-moss.html", photo: "../images/artists/lynda-moss-bio.jpg" },
+        { id: "Marie Lo", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/marie-lo.html", photo: "../images/artists/marie-lo-bio.jpg" },
+        { id: "Mary T Lee", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/mary-t-lee.html", photo: "../images/artists/mary-t-lee-bio.jpg" },
+        { id: "Meaghan Kunzmann", type: "artist", medium: "Ceramicist", neighborhood: "Slabtown", url: "../artists/meaghan-kunzmann.html", photo: "../images/artists/meaghan-kunzmann-bio.jpg" },
+        { id: "Miriam Dean", type: "artist", medium: "Ceramicist", neighborhood: "Slabtown", url: "../artists/miriam-dean.html", photo: "../images/artists/miriam-dean-bio.jpg" },
+        { id: "Michele Suchland", type: "artist", medium: "Sculptor", neighborhood: "Slabtown", url: "../artists/michele-suchland.html", photo: "../images/artists/michele-suchland-bio.jpg" },
+        { id: "Myra Clark", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/myra-clark.html", photo: "../images/artists/myra-clark-bio.jpg" },
+        { id: "Nick Gundry", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/nick-gundry.html", photo: "../images/artists/nick-gundry-bio.jpg" },
+        { id: "Noah Alexander Stein", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/noah-alexander-stein.html", photo: "../images/artists/noah-alexander-stein-bio.jpg" },
+        { id: "Pamela Chipman", type: "artist", medium: "Photographer", neighborhood: "Slabtown", url: "../artists/pamela-chipman.html", photo: "../images/artists/pamela-chipman-bio.jpg" },
+        { id: "Elizabeth Williams", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/elizabeth-williams.html", photo: "../images/artists/elizabeth-williams-bio.jpg" },
+        { id: "Pheo Bell", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/pheo-bell.html", photo: "../images/artists/pheo-bell-bio.jpg" },
+        { id: "Eva Morris", type: "artist", medium: "Metal Arts", neighborhood: "Slabtown", url: "../artists/eva-morris.html", photo: "../images/artists/eva-morris-bio.jpg" },
+        { id: "Rosemary Cohen", type: "artist", medium: "Mixed Media", neighborhood: "Slabtown", url: "../artists/rosemary-cohen.html", photo: "../images/artists/rosemary-cohen-bio.jpg" },
+        { id: "Ross Mercer", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/ross-mercer.html", photo: "../images/artists/ross-mercer-bio.jpg" },
+        { id: "Sarah Faulkner-Haug", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/sarah-faulkner-haug.html", photo: "../images/artists/sarah-faulkner-haug-bio.jpg" },
+        { id: "Benjamin Posin", type: "artist", medium: "Jeweler", neighborhood: "Slabtown", url: "../artists/benjamin-posin.html", photo: "../images/artists/benjamin-posin-bio.jpg" },
+        { id: "Susan Harrington", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/susan-harrington.html", photo: "../images/artists/susan-harrington-bio.jpg" },
+        { id: "Tanith Hawthorne", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/tanith-hawthorne.html", photo: "../images/artists/tanith-hawthorne-bio.jpg" },
+        { id: "Todd J Elliott", type: "artist", medium: "Painter", neighborhood: "Slabtown", url: "../artists/todd-j-elliott.html", photo: "../images/artists/todd-j-elliott-bio.jpg" },
+        // Multnomah Arts Center instructors
+        { id: "Arielle Brackett", type: "artist", medium: "Visual Artist", neighborhood: "Multnomah Village", url: "../artists/arielle-brackett.html", photo: "" },
+        { id: "Stephanie Byrd", type: "artist", medium: "Visual Artist", neighborhood: "Multnomah Village", url: "../artists/stephanie-byrd.html", photo: "" },
+        { id: "Jenna Gersbach-King", type: "artist", medium: "Photographer", neighborhood: "Multnomah Village", url: "../artists/jenna-gersbach-king.html", photo: "" },
+        { id: "Dawn Grunwald", type: "artist", medium: "Fiber Artist", neighborhood: "Multnomah Village", url: "../artists/dawn-grunwald.html", photo: "" },
+        { id: "Liz Harris", type: "artist", medium: "Ceramicist", neighborhood: "Multnomah Village", url: "../artists/liz-harris.html", photo: "" },
+        { id: "Junko Iijima", type: "artist", medium: "Metalsmith", neighborhood: "Multnomah Village", url: "../artists/junko-iijima.html", photo: "" },
+        { id: "Tim Kluge", type: "artist", medium: "Woodworker", neighborhood: "Multnomah Village", url: "../artists/tim-kluge.html", photo: "" },
+        { id: "Michelle Lee", type: "artist", medium: "Fiber Artist", neighborhood: "Multnomah Village", url: "../artists/michelle-lee.html", photo: "" },
+        { id: "Palmarin Merges", type: "artist", medium: "Printmaker", neighborhood: "Multnomah Village", url: "../artists/palmarin-merges.html", photo: "" },
+        { id: "Sandra Oberdorfer", type: "artist", medium: "Visual Artist", neighborhood: "Multnomah Village", url: "../artists/sandra-oberdorfer.html", photo: "" },
+        { id: "Stacey Smeltzer", type: "artist", medium: "Ceramicist", neighborhood: "Multnomah Village", url: "../artists/stacey-smeltzer.html", photo: "" },
+        { id: "Jan von Bergen", type: "artist", medium: "Visual Artist", neighborhood: "Multnomah Village", url: "../artists/jan-von-bergen.html", photo: "" },
+        { id: "Sarah Welsh", type: "artist", medium: "Painter", neighborhood: "Multnomah Village", url: "../artists/sarah-welsh.html", photo: "" },
+        { id: "Char Fitzpatrick", type: "artist", medium: "Painter", neighborhood: "Multnomah Village", url: "../artists/char-fitzpatrick.html", photo: "" },
+        { id: "Susan Hinton", type: "artist", medium: "Painter", neighborhood: "Multnomah Village", url: "../artists/susan-hinton.html", photo: "" },
+        { id: "Tobi Kibel Piatek", type: "artist", medium: "Visual Artist", neighborhood: "Multnomah Village", url: "../artists/tobi-kibel-piatek.html", photo: "" },
+        { id: "Gage Mace", type: "artist", medium: "Painter", neighborhood: "Multnomah Village", url: "../artists/gage-mace.html", photo: "" },
+        { id: "Brian Shannon", type: "artist", medium: "Printmaker", neighborhood: "Multnomah Village", url: "../artists/brian-shannon.html", photo: "" },
+        { id: "Jude Siegel", type: "artist", medium: "Visual Artist", neighborhood: "Multnomah Village", url: "../artists/jude-siegel.html", photo: "" },
+        { id: "Debra Carus", type: "artist", medium: "Metalsmith", neighborhood: "Multnomah Village", url: "../artists/debra-carus.html", photo: "" },
+        { id: "Garrett Kovacs", type: "artist", medium: "Metalsmith", neighborhood: "Multnomah Village", url: "../artists/garrett-kovacs.html", photo: "" },
+        { id: "Susanne Lechler Osborn", type: "artist", medium: "Metalsmith", neighborhood: "Multnomah Village", url: "../artists/susanne-lechler-osborn.html", photo: "" },
+        { id: "Miel Margarita Paredes", type: "artist", medium: "Metalsmith", neighborhood: "Multnomah Village", url: "../artists/miel-margarita-paredes.html", photo: "" },
+        { id: "Kristin Mitsu Shiga", type: "artist", medium: "Printmaker", neighborhood: "Multnomah Village", url: "../artists/kristin-mitsu-shiga.html", photo: "" },
+        { id: "Andrew Galloway", type: "artist", medium: "Printmaker", neighborhood: "Multnomah Village", url: "../artists/andrew-galloway.html", photo: "" },
+        { id: "Chris Harmon", type: "artist", medium: "Printmaker", neighborhood: "Multnomah Village", url: "../artists/chris-harmon.html", photo: "" },
+        { id: "Yuji Hiratsuka", type: "artist", medium: "Printmaker", neighborhood: "Multnomah Village", url: "../artists/yuji-hiratsuka.html", photo: "" },
+        { id: "Nicole Rawlins", type: "artist", medium: "Printmaker", neighborhood: "Multnomah Village", url: "../artists/nicole-rawlins.html", photo: "" },
+        { id: "Mike Chia", type: "artist", medium: "Woodworker", neighborhood: "Multnomah Village", url: "../artists/mike-chia.html", photo: "" },
+        { id: "Silvia Hull", type: "artist", medium: "Woodworker", neighborhood: "Multnomah Village", url: "../artists/silvia-hull.html", photo: "" },
+        { id: "Loo Bain", type: "artist", medium: "Fiber Artist", neighborhood: "Multnomah Village", url: "../artists/loo-bain.html", photo: "" },
+        { id: "Jaye Campbell", type: "artist", medium: "Fiber Artist", neighborhood: "Multnomah Village", url: "../artists/jaye-campbell.html", photo: "" },
+        { id: "LaVerne Lewis", type: "artist", medium: "Fiber Artist", neighborhood: "Multnomah Village", url: "../artists/laverne-lewis.html", photo: "" },
+        { id: "Virginia McKinney", type: "artist", medium: "Ceramicist", neighborhood: "Multnomah Village", url: "../artists/virginia-mckinney.html", photo: "" },
+        { id: "Patrick Browne", type: "artist", medium: "Theatre Artist", neighborhood: "Multnomah Village", url: "../artists/patrick-browne.html", photo: "" },
+        { id: "Nick Herb", type: "artist", medium: "Theatre Artist", neighborhood: "Multnomah Village", url: "../artists/nick-herb.html", photo: "" },
+        { id: "Veronika Nelson", type: "artist", medium: "Theatre Artist", neighborhood: "Multnomah Village", url: "../artists/veronika-nelson.html", photo: "" },
+        { id: "Alyson Osborn", type: "artist", medium: "Theatre Artist", neighborhood: "Multnomah Village", url: "../artists/alyson-osborn.html", photo: "" },
+        { id: "Dawn Panttaja", type: "artist", medium: "Theatre Director", neighborhood: "Multnomah Village", url: "../artists/dawn-panttaja.html", photo: "" },
+        { id: "Timothy Scarrott", type: "artist", medium: "Theatre Director", neighborhood: "Multnomah Village", url: "../artists/timothy-scarrott.html", photo: "" },
+        { id: "Carson Culp", type: "artist", medium: "Ceramicist", neighborhood: "Multnomah Village", url: "../artists/carson-culp.html", photo: "" },
+        { id: "Chris Rehwalt", type: "artist", medium: "Ceramicist", neighborhood: "Multnomah Village", url: "../artists/chris-rehwalt.html", photo: "" },
+        { id: "Victoria Shaw", type: "artist", medium: "Ceramicist", neighborhood: "Multnomah Village", url: "../artists/victoria-shaw.html", photo: "" },
+        { id: "Dirk Staschke", type: "artist", medium: "Ceramicist", neighborhood: "Multnomah Village", url: "../artists/dirk-staschke.html", photo: "" },
+        { id: "Caley Henderson", type: "artist", medium: "Writer", neighborhood: "Multnomah Village", url: "../artists/caley-henderson.html", photo: "" },
+        { id: "Sherri Levine", type: "artist", medium: "Writer", neighborhood: "Multnomah Village", url: "../artists/sherri-levine.html", photo: "" },
+        { id: "Christopher Luna", type: "artist", medium: "Poet", neighborhood: "Multnomah Village", url: "../artists/christopher-luna.html", photo: "" },
     ];
 
     const allLinks = [
@@ -308,6 +410,107 @@
         { source: "Lindsey Fox",          target: "ComeUnity PDX" },
         { source: "Jennifer Eaton White", target: "Alberta Street Gallery" },
         { source: "Jennifer Eaton White", target: "Casa Luna" },
+
+        // NW Marine links
+        { source: "Kim Stafford", target: "NW Marine Art Works" },
+        { source: "Archer Mayo", target: "NW Marine Art Works" },
+        { source: "Vonda Martin", target: "NW Marine Art Works" },
+        { source: "Kirsten Rian", target: "NW Marine Art Works" },
+        { source: "Angel Morrow", target: "NW Marine Art Works" },
+        { source: "Erin Dengerink", target: "NW Marine Art Works" },
+        { source: "Carol Crump Bryner", target: "NW Marine Art Works" },
+        { source: "F. Lauren Carrera", target: "NW Marine Art Works" },
+        { source: "Clement Lee", target: "NW Marine Art Works" },
+        { source: "Claudia Cosgrove", target: "NW Marine Art Works" },
+        { source: "Daniel Duford", target: "NW Marine Art Works" },
+        { source: "David Brandt", target: "NW Marine Art Works" },
+        { source: "Deanna Schuerbeke", target: "NW Marine Art Works" },
+        { source: "Drew Laughery", target: "NW Marine Art Works" },
+        { source: "Ellen Goldschmidt", target: "NW Marine Art Works" },
+        { source: "Eric Rue", target: "NW Marine Art Works" },
+        { source: "Felicia Murray", target: "NW Marine Art Works" },
+        { source: "Gloria Baker Feinstein", target: "NW Marine Art Works" },
+        { source: "Hsin-Yi Huang", target: "NW Marine Art Works" },
+        { source: "Isabella Cassini", target: "NW Marine Art Works" },
+        { source: "Jessalyn Haggenjos", target: "NW Marine Art Works" },
+        { source: "Julie Rall", target: "NW Marine Art Works" },
+        { source: "Kim Donnet", target: "NW Marine Art Works" },
+        { source: "Kim Lakin", target: "NW Marine Art Works" },
+        { source: "Kim Marcucci", target: "NW Marine Art Works" },
+        { source: "Andrew Moran", target: "NW Marine Art Works" },
+        { source: "Tina Jeffers", target: "NW Marine Art Works" },
+        { source: "Kristi Palmer", target: "NW Marine Art Works" },
+        { source: "Lisa Cox", target: "NW Marine Art Works" },
+        { source: "Lynda Moss", target: "NW Marine Art Works" },
+        { source: "Marie Lo", target: "NW Marine Art Works" },
+        { source: "Mary T Lee", target: "NW Marine Art Works" },
+        { source: "Meaghan Kunzmann", target: "NW Marine Art Works" },
+        { source: "Miriam Dean", target: "NW Marine Art Works" },
+        { source: "Michele Suchland", target: "NW Marine Art Works" },
+        { source: "Myra Clark", target: "NW Marine Art Works" },
+        { source: "Nick Gundry", target: "NW Marine Art Works" },
+        { source: "Noah Alexander Stein", target: "NW Marine Art Works" },
+        { source: "Pamela Chipman", target: "NW Marine Art Works" },
+        { source: "Elizabeth Williams", target: "NW Marine Art Works" },
+        { source: "Pheo Bell", target: "NW Marine Art Works" },
+        { source: "Eva Morris", target: "NW Marine Art Works" },
+        { source: "Rosemary Cohen", target: "NW Marine Art Works" },
+        { source: "Ross Mercer", target: "NW Marine Art Works" },
+        { source: "Sarah Faulkner-Haug", target: "NW Marine Art Works" },
+        { source: "Benjamin Posin", target: "NW Marine Art Works" },
+        { source: "Susan Harrington", target: "NW Marine Art Works" },
+        { source: "Tanith Hawthorne", target: "NW Marine Art Works" },
+        { source: "Todd J Elliott", target: "NW Marine Art Works" },
+        { source: "Lindsey Fox", target: "NW Marine Art Works" },
+        // MAC links
+        { source: "Arielle Brackett", target: "Multnomah Arts Center" },
+        { source: "Stephanie Byrd", target: "Multnomah Arts Center" },
+        { source: "Jenna Gersbach-King", target: "Multnomah Arts Center" },
+        { source: "Dawn Grunwald", target: "Multnomah Arts Center" },
+        { source: "Liz Harris", target: "Multnomah Arts Center" },
+        { source: "Junko Iijima", target: "Multnomah Arts Center" },
+        { source: "Tim Kluge", target: "Multnomah Arts Center" },
+        { source: "Michelle Lee", target: "Multnomah Arts Center" },
+        { source: "Palmarin Merges", target: "Multnomah Arts Center" },
+        { source: "Sandra Oberdorfer", target: "Multnomah Arts Center" },
+        { source: "Stacey Smeltzer", target: "Multnomah Arts Center" },
+        { source: "Jan von Bergen", target: "Multnomah Arts Center" },
+        { source: "Sarah Welsh", target: "Multnomah Arts Center" },
+        { source: "Char Fitzpatrick", target: "Multnomah Arts Center" },
+        { source: "Susan Hinton", target: "Multnomah Arts Center" },
+        { source: "Tobi Kibel Piatek", target: "Multnomah Arts Center" },
+        { source: "Gage Mace", target: "Multnomah Arts Center" },
+        { source: "Brian Shannon", target: "Multnomah Arts Center" },
+        { source: "Jude Siegel", target: "Multnomah Arts Center" },
+        { source: "Debra Carus", target: "Multnomah Arts Center" },
+        { source: "Garrett Kovacs", target: "Multnomah Arts Center" },
+        { source: "Susanne Lechler Osborn", target: "Multnomah Arts Center" },
+        { source: "Miel Margarita Paredes", target: "Multnomah Arts Center" },
+        { source: "Kristin Mitsu Shiga", target: "Multnomah Arts Center" },
+        { source: "Andrew Galloway", target: "Multnomah Arts Center" },
+        { source: "Chris Harmon", target: "Multnomah Arts Center" },
+        { source: "Yuji Hiratsuka", target: "Multnomah Arts Center" },
+        { source: "Nicole Rawlins", target: "Multnomah Arts Center" },
+        { source: "Mike Chia", target: "Multnomah Arts Center" },
+        { source: "Silvia Hull", target: "Multnomah Arts Center" },
+        { source: "Loo Bain", target: "Multnomah Arts Center" },
+        { source: "Jaye Campbell", target: "Multnomah Arts Center" },
+        { source: "LaVerne Lewis", target: "Multnomah Arts Center" },
+        { source: "Virginia McKinney", target: "Multnomah Arts Center" },
+        { source: "Patrick Browne", target: "Multnomah Arts Center" },
+        { source: "Nick Herb", target: "Multnomah Arts Center" },
+        { source: "Veronika Nelson", target: "Multnomah Arts Center" },
+        { source: "Alyson Osborn", target: "Multnomah Arts Center" },
+        { source: "Dawn Panttaja", target: "Multnomah Arts Center" },
+        { source: "Timothy Scarrott", target: "Multnomah Arts Center" },
+        { source: "Carson Culp", target: "Multnomah Arts Center" },
+        { source: "Chris Rehwalt", target: "Multnomah Arts Center" },
+        { source: "Victoria Shaw", target: "Multnomah Arts Center" },
+        { source: "Dirk Staschke", target: "Multnomah Arts Center" },
+        { source: "Caley Henderson", target: "Multnomah Arts Center" },
+        { source: "Sherri Levine", target: "Multnomah Arts Center" },
+        { source: "Christopher Luna", target: "Multnomah Arts Center" },
+        { source: "Kurtis Piltz", target: "Multnomah Arts Center" },
     ];
 
     // ── STATE ─────────────────────────────────────────────────────────────────
@@ -442,13 +645,23 @@
     // ── HOVER CARD ────────────────────────────────────────────────────────────
     const card = document.getElementById('hover-card');
 
+    function artworkSrc(d) {
+        if (!d.url) return null;
+        var slug = d.url.replace('../artists/', '').replace('.html', '');
+        return '../images/artwork/' + slug + '-hero.jpg';
+    }
+
     function showCard(event, d) {
         if (d.type === 'artist') {
+            var art = artworkSrc(d);
             card.innerHTML = `<div class="hc-artist">
-                <div class="hc-artist-photo"><img src="${d.photo}" alt="${d.id}" onerror="this.style.display='none'"></div>
-                <div class="hc-artist-text">
-                    <div class="hc-name">${d.id}</div>
-                    <div class="hc-meta">${d.medium}<br>${d.neighborhood}</div>
+                ${art ? `<div class="hc-artist-art"><img src="${art}" alt="" onerror="this.parentElement.style.display='none'"></div>` : ''}
+                <div class="hc-artist-info">
+                    ${d.photo ? `<div class="hc-artist-photo"><img src="${d.photo}" alt="${d.id}" onerror="this.parentElement.style.display='none'"></div>` : ''}
+                    <div class="hc-artist-text">
+                        <div class="hc-name">${d.id}</div>
+                        <div class="hc-meta">${d.medium}<br>${d.neighborhood}</div>
+                    </div>
                 </div>
             </div>`;
         } else if (d.image) {

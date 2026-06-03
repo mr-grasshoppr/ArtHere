@@ -190,53 +190,831 @@
                 <button data-medium="Painter">Painting</button>
                 <button data-medium="Ceramicist">Ceramics</button>
                 <button data-medium="Illustrator">Illustration</button>
+                <button data-medium="Photographer">Photography</button>
+                <button data-medium="Sculptor">Sculpture</button>
+                <button data-medium="Mixed Media">Mixed Media</button>
+                <button data-medium="Fiber Arts">Fiber Arts</button>
+                <button data-medium="Fiber Artist">Fiber Arts (MAC)</button>
+                <button data-medium="Printmaker">Printmaking</button>
+                <button data-medium="Metalsmith">Metalsmithing</button>
+                <button data-medium="Musician">Music</button>
+                <button data-medium="Dance Instructor">Dance</button>
+                <button data-medium="Theatre Artist">Theatre</button>
+                <button data-medium="Movement">Movement &amp; Fitness</button>
+                <button data-medium="Writer">Writing</button>
             </div>
         </div>
         <div class="filter-wrap">
             <button class="filter-btn" id="filter-nbhd-btn">Neighborhood ▾</button>
             <div class="filter-dropdown" id="filter-nbhd-drop">
                 <button data-nbhd="">All neighborhoods</button>
-                <button data-nbhd="Alberta Arts District">Alberta Arts District</button>
+                <button data-nbhd="Slabtown">Slabtown (NW Marine)</button>
                 <button data-nbhd="Multnomah Village">Multnomah Village</button>
+                <button data-nbhd="Alberta Arts District">Alberta Arts District</button>
                 <button data-nbhd="Portland">Portland</button>
                 <button data-nbhd="Vancouver, WA">Vancouver, WA</button>
+            </div>
+        </div>
+        <div class="filter-wrap">
+            <button class="filter-btn" id="filter-place-btn">Place ▾</button>
+            <div class="filter-dropdown" id="filter-place-drop">
+                <!-- populated from js/places.js -->
             </div>
         </div>
     </div>
 
     <div class="artists-grid">
         <a href="../artists/kurtis-piltz.html" class="artist-card" data-medium="Ceramicist" data-neighborhood="Multnomah Village">
-            <div class="artist-circle"><img src="../images/artists/kurtis-piltz-bio.jpg" alt="Kurtis Piltz"></div>
+            <div class="artist-circle"><img src="../images/artists/kurtis-piltz-bio.jpg" alt="Kurtis Piltz" loading="lazy"></div>
             <div class="artist-name">Kurtis Piltz</div>
             <div class="artist-medium">Ceramicist</div>
-            <div class="artist-location">Multnomah Village</div>
+            <div class="artist-location">Multnomah Arts Center</div>
         </a>
         <a href="../artists/beth-bundy.html" class="artist-card" data-medium="Illustrator" data-neighborhood="Alberta Arts District">
-            <div class="artist-circle"><img src="../images/artists/beth-bundy-bio.jpg" alt="Beth Bundy"></div>
+            <div class="artist-circle"><img src="../images/artists/beth-bundy-bio.jpg" alt="Beth Bundy" loading="lazy"></div>
             <div class="artist-name">Beth Bundy</div>
-            <div class="artist-medium">Illustrator &amp; Paper Cut</div>
-            <div class="artist-location">Alberta Arts District</div>
+            <div class="artist-medium">Illustrator</div>
+            <div class="artist-location">Alberta Street Gallery</div>
         </a>
         <a href="../artists/yong-hong-zhong.html" class="artist-card" data-medium="Painter" data-neighborhood="Portland">
-            <div class="artist-circle"><img src="../images/artists/yong-hong-zhong-bio.jpg" alt="Yong Hong Zhong"></div>
+            <div class="artist-circle"><img src="../images/artists/yong-hong-zhong-bio.jpg" alt="Yong Hong Zhong" loading="lazy"></div>
             <div class="artist-name">Yong Hong Zhong</div>
             <div class="artist-medium">Painter</div>
             <div class="artist-location">Portland</div>
         </a>
         <a href="../artists/lindsey-fox.html" class="artist-card" data-medium="Painter" data-neighborhood="Portland">
-            <div class="artist-circle"><img src="../images/artists/lindsey-fox-bio.jpg" alt="Lindsey Fox"></div>
+            <div class="artist-circle"><img src="../images/artists/lindsey-fox-bio.jpg" alt="Lindsey Fox" loading="lazy"></div>
             <div class="artist-name">Lindsey Fox</div>
             <div class="artist-medium">Painter</div>
             <div class="artist-location">Portland</div>
         </a>
         <a href="../artists/jennifer-eaton-white.html" class="artist-card" data-medium="Painter" data-neighborhood="Vancouver, WA">
-            <div class="artist-circle"><img src="../images/artists/jennifer-eaton-white-bio.jpg" alt="Jennifer Eaton White"></div>
+            <div class="artist-circle"><img src="../images/artists/jennifer-eaton-white-bio.jpg" alt="Jennifer Eaton White" loading="lazy"></div>
             <div class="artist-name">Jennifer Eaton White</div>
             <div class="artist-medium">Painter</div>
             <div class="artist-location">Vancouver, WA</div>
         </a>
+        <a href="../artists/kim-stafford.html" class="artist-card" data-medium="Jewelry" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/kim-stafford-bio.jpg" alt="Kim Stafford" loading="lazy"></div>
+            <div class="artist-name">Kim Stafford</div>
+            <div class="artist-medium">Jewelry</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/archer-mayo.html" class="artist-card" data-medium="Sculptor" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/archer-mayo-bio.png" alt="Archer Mayo" loading="lazy"></div>
+            <div class="artist-name">Archer Mayo</div>
+            <div class="artist-medium">Sculptor</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/vonda-martin.html" class="artist-card" data-medium="Mixed Media" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/vonda-martin-bio.jpg" alt="Vonda Martin" loading="lazy"></div>
+            <div class="artist-name">Vonda Martin</div>
+            <div class="artist-medium">Mixed Media</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/kirsten-rian.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/kirsten-rian-bio.jpg" alt="Kirsten Rian" loading="lazy"></div>
+            <div class="artist-name">Kirsten Rian</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/angel-morrow.html" class="artist-card" data-medium="Ceramicist" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/angel-morrow-bio.jpg" alt="Angel Morrow" loading="lazy"></div>
+            <div class="artist-name">Angel Morrow</div>
+            <div class="artist-medium">Ceramicist</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/erin-dengerink.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/erin-dengerink-bio.jpg" alt="Erin Dengerink" loading="lazy"></div>
+            <div class="artist-name">Erin Dengerink</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/carol-crump-bryner.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/carol-crump-bryner-bio.jpg" alt="Carol Crump Bryner" loading="lazy"></div>
+            <div class="artist-name">Carol Crump Bryner</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/f-lauren-carrera.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/f-lauren-carrera-bio.jpg" alt="F. Lauren Carrera" loading="lazy"></div>
+            <div class="artist-name">F. Lauren Carrera</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/clement-lee.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/clement-lee-bio.jpg" alt="Clement Lee" loading="lazy"></div>
+            <div class="artist-name">Clement Lee</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/claudia-cosgrove.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/claudia-cosgrove-bio.jpg" alt="Claudia Cosgrove" loading="lazy"></div>
+            <div class="artist-name">Claudia Cosgrove</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/daniel-duford.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/daniel-duford-bio.png" alt="Daniel Duford" loading="lazy"></div>
+            <div class="artist-name">Daniel Duford</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/david-brandt.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/david-brandt-bio.jpg" alt="David Brandt" loading="lazy"></div>
+            <div class="artist-name">David Brandt</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/deanna-schuerbeke.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/deanna-schuerbeke-bio.jpg" alt="Deanna Schuerbeke" loading="lazy"></div>
+            <div class="artist-name">Deanna Schuerbeke</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/drew-laughery.html" class="artist-card" data-medium="Drawing" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/drew-laughery-bio.jpg" alt="Drew Laughery" loading="lazy"></div>
+            <div class="artist-name">Drew Laughery</div>
+            <div class="artist-medium">Drawing</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/ellen-goldschmidt.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/ellen-goldschmidt-bio.jpg" alt="Ellen Goldschmidt" loading="lazy"></div>
+            <div class="artist-name">Ellen Goldschmidt</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/eric-rue.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/eric-rue-bio.png" alt="Eric Rue" loading="lazy"></div>
+            <div class="artist-name">Eric Rue</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/felicia-murray.html" class="artist-card" data-medium="Fiber Arts" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/felicia-murray-bio.jpg" alt="Felicia Murray" loading="lazy"></div>
+            <div class="artist-name">Felicia Murray</div>
+            <div class="artist-medium">Fiber Arts</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/gloria-baker-feinstein.html" class="artist-card" data-medium="Photographer" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/gloria-baker-feinstein-bio.jpg" alt="Gloria Baker Feinstein" loading="lazy"></div>
+            <div class="artist-name">Gloria Baker Feinstein</div>
+            <div class="artist-medium">Photographer</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/hsin-yi-huang.html" class="artist-card" data-medium="Ceramicist" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/hsin-yi-huang-bio.jpg" alt="Hsin-Yi Huang" loading="lazy"></div>
+            <div class="artist-name">Hsin-Yi Huang</div>
+            <div class="artist-medium">Ceramicist</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/isabella-cassini.html" class="artist-card" data-medium="Photographer" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/isabella-cassini-bio.jpg" alt="Isabella Cassini" loading="lazy"></div>
+            <div class="artist-name">Isabella Cassini</div>
+            <div class="artist-medium">Photographer</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/jessalyn-haggenjos.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/jessalyn-haggenjos-bio.jpg" alt="Jessalyn Haggenjos" loading="lazy"></div>
+            <div class="artist-name">Jessalyn Haggenjos</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/julie-rall.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/julie-rall-bio.jpg" alt="Julie Rall" loading="lazy"></div>
+            <div class="artist-name">Julie Rall</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/kim-donnet.html" class="artist-card" data-medium="Ceramicist" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/kim-donnet-bio.png" alt="Kim Donnet" loading="lazy"></div>
+            <div class="artist-name">Kim Donnet</div>
+            <div class="artist-medium">Ceramicist</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/kim-lakin.html" class="artist-card" data-medium="Mixed Media" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/kim-lakin-bio.jpg" alt="Kim Lakin" loading="lazy"></div>
+            <div class="artist-name">Kim Lakin</div>
+            <div class="artist-medium">Mixed Media</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/kim-marcucci.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/kim-marcucci-bio.png" alt="Kim Marcucci" loading="lazy"></div>
+            <div class="artist-name">Kim Marcucci</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/andrew-moran.html" class="artist-card" data-medium="Mixed Media" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/andrew-moran-bio.jpg" alt="Andrew Moran" loading="lazy"></div>
+            <div class="artist-name">Andrew Moran</div>
+            <div class="artist-medium">Mixed Media</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/tina-jeffers.html" class="artist-card" data-medium="Ceramicist" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/tina-jeffers-bio.jpg" alt="Tina Jeffers" loading="lazy"></div>
+            <div class="artist-name">Tina Jeffers</div>
+            <div class="artist-medium">Ceramicist</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/kristi-palmer.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/kristi-palmer-bio.jpg" alt="Kristi Palmer" loading="lazy"></div>
+            <div class="artist-name">Kristi Palmer</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/lisa-cox.html" class="artist-card" data-medium="Fiber Arts" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/lisa-cox-bio.png" alt="Lisa Cox" loading="lazy"></div>
+            <div class="artist-name">Lisa Cox</div>
+            <div class="artist-medium">Fiber Arts</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/lynda-moss.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/lynda-moss-bio.jpg" alt="Lynda Moss" loading="lazy"></div>
+            <div class="artist-name">Lynda Moss</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/marie-lo.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/marie-lo-bio.jpg" alt="Marie Lo" loading="lazy"></div>
+            <div class="artist-name">Marie Lo</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/mary-t-lee.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/mary-t-lee-bio.jpg" alt="Mary T Lee" loading="lazy"></div>
+            <div class="artist-name">Mary T Lee</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/meaghan-kunzmann.html" class="artist-card" data-medium="Ceramicist" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/meaghan-kunzmann-bio.jpg" alt="Meaghan Kunzmann" loading="lazy"></div>
+            <div class="artist-name">Meaghan Kunzmann</div>
+            <div class="artist-medium">Ceramicist</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/miriam-dean.html" class="artist-card" data-medium="Ceramicist" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/miriam-dean-bio.jpg" alt="Miriam Dean" loading="lazy"></div>
+            <div class="artist-name">Miriam Dean</div>
+            <div class="artist-medium">Ceramicist</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/michele-suchland.html" class="artist-card" data-medium="Sculptor" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/michele-suchland-bio.jpg" alt="Michele Suchland" loading="lazy"></div>
+            <div class="artist-name">Michele Suchland</div>
+            <div class="artist-medium">Sculptor</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/myra-clark.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/myra-clark-bio.jpg" alt="Myra Clark" loading="lazy"></div>
+            <div class="artist-name">Myra Clark</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/nick-gundry.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/nick-gundry-bio.jpg" alt="Nick Gundry" loading="lazy"></div>
+            <div class="artist-name">Nick Gundry</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/noah-alexander-stein.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/noah-alexander-stein-bio.jpg" alt="Noah Alexander Stein" loading="lazy"></div>
+            <div class="artist-name">Noah Alexander Stein</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/pamela-chipman.html" class="artist-card" data-medium="Photographer" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/pamela-chipman-bio.jpg" alt="Pamela Chipman" loading="lazy"></div>
+            <div class="artist-name">Pamela Chipman</div>
+            <div class="artist-medium">Photographer</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/elizabeth-williams.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/elizabeth-williams-bio.jpg" alt="Elizabeth Williams" loading="lazy"></div>
+            <div class="artist-name">Elizabeth Williams</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/pheo-bell.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/pheo-bell-bio.jpg" alt="Pheo Bell" loading="lazy"></div>
+            <div class="artist-name">Pheo Bell</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/eva-morris.html" class="artist-card" data-medium="Metal Arts" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/eva-morris-bio.jpg" alt="Eva Morris" loading="lazy"></div>
+            <div class="artist-name">Eva Morris</div>
+            <div class="artist-medium">Metal Arts</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/rosemary-cohen.html" class="artist-card" data-medium="Mixed Media" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/rosemary-cohen-bio.jpg" alt="Rosemary Cohen" loading="lazy"></div>
+            <div class="artist-name">Rosemary Cohen</div>
+            <div class="artist-medium">Mixed Media</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/ross-mercer.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/ross-mercer-bio.jpg" alt="Ross Mercer" loading="lazy"></div>
+            <div class="artist-name">Ross Mercer</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/sarah-faulkner-haug.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/sarah-faulkner-haug-bio.jpg" alt="Sarah Faulkner-Haug" loading="lazy"></div>
+            <div class="artist-name">Sarah Faulkner-Haug</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/benjamin-posin.html" class="artist-card" data-medium="Jeweler" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/benjamin-posin-bio.jpg" alt="Benjamin Posin" loading="lazy"></div>
+            <div class="artist-name">Benjamin Posin</div>
+            <div class="artist-medium">Jeweler</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/susan-harrington.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/susan-harrington-bio.jpg" alt="Susan Harrington" loading="lazy"></div>
+            <div class="artist-name">Susan Harrington</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/tanith-hawthorne.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/tanith-hawthorne-bio.jpg" alt="Tanith Hawthorne" loading="lazy"></div>
+            <div class="artist-name">Tanith Hawthorne</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/todd-j-elliott.html" class="artist-card" data-medium="Painter" data-neighborhood="Slabtown">
+            <div class="artist-circle"><img src="../images/artists/todd-j-elliott-bio.jpg" alt="Todd J Elliott" loading="lazy"></div>
+            <div class="artist-name">Todd J Elliott</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">NW Marine Art Works</div>
+        </a>
+        <a href="../artists/arielle-brackett.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Arielle Brackett</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/stephanie-byrd.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Stephanie Byrd</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/jenna-gersbach-king.html" class="artist-card" data-medium="Photographer" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Jenna Gersbach-King</div>
+            <div class="artist-medium">Photographer</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/dawn-grunwald.html" class="artist-card" data-medium="Fiber Artist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Dawn Grunwald</div>
+            <div class="artist-medium">Fiber Artist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/liz-harris.html" class="artist-card" data-medium="Ceramicist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Liz Harris</div>
+            <div class="artist-medium">Ceramicist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/junko-iijima.html" class="artist-card" data-medium="Metalsmith" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Junko Iijima</div>
+            <div class="artist-medium">Metalsmith</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/tim-kluge.html" class="artist-card" data-medium="Woodworker" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Tim Kluge</div>
+            <div class="artist-medium">Woodworker</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/michelle-lee.html" class="artist-card" data-medium="Fiber Artist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Michelle Lee</div>
+            <div class="artist-medium">Fiber Artist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/palmarin-merges.html" class="artist-card" data-medium="Printmaker" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Palmarin Merges</div>
+            <div class="artist-medium">Printmaker</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/sandra-oberdorfer.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Sandra Oberdorfer</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/stacey-smeltzer.html" class="artist-card" data-medium="Ceramicist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Stacey Smeltzer</div>
+            <div class="artist-medium">Ceramicist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/jan-von-bergen.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Jan von Bergen</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/sarah-welsh.html" class="artist-card" data-medium="Painter" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Sarah Welsh</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/char-fitzpatrick.html" class="artist-card" data-medium="Painter" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Char Fitzpatrick</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/susan-hinton.html" class="artist-card" data-medium="Painter" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Susan Hinton</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/tobi-kibel-piatek.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Tobi Kibel Piatek</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/gage-mace.html" class="artist-card" data-medium="Painter" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Gage Mace</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/brian-shannon.html" class="artist-card" data-medium="Printmaker" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Brian Shannon</div>
+            <div class="artist-medium">Printmaker</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/jude-siegel.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Jude Siegel</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/debra-carus.html" class="artist-card" data-medium="Metalsmith" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Debra Carus</div>
+            <div class="artist-medium">Metalsmith</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/garrett-kovacs.html" class="artist-card" data-medium="Metalsmith" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Garrett Kovacs</div>
+            <div class="artist-medium">Metalsmith</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/susanne-lechler-osborn.html" class="artist-card" data-medium="Metalsmith" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Susanne Lechler Osborn</div>
+            <div class="artist-medium">Metalsmith</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/miel-margarita-paredes.html" class="artist-card" data-medium="Metalsmith" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Miel Margarita Paredes</div>
+            <div class="artist-medium">Metalsmith</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/kristin-mitsu-shiga.html" class="artist-card" data-medium="Printmaker" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Kristin Mitsu Shiga</div>
+            <div class="artist-medium">Printmaker</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/andrew-galloway.html" class="artist-card" data-medium="Printmaker" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Andrew Galloway</div>
+            <div class="artist-medium">Printmaker</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/chris-harmon.html" class="artist-card" data-medium="Printmaker" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Chris Harmon</div>
+            <div class="artist-medium">Printmaker</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/yuji-hiratsuka.html" class="artist-card" data-medium="Printmaker" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Yuji Hiratsuka</div>
+            <div class="artist-medium">Printmaker</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/nicole-rawlins.html" class="artist-card" data-medium="Printmaker" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Nicole Rawlins</div>
+            <div class="artist-medium">Printmaker</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/mike-chia.html" class="artist-card" data-medium="Woodworker" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Mike Chia</div>
+            <div class="artist-medium">Woodworker</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/silvia-hull.html" class="artist-card" data-medium="Woodworker" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Silvia Hull</div>
+            <div class="artist-medium">Woodworker</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/loo-bain.html" class="artist-card" data-medium="Fiber Artist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Loo Bain</div>
+            <div class="artist-medium">Fiber Artist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/jaye-campbell.html" class="artist-card" data-medium="Fiber Artist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Jaye Campbell</div>
+            <div class="artist-medium">Fiber Artist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/laverne-lewis.html" class="artist-card" data-medium="Fiber Artist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">LaVerne Lewis</div>
+            <div class="artist-medium">Fiber Artist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/virginia-mckinney.html" class="artist-card" data-medium="Ceramicist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Virginia McKinney</div>
+            <div class="artist-medium">Ceramicist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/patrick-browne.html" class="artist-card" data-medium="Theatre Artist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Patrick Browne</div>
+            <div class="artist-medium">Theatre Artist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/nick-herb.html" class="artist-card" data-medium="Theatre Artist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Nick Herb</div>
+            <div class="artist-medium">Theatre Artist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/veronika-nelson.html" class="artist-card" data-medium="Theatre Artist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Veronika Nelson</div>
+            <div class="artist-medium">Theatre Artist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/alyson-osborn.html" class="artist-card" data-medium="Theatre Artist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Alyson Osborn</div>
+            <div class="artist-medium">Theatre Artist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/dawn-panttaja.html" class="artist-card" data-medium="Theatre Artist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Dawn Panttaja</div>
+            <div class="artist-medium">Theatre Artist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/timothy-scarrott.html" class="artist-card" data-medium="Theatre Artist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Timothy Scarrott</div>
+            <div class="artist-medium">Theatre Artist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/carson-culp.html" class="artist-card" data-medium="Ceramicist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Carson Culp</div>
+            <div class="artist-medium">Ceramicist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/chris-rehwalt.html" class="artist-card" data-medium="Ceramicist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Chris Rehwalt</div>
+            <div class="artist-medium">Ceramicist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/victoria-shaw.html" class="artist-card" data-medium="Ceramicist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Victoria Shaw</div>
+            <div class="artist-medium">Ceramicist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/dirk-staschke.html" class="artist-card" data-medium="Ceramicist" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Dirk Staschke</div>
+            <div class="artist-medium">Ceramicist</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/caley-henderson.html" class="artist-card" data-medium="Writer" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Caley Henderson</div>
+            <div class="artist-medium">Writer</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/sherri-levine.html" class="artist-card" data-medium="Writer" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Sherri Levine</div>
+            <div class="artist-medium">Writer</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+        <a href="../artists/christopher-luna.html" class="artist-card" data-medium="Poet" data-neighborhood="Multnomah Village">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Christopher Luna</div>
+            <div class="artist-medium">Poet</div>
+            <div class="artist-location">Multnomah Arts Center</div>
+        </a>
+
+        <!-- Alberta Street Gallery members -->
+        <a href="../artists/alycia-allen-tolmach.html" class="artist-card" data-medium="Painter" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Alycia Allen Tolmach</div>
+            <div class="artist-medium">Painter</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/ancia-woo.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Ancia Woo</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/angela-morrow.html" class="artist-card" data-medium="Printmaker" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Angela Morrow</div>
+            <div class="artist-medium">Printmaker</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/anya-jackson.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Anya Jackson</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/bd-dombrowsky.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">BD Dombrowsky</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/carisa-miller.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Carisa Miller</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/david-friedman.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">David Friedman</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/forest-salazar.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Forest Salazar</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/gabe-wolfe.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Gabe Wolfe</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/gary-grossman.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Gary Grossman</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/heather-kolbo.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Heather Kolbo</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/ilse-coffman.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Ilse Coffman</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/jane-pellicciotto.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Jane Pellicciotto</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/jessica-lynn-clark.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Jessica Lynn Clark</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/jimmy-wright.html" class="artist-card" data-medium="Printmaker" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Jimmy Wright</div>
+            <div class="artist-medium">Printmaker</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/john-macnab.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">John Macnab</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/julia-alora.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Julia Alora</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/june-martin.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">June Martin</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/kim-tepe.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Kim Tepe</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/kirra-hellfritsch.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Kirra Hellfritsch</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/leslie-mcmillan.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Leslie McMillan</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/linda-gerrard.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Linda Gerrard</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/madeline-delbusso.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Madeline DelBusso</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/mandy-allen.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Mandy Allen</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/mary-lyn-gough.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Mary Lyn Gough</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/maquette-reeverts.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Maquette Reeverts</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/michelle-purvis.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Michelle Purvis</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/sasha-wilk.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Sasha Wilk</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/tom-hynes.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Tom Hynes</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
+        <a href="../artists/victoria-a-epstein.html" class="artist-card" data-medium="Visual Artist" data-neighborhood="Alberta Arts District">
+            <div class="artist-circle"></div>
+            <div class="artist-name">Victoria A. Epstein</div>
+            <div class="artist-medium">Visual Artist</div>
+            <div class="artist-location">Alberta Street Gallery</div>
+        </a>
     </div>
 
+    <script src="../js/places.js"></script>
     <script>
     var btn = document.getElementById('pancake-btn'), drop = document.getElementById('pancake-drop');
     btn.addEventListener('click', function(e) { e.stopPropagation(); btn.classList.toggle('open'); drop.classList.toggle('open'); });
@@ -253,9 +1031,31 @@
         });
     }
 
-    // Filter state
+    // ── PLACE FILTER — built from js/places.js ───────────────────────────────
+    // Build neighbourhood→placeId lookup and populate the Place dropdown
+    var nbhdToPlace = {};  // e.g. { 'Slabtown': 'nw-marine-art-works', ... }
+    var filterPlaceDrop = document.getElementById('filter-place-drop');
+    var filterPlaceBtn  = document.getElementById('filter-place-btn');
+
+    (function() {
+        var clearBtn = document.createElement('button');
+        clearBtn.dataset.place = '';
+        clearBtn.textContent = 'All places';
+        filterPlaceDrop.appendChild(clearBtn);
+
+        PLACES.forEach(function(p) {
+            if (p.neighborhood) nbhdToPlace[p.neighborhood] = p.id;
+            var btn = document.createElement('button');
+            btn.dataset.place = p.id;
+            btn.textContent = p.name;
+            filterPlaceDrop.appendChild(btn);
+        });
+    })();
+
+    // ── FILTER STATE ─────────────────────────────────────────────────────────
     var filterMedium = '';
     var filterNeighborhood = '';
+    var filterPlace = '';
 
     var filterAllBtn = document.getElementById('filter-all');
     var filterMediumBtn = document.getElementById('filter-medium-btn');
@@ -264,26 +1064,29 @@
     var filterNbhdDrop = document.getElementById('filter-nbhd-drop');
 
     function applyFilters() {
-        var hasFilter = filterMedium || filterNeighborhood;
+        var hasFilter = filterMedium || filterNeighborhood || filterPlace;
         filterAllBtn.classList.toggle('active', !hasFilter);
         filterMediumBtn.classList.toggle('active', !!filterMedium);
         filterNbhdBtn.classList.toggle('active', !!filterNeighborhood);
+        filterPlaceBtn.classList.toggle('active', !!filterPlace);
         document.querySelectorAll('.artist-card').forEach(function(c) {
             var mediumMatch = !filterMedium || c.dataset.medium === filterMedium;
-            var nbhdMatch = !filterNeighborhood || c.dataset.neighborhood === filterNeighborhood;
-            c.classList.toggle('hidden', !(mediumMatch && nbhdMatch));
+            var nbhdMatch   = !filterNeighborhood || c.dataset.neighborhood === filterNeighborhood;
+            var placeMatch  = !filterPlace || nbhdToPlace[c.dataset.neighborhood] === filterPlace;
+            c.classList.toggle('hidden', !(mediumMatch && nbhdMatch && placeMatch));
         });
     }
 
-    // All button — reset both filters
+    // All button — reset all filters
     filterAllBtn.addEventListener('click', function(e) {
         e.stopPropagation();
-        filterMedium = '';
-        filterNeighborhood = '';
+        filterMedium = ''; filterNeighborhood = ''; filterPlace = '';
         filterMediumBtn.textContent = 'Medium ▾';
         filterNbhdBtn.textContent = 'Neighborhood ▾';
-        filterMediumDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
-        filterNbhdDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
+        filterPlaceBtn.textContent = 'Place ▾';
+        [filterMediumDrop, filterNbhdDrop, filterPlaceDrop].forEach(function(d) {
+            d.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
+        });
         applyFilters();
     });
 
@@ -292,6 +1095,7 @@
         e.stopPropagation();
         filterMediumDrop.classList.toggle('open');
         filterNbhdDrop.classList.remove('open');
+        filterPlaceDrop.classList.remove('open');
     });
 
     // Neighborhood dropdown toggle
@@ -299,6 +1103,15 @@
         e.stopPropagation();
         filterNbhdDrop.classList.toggle('open');
         filterMediumDrop.classList.remove('open');
+        filterPlaceDrop.classList.remove('open');
+    });
+
+    // Place dropdown toggle
+    filterPlaceBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        filterPlaceDrop.classList.toggle('open');
+        filterMediumDrop.classList.remove('open');
+        filterNbhdDrop.classList.remove('open');
     });
 
     // Medium dropdown choices
@@ -327,10 +1140,24 @@
         });
     });
 
+    // Place dropdown choices (delegated — buttons built dynamically)
+    filterPlaceDrop.addEventListener('click', function(e) {
+        var b = e.target.closest('button');
+        if (!b) return;
+        e.stopPropagation();
+        filterPlace = b.dataset.place;
+        filterPlaceBtn.textContent = filterPlace ? b.textContent + ' ▾' : 'Place ▾';
+        filterPlaceDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
+        if (filterPlace) b.classList.add('chosen');
+        filterPlaceDrop.classList.remove('open');
+        applyFilters();
+    });
+
     // Close dropdowns when clicking outside
     document.addEventListener('click', function() {
         filterMediumDrop.classList.remove('open');
         filterNbhdDrop.classList.remove('open');
+        filterPlaceDrop.classList.remove('open');
     });
 
     // Shuffle artist cards on every page load

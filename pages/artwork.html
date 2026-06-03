@@ -177,16 +177,27 @@
                 <button data-medium="painting">Painting</button>
                 <button data-medium="illustration">Illustration</button>
                 <button data-medium="ceramics">Ceramics</button>
-            </div>
+                <button data-medium="photography">Photography</button>
+                <button data-medium="sculpture">Sculpture</button>
+                <button data-medium="mixed-media">Mixed Media</button>
+                <button data-medium="fiber">Fiber Arts</button>
+        </div>
         </div>
         <div class="filter-wrap">
             <button class="filter-btn" id="filter-nbhd-btn">Neighborhood ▾</button>
             <div class="filter-dropdown" id="filter-nbhd-drop">
                 <button data-nbhd="">All neighborhoods</button>
+                <button data-nbhd="Slabtown">Slabtown (NW Marine)</button>
                 <button data-nbhd="Alberta Arts District">Alberta Arts District</button>
                 <button data-nbhd="Multnomah Village">Multnomah Village</button>
                 <button data-nbhd="Portland">Portland</button>
                 <button data-nbhd="Vancouver, WA">Vancouver, WA</button>
+        </div>
+        </div>
+        <div class="filter-wrap">
+            <button class="filter-btn" id="filter-place-btn">Place ▾</button>
+            <div class="filter-dropdown" id="filter-place-drop">
+                <!-- populated from js/places.js -->
             </div>
         </div>
     </div>
@@ -202,6 +213,7 @@
         <a href="network.html">network</a>
     </nav>
 
+    <script src="../js/places.js"></script>
     <script>
     var COLS, GAP = 5, VW, COL, ROW;
 
@@ -214,26 +226,335 @@
         document.getElementById('artwork-track').style.gridTemplateColumns = 'repeat(' + COLS + ',' + COL + 'px)';
     }
 
-    var ALL = [
-        { src: '../images/artwork/beth-bundy-hero.jpg',           url: '../artists/beth-bundy.html',            tall: true,  medium: 'illustration', neighborhood: 'Alberta Arts District' },
-        { src: '../images/artwork/beth-bundy-1.jpg',              url: '../artists/beth-bundy.html',            tall: false, medium: 'illustration', neighborhood: 'Alberta Arts District' },
-        { src: '../images/artwork/beth-bundy-2.jpg',              url: '../artists/beth-bundy.html',            tall: false, medium: 'illustration', neighborhood: 'Alberta Arts District' },
-        { src: '../images/artwork/beth-bundy-3.jpg',              url: '../artists/beth-bundy.html',            tall: false, medium: 'illustration', neighborhood: 'Alberta Arts District' },
-        { src: '../images/artwork/jennifer-eaton-white-hero.jpg', url: '../artists/jennifer-eaton-white.html',  tall: true,  medium: 'painting',      neighborhood: 'Vancouver, WA'        },
-        { src: '../images/artwork/jennifer-eaton-white-1.jpg',    url: '../artists/jennifer-eaton-white.html',  tall: false, medium: 'painting',      neighborhood: 'Vancouver, WA'        },
-        { src: '../images/artwork/jennifer-eaton-white-2.jpg',    url: '../artists/jennifer-eaton-white.html',  tall: false, medium: 'painting',      neighborhood: 'Vancouver, WA'        },
-        { src: '../images/artwork/kurtis-piltz-hero.jpg',         url: '../artists/kurtis-piltz.html',          tall: true,  medium: 'ceramics',      neighborhood: 'Multnomah Village'    },
-        { src: '../images/artwork/kurtis-piltz-1.jpg',            url: '../artists/kurtis-piltz.html',          tall: false, medium: 'ceramics',      neighborhood: 'Multnomah Village'    },
-        { src: '../images/artwork/kurtis-piltz-2.jpg',            url: '../artists/kurtis-piltz.html',          tall: false, medium: 'ceramics',      neighborhood: 'Multnomah Village'    },
-        { src: '../images/artwork/kurtis-piltz-3.jpg',            url: '../artists/kurtis-piltz.html',          tall: false, medium: 'ceramics',      neighborhood: 'Multnomah Village'    },
-        { src: '../images/artwork/lindsey-fox-hero.jpg',          url: '../artists/lindsey-fox.html',           tall: true,  medium: 'painting',      neighborhood: 'Portland'             },
-        { src: '../images/artwork/lindsey-fox-1.jpg',             url: '../artists/lindsey-fox.html',           tall: false, medium: 'painting',      neighborhood: 'Portland'             },
-        { src: '../images/artwork/lindsey-fox-2.jpg',             url: '../artists/lindsey-fox.html',           tall: false, medium: 'painting',      neighborhood: 'Portland'             },
-        { src: '../images/artwork/lindsey-fox-3.jpg',             url: '../artists/lindsey-fox.html',           tall: false, medium: 'painting',      neighborhood: 'Portland'             },
-        { src: '../images/artwork/yong-hong-zhong-1.jpg',         url: '../artists/yong-hong-zhong.html',       tall: true,  medium: 'painting',      neighborhood: 'Portland'             },
-        { src: '../images/artwork/yong-hong-zhong-2.jpg',         url: '../artists/yong-hong-zhong.html',       tall: false, medium: 'painting',      neighborhood: 'Portland'             },
-        { src: '../images/artwork/yong-hong-zhong-3.jpg',         url: '../artists/yong-hong-zhong.html',       tall: false, medium: 'painting',      neighborhood: 'Portland'             },
-        { src: '../images/artwork/yong-hong-zhong-4.jpg',         url: '../artists/yong-hong-zhong.html',       tall: false, medium: 'painting',      neighborhood: 'Portland'             },
+    // Each artist entry: url, medium, neighborhood, images[]
+    // images[] = array of {src, tall} — one is picked per round-robin pass
+    var ARTISTS = [
+      { url: '../artists/beth-bundy.html',           medium: 'illustration', neighborhood: 'Alberta Arts District', images: [
+          { src: '../images/artwork/beth-bundy-hero.jpg', tall: true  },
+          { src: '../images/artwork/beth-bundy-1.jpg',    tall: false },
+          { src: '../images/artwork/beth-bundy-2.jpg',    tall: false },
+          { src: '../images/artwork/beth-bundy-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/jennifer-eaton-white.html', medium: 'painting',      neighborhood: 'Vancouver, WA',        images: [
+          { src: '../images/artwork/jennifer-eaton-white-hero.jpg', tall: true  },
+          { src: '../images/artwork/jennifer-eaton-white-1.jpg',    tall: false },
+          { src: '../images/artwork/jennifer-eaton-white-2.jpg',    tall: false },
+          { src: '../images/artwork/jennifer-eaton-white-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/kurtis-piltz.html',         medium: 'ceramics',      neighborhood: 'Multnomah Village',    images: [
+          { src: '../images/artwork/kurtis-piltz-hero.jpg', tall: true  },
+          { src: '../images/artwork/kurtis-piltz-1.jpg',    tall: false },
+          { src: '../images/artwork/kurtis-piltz-2.jpg',    tall: false },
+          { src: '../images/artwork/kurtis-piltz-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/lindsey-fox.html',          medium: 'painting',      neighborhood: 'Portland',             images: [
+          { src: '../images/artwork/lindsey-fox-hero.jpg', tall: true  },
+          { src: '../images/artwork/lindsey-fox-1.jpg',    tall: false },
+          { src: '../images/artwork/lindsey-fox-2.jpg',    tall: false },
+          { src: '../images/artwork/lindsey-fox-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/yong-hong-zhong.html',      medium: 'painting',      neighborhood: 'Portland',             images: [
+          { src: '../images/artwork/yong-hong-zhong-1.jpg', tall: true  },
+          { src: '../images/artwork/yong-hong-zhong-2.jpg', tall: false },
+          { src: '../images/artwork/yong-hong-zhong-3.jpg', tall: false },
+          { src: '../images/artwork/yong-hong-zhong-4.jpg', tall: false },
+      ]},
+
+      // NW Marine Art Works — Slabtown
+      { url: '../artists/angel-morrow.html',         medium: 'ceramics',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/angel-morrow-hero.jpg', tall: true  },
+          { src: '../images/artwork/angel-morrow-1.jpg',    tall: false },
+          { src: '../images/artwork/angel-morrow-2.jpg',    tall: false },
+          { src: '../images/artwork/angel-morrow-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/andrew-moran.html',         medium: 'mixed-media',   neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/andrew-moran-hero.jpg', tall: false },
+          { src: '../images/artwork/andrew-moran-1.jpg',    tall: false },
+          { src: '../images/artwork/andrew-moran-2.jpg',    tall: false },
+          { src: '../images/artwork/andrew-moran-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/archer-mayo.html',          medium: 'sculpture',     neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/archer-mayo-hero.jpg', tall: true  },
+          { src: '../images/artwork/archer-mayo-1.jpg',    tall: false },
+          { src: '../images/artwork/archer-mayo-2.jpg',    tall: false },
+          { src: '../images/artwork/archer-mayo-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/benjamin-posin.html',       medium: 'mixed-media',   neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/benjamin-posin-hero.jpg', tall: true  },
+          { src: '../images/artwork/benjamin-posin-1.jpg',    tall: false },
+          { src: '../images/artwork/benjamin-posin-2.jpg',    tall: false },
+          { src: '../images/artwork/benjamin-posin-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/carol-crump-bryner.html',   medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/carol-crump-bryner-hero.jpg', tall: false },
+          { src: '../images/artwork/carol-crump-bryner-1.jpg',    tall: false },
+          { src: '../images/artwork/carol-crump-bryner-2.jpg',    tall: false },
+          { src: '../images/artwork/carol-crump-bryner-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/claudia-cosgrove.html',     medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/claudia-cosgrove-hero.jpg', tall: false },
+          { src: '../images/artwork/claudia-cosgrove-1.jpg',    tall: false },
+          { src: '../images/artwork/claudia-cosgrove-2.jpg',    tall: false },
+          { src: '../images/artwork/claudia-cosgrove-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/clement-lee.html',          medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/clement-lee-hero.jpg', tall: false },
+          { src: '../images/artwork/clement-lee-1.jpg',    tall: false },
+          { src: '../images/artwork/clement-lee-2.jpg',    tall: false },
+          { src: '../images/artwork/clement-lee-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/daniel-duford.html',        medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/daniel-duford-hero.jpg', tall: true  },
+          { src: '../images/artwork/daniel-duford-1.jpg',    tall: false },
+          { src: '../images/artwork/daniel-duford-2.jpg',    tall: false },
+          { src: '../images/artwork/daniel-duford-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/david-brandt.html',         medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/david-brandt-hero.jpg', tall: false },
+          { src: '../images/artwork/david-brandt-1.jpg',    tall: false },
+          { src: '../images/artwork/david-brandt-2.jpg',    tall: false },
+          { src: '../images/artwork/david-brandt-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/deanna-schuerbeke.html',    medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/deanna-schuerbeke-hero.jpg', tall: false },
+          { src: '../images/artwork/deanna-schuerbeke-1.jpg',    tall: false },
+          { src: '../images/artwork/deanna-schuerbeke-2.jpg',    tall: false },
+          { src: '../images/artwork/deanna-schuerbeke-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/drew-laughery.html',        medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/drew-laughery-hero.jpg', tall: false },
+          { src: '../images/artwork/drew-laughery-1.jpg',    tall: false },
+          { src: '../images/artwork/drew-laughery-2.jpg',    tall: false },
+          { src: '../images/artwork/drew-laughery-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/elizabeth-williams.html',   medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/elizabeth-williams-hero.jpg', tall: true  },
+          { src: '../images/artwork/elizabeth-williams-1.jpg',    tall: false },
+          { src: '../images/artwork/elizabeth-williams-2.jpg',    tall: false },
+          { src: '../images/artwork/elizabeth-williams-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/ellen-goldschmidt.html',    medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/ellen-goldschmidt-hero.jpg', tall: false },
+          { src: '../images/artwork/ellen-goldschmidt-1.jpg',    tall: false },
+          { src: '../images/artwork/ellen-goldschmidt-2.jpg',    tall: false },
+          { src: '../images/artwork/ellen-goldschmidt-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/eric-rue.html',             medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/eric-rue-hero.jpg', tall: true  },
+          { src: '../images/artwork/eric-rue-1.jpg',    tall: false },
+          { src: '../images/artwork/eric-rue-2.jpg',    tall: false },
+          { src: '../images/artwork/eric-rue-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/erin-dengerink.html',       medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/erin-dengerink-hero.jpg', tall: false },
+          { src: '../images/artwork/erin-dengerink-1.jpg',    tall: false },
+          { src: '../images/artwork/erin-dengerink-2.jpg',    tall: false },
+          { src: '../images/artwork/erin-dengerink-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/eva-morris.html',           medium: 'mixed-media',   neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/eva-morris-hero.jpg', tall: false },
+          { src: '../images/artwork/eva-morris-1.jpg',    tall: false },
+          { src: '../images/artwork/eva-morris-2.jpg',    tall: false },
+          { src: '../images/artwork/eva-morris-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/f-lauren-carrera.html',     medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/f-lauren-carrera-hero.jpg', tall: false },
+          { src: '../images/artwork/f-lauren-carrera-1.jpg',    tall: false },
+          { src: '../images/artwork/f-lauren-carrera-2.jpg',    tall: false },
+          { src: '../images/artwork/f-lauren-carrera-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/felicia-murray.html',       medium: 'fiber',         neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/felicia-murray-hero.jpg', tall: false },
+          { src: '../images/artwork/felicia-murray-1.jpg',    tall: false },
+          { src: '../images/artwork/felicia-murray-2.jpg',    tall: false },
+          { src: '../images/artwork/felicia-murray-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/gloria-baker-feinstein.html', medium: 'photography', neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/gloria-baker-feinstein-hero.jpg', tall: false },
+          { src: '../images/artwork/gloria-baker-feinstein-1.jpg',    tall: false },
+          { src: '../images/artwork/gloria-baker-feinstein-2.jpg',    tall: false },
+          { src: '../images/artwork/gloria-baker-feinstein-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/hsin-yi-huang.html',        medium: 'ceramics',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/hsin-yi-huang-hero.jpg', tall: false },
+          { src: '../images/artwork/hsin-yi-huang-1.jpg',    tall: false },
+          { src: '../images/artwork/hsin-yi-huang-2.jpg',    tall: false },
+          { src: '../images/artwork/hsin-yi-huang-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/isabella-cassini.html',     medium: 'photography',   neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/isabella-cassini-hero.jpg', tall: false },
+          { src: '../images/artwork/isabella-cassini-1.jpg',    tall: false },
+          { src: '../images/artwork/isabella-cassini-2.jpg',    tall: false },
+          { src: '../images/artwork/isabella-cassini-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/jessalyn-haggenjos.html',   medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/jessalyn-haggenjos-hero.jpg', tall: true  },
+          { src: '../images/artwork/jessalyn-haggenjos-1.jpg',    tall: false },
+          { src: '../images/artwork/jessalyn-haggenjos-2.jpg',    tall: false },
+          { src: '../images/artwork/jessalyn-haggenjos-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/julie-rall.html',           medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/julie-rall-hero.jpg', tall: false },
+          { src: '../images/artwork/julie-rall-1.jpg',    tall: false },
+          { src: '../images/artwork/julie-rall-2.jpg',    tall: false },
+          { src: '../images/artwork/julie-rall-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/kim-donnet.html',           medium: 'ceramics',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/kim-donnet-hero.jpg', tall: false },
+          { src: '../images/artwork/kim-donnet-1.jpg',    tall: false },
+          { src: '../images/artwork/kim-donnet-2.jpg',    tall: false },
+          { src: '../images/artwork/kim-donnet-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/kim-lakin.html',            medium: 'mixed-media',   neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/kim-lakin-hero.jpg', tall: false },
+          { src: '../images/artwork/kim-lakin-1.jpg',    tall: false },
+          { src: '../images/artwork/kim-lakin-2.jpg',    tall: false },
+          { src: '../images/artwork/kim-lakin-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/kim-marcucci.html',         medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/kim-marcucci-hero.jpg', tall: false },
+          { src: '../images/artwork/kim-marcucci-1.jpg',    tall: false },
+          { src: '../images/artwork/kim-marcucci-2.jpg',    tall: false },
+          { src: '../images/artwork/kim-marcucci-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/kim-stafford.html',         medium: 'mixed-media',   neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/kim-stafford-hero.jpg', tall: true  },
+          { src: '../images/artwork/kim-stafford-1.jpg',    tall: false },
+          { src: '../images/artwork/kim-stafford-2.jpg',    tall: false },
+          { src: '../images/artwork/kim-stafford-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/kirsten-rian.html',         medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/kirsten-rian-hero.jpg', tall: false },
+          { src: '../images/artwork/kirsten-rian-1.jpg',    tall: false },
+          { src: '../images/artwork/kirsten-rian-2.jpg',    tall: false },
+          { src: '../images/artwork/kirsten-rian-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/kristi-palmer.html',        medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/kristi-palmer-hero.jpg', tall: false },
+          { src: '../images/artwork/kristi-palmer-1.jpg',    tall: false },
+          { src: '../images/artwork/kristi-palmer-2.jpg',    tall: false },
+          { src: '../images/artwork/kristi-palmer-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/lisa-cox.html',             medium: 'fiber',         neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/lisa-cox-hero.jpg', tall: false },
+          { src: '../images/artwork/lisa-cox-1.jpg',    tall: false },
+          { src: '../images/artwork/lisa-cox-2.jpg',    tall: false },
+          { src: '../images/artwork/lisa-cox-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/lynda-moss.html',           medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/lynda-moss-hero.jpg', tall: false },
+          { src: '../images/artwork/lynda-moss-1.jpg',    tall: false },
+          { src: '../images/artwork/lynda-moss-2.jpg',    tall: false },
+          { src: '../images/artwork/lynda-moss-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/marie-lo.html',             medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/marie-lo-hero.jpg', tall: true  },
+          { src: '../images/artwork/marie-lo-1.jpg',    tall: false },
+          { src: '../images/artwork/marie-lo-2.jpg',    tall: false },
+          { src: '../images/artwork/marie-lo-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/mary-t-lee.html',           medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/mary-t-lee-hero.jpg', tall: false },
+          { src: '../images/artwork/mary-t-lee-1.jpg',    tall: false },
+          { src: '../images/artwork/mary-t-lee-2.jpg',    tall: false },
+          { src: '../images/artwork/mary-t-lee-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/meaghan-kunzmann.html',     medium: 'ceramics',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/meaghan-kunzmann-hero.jpg', tall: false },
+          { src: '../images/artwork/meaghan-kunzmann-1.jpg',    tall: false },
+          { src: '../images/artwork/meaghan-kunzmann-2.jpg',    tall: false },
+          { src: '../images/artwork/meaghan-kunzmann-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/michele-suchland.html',     medium: 'sculpture',     neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/michele-suchland-hero.jpg', tall: false },
+          { src: '../images/artwork/michele-suchland-1.jpg',    tall: false },
+          { src: '../images/artwork/michele-suchland-2.jpg',    tall: false },
+          { src: '../images/artwork/michele-suchland-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/miriam-dean.html',          medium: 'ceramics',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/miriam-dean-hero.jpg', tall: false },
+          { src: '../images/artwork/miriam-dean-1.jpg',    tall: false },
+          { src: '../images/artwork/miriam-dean-2.jpg',    tall: false },
+          { src: '../images/artwork/miriam-dean-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/myra-clark.html',           medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/myra-clark-hero.jpg', tall: true  },
+          { src: '../images/artwork/myra-clark-1.jpg',    tall: false },
+          { src: '../images/artwork/myra-clark-2.jpg',    tall: false },
+          { src: '../images/artwork/myra-clark-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/nick-gundry.html',          medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/nick-gundry-hero.jpg', tall: false },
+          { src: '../images/artwork/nick-gundry-1.jpg',    tall: false },
+          { src: '../images/artwork/nick-gundry-2.jpg',    tall: false },
+          { src: '../images/artwork/nick-gundry-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/noah-alexander-stein.html', medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/noah-alexander-stein-hero.jpg', tall: false },
+          { src: '../images/artwork/noah-alexander-stein-1.jpg',    tall: false },
+          { src: '../images/artwork/noah-alexander-stein-2.jpg',    tall: false },
+          { src: '../images/artwork/noah-alexander-stein-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/pamela-chipman.html',       medium: 'photography',   neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/pamela-chipman-hero.jpg', tall: false },
+          { src: '../images/artwork/pamela-chipman-1.jpg',    tall: false },
+          { src: '../images/artwork/pamela-chipman-2.jpg',    tall: false },
+          { src: '../images/artwork/pamela-chipman-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/pheo-bell.html',            medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/pheo-bell-hero.jpg', tall: true  },
+          { src: '../images/artwork/pheo-bell-1.jpg',    tall: false },
+          { src: '../images/artwork/pheo-bell-2.jpg',    tall: false },
+          { src: '../images/artwork/pheo-bell-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/rosemary-cohen.html',       medium: 'mixed-media',   neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/rosemary-cohen-hero.jpg', tall: false },
+          { src: '../images/artwork/rosemary-cohen-1.jpg',    tall: false },
+          { src: '../images/artwork/rosemary-cohen-2.jpg',    tall: false },
+          { src: '../images/artwork/rosemary-cohen-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/ross-mercer.html',          medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/ross-mercer-hero.jpg', tall: false },
+          { src: '../images/artwork/ross-mercer-1.jpg',    tall: false },
+          { src: '../images/artwork/ross-mercer-2.jpg',    tall: false },
+          { src: '../images/artwork/ross-mercer-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/sarah-faulkner-haug.html',  medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/sarah-faulkner-haug-hero.jpg', tall: false },
+          { src: '../images/artwork/sarah-faulkner-haug-1.jpg',    tall: false },
+          { src: '../images/artwork/sarah-faulkner-haug-2.jpg',    tall: false },
+          { src: '../images/artwork/sarah-faulkner-haug-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/susan-harrington.html',     medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/susan-harrington-hero.jpg', tall: false },
+          { src: '../images/artwork/susan-harrington-1.jpg',    tall: false },
+          { src: '../images/artwork/susan-harrington-2.jpg',    tall: false },
+          { src: '../images/artwork/susan-harrington-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/tanith-hawthorne.html',     medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/tanith-hawthorne-hero.jpg', tall: false },
+          { src: '../images/artwork/tanith-hawthorne-1.jpg',    tall: false },
+          { src: '../images/artwork/tanith-hawthorne-2.jpg',    tall: false },
+          { src: '../images/artwork/tanith-hawthorne-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/tina-jeffers.html',         medium: 'ceramics',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/tina-jeffers-hero.jpg', tall: false },
+          { src: '../images/artwork/tina-jeffers-1.jpg',    tall: false },
+          { src: '../images/artwork/tina-jeffers-2.jpg',    tall: false },
+          { src: '../images/artwork/tina-jeffers-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/todd-j-elliott.html',       medium: 'painting',      neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/todd-j-elliott-hero.jpg', tall: false },
+          { src: '../images/artwork/todd-j-elliott-1.jpg',    tall: false },
+          { src: '../images/artwork/todd-j-elliott-2.jpg',    tall: false },
+          { src: '../images/artwork/todd-j-elliott-3.jpg',    tall: false },
+      ]},
+      { url: '../artists/vonda-martin.html',         medium: 'mixed-media',   neighborhood: 'Slabtown', images: [
+          { src: '../images/artwork/vonda-martin-hero.jpg', tall: false },
+          { src: '../images/artwork/vonda-martin-1.jpg',    tall: false },
+          { src: '../images/artwork/vonda-martin-2.jpg',    tall: false },
+          { src: '../images/artwork/vonda-martin-3.jpg',    tall: false },
+      ]},
     ];
 
     function shuffle(a) {
@@ -245,7 +566,50 @@
         return arr;
     }
 
-    var filterMedium = null, filterNeighborhood = null;
+    // Round-robin: each pass picks ONE random image from each artist,
+    // shuffles artist order, then repeats for `repeats` total passes.
+    // Images are chosen to avoid repeating the same src within SPREAD tiles
+    // (4 cols × 5 rows = 20), so the same image never appears within 5 rows.
+    var SPREAD = 20;
+    function buildSequence(artists, repeats) {
+        var seq = [];
+        var recent = []; // rolling window of last SPREAD image srcs
+        for (var r = 0; r < repeats; r++) {
+            var order = shuffle(artists);
+            order.forEach(function(artist) {
+                var imgs = artist.images;
+                // Try to pick an image not in the recent window
+                var candidates = imgs.filter(function(im) { return recent.indexOf(im.src) === -1; });
+                if (candidates.length === 0) candidates = imgs; // fallback: any image
+                var img = candidates[Math.floor(Math.random() * candidates.length)];
+                seq.push({ src: img.src, tall: img.tall, url: artist.url,
+                           medium: artist.medium, neighborhood: artist.neighborhood });
+                recent.push(img.src);
+                if (recent.length > SPREAD) recent.shift();
+            });
+        }
+        return seq;
+    }
+
+    // ── PLACE FILTER — built from js/places.js ───────────────────────────────
+    var nbhdToPlace = {};
+    var filterPlaceDrop = document.getElementById('filter-place-drop');
+    var filterPlaceBtn  = document.getElementById('filter-place-btn');
+    (function() {
+        var clearBtn = document.createElement('button');
+        clearBtn.dataset.place = '';
+        clearBtn.textContent = 'All places';
+        filterPlaceDrop.appendChild(clearBtn);
+        PLACES.forEach(function(p) {
+            if (p.neighborhood) nbhdToPlace[p.neighborhood] = p.id;
+            var btn = document.createElement('button');
+            btn.dataset.place = p.id;
+            btn.textContent = p.name;
+            filterPlaceDrop.appendChild(btn);
+        });
+    })();
+
+    var filterMedium = null, filterNeighborhood = null, filterPlace = null;
     var filterAllBtn = document.getElementById('filter-all-btn');
     var filterMediumBtn = document.getElementById('filter-medium-btn');
     var filterMediumDrop = document.getElementById('filter-medium-drop');
@@ -256,12 +620,13 @@
         var track = document.getElementById('artwork-track');
         track.innerHTML = '';
 
-        var artList = ALL;
-        if (filterMedium) artList = artList.filter(function(a) { return a.medium === filterMedium; });
-        if (filterNeighborhood) artList = artList.filter(function(a) { return a.neighborhood === filterNeighborhood; });
-        if (artList.length === 0) artList = ALL;
+        var artists = ARTISTS;
+        if (filterMedium) artists = artists.filter(function(a) { return a.medium === filterMedium; });
+        if (filterNeighborhood) artists = artists.filter(function(a) { return a.neighborhood === filterNeighborhood; });
+        if (filterPlace) artists = artists.filter(function(a) { return nbhdToPlace[a.neighborhood] === filterPlace; });
+        if (artists.length === 0) artists = ARTISTS;
 
-        var seq = shuffle(artList);
+        var seq = buildSequence(artists, artists.length < 10 ? 1 : 3);
         var lastWasTall = false;
         seq.forEach(function(art) {
             var useTall = art.tall && !lastWasTall;
@@ -278,14 +643,21 @@
         });
     }
 
+    function resetAllDropdowns() {
+        [filterMediumDrop, filterNbhdDrop, filterPlaceDrop].forEach(function(d) {
+            d.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
+            d.classList.remove('open');
+        });
+    }
+
     filterAllBtn.addEventListener('click', function(e) {
         e.stopPropagation();
-        filterMedium = null; filterNeighborhood = null;
+        filterMedium = null; filterNeighborhood = null; filterPlace = null;
         filterMediumBtn.textContent = 'Medium ▾'; filterMediumBtn.classList.remove('active');
         filterNbhdBtn.textContent = 'Neighborhood ▾'; filterNbhdBtn.classList.remove('active');
+        filterPlaceBtn.textContent = 'Place ▾'; filterPlaceBtn.classList.remove('active');
         filterAllBtn.classList.add('active');
-        filterMediumDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
-        filterNbhdDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
+        resetAllDropdowns();
         buildGrid();
     });
 
@@ -293,11 +665,19 @@
         e.stopPropagation();
         filterMediumDrop.classList.toggle('open');
         filterNbhdDrop.classList.remove('open');
+        filterPlaceDrop.classList.remove('open');
     });
     filterNbhdBtn.addEventListener('click', function(e) {
         e.stopPropagation();
         filterNbhdDrop.classList.toggle('open');
         filterMediumDrop.classList.remove('open');
+        filterPlaceDrop.classList.remove('open');
+    });
+    filterPlaceBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        filterPlaceDrop.classList.toggle('open');
+        filterMediumDrop.classList.remove('open');
+        filterNbhdDrop.classList.remove('open');
     });
 
     filterMediumDrop.querySelectorAll('button').forEach(function(b) {
@@ -306,7 +686,7 @@
             filterMedium = b.dataset.medium || null;
             filterMediumBtn.textContent = filterMedium ? (filterMedium.charAt(0).toUpperCase() + filterMedium.slice(1) + ' ▾') : 'Medium ▾';
             filterMediumBtn.classList.toggle('active', !!filterMedium);
-            filterAllBtn.classList.toggle('active', !filterMedium && !filterNeighborhood);
+            filterAllBtn.classList.toggle('active', !filterMedium && !filterNeighborhood && !filterPlace);
             filterMediumDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
             b.classList.add('chosen');
             filterMediumDrop.classList.remove('open');
@@ -320,7 +700,7 @@
             filterNeighborhood = b.dataset.nbhd || null;
             filterNbhdBtn.textContent = filterNeighborhood ? (filterNeighborhood + ' ▾') : 'Neighborhood ▾';
             filterNbhdBtn.classList.toggle('active', !!filterNeighborhood);
-            filterAllBtn.classList.toggle('active', !filterMedium && !filterNeighborhood);
+            filterAllBtn.classList.toggle('active', !filterMedium && !filterNeighborhood && !filterPlace);
             filterNbhdDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
             b.classList.add('chosen');
             filterNbhdDrop.classList.remove('open');
@@ -328,10 +708,26 @@
         });
     });
 
+    // Place dropdown (delegated — buttons built dynamically)
+    filterPlaceDrop.addEventListener('click', function(e) {
+        var b = e.target.closest('button');
+        if (!b) return;
+        e.stopPropagation();
+        filterPlace = b.dataset.place || null;
+        filterPlaceBtn.textContent = filterPlace ? b.textContent + ' ▾' : 'Place ▾';
+        filterPlaceBtn.classList.toggle('active', !!filterPlace);
+        filterAllBtn.classList.toggle('active', !filterMedium && !filterNeighborhood && !filterPlace);
+        filterPlaceDrop.querySelectorAll('button').forEach(function(x) { x.classList.remove('chosen'); });
+        if (filterPlace) b.classList.add('chosen');
+        filterPlaceDrop.classList.remove('open');
+        buildGrid();
+    });
+
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.filter-wrap')) {
             filterMediumDrop.classList.remove('open');
             filterNbhdDrop.classList.remove('open');
+            filterPlaceDrop.classList.remove('open');
         }
     });
 
