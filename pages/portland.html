@@ -74,14 +74,23 @@
         .logo-cell-art {
             position: absolute; inset: 0;
             background-size: cover; background-position: center 35%;
-            -webkit-mask-image: url('../images/arthere-portland-mask.png');
-            mask-image: url('../images/arthere-portland-mask.png');
+            -webkit-mask-image: url('../images/arthere-mask.png');
+            mask-image: url('../images/arthere-mask.png');
             -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
             -webkit-mask-position: 21% center; mask-position: 21% center;
             -webkit-mask-size: 90% auto; mask-size: 90% auto;
             transition: transform 0.4s ease;
         }
         .logo-cell:hover .logo-cell-art { transform: scale(1.03); }
+        .logo-city-label {
+            position: absolute; top: 10px; left: 12px;
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-style: italic; font-weight: 700;
+            font-size: calc(var(--row-px) * 0.22);
+            color: #fff;
+            letter-spacing: -0.01em; line-height: 1;
+            pointer-events: none;
+        }
         .logo-artist-name {
             position: absolute; bottom: 12px; left: 14px;
             font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
@@ -316,6 +325,10 @@
         artDiv.className = 'logo-cell-art';
         artDiv.style.backgroundImage = 'url(' + seqItem.src + ')';
         cell.appendChild(artDiv);
+        var cityLabel = document.createElement('div');
+        cityLabel.className = 'logo-city-label';
+        cityLabel.textContent = 'PORTLAND';
+        cell.appendChild(cityLabel);
         var nameEl = document.createElement('div');
         nameEl.className = 'logo-artist-name';
         nameEl.textContent = seqItem.name;
