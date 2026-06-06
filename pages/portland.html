@@ -69,23 +69,26 @@
             grid-column: span 2; grid-row: span 2;
             background: #0a0a0a; border-radius: 6px;
             overflow: hidden; position: relative;
+            display: block; text-decoration: none; cursor: pointer;
         }
         .logo-cell-art {
             position: absolute; inset: 0;
             background-size: cover; background-position: center 35%;
-            -webkit-mask-image: url('../images/arthere-mask.png');
-            mask-image: url('../images/arthere-mask.png');
+            -webkit-mask-image: url('../images/arthere-portland-mask.png');
+            mask-image: url('../images/arthere-portland-mask.png');
             -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
             -webkit-mask-position: 21% center; mask-position: 21% center;
             -webkit-mask-size: 90% auto; mask-size: 90% auto;
+            transition: transform 0.4s ease;
         }
-        .logo-city-text {
-            position: absolute; bottom: 8px; left: 0;
+        .logo-cell:hover .logo-cell-art { transform: scale(1.03); }
+        .logo-artist-name {
+            position: absolute; bottom: 12px; left: 14px;
             font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-            font-style: italic; font-weight: 700;
-            font-size: calc(var(--row-px) * 0.13);
-            color: rgba(255,255,255,0.72);
-            letter-spacing: 0.02em; text-align: left; line-height: 1;
+            font-weight: 700;
+            font-size: calc(var(--row-px) * 0.09);
+            color: rgba(255,255,255,0.85);
+            letter-spacing: 0.01em; line-height: 1;
             pointer-events: none;
         }
 
@@ -260,6 +263,19 @@
       { url: '../artists/vonda-martin.html',         images: [{ src: '../images/artwork/vonda-martin-hero.jpg', tall: false }, { src: '../images/artwork/vonda-martin-1.jpg', tall: false }, { src: '../images/artwork/vonda-martin-2.jpg', tall: false }, { src: '../images/artwork/vonda-martin-3.jpg', tall: false }] },
     ];
 
+    // Derive display name from artist URL slug, with overrides for edge cases
+    var NAME_OVERRIDES = {
+        'f-lauren-carrera':   'F. Lauren Carrera',
+        'hsin-yi-huang':      'Hsin-Yi Huang',
+        'mary-t-lee':         'Mary T. Lee',
+        'todd-j-elliott':     'Todd J. Elliott',
+    };
+    function nameFromUrl(url) {
+        var slug = url.replace('../artists/', '').replace('.html', '');
+        if (NAME_OVERRIDES[slug]) return NAME_OVERRIDES[slug];
+        return slug.split('-').map(function(w) { return w.charAt(0).toUpperCase() + w.slice(1); }).join(' ');
+    }
+
     function shuffle(a) {
         var arr = a.slice();
         for (var i = arr.length - 1; i > 0; i--) {
@@ -282,7 +298,7 @@
                 var candidates = imgs.filter(function(im) { return recent.indexOf(im.src) === -1; });
                 if (candidates.length === 0) candidates = imgs;
                 var img = candidates[Math.floor(Math.random() * candidates.length)];
-                seq.push({ src: img.src, tall: img.tall, url: artist.url });
+                seq.push({ src: img.src, tall: img.tall, url: artist.url, name: nameFromUrl(artist.url) });
                 recent.push(img.src);
                 if (recent.length > SPREAD) recent.shift();
             });
@@ -290,23 +306,20 @@
         return seq;
     }
 
-    function makeLogoCell(artSrc) {
-        var cell = document.createElement('div');
+    function makeLogoCell(seqItem) {
+        var cell = document.createElement('a');
         cell.className = 'logo-cell';
+        cell.href = seqItem.url;
         cell.style.setProperty('--row-px', ROW + 'px');
         cell.style.height = (ROW * 2 + GAP) + 'px';
-        var art = document.createElement('div');
-        art.className = 'logo-cell-art';
-        art.style.backgroundImage = 'url(' + artSrc + ')';
-        cell.appendChild(art);
-        var city = document.createElement('div');
-        city.className = 'logo-city-text';
-        city.textContent = 'Portland, OR';
-        // Align left edge of text to the H in the logo:
-        // mask-size: 90%, mask-position: 21% → left offset = (cellWidth − 0.9·cellWidth) × 0.21 = cellWidth × 0.021
-        var cellWidth = 2 * COL + GAP;
-        city.style.left = Math.round(cellWidth * 0.021) + 'px';
-        cell.appendChild(city);
+        var artDiv = document.createElement('div');
+        artDiv.className = 'logo-cell-art';
+        artDiv.style.backgroundImage = 'url(' + seqItem.src + ')';
+        cell.appendChild(artDiv);
+        var nameEl = document.createElement('div');
+        nameEl.className = 'logo-artist-name';
+        nameEl.textContent = seqItem.name;
+        cell.appendChild(nameEl);
         return cell;
     }
 
@@ -337,7 +350,7 @@
         track.classList.remove('scrolling');
 
         var seq = buildSequence(ARTISTS);
-        track.appendChild(makeLogoCell(seq[0].src));
+        track.appendChild(makeLogoCell(seq[0]));
 
         var imgIdx = 1, lastWasTall = false;
         while (imgIdx < seq.length) {
