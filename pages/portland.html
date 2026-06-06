@@ -82,15 +82,6 @@
             transition: transform 0.4s ease;
         }
         .logo-cell:hover .logo-cell-art { transform: scale(1.03); }
-        .logo-city-label {
-            position: absolute; top: 10px; left: 12px;
-            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-            font-style: italic; font-weight: 700;
-            font-size: calc(var(--row-px) * 0.22);
-            color: #fff;
-            letter-spacing: -0.01em; line-height: 1;
-            pointer-events: none;
-        }
         .logo-artist-name {
             position: absolute; bottom: 12px; left: 14px;
             font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
@@ -325,10 +316,6 @@
         artDiv.className = 'logo-cell-art';
         artDiv.style.backgroundImage = 'url(' + seqItem.src + ')';
         cell.appendChild(artDiv);
-        var cityLabel = document.createElement('div');
-        cityLabel.className = 'logo-city-label';
-        cityLabel.textContent = 'PORTLAND';
-        cell.appendChild(cityLabel);
         var nameEl = document.createElement('div');
         nameEl.className = 'logo-artist-name';
         nameEl.textContent = seqItem.name;
