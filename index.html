@@ -74,31 +74,7 @@
         }
         .pancake-menu a:last-child { border-bottom: none; }
         .pancake-menu a:hover { background: #fafafa; color: #1a1a1a; }
-        .pancake-menu a.join { font-weight: 600; color: #1a1a1a; }
         .menu-overlay { display: none; }
-
-        /* Cities submenu */
-        .cities-item { position: relative; }
-        .cities-trigger {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 13px 20px; font-size: 0.92rem; color: #444; cursor: pointer;
-            border-bottom: 1px solid #f5f5f5; transition: background 0.15s;
-            background: none; border-left: none; border-right: none; border-top: none;
-            width: 100%; text-align: left; font-family: 'Inter', -apple-system, sans-serif;
-        }
-        .cities-trigger:hover { background: #fafafa; color: #1a1a1a; }
-        .cities-arrow { font-size: 0.65rem; color: #ccc; transition: transform 0.2s; }
-        .cities-trigger.open .cities-arrow { transform: rotate(90deg); }
-        .cities-submenu { display: none; background: #fafafa; border-bottom: 1px solid #f5f5f5; }
-        .cities-submenu.open { display: block; }
-        .cities-submenu a, .cities-submenu span {
-            display: flex; align-items: baseline; gap: 8px;
-            padding: 9px 20px 9px 28px; font-size: 0.85rem;
-            text-decoration: none; transition: background 0.15s;
-        }
-        .cities-submenu a { color: #1a1a1a; }
-        .cities-submenu span { color: #ccc; cursor: default; }
-        .cities-submenu a:hover { background: #f0f0f0; color: #1a1a1a; }
 
         /* ---- LOGO WINDOW ---- */
         .logo-window {
@@ -140,44 +116,29 @@
 
         /* ---- CITIES LIST ---- */
         .cities-list {
-            margin-top: 32px;
+            margin-top: 36px;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
+            gap: 4px;
         }
-        .city-link {
+        .city-row {
             display: flex;
             align-items: baseline;
             gap: 10px;
-            padding: 5px 0;
-            text-decoration: none;
-            color: inherit;
-            transition: all 0.2s;
         }
-        .city-link:hover .city-name { color: #1a1a1a; }
-        .city-link:hover .city-name.soon { color: #ccc; }
-        .city-link:hover .city-tag { color: #555; }
-        .city-link:hover .city-arrow { opacity: 1; transform: translateX(3px); }
         .city-name {
             font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
             font-size: 1.25rem;
             font-weight: 700;
-            color: #1a1a1a;
-            transition: color 0.2s;
+            color: #ccc;
         }
-        .city-name.soon { color: #ccc; }
         .city-tag {
             font-size: 0.7rem;
             color: #bbb;
             font-weight: 300;
-            letter-spacing: 0.05em;
-            transition: color 0.2s;
-        }
-        .city-arrow {
-            color: #aaa;
-            font-size: 1rem;
-            opacity: 0;
-            transition: all 0.2s;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
         }
 
         footer {
@@ -223,15 +184,18 @@
         </div>
 
         <div class="cities-list">
-            <a href="#" class="city-link" style="cursor:default;">
-                <span class="city-name soon">Portland, OR</span>
-            </a>
-            <a href="#" class="city-link" style="cursor:default;">
-                <span class="city-name soon">Biloxi, MS</span>
-            </a>
-            <a href="#" class="city-link" style="cursor:default;">
-                <span class="city-name soon">San Jose, CA</span>
-            </a>
+            <div class="city-row">
+                <span class="city-name">Portland, OR</span>
+                <span class="city-tag">coming soon</span>
+            </div>
+            <div class="city-row">
+                <span class="city-name">Biloxi, MS</span>
+                <span class="city-tag">coming soon</span>
+            </div>
+            <div class="city-row">
+                <span class="city-name">San Jose, CA</span>
+                <span class="city-tag">coming soon</span>
+            </div>
         </div>
         </div>
 
@@ -245,19 +209,7 @@
         btn.classList.toggle('open');
         menu.classList.toggle('open');
     });
-    var citiesTrigger = document.getElementById('cities-trigger');
-    var citiesSubmenu = document.getElementById('cities-submenu');
-    if (citiesTrigger) {
-        citiesTrigger.addEventListener('click', function(e) {
-            e.stopPropagation();
-            citiesTrigger.classList.toggle('open');
-            citiesSubmenu.classList.toggle('open');
-        });
-    }
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest || !e.target.closest('.cities-item')) {
-            if (citiesSubmenu) { citiesSubmenu.classList.remove('open'); citiesTrigger.classList.remove('open'); }
-        }
+    document.addEventListener('click', function() {
         btn.classList.remove('open');
         menu.classList.remove('open');
     });

@@ -68,17 +68,6 @@
         }
         .pancake-dropdown a:last-child { border-bottom: none; }
         .pancake-dropdown a:hover { background: #fafafa; color: #1a1a1a; }
-        .pancake-dropdown a.join { font-weight: 600; color: #1a1a1a; }
-        .nav-city {
-            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: #1a1a1a;
-            text-decoration: none;
-            letter-spacing: 0.03em;
-            transition: opacity 0.2s;
-        }
-        .nav-city:hover { opacity: 0.6; }
 
         /* ---- CONTENT ---- */
         .text-page {
@@ -148,59 +137,6 @@
             .tagline { font-size: 1.35rem; }
             p { font-size: 1rem; }
         }
-
-        /* ---- BOTTOM BAR ---- */
-        .bottom-bar {
-            position: fixed; bottom: 0; left: 0; right: 0; height: 56px;
-            background: rgba(0,0,0,0.95); backdrop-filter: blur(8px);
-            border-top: 1px solid #111; z-index: 100;
-            display: flex; align-items: center; padding: 0 18px; gap: 0;
-        }
-        .bottom-bar-city {
-            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-            font-size: 0.95rem; font-weight: 700; color: #fff;
-            letter-spacing: 0.03em; flex-shrink: 0;
-        }
-        .bottom-bar-divider { color: #444; margin: 0 14px; flex-shrink: 0; }
-        .bottom-bar-links { display: flex; gap: 24px; align-items: center; }
-        .bottom-bar-links a {
-            color: rgba(255,255,255,0.45); text-decoration: none; font-size: 0.88rem;
-            font-weight: 500; letter-spacing: 0.03em;
-            transition: color 0.2s; padding: 4px 0;
-            border-bottom: 1.5px solid transparent;
-        }
-        .bottom-bar-links a:hover { color: #fff; }
-        .bottom-bar-links a.active { color: #fff; border-color: rgba(255,255,255,0.6); }
-    
-        @media (max-width: 600px) {
-            .bottom-bar-city,
-            .bottom-bar-divider { display: none; }
-            .bottom-bar { justify-content: center; }
-            .bottom-bar-links { gap: 20px; }
-        }
-
-        /* ---- CITIES SUBMENU ---- */
-        .pancake-dropdown .cities-item { position: relative; }
-        .pancake-dropdown .cities-trigger {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 13px 20px; font-size: 0.9rem; color: #444; cursor: pointer;
-            border-bottom: 1px solid #f0f0f0; transition: background 0.15s;
-            background: none; border-left: none; border-right: none; border-top: none;
-            width: 100%; text-align: left; font-family: 'Inter', -apple-system, sans-serif;
-        }
-        .pancake-dropdown .cities-trigger:hover { background: #fafafa; color: #1a1a1a; }
-        .pancake-dropdown .cities-arrow { font-size: 0.65rem; color: #ccc; transition: transform 0.2s; }
-        .pancake-dropdown .cities-trigger.open .cities-arrow { transform: rotate(90deg); }
-        .cities-submenu { display: none; background: #fafafa; border-bottom: 1px solid #f0f0f0; }
-        .cities-submenu.open { display: block; }
-        .cities-submenu a, .cities-submenu span {
-            display: flex; align-items: baseline; gap: 8px;
-            padding: 9px 20px 9px 28px; font-size: 0.85rem;
-            text-decoration: none; transition: background 0.15s;
-        }
-        .cities-submenu a { color: #1a1a1a; }
-        .cities-submenu span { color: #ccc; cursor: default; }
-        .cities-submenu a:hover { background: #f0f0f0; color: #1a1a1a; }
     </style>
 </head>
 <body>
@@ -213,32 +149,26 @@
                 <span></span><span></span><span></span>
             </button>
             <div class="pancake-dropdown" id="pancake-drop">
-                <a href="survey.html" class="join">Join Us</a>
-                                <div class="cities-item">
-                    <button class="cities-trigger" id="cities-trigger">Cities <span class="cities-arrow">&#9654;</span></button>
-                    <div class="cities-submenu" id="cities-submenu">
-                        <a href="portland.html">Portland, OR</a>
-                        <span>Biloxi, MS</span>
-                        <span>San Jose, CA</span>
-                    </div>
-                </div>
                 <a href="about.html">About</a>
                 <a href="about.html#contact">Contact</a>
             </div>
         </div>
-        <a href="portland.html" class="nav-city">Portland, OR</a>
     </div>
 
     <section class="text-page">
         <p class="tagline">Art Here puts local artists on the map.</p>
 
-        <p>Art Here is a community initiative that makes local artists visible and connects them to economic opportunity. We partner with local organizations to host artist celebrations, capture artist stories, and build a living online directory that helps residents, visitors, and funders find and support local creatives.</p>
+        <p>Art Here is a community initiative that connects artists to local opportunities. We partner with local organizations to host artist celebrations, capture artist stories, and build a living directory of artists and the institutions that support them.</p>
 
-        <p>We are piloting in Portland during the summer of 2026, with a presence at the Multnomah Days Festival in partnership with Multnomah Arts Center. Our next stops include Biloxi, MS and San Jose, CA.</p>
+        <p>Great neighborhoods are shaped by the artists who live in them. Art Here helps communities see, celebrate, and support their own.</p>
 
-        <p>If you're interested in having your artwork or organization featured, <a href="survey.html">share more here</a>.</p>
+        <p>In summer 2026, we are piloting in Portland, OR, with a presence at the Multnomah Days Festival. Next up: Biloxi, MS and San Jose, CA.</p>
 
-        <p>If you'd like to partner with us to bring Art Here to your neighborhood or city, <a href="about.html#contact">reach out</a>.</p>
+        <p><strong>Artists:</strong> If you'd like to be featured, share more <a href="about.html#contact">here</a>.</p>
+
+        <p><strong>Organizations:</strong> If you'd like to partner or collaborate, <a href="about.html#contact">reach out</a>.</p>
+
+        <p><strong>Cities and neighborhoods:</strong> If you'd like to invite Art Here to your community, <a href="about.html#contact">let's talk</a>.</p>
 
         <div class="contact-block" id="contact">
             <div class="contact-label-head">Contact</div>
@@ -264,15 +194,5 @@
         drop.classList.remove('open');
     });
     </script>
-    <nav class="bottom-bar">
-        <a href="portland.html" class="bottom-bar-city">Portland, OR</a>
-        <span class="bottom-bar-divider">|</span>
-        <div class="bottom-bar-links">
-            <a href="portland.html">artwork</a>
-            <a href="artists.html">artists</a>
-            <a href="community.html">community</a>
-            <a href="network.html">network</a>
-        </div>
-    </nav>
 </body>
 </html>
