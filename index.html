@@ -25,10 +25,18 @@
             top: 0; left: 0;
             width: 100%;
             z-index: 100;
-            padding: 22px 28px;
+            padding: 16px 20px;
             display: flex;
             align-items: center;
+            gap: 10px;
         }
+        .nav-logo {
+            display: block;
+            height: 26px; width: auto;
+            transition: opacity 0.2s;
+            flex-shrink: 0;
+        }
+        .nav-logo:hover { opacity: 0.6; }
         .pancake-btn {
             background: none;
             border: none;
@@ -156,6 +164,7 @@
 <body>
 
     <div class="top-nav">
+        <img src="images/arthere-logo-dark.png" alt="Art Here" class="nav-logo">
         <div style="position:relative;">
             <button class="pancake-btn" id="pancake-btn" aria-label="Menu">
                 <span></span><span></span><span></span>
