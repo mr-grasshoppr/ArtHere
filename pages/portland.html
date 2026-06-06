@@ -85,6 +85,14 @@
             transition: transform 0.4s ease;
         }
         .logo-cell:hover .logo-cell-art-bg { transform: scale(1.04); }
+        .logo-city-overlay {
+            position: absolute; inset: 0;
+            background-image: url('../images/arthere-portland-overlay.png');
+            background-repeat: no-repeat;
+            background-position: 21% center;
+            background-size: 90% auto;
+            pointer-events: none;
+        }
         .logo-artist-name {
             position: absolute; bottom: 12px; left: 14px;
             font-family: 'Inter', -apple-system, sans-serif;
@@ -322,6 +330,9 @@
         artBg.style.backgroundImage = 'url(' + seqItem.src + ')';
         artDiv.appendChild(artBg);
         cell.appendChild(artDiv);
+        var overlayDiv = document.createElement('div');
+        overlayDiv.className = 'logo-city-overlay';
+        cell.appendChild(overlayDiv);
         var nameEl = document.createElement('div');
         nameEl.className = 'logo-artist-name';
         nameEl.textContent = 'Artwork above by ' + seqItem.name;
