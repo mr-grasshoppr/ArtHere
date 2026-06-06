@@ -1,0 +1,5 @@
+# Next.js app (kept locally, not tracked in git)
+arthere-app/
+
+# macOS
+.DS_Store
