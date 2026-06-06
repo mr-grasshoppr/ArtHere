@@ -72,22 +72,25 @@
             display: block; text-decoration: none; cursor: pointer;
         }
         .logo-cell-art {
-            position: absolute; inset: 0;
-            background-size: cover; background-position: center 35%;
+            position: absolute; inset: 0; overflow: hidden;
             -webkit-mask-image: url('../images/arthere-portland-mask.png');
             mask-image: url('../images/arthere-portland-mask.png');
             -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
             -webkit-mask-position: 21% center; mask-position: 21% center;
             -webkit-mask-size: 90% auto; mask-size: 90% auto;
+        }
+        .logo-cell-art-bg {
+            position: absolute; inset: 0;
+            background-size: cover; background-position: center 35%;
             transition: transform 0.4s ease;
         }
-        .logo-cell:hover .logo-cell-art { transform: scale(1.03); }
+        .logo-cell:hover .logo-cell-art-bg { transform: scale(1.04); }
         .logo-artist-name {
             position: absolute; bottom: 12px; left: 14px;
-            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-            font-weight: 700;
-            font-size: calc(var(--row-px) * 0.09);
-            color: rgba(255,255,255,0.85);
+            font-family: 'Inter', -apple-system, sans-serif;
+            font-weight: 300; font-style: italic;
+            font-size: calc(var(--row-px) * 0.075);
+            color: rgba(255,255,255,0.75);
             letter-spacing: 0.01em; line-height: 1;
             pointer-events: none;
         }
@@ -314,11 +317,14 @@
         cell.style.height = (ROW * 2 + GAP) + 'px';
         var artDiv = document.createElement('div');
         artDiv.className = 'logo-cell-art';
-        artDiv.style.backgroundImage = 'url(' + seqItem.src + ')';
+        var artBg = document.createElement('div');
+        artBg.className = 'logo-cell-art-bg';
+        artBg.style.backgroundImage = 'url(' + seqItem.src + ')';
+        artDiv.appendChild(artBg);
         cell.appendChild(artDiv);
         var nameEl = document.createElement('div');
         nameEl.className = 'logo-artist-name';
-        nameEl.textContent = seqItem.name;
+        nameEl.textContent = 'Artwork above by ' + seqItem.name;
         cell.appendChild(nameEl);
         return cell;
     }
