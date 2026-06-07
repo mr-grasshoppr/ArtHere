@@ -21,7 +21,7 @@
         }
         .nav-logo { display: block; height: 26px; width: auto; opacity: 0.9; transition: opacity 0.2s; flex-shrink: 0; }
         .nav-logo:hover { opacity: 1; }
-        .pancake-wrap { position: relative; flex-shrink: 0; }
+        .pancake-wrap { position: relative; flex-shrink: 0; margin-left: auto; }
         .pancake-btn {
             background: none; border: none; cursor: pointer; padding: 4px;
             display: flex; flex-direction: column; gap: 4px;
@@ -31,7 +31,7 @@
         .pancake-btn.open span:nth-child(2) { opacity: 0; }
         .pancake-btn.open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
         .pancake-dropdown {
-            display: none; position: absolute; top: calc(100% + 8px); left: 0;
+            display: none; position: absolute; top: calc(100% + 8px); right: 0;
             background: #1a1a1a; border: 1px solid #333; border-radius: 6px;
             overflow: hidden; min-width: 160px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 200;
         }
