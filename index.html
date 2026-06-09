@@ -17,6 +17,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
 
         /* ---- PANCAKE NAV ---- */
@@ -64,7 +65,7 @@
             background: #fff;
             border: 1px solid #eee;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            min-width: 160px;
+            min-width: 180px;
             border-radius: 6px;
             overflow: hidden;
             z-index: 200;
@@ -82,17 +83,16 @@
         .pancake-menu a:last-child { border-bottom: none; }
         .pancake-menu a:hover { background: #fafafa; color: #1a1a1a; }
 
-        /* ---- LOGO + CITIES ---- */
-        .main {
+        /* ---- LOGO WINDOW ---- */
+        .logo-window {
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 80px 20px 40px;
-            min-height: 80vh;
+            padding: 80px 20px 60px;
+            min-height: 100vh;
         }
-
         .logo-mask {
             position: relative;
             width: min(60vw, 520px);
@@ -121,7 +121,7 @@
             100% { transform: translateX(-50%); }
         }
 
-        /* ---- CITIES ---- */
+        /* ---- CITIES LIST ---- */
         .cities-list {
             margin-top: 36px;
             display: flex;
@@ -148,21 +148,91 @@
             text-transform: uppercase;
         }
 
+        /* ---- ABOUT SECTION ---- */
+        .about-section {
+            max-width: 620px;
+            margin: 0 auto;
+            padding: 80px 28px 60px;
+            scroll-margin-top: 70px;
+        }
+        .tagline {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 32px;
+            letter-spacing: -0.01em;
+        }
+        .about-section p {
+            font-size: 1.05rem;
+            color: #444;
+            font-weight: 300;
+            line-height: 1.8;
+            margin-bottom: 22px;
+        }
+        .about-section p a {
+            color: #1a1a1a;
+            text-underline-offset: 4px;
+        }
+
+        /* ---- CONTACT SECTION ---- */
+        .contact-block {
+            margin-top: 52px;
+            padding-top: 36px;
+            border-top: 1px solid #f0f0f0;
+            scroll-margin-top: 70px;
+        }
+        .contact-label-head {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .contact-row {
+            display: flex;
+            gap: 16px;
+            align-items: baseline;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+        .contact-key {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: #aaa;
+            width: 56px;
+            flex-shrink: 0;
+        }
+        .contact-row a { color: #1a1a1a; text-underline-offset: 4px; }
+
+        /* ---- DIVIDER ---- */
+        .section-divider {
+            width: min(60vw, 520px);
+            margin: 0 auto;
+            border: none;
+            border-top: 1px solid #f0f0f0;
+        }
+
         footer {
-            padding: 32px 28px;
+            padding: 40px 28px;
             text-align: center;
             color: #bbb;
             font-size: 0.78rem;
             letter-spacing: 0.05em;
+            border-top: 1px solid #f5f5f5;
         }
 
         @media (max-width: 600px) {
             .logo-mask { width: min(85vw, 380px); }
+            .city-name { font-size: 1.3rem; }
+            .tagline { font-size: 1.35rem; }
+            .about-section p { font-size: 1rem; }
         }
     </style>
 </head>
 <body>
 
+    <!-- PANCAKE NAV -->
     <div class="top-nav">
         <img src="images/arthere-logo-dark.png" alt="Art Here" class="nav-logo">
         <div style="position:relative; margin-left:auto;">
@@ -170,13 +240,14 @@
                 <span></span><span></span><span></span>
             </button>
             <div class="pancake-menu" id="pancake-menu">
-                <a href="pages/about.html">About</a>
-                <a href="pages/about.html#contact">Contact</a>
+                <a href="#about">About</a>
+                <a href="#contact">Contact</a>
             </div>
         </div>
     </div>
 
-    <div class="main">
+    <!-- LOGO + CITIES -->
+    <div class="logo-window">
         <div class="logo-mask">
             <div class="image-track">
                 <div class="slide"><img src="images/bg-art1.png" alt=""></div>
@@ -202,6 +273,33 @@
         </div>
     </div>
 
+    <hr class="section-divider">
+
+    <!-- ABOUT -->
+    <section class="about-section" id="about">
+        <p class="tagline">Art Here puts local artists on the map.</p>
+
+        <p>Art Here is a community initiative that connects artists to local opportunities. We partner with local organizations to host artist celebrations, capture artist stories, and build a living directory of artists and the institutions that support them.</p>
+
+        <p>Great neighborhoods are shaped by the artists who live in them. Art Here helps communities see, celebrate, and support their own.</p>
+
+        <p>In summer 2026, we are piloting in Portland, OR, with a presence at the Multnomah Days Festival. Next up: Biloxi, MS and San Jose, CA.</p>
+
+        <p><strong>Artists:</strong> If you'd like to be featured, share more <a href="#contact">here</a>.</p>
+
+        <p><strong>Organizations:</strong> If you'd like to partner or collaborate, <a href="#contact">reach out</a>.</p>
+
+        <p><strong>Cities and neighborhoods:</strong> If you'd like to invite Art Here to your community, <a href="#contact">let's talk</a>.</p>
+
+        <div class="contact-block" id="contact">
+            <div class="contact-label-head">Contact</div>
+            <div class="contact-row">
+                <span class="contact-key">Email</span>
+                <a href="mailto:hello@axlab.io">hello@axlab.io</a>
+            </div>
+        </div>
+    </section>
+
     <footer>&copy; 2026 Art Here &middot; A project of Art Experience Lab</footer>
 
     <script>
@@ -215,6 +313,16 @@
     document.addEventListener('click', function() {
         btn.classList.remove('open');
         menu.classList.remove('open');
+    });
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+        a.addEventListener('click', function(e) {
+            var target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
     });
     </script>
 </body>
