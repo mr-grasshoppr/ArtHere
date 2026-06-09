@@ -39,59 +39,37 @@
         }
         .nav-logo:hover { opacity: 0.6; }
         .pancake-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 4px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
+            background: none; border: none; cursor: pointer;
+            padding: 4px; display: flex; flex-direction: column; gap: 5px;
         }
         .pancake-btn span {
-            display: block;
-            width: 22px;
-            height: 1.5px;
-            background: #1a1a1a;
-            transition: all 0.25s;
+            display: block; width: 22px; height: 1.5px;
+            background: #1a1a1a; transition: all 0.25s;
         }
         .pancake-btn.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
         .pancake-btn.open span:nth-child(2) { opacity: 0; }
         .pancake-btn.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
         .pancake-menu {
-            display: none;
-            position: absolute;
-            top: calc(100% + 8px);
-            right: 0;
-            background: #fff;
-            border: 1px solid #eee;
+            display: none; position: absolute;
+            top: calc(100% + 8px); right: 0;
+            background: #fff; border: 1px solid #eee;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            min-width: 180px;
-            border-radius: 6px;
-            overflow: hidden;
-            z-index: 200;
+            min-width: 180px; border-radius: 6px; overflow: hidden; z-index: 200;
         }
         .pancake-menu.open { display: block; }
         .pancake-menu a {
-            display: block;
-            padding: 13px 20px;
-            font-size: 0.92rem;
-            color: #444;
-            text-decoration: none;
-            border-bottom: 1px solid #f5f5f5;
-            transition: background 0.15s, color 0.15s;
+            display: block; padding: 13px 20px; font-size: 0.92rem;
+            color: #444; text-decoration: none;
+            border-bottom: 1px solid #f5f5f5; transition: background 0.15s, color 0.15s;
         }
         .pancake-menu a:last-child { border-bottom: none; }
         .pancake-menu a:hover { background: #fafafa; color: #1a1a1a; }
 
-        /* ---- LOGO WINDOW ---- */
+        /* ---- HERO ---- */
         .logo-window {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 80px 20px 60px;
-            min-height: 100vh;
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 80px 20px 60px; min-height: 100vh;
         }
         .logo-mask {
             position: relative;
@@ -100,19 +78,13 @@
             overflow: hidden;
             -webkit-mask-image: url('images/arthere-mask.png');
             mask-image: url('images/arthere-mask.png');
-            -webkit-mask-repeat: no-repeat;
-            mask-repeat: no-repeat;
-            -webkit-mask-position: center;
-            mask-position: center;
-            -webkit-mask-size: 100% 100%;
-            mask-size: 100% 100%;
+            -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+            -webkit-mask-position: center; mask-position: center;
+            -webkit-mask-size: 100% 100%; mask-size: 100% 100%;
         }
         .image-track {
-            position: absolute;
-            top: 0; left: 0;
-            height: 100%;
-            display: flex;
-            animation: slide 50s linear infinite;
+            position: absolute; top: 0; left: 0; height: 100%;
+            display: flex; animation: slide 50s linear infinite;
         }
         .image-track .slide { height: 100%; flex-shrink: 0; }
         .image-track .slide img { height: 100%; width: auto; min-width: 100%; object-fit: cover; display: block; }
@@ -120,119 +92,207 @@
             0%   { transform: translateX(0); }
             100% { transform: translateX(-50%); }
         }
-
-        /* ---- CITIES LIST ---- */
         .cities-list {
-            margin-top: 36px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 4px;
+            margin-top: 36px; display: flex; flex-direction: column;
+            align-items: flex-start; gap: 4px;
         }
-        .city-row {
-            display: flex;
-            align-items: baseline;
-            gap: 10px;
-        }
+        .city-row { display: flex; align-items: baseline; gap: 10px; }
         .city-name {
             font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #ccc;
+            font-size: 1.25rem; font-weight: 700; color: #ccc;
         }
         .city-tag {
-            font-size: 0.7rem;
-            color: #bbb;
-            font-weight: 300;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
+            font-size: 0.7rem; color: #bbb; font-weight: 300;
+            letter-spacing: 0.06em; text-transform: uppercase;
         }
 
-        /* ---- ABOUT SECTION ---- */
-        .about-section {
-            max-width: 620px;
-            margin: 0 auto;
-            padding: 80px 28px 60px;
-            scroll-margin-top: 70px;
+        /* ---- BELOW FOLD ---- */
+        .below-fold {
+            border-top: 1px solid #f0f0f0;
         }
-        .tagline {
+
+        /* Intro band */
+        .intro-band {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 96px 40px 80px;
+        }
+        .intro-band .label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #bbb;
+            margin-bottom: 24px;
+        }
+        .intro-band h2 {
             font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-            font-size: 1.6rem;
+            font-size: clamp(1.7rem, 3.5vw, 2.4rem);
             font-weight: 700;
             line-height: 1.2;
-            margin-bottom: 32px;
-            letter-spacing: -0.01em;
+            letter-spacing: -0.02em;
+            margin-bottom: 28px;
         }
-        .about-section p {
+        .intro-band p {
             font-size: 1.05rem;
-            color: #444;
+            color: #555;
             font-weight: 300;
-            line-height: 1.8;
-            margin-bottom: 22px;
-        }
-        .about-section p a {
-            color: #1a1a1a;
-            text-underline-offset: 4px;
+            line-height: 1.85;
+            max-width: 600px;
         }
 
-        /* ---- CONTACT SECTION ---- */
-        .contact-block {
-            margin-top: 52px;
-            padding-top: 36px;
+        /* Who we work with */
+        .audiences {
             border-top: 1px solid #f0f0f0;
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 72px 40px;
+        }
+        .audiences .label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #bbb;
+            margin-bottom: 40px;
+        }
+        .audience-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px 48px;
+        }
+        .audience-item h3 {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .audience-item p {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 300;
+            line-height: 1.7;
+        }
+        .audience-item a {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 0.82rem;
+            color: #1a1a1a;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+        .audience-item a:hover { opacity: 0.6; }
+
+        /* Pilot band */
+        .pilot-band {
+            border-top: 1px solid #f0f0f0;
+            background: #fafafa;
+            padding: 72px 40px;
+        }
+        .pilot-inner {
+            max-width: 760px;
+            margin: 0 auto;
+            display: flex;
+            gap: 64px;
+            align-items: flex-start;
+        }
+        .pilot-band .label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #bbb;
+            margin-bottom: 20px;
+        }
+        .pilot-cities { flex: 1; }
+        .pilot-cities h3 {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .pilot-cities .pilot-status {
+            font-size: 0.78rem;
+            color: #888;
+            font-weight: 300;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .pilot-city-row {
+            padding: 18px 0;
+            border-bottom: 1px solid #ebebeb;
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+        }
+        .pilot-city-row:last-child { border-bottom: none; }
+        .pilot-desc {
+            flex: 0 0 280px;
+        }
+        .pilot-desc p {
+            font-size: 0.92rem;
+            color: #666;
+            font-weight: 300;
+            line-height: 1.65;
+        }
+
+        /* Contact */
+        .contact-band {
+            border-top: 1px solid #f0f0f0;
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 72px 40px 96px;
             scroll-margin-top: 70px;
         }
-        .contact-label-head {
-            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 16px;
-        }
-        .contact-row {
-            display: flex;
-            gap: 16px;
-            align-items: baseline;
-            margin-bottom: 10px;
-            font-size: 0.95rem;
-        }
-        .contact-key {
-            font-size: 0.72rem;
-            text-transform: uppercase;
+        .contact-band .label {
+            font-size: 0.7rem;
+            font-weight: 600;
             letter-spacing: 0.14em;
-            color: #aaa;
-            width: 56px;
-            flex-shrink: 0;
+            text-transform: uppercase;
+            color: #bbb;
+            margin-bottom: 32px;
         }
-        .contact-row a { color: #1a1a1a; text-underline-offset: 4px; }
-
-        /* ---- DIVIDER ---- */
-        .section-divider {
-            width: min(60vw, 520px);
-            margin: 0 auto;
-            border: none;
-            border-top: 1px solid #f0f0f0;
+        .contact-email {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            font-weight: 700;
         }
+        .contact-email a {
+            color: #1a1a1a;
+            text-decoration: none;
+            border-bottom: 2px solid #1a1a1a;
+            padding-bottom: 2px;
+            transition: opacity 0.2s;
+        }
+        .contact-email a:hover { opacity: 0.5; }
 
         footer {
-            padding: 40px 28px;
-            text-align: center;
+            padding: 32px 40px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             color: #bbb;
             font-size: 0.78rem;
-            letter-spacing: 0.05em;
-            border-top: 1px solid #f5f5f5;
+            letter-spacing: 0.04em;
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 680px) {
             .logo-mask { width: min(85vw, 380px); }
             .city-name { font-size: 1.3rem; }
-            .tagline { font-size: 1.35rem; }
-            .about-section p { font-size: 1rem; }
+            .intro-band, .audiences, .contact-band { padding-left: 24px; padding-right: 24px; }
+            .intro-band { padding-top: 64px; padding-bottom: 56px; }
+            .audience-grid { grid-template-columns: 1fr; gap: 32px; }
+            .pilot-inner { flex-direction: column; gap: 32px; }
+            .pilot-band { padding-left: 24px; padding-right: 24px; }
+            .pilot-desc { flex: none; }
+            footer { flex-direction: column; gap: 8px; text-align: center; }
         }
     </style>
 </head>
 <body id="top">
 
-    <!-- PANCAKE NAV -->
+    <!-- NAV -->
     <div class="top-nav">
         <a href="#top"><img src="images/arthere-logo-dark.png" alt="Art Here" class="nav-logo"></a>
         <div style="position:relative; margin-left:auto;">
@@ -246,15 +306,14 @@
         </div>
     </div>
 
-    <!-- LOGO + CITIES -->
+    <!-- HERO -->
     <div class="logo-window">
         <div class="logo-mask">
-            
+            <div class="image-track">
                 <div class="slide"><img src="images/artwork/yong-hong-zhong-1.jpg" alt=""></div>
                 <div class="slide"><img src="images/artwork/yong-hong-zhong-1.jpg" alt=""></div>
             </div>
         </div>
-
         <div class="cities-list">
             <div class="city-row">
                 <span class="city-name">Portland, OR</span>
@@ -271,34 +330,84 @@
         </div>
     </div>
 
-    <hr class="section-divider">
+    <!-- BELOW FOLD -->
+    <div class="below-fold" id="about">
 
-    <!-- ABOUT -->
-    <section class="about-section" id="about">
-        <p class="tagline">Art Here puts local artists on the map.</p>
+        <!-- INTRO -->
+        <div class="intro-band">
+            <p class="label">About</p>
+            <h2>Art Here puts local artists on the map.</h2>
+            <p>A community initiative that connects artists to local opportunities. We partner with local organizations to host artist celebrations, capture artist stories, and build a living directory of artists and the institutions that support them.</p>
+        </div>
 
-        <p>Art Here is a community initiative that connects artists to local opportunities. We partner with local organizations to host artist celebrations, capture artist stories, and build a living directory of artists and the institutions that support them.</p>
+        <!-- WHO WE WORK WITH -->
+        <div class="audiences">
+            <p class="label">Who we work with</p>
+            <div class="audience-grid">
+                <div class="audience-item">
+                    <h3>Artists</h3>
+                    <p>Get featured in your city's living directory and connect with local opportunities.</p>
+                    <a href="#contact">Get featured →</a>
+                </div>
+                <div class="audience-item">
+                    <h3>Organizations</h3>
+                    <p>Partner with Art Here to celebrate the artists in your community.</p>
+                    <a href="#contact">Partner with us →</a>
+                </div>
+                <div class="audience-item">
+                    <h3>Cities &amp; Neighborhoods</h3>
+                    <p>Invite Art Here to your community and help your artists be seen.</p>
+                    <a href="#contact">Bring Art Here →</a>
+                </div>
+            </div>
+        </div>
 
-        <p>Great neighborhoods are shaped by the artists who live in them. Art Here helps communities see, celebrate, and support their own.</p>
+        <!-- PILOT CITIES -->
+        <div class="pilot-band">
+            <div class="pilot-inner">
+                <div class="pilot-cities">
+                    <p class="label">2026 Pilot</p>
+                    <div class="pilot-city-row">
+                        <div>
+                            <h3 class="pilot-cities">Portland, OR</h3>
+                            <span class="pilot-status">Launching Summer 2026</span>
+                        </div>
+                        <div class="pilot-desc">
+                            <p>Present at the Multnomah Days Festival. Building a directory of Portland's artist community.</p>
+                        </div>
+                    </div>
+                    <div class="pilot-city-row">
+                        <div>
+                            <h3>Biloxi, MS</h3>
+                            <span class="pilot-status">Coming Soon</span>
+                        </div>
+                        <div class="pilot-desc"><p>&nbsp;</p></div>
+                    </div>
+                    <div class="pilot-city-row">
+                        <div>
+                            <h3>San Jose, CA</h3>
+                            <span class="pilot-status">Coming Soon</span>
+                        </div>
+                        <div class="pilot-desc"><p>&nbsp;</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <p>In summer 2026, we are piloting in Portland, OR, with a presence at the Multnomah Days Festival. Next up: Biloxi, MS and San Jose, CA.</p>
-
-        <p><strong>Artists:</strong> If you'd like to be featured, share more <a href="#contact">here</a>.</p>
-
-        <p><strong>Organizations:</strong> If you'd like to partner or collaborate, <a href="#contact">reach out</a>.</p>
-
-        <p><strong>Cities and neighborhoods:</strong> If you'd like to invite Art Here to your community, <a href="#contact">let's talk</a>.</p>
-
-        <div class="contact-block" id="contact">
-            <div class="contact-label-head">Contact</div>
-            <div class="contact-row">
-                <span class="contact-key">Email</span>
+        <!-- CONTACT -->
+        <div class="contact-band" id="contact">
+            <p class="label">Contact</p>
+            <div class="contact-email">
                 <a href="mailto:hello@axlab.io">hello@axlab.io</a>
             </div>
         </div>
-    </section>
 
-    <footer>&copy; 2026 Art Here &middot; A project of Art Experience Lab</footer>
+    </div>
+
+    <footer>
+        <span>&copy; 2026 Art Here</span>
+        <span>A project of Art Experience Lab</span>
+    </footer>
 
     <script>
     var btn = document.getElementById('pancake-btn');
@@ -312,7 +421,6 @@
         btn.classList.remove('open');
         menu.classList.remove('open');
     });
-    // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(function(a) {
         a.addEventListener('click', function(e) {
             var target = document.querySelector(this.getAttribute('href'));
