@@ -187,14 +187,11 @@
         .pilot-band {
             border-top: 1px solid #f0f0f0;
             background: #fafafa;
-            padding: 72px 40px;
         }
         .pilot-inner {
             max-width: 760px;
             margin: 0 auto;
-            display: flex;
-            gap: 64px;
-            align-items: flex-start;
+            padding: 72px 40px;
         }
         .pilot-band .label {
             font-size: 0.7rem;
@@ -204,14 +201,14 @@
             color: #bbb;
             margin-bottom: 20px;
         }
-        .pilot-cities { flex: 1; }
+        .pilot-cities { width: 100%; }
         .pilot-cities h3 {
             font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-            font-size: 1.5rem;
+            font-size: 1.1rem;
             font-weight: 700;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
-        .pilot-cities .pilot-status {
+        .pilot-status {
             font-size: 0.78rem;
             color: #888;
             font-weight: 300;
@@ -219,16 +216,14 @@
             text-transform: uppercase;
         }
         .pilot-city-row {
-            padding: 18px 0;
+            padding: 20px 0;
             border-bottom: 1px solid #ebebeb;
-            display: flex;
-            align-items: baseline;
-            gap: 16px;
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 0 48px;
+            align-items: start;
         }
         .pilot-city-row:last-child { border-bottom: none; }
-        .pilot-desc {
-            flex: 0 0 280px;
-        }
         .pilot-desc p {
             font-size: 0.92rem;
             color: #666;
@@ -373,7 +368,7 @@
                             <span class="pilot-status">Launching Summer 2026</span>
                         </div>
                         <div class="pilot-desc">
-                            <p>Present at the Multnomah Days Festival. Building a directory of Portland's artist community.</p>
+                            <p>Piloting the Art Here interview booth and platform at the Multnomah Days Festival on August 15!</p>
                         </div>
                     </div>
                     <div class="pilot-city-row">
