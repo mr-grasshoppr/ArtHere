@@ -117,6 +117,79 @@ Only include filters that the query clearly implies. Return ONLY the JSON.`,
   return JSON.parse(text) as SearchIntent;
 }
 
+// ─── Artist Directory Search ───────────────────────────────────────────────────
+
+export interface ArtistSearchCandidate {
+  slug: string;
+  name: string;
+  medium: string | null;
+  neighborhood: string | null;
+  bio: string | null;
+  hireFor: string | null;
+  hireTags: unknown;
+  commissionStatus: string;
+  places: Array<{ name: string; neighborhood: string | null }>;
+  artworkTags: unknown[];
+}
+
+export interface ArtistSearchMatch {
+  slug: string;
+  score: number; // 0-100
+  reason: string;
+}
+
+export interface ArtistSearchResult {
+  matches: ArtistSearchMatch[];
+  explanation: string;
+}
+
+export async function searchArtists(
+  query: string,
+  artists: ArtistSearchCandidate[]
+): Promise<ArtistSearchResult> {
+  if (artists.length === 0) return { matches: [], explanation: "" };
+
+  const summaries = artists.map((a) => ({
+    slug: a.slug,
+    name: a.name,
+    medium: a.medium,
+    neighborhood: a.neighborhood,
+    bio: a.bio,
+    hireFor: a.hireFor,
+    hireTags: a.hireTags,
+    commissionStatus: a.commissionStatus,
+    places: a.places,
+    artworkTags: a.artworkTags.length > 0 ? a.artworkTags : undefined,
+  }));
+
+  const response = await client.messages.create({
+    model: "claude-haiku-4-5",
+    max_tokens: 1200,
+    messages: [
+      {
+        role: "user",
+        content: `A visitor to a Portland artist directory typed this search: "${query}"
+
+Here is the roster of artists, with whatever info is on file for each (some fields may be null/empty):
+${JSON.stringify(summaries, null, 2)}
+
+Decide which artists are good matches. Consider their name, craft/medium, neighborhood or studio location, bio text, what they make things for, and the kind of work they make (including whether pieces are suited for indoor or outdoor use, subjects, style).
+
+Return a JSON object:
+{
+  "matches": [{ "slug": "...", "score": 0-100, "reason": "brief plain-language reason this artist matches" }],
+  "explanation": "one short, friendly sentence describing how the search was interpreted"
+}
+
+Only include artists with score >= 40, sorted by score descending. If nothing matches well, return an empty matches array but still include a helpful explanation (e.g. suggesting what kind of artist isn't in the directory yet). Return ONLY the JSON object.`,
+      },
+    ],
+  });
+
+  const text = response.content[0].type === "text" ? response.content[0].text : '{"matches":[],"explanation":""}';
+  return JSON.parse(text) as ArtistSearchResult;
+}
+
 export interface ScoredArtwork {
   artworkId: string;
   artistId: string;

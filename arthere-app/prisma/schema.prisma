@@ -71,6 +71,8 @@ model Artist {
   heroImageUrl     String?
   website          String?
   instagram        String?
+  medium           String?
+  neighborhood     String?
   commissionStatus CommissionStatus @default(UNSPECIFIED)
   priceRangeMin    Int?
   priceRangeMax    Int?
@@ -81,6 +83,8 @@ model Artist {
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 
+  cityId           String?
+  city             City?            @relation(fields: [cityId], references: [id])
   user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   artworkImages    ArtworkImage[]
   placeRelations   ArtistPlace[]
@@ -164,4 +168,19 @@ model ArtistIntake {
   updatedAt            DateTime @updatedAt
 
   artist               Artist   @relation(fields: [artistId], references: [id], onDelete: Cascade)
+}
+
+// ─── Cities ───────────────────────────────────────────────────────────────────
+
+model City {
+  id                  String   @id @default(cuid())
+  slug                String   @unique
+  name                String
+  state               String?
+  displayName         String?
+  logoOverlayImageUrl String?
+  description         String?  @db.Text
+  createdAt           DateTime @default(now())
+
+  artists             Artist[]
 }

@@ -1,0 +1,158 @@
+/* Full-screen animated artwork grid for city pages */
+
+.viewport {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  right: 0;
+  bottom: 56px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.frozen {
+  cursor: default;
+}
+
+.track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  will-change: transform;
+}
+
+.trackScrolling {
+  animation: scrollUp var(--cg-dur) linear infinite;
+}
+
+@keyframes scrollUp {
+  from { transform: translateY(0); }
+  to   { transform: translateY(var(--cg-dist)); }
+}
+
+/* Artwork cells */
+
+.cell {
+  overflow: hidden;
+  border-radius: 6px;
+  background: #111;
+}
+
+.cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 35%;
+  display: block;
+}
+
+.cellTall {
+  grid-row: span 2;
+}
+
+.cellClickable {
+  cursor: pointer;
+}
+
+.cellClickable img {
+  transition: transform 0.3s;
+}
+
+.cellClickable:hover img {
+  transform: scale(1.04);
+}
+
+/* Logo cell — 2-col × 2-row with masked artwork + city overlay */
+
+.logoCell {
+  grid-column: span 2;
+  grid-row: span 2;
+  background: #0a0a0a;
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  display: block;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.logoCellArt {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: 21% center;
+  mask-position: 21% center;
+  -webkit-mask-size: 90% auto;
+  mask-size: 90% auto;
+}
+
+.logoCellArtBg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center 35%;
+  transition: transform 0.4s ease;
+}
+
+.logoCell:hover .logoCellArtBg {
+  transform: scale(1.04);
+}
+
+.logoCityOverlay {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-position: 21% center;
+  background-size: 90% auto;
+  pointer-events: none;
+}
+
+.logoArtistName {
+  position: absolute;
+  bottom: 12px;
+  left: 14px;
+  font-weight: 300;
+  font-style: italic;
+  font-size: calc(var(--cg-row-px, 100px) * 0.055);
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 0.01em;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* Resume button — appears when grid is frozen */
+
+.resumeBtn {
+  position: fixed;
+  bottom: 68px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.65);
+  border-radius: 20px;
+  padding: 7px 18px;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 90;
+  opacity: 0;
+  pointer-events: none;
+  font-family: inherit;
+}
+
+.resumeBtnVisible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.resumeBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.35);
+}

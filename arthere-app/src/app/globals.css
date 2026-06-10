@@ -10,4 +10,7 @@
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  /* Heading font for /cities pages — set by app/cities/layout.tsx via the
+     --font-nunito CSS variable. Use the `font-heading` utility class. */
+  --font-heading: var(--font-nunito), 'Arial Rounded MT Bold', Arial, sans-serif;
 }
