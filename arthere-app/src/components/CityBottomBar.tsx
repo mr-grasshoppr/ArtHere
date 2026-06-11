@@ -33,12 +33,13 @@ export function CityBottomBar({ citySlug, cityDisplayName }: Props) {
         WebkitBackdropFilter: 'blur(8px)',
       }}
     >
-      {/* City name — hidden on narrow screens */}
-      <span
-        className="font-heading flex-shrink-0 text-[0.95rem] font-bold text-white tracking-[0.03em] hidden sm:block"
+      {/* City name — links back to the city's home page; hidden on narrow screens */}
+      <Link
+        href={`/cities/${citySlug}`}
+        className="font-heading flex-shrink-0 text-[0.95rem] font-bold text-white tracking-[0.03em] hidden sm:block no-underline transition-opacity hover:opacity-60"
       >
         {cityDisplayName}
-      </span>
+      </Link>
       <span className="text-[#444] text-[0.9rem] flex-shrink-0 hidden sm:block">|</span>
 
       {tabs.map(tab => {

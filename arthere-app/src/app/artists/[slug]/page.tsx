@@ -1,159 +1,219 @@
-import { prisma } from "@/lib/db";
-import { notFound } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
+import { prisma } from '@/lib/db';
+import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
+import Image from 'next/image';
+import Link from 'next/link';
+import { NavBar } from '@/components/NavBar';
+import { CityBottomBar } from '@/components/CityBottomBar';
 
 export async function generateStaticParams() {
   const artists = await prisma.artist.findMany({ select: { slug: true } });
-  return artists.map((a) => ({ slug: a.slug }));
+  return artists.map(a => ({ slug: a.slug }));
 }
 
-export default async function ArtistPage({ params }: { params: { slug: string } }) {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const artist = await prisma.artist.findUnique({ where: { slug }, select: { name: true } });
+  return { title: artist ? `${artist.name} — Art Here` : 'Art Here' };
+}
+
+export default async function ArtistPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+
   const artist = await prisma.artist.findUnique({
-    where: { slug: params.slug },
+    where: { slug },
     include: {
-      artworkImages: { orderBy: { sortOrder: "asc" } },
-      placeRelations: { include: { place: true } },
-      intake: true,
+      artworkImages: { orderBy: { sortOrder: 'asc' } },
+      placeRelations: { orderBy: { createdAt: 'asc' }, include: { place: true } },
+      city: true,
     },
   });
 
   if (!artist) notFound();
 
-  const heroImage = artist.artworkImages.find((img) => img.isHero) ?? artist.artworkImages[0] ?? null;
-  const bioPhoto = artist.bioPhotoUrl ?? heroImage?.url ?? null;
-  const galleryImages = artist.artworkImages.filter((img) => img.id !== heroImage?.id);
+  const citySlug = artist.city?.slug;
+  const cityDisplayName =
+    artist.city?.displayName ?? (artist.city ? `${artist.city.name}${artist.city.state ? `, ${artist.city.state}` : ''}` : '');
 
-  const commissionLabel: Record<string, string> = {
-    OPEN: "Open for commissions",
-    CLOSED: "Not taking commissions",
-    ON_REQUEST: "Commissions by request",
-    UNSPECIFIED: "",
-  };
+  const heroUrl =
+    artist.heroImageUrl ??
+    artist.artworkImages.find(img => img.isHero)?.url ??
+    artist.artworkImages[0]?.url ??
+    null;
+
+  const galleryImages = artist.artworkImages.filter(img => img.url !== heroUrl);
+
+  const metaParts = [artist.medium, artist.neighborhood, cityDisplayName].filter(Boolean);
+
+  const bioParagraphs = (artist.bio ?? '')
+    .split(/\n\s*\n/)
+    .map(p => p.trim())
+    .filter(Boolean);
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-12">
-      <div className="mb-10">
-        <Link href="/artists" className="text-stone-400 text-sm hover:text-stone-600 transition-colors">
-          ← All artists
-        </Link>
-      </div>
+    <div className="min-h-full bg-white text-[#1a1a1a] pt-14 pb-14">
+      <NavBar activeCitySlug={citySlug} theme="light" />
 
-      {heroImage && (
-        <div className="mb-8 rounded-lg overflow-hidden bg-stone-100">
+      {/* Hero image */}
+      {heroUrl && (
+        <section className="relative w-full h-[38vh] min-h-[260px] overflow-hidden bg-[#f4f4f0]">
           <Image
-            src={heroImage.url}
-            alt={heroImage.altText ?? artist.name}
-            width={1200}
-            height={600}
-            className="w-full object-cover max-h-[420px]"
+            src={heroUrl}
+            alt={`${artist.name} artwork`}
+            fill
+            sizes="100vw"
+            className="object-cover"
             priority
           />
-        </div>
-      )}
-
-      <div className="flex items-start gap-5 mb-8">
-        {bioPhoto && (
-          <Image
-            src={bioPhoto}
-            alt={artist.name}
-            width={80}
-            height={80}
-            className="w-20 h-20 rounded-full object-cover flex-shrink-0"
-          />
-        )}
-        <div>
-          <h1 className="text-3xl font-medium text-stone-900">{artist.name}</h1>
-          {artist.placeRelations.length > 0 && (
-            <p className="text-stone-500 mt-1">
-              {artist.placeRelations.map((r) => r.place.name).join(" · ")}
-            </p>
-          )}
-          {commissionLabel[artist.commissionStatus] && (
-            <span
-              className={`inline-block mt-2 text-xs font-medium px-2 py-1 rounded-full ${
-                artist.commissionStatus === "OPEN"
-                  ? "bg-green-50 text-green-700"
-                  : artist.commissionStatus === "ON_REQUEST"
-                  ? "bg-amber-50 text-amber-700"
-                  : "bg-stone-100 text-stone-500"
-              }`}
-            >
-              {commissionLabel[artist.commissionStatus]}
-            </span>
-          )}
-        </div>
-      </div>
-
-      {artist.bio && (
-        <p className="text-stone-600 leading-relaxed mb-10 whitespace-pre-wrap">{artist.bio}</p>
-      )}
-
-      {/* Commission details */}
-      {artist.intake && artist.commissionStatus !== "UNSPECIFIED" && artist.commissionStatus !== "CLOSED" && (
-        <section className="bg-stone-50 rounded-lg p-5 mb-10 space-y-2 text-sm text-stone-600">
-          {artist.intake.commissionTypes.length > 0 && (
-            <p><span className="font-medium text-stone-800">Commission types:</span> {artist.intake.commissionTypes.join(", ")}</p>
-          )}
-          {artist.intake.turnaroundWeeks && (
-            <p><span className="font-medium text-stone-800">Typical turnaround:</span> {artist.intake.turnaroundWeeks} weeks</p>
-          )}
-          {(artist.priceRangeMin || artist.priceRangeMax) && (
-            <p>
-              <span className="font-medium text-stone-800">Price range:</span>{" "}
-              {artist.priceRangeMin && artist.priceRangeMax
-                ? `$${artist.priceRangeMin} – $${artist.priceRangeMax}`
-                : artist.priceRangeMin
-                ? `From $${artist.priceRangeMin}`
-                : `Up to $${artist.priceRangeMax}`}
-            </p>
-          )}
-          {artist.intake.shipsInternationally && <p>Ships internationally</p>}
-          {artist.intake.worksInPerson && <p>Available to work in person</p>}
-          {artist.intake.notes && <p className="italic">&ldquo;{artist.intake.notes}&rdquo;</p>}
         </section>
       )}
 
-      {/* Gallery */}
-      {galleryImages.length > 0 && (
-        <section className="mb-10">
-          <h2 className="text-sm font-medium text-stone-400 uppercase tracking-wider mb-4">Work</h2>
-          <div
-            className={`grid gap-3 ${
-              galleryImages.length === 1 ? "grid-cols-1" :
-              galleryImages.length === 2 ? "grid-cols-2" :
-              "grid-cols-2 sm:grid-cols-3"
-            }`}
-          >
-            {galleryImages.map((img) => (
-              <div key={img.id} className="rounded-lg overflow-hidden bg-stone-100 aspect-square">
-                <Image
-                  src={img.url}
-                  alt={img.altText ?? ""}
-                  width={600}
-                  height={600}
-                  className="w-full h-full object-cover"
-                />
+      {/* Identity block — circular photo overlaps the hero bottom */}
+      <div className="max-w-[980px] mx-auto px-5 sm:px-10 relative z-10">
+        <div className="flex flex-col sm:flex-row sm:items-end gap-3 sm:gap-6 pb-3">
+          {artist.bioPhotoUrl && (
+            <div
+              className={`relative w-[110px] h-[110px] sm:w-[140px] sm:h-[140px] rounded-full overflow-hidden bg-[#f0f0f0] border-4 border-white flex-shrink-0 ${
+                heroUrl ? '-mt-[55px] sm:-mt-[70px]' : ''
+              }`}
+            >
+              <Image
+                src={artist.bioPhotoUrl}
+                alt={artist.name}
+                fill
+                sizes="140px"
+                className="object-cover object-top"
+              />
+            </div>
+          )}
+          <div className="pb-1">
+            <h1 className="font-heading text-[1.35rem] sm:text-[1.6rem] font-bold tracking-[-0.01em] leading-tight mb-1.5">
+              {artist.name}
+            </h1>
+            {metaParts.length > 0 && (
+              <div className="text-[0.88rem] text-[#888] font-light">
+                {metaParts.join(' · ')}
               </div>
-            ))}
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Bio */}
+      {(bioParagraphs.length > 0 || artist.instagram || artist.website) && (
+        <section className="max-w-[980px] mx-auto px-5 sm:px-10 pt-7 pb-10">
+          <div className="max-w-[680px] text-[1.05rem] text-[#444] font-light leading-[1.8]">
+            {bioParagraphs.map((p, i) => {
+              const isQuote = /^["“]/.test(p) && /["”]$/.test(p);
+              if (isQuote) {
+                return (
+                  <blockquote
+                    key={i}
+                    className="italic border-l-2 border-[#ccc] pl-5 mb-[18px] text-[#888] text-[0.92rem]"
+                  >
+                    {p}
+                  </blockquote>
+                );
+              }
+              return <p key={i} className="mb-[18px]">{p}</p>;
+            })}
+            {(artist.website || artist.instagram) && (
+              <p className="text-[#999] text-[0.9rem]">
+                {artist.website && (
+                  <a
+                    href={artist.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#999] underline underline-offset-4 decoration-[#ddd] hover:text-[#1a1a1a] hover:decoration-[#aaa] transition-colors"
+                  >
+                    {artist.website.replace(/^https?:\/\//, '')}
+                  </a>
+                )}
+                {artist.website && artist.instagram && ' · '}
+                {artist.instagram && (
+                  <a
+                    href={`https://www.instagram.com/${artist.instagram}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#999] underline underline-offset-4 decoration-[#ddd] hover:text-[#1a1a1a] hover:decoration-[#aaa] transition-colors"
+                  >
+                    @{artist.instagram}
+                  </a>
+                )}
+              </p>
+            )}
           </div>
         </section>
       )}
 
-      {(artist.website || artist.instagram) && (
-        <section className="border-t border-stone-100 pt-6 flex gap-4">
-          {artist.website && (
-            <a href={artist.website} target="_blank" rel="noopener noreferrer" className="text-stone-500 text-sm hover:text-stone-800 transition-colors">
-              Website ↗
-            </a>
-          )}
-          {artist.instagram && (
-            <a href={`https://instagram.com/${artist.instagram}`} target="_blank" rel="noopener noreferrer" className="text-stone-500 text-sm hover:text-stone-800 transition-colors">
-              Instagram ↗
-            </a>
-          )}
+      {/* Community */}
+      {artist.placeRelations.length > 0 && (
+        <section className="max-w-[980px] mx-auto px-5 sm:px-10 pb-12">
+          <div className="text-[0.75rem] uppercase tracking-[0.18em] text-[#999] mb-3">Community</div>
+          <div className="flex flex-wrap gap-x-6 gap-y-2 items-baseline">
+            {artist.placeRelations.map(rel =>
+              rel.place.website && rel.place.inDirectory ? (
+                <a
+                  key={rel.id}
+                  href={rel.place.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[0.85rem] text-[#666] underline underline-offset-4 decoration-[#ccc] hover:decoration-[#1a1a1a] transition-colors"
+                >
+                  {rel.place.name}
+                </a>
+              ) : (
+                <span key={rel.id} className="text-[0.85rem] text-[#aaa] font-light">
+                  {rel.place.name}
+                </span>
+              )
+            )}
+          </div>
         </section>
       )}
-    </main>
+
+      {/* Artwork gallery */}
+      {galleryImages.length > 0 && (
+        <div className="max-w-[1200px] mx-auto px-5 pb-10 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5">
+          {galleryImages.map(img => (
+            <div
+              key={img.id}
+              className="relative aspect-[4/3] sm:aspect-square overflow-hidden rounded-md bg-[#f4f4f0] group"
+            >
+              <Image
+                src={img.url}
+                alt={img.altText ?? ''}
+                fill
+                sizes="(max-width: 640px) 100vw, 33vw"
+                className="object-cover transition-transform duration-[400ms] group-hover:scale-[1.03]"
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {citySlug && (
+        <Link
+          href={`/cities/${citySlug}/artists`}
+          className="inline-block mx-5 sm:ml-10 my-10 text-[#888] text-[0.88rem] no-underline hover:text-[#1a1a1a] transition-colors"
+        >
+          ← artists
+        </Link>
+      )}
+
+      <footer className="px-10 py-10 text-center text-[#bbb] text-[0.78rem] tracking-[0.05em] border-t border-[#f0f0f0]">
+        © 2026 Art Here · A project of Art Experience Lab
+      </footer>
+
+      {citySlug && <CityBottomBar citySlug={citySlug} cityDisplayName={cityDisplayName} />}
+    </div>
   );
 }

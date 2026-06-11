@@ -148,7 +148,7 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark' }: Props) 
               </div>
 
               <Link
-                href="/about"
+                href="/#about"
                 className={`block px-5 py-[13px] text-[0.9rem] transition-colors ${
                   isLight
                     ? 'text-[#444] border-b border-[#f0f0f0] hover:bg-[#fafafa] hover:text-[#1a1a1a]'
@@ -159,7 +159,7 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark' }: Props) 
                 About
               </Link>
               <Link
-                href="/about#contact"
+                href="/#contact"
                 className={`block px-5 py-[13px] text-[0.9rem] transition-colors ${
                   isLight
                     ? 'text-[#444] hover:bg-[#fafafa] hover:text-[#1a1a1a]'

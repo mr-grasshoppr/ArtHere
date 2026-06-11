@@ -127,6 +127,13 @@ model Place {
   description  String?       @db.Text
   website      String?
   heroImageUrl String?
+  // A few extra photos shown in a gallery on the place's page.
+  galleryImages String[]     @default([])
+  // Whether this place appears in the city Community directory page.
+  // Places an artist is connected to but that aren't part of the curated
+  // directory (closed venues, schools, etc.) are still listed on the
+  // artist's profile, just not linked or shown on the Community page.
+  inDirectory  Boolean       @default(true)
   createdAt    DateTime      @default(now())
 
   artists      ArtistPlace[]

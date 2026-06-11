@@ -1,0 +1,60 @@
+/* Landing page hero: the Art Here logo shape, with two pieces of artwork
+   sliding behind it in an endless loop. */
+
+.logoMask {
+  position: relative;
+  width: min(60vw, 520px);
+  aspect-ratio: 1668 / 1457;
+  overflow: hidden;
+  -webkit-mask-image: url('/images/arthere-mask.png');
+  mask-image: url('/images/arthere-mask.png');
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+.imageTrack {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  display: flex;
+  animation: slide 28s linear infinite;
+}
+
+.slide {
+  height: 100%;
+  flex-shrink: 0;
+}
+
+.slide img {
+  height: 100%;
+  width: auto;
+  min-width: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@keyframes slide {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 600px) {
+  .logoMask {
+    width: min(85vw, 380px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .imageTrack {
+    animation: none;
+  }
+}
