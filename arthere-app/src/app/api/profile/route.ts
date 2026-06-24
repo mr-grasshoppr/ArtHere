@@ -37,6 +37,8 @@ export async function POST(req: NextRequest) {
   const {
     name,
     bio,
+    medium,
+    neighborhood,
     hireFor,
     website,
     instagram,
@@ -79,6 +81,8 @@ export async function POST(req: NextRequest) {
   const artistData = {
     name: name.trim(),
     bio: bio?.trim() || null,
+    medium: medium?.trim() || null,
+    neighborhood: neighborhood?.trim() || null,
     hireFor: hireForClean,
     website: website?.trim() || null,
     instagram: instagram?.trim().replace(/^@/, "") || null,
@@ -108,12 +112,55 @@ export async function POST(req: NextRequest) {
   // Update place relations
   if (Array.isArray(placeRelations)) {
     await prisma.artistPlace.deleteMany({ where: { artistId: artist.id } });
-    if (placeRelations.length > 0) {
+
+    const resolved: { placeId: string; relationship: PlaceRelationship }[] = [];
+    for (const r of placeRelations as { placeId?: string; placeName?: string; relationship: string }[]) {
+      if (!r.relationship) continue;
+
+      let placeId = r.placeId;
+      if (!placeId) {
+        const name = r.placeName?.trim();
+        if (!name) continue;
+
+        const existingPlace = await prisma.place.findFirst({
+          where: { name: { equals: name, mode: "insensitive" } },
+        });
+
+        if (existingPlace) {
+          placeId = existingPlace.id;
+        } else {
+          const baseSlug = slugify(name);
+          let placeSlug = baseSlug;
+          let j = 1;
+          while (await prisma.place.findUnique({ where: { slug: placeSlug } })) {
+            placeSlug = `${baseSlug}-${j++}`;
+          }
+          const newPlace = await prisma.place.create({
+            data: { name, slug: placeSlug, inDirectory: false },
+          });
+          placeId = newPlace.id;
+        }
+      }
+
+      resolved.push({ placeId, relationship: r.relationship as PlaceRelationship });
+    }
+
+    // Drop duplicate (placeId, relationship) pairs — the table has a unique
+    // constraint on that combination.
+    const seen = new Set<string>();
+    const deduped = resolved.filter((r) => {
+      const key = `${r.placeId}:${r.relationship}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    if (deduped.length > 0) {
       await prisma.artistPlace.createMany({
-        data: placeRelations.map((r: { placeId: string; relationship: string }) => ({
+        data: deduped.map((r) => ({
           artistId: artist.id,
           placeId: r.placeId,
-          relationship: r.relationship as PlaceRelationship,
+          relationship: r.relationship,
         })),
       });
     }

@@ -94,60 +94,6 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark' }: Props) 
               }`}
             >
               <Link
-                href="/survey"
-                className={`block px-5 py-[13px] text-[0.9rem] font-semibold transition-colors ${
-                  isLight
-                    ? 'text-[#1a1a1a] border-b border-[#f0f0f0] hover:bg-[#fafafa]'
-                    : 'text-white border-b border-[#222] hover:bg-[#222]'
-                }`}
-                onClick={closeAll}
-              >
-                Join Us
-              </Link>
-
-              {/* Cities submenu */}
-              <div>
-                <button
-                  className={`w-full flex justify-between items-center px-5 py-[13px] text-[0.9rem] transition-colors bg-transparent border-none border-b cursor-pointer font-[inherit] ${
-                    isLight
-                      ? 'text-[#444] border-[#f0f0f0] hover:bg-[#fafafa] hover:text-[#1a1a1a]'
-                      : 'text-[#ccc] border-[#222] hover:bg-[#222] hover:text-white'
-                  }`}
-                  onClick={e => { e.stopPropagation(); setCitiesOpen(o => !o); }}
-                >
-                  Cities
-                  <span
-                    className={`text-[0.65rem] transition-transform duration-200 ${isLight ? 'text-[#ccc]' : 'text-[#555]'}`}
-                    style={citiesOpen ? { transform: 'rotate(90deg)' } : undefined}
-                  >
-                    &#9654;
-                  </span>
-                </button>
-
-                {citiesOpen && (
-                  <div className={isLight ? 'bg-[#fafafa] border-b border-[#f0f0f0]' : 'bg-[#111] border-b border-[#222]'}>
-                    {cities.map(city => {
-                      const label = city.displayName ?? `${city.name}${city.state ? `, ${city.state}` : ''}`;
-                      return (
-                        <Link
-                          key={city.slug}
-                          href={`/cities/${city.slug}`}
-                          className={`flex items-baseline gap-2 px-7 py-[9px] text-[0.85rem] transition-colors no-underline ${
-                            isLight
-                              ? 'text-[#1a1a1a] hover:bg-[#f0f0f0]'
-                              : 'text-[#ccc] hover:bg-[#1a1a1a] hover:text-white'
-                          }`}
-                          onClick={closeAll}
-                        >
-                          {label}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              <Link
                 href="/#about"
                 className={`block px-5 py-[13px] text-[0.9rem] transition-colors ${
                   isLight
@@ -156,8 +102,31 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark' }: Props) 
                 }`}
                 onClick={closeAll}
               >
-                About
+                About Us
               </Link>
+              <Link
+                href="/onboarding"
+                className={`block px-5 py-[13px] text-[0.9rem] transition-colors ${
+                  isLight
+                    ? 'text-[#444] border-b border-[#f0f0f0] hover:bg-[#fafafa] hover:text-[#1a1a1a]'
+                    : 'text-[#ccc] border-b border-[#222] hover:bg-[#222] hover:text-white'
+                }`}
+                onClick={closeAll}
+              >
+                Join Us
+              </Link>
+              <Link
+                href="/survey"
+                className={`block px-5 py-[13px] text-[0.9rem] transition-colors ${
+                  isLight
+                    ? 'text-[#444] border-b border-[#f0f0f0] hover:bg-[#fafafa] hover:text-[#1a1a1a]'
+                    : 'text-[#ccc] border-b border-[#222] hover:bg-[#222] hover:text-white'
+                }`}
+                onClick={closeAll}
+              >
+                Take the Survey
+              </Link>
+
               <Link
                 href="/#contact"
                 className={`block px-5 py-[13px] text-[0.9rem] transition-colors ${
@@ -167,7 +136,7 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark' }: Props) 
                 }`}
                 onClick={closeAll}
               >
-                Contact
+                Contact Us
               </Link>
             </div>
           )}

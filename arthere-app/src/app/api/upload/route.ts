@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
   const formData = await req.formData();
   const file = formData.get("file") as File | null;
   const isHero = formData.get("isHero") === "true";
+  const isBioPhoto = formData.get("isBioPhoto") === "true";
   const altText = formData.get("altText") as string | null;
 
   if (!file) {
@@ -47,6 +48,15 @@ export async function POST(req: NextRequest) {
     // Prevent hotlinking / external crawling via CDN tokens
     cacheControlMaxAge: 60 * 60 * 24 * 365,
   });
+
+  // Bio photo: update artist record only, no ArtworkImage row
+  if (isBioPhoto) {
+    await prisma.artist.update({
+      where: { id: artist.id },
+      data: { bioPhotoUrl: blob.url },
+    });
+    return NextResponse.json({ url: blob.url, isBioPhoto: true });
+  }
 
   // Determine sort order
   const existingCount = await prisma.artworkImage.count({ where: { artistId: artist.id } });

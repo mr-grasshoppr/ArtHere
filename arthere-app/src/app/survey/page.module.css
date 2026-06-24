@@ -1,0 +1,24 @@
+/* Small, static version of the Art Here logo shape used on the homepage
+   hero — here it just frames a single piece of artwork as a decorative
+   accent above the survey title. */
+
+.logoMask {
+  width: min(45vw, 160px);
+  aspect-ratio: 1668 / 1457;
+  overflow: hidden;
+  -webkit-mask-image: url('/images/arthere-mask.png');
+  mask-image: url('/images/arthere-mask.png');
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+.logoMask img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}

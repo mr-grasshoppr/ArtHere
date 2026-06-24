@@ -160,7 +160,7 @@ export default async function ArtistPage({
           <div className="text-[0.75rem] uppercase tracking-[0.18em] text-[#999] mb-3">Community</div>
           <div className="flex flex-wrap gap-x-6 gap-y-2 items-baseline">
             {artist.placeRelations.map(rel =>
-              rel.place.website && rel.place.inDirectory ? (
+              rel.place.website ? (
                 <a
                   key={rel.id}
                   href={rel.place.website}

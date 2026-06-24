@@ -12,6 +12,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // Magic links expire in 20 minutes
       maxAge: 60 * 20,
       sendVerificationRequest: async ({ identifier: email, url, provider }) => {
+        console.log("MAGIC_LINK:", url);
+        if (process.env.NODE_ENV === "development") {
+          const { writeFileSync } = await import("fs");
+          writeFileSync("/tmp/arthere-dev-link.txt", url);
+        }
         // Use the configured email server
         const { createTransport } = await import("nodemailer");
         const transport = createTransport(provider.server as string);

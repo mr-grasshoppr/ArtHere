@@ -50,11 +50,12 @@ model VerificationToken {
 // ─── Users & Artists ─────────────────────────────────────────────────────────
 
 model User {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  name      String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   accounts  Account[]
   sessions  Session[]
@@ -89,6 +90,8 @@ model Artist {
   artworkImages    ArtworkImage[]
   placeRelations   ArtistPlace[]
   intake           ArtistIntake?
+  adminNotes       AdminNote[]
+  magicLinkTokens  MagicLinkToken[]
 }
 
 enum CommissionStatus {
@@ -190,4 +193,82 @@ model City {
   createdAt           DateTime @default(now())
 
   artists             Artist[]
+}
+
+// ─── Community Survey ─────────────────────────────────────────────────────────
+// Responses to the "Portland Community Survey" (/survey). Free-text answers
+// are nullable since most questions are optional / conditionally shown.
+
+model SurveyResponse {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  // About Portland
+  portlandFamiliarity String? // Q1
+  portlandWords       String[] @default([]) // Q2 — three words
+  portlandHelpers     String?  @db.Text // Q3
+  portlandWish        String?  @db.Text // Q4 — "magic wand" change
+
+  // About You
+  artistStatus      String? // Q5
+  artistStatusOther String? // Q5 "Other" free text
+
+  // Where are you based
+  zipCode       String? // Q6
+  neighborhoods String?  @db.Text // Q7
+
+  // About Multnomah Village
+  mvFamiliarity String? // Q8
+  mvWords       String[] @default([]) // Q9 — three words
+  mvHelpers     String?  @db.Text // Q10
+
+  // Multnomah Days 2026
+  multnomahDaysInvolvement String[] @default([]) // Q11
+
+  // About Your Practice
+  practiceActivities String[] @default([]) // Q12
+  practiceGoals      String[] @default([]) // Q13 — up to three
+  practiceGoalsOther String? // Q13 "Other" free text
+  practiceSupport    String?  @db.Text // Q14
+
+  // Become a Featured Artist
+  featuredArtistInterest String? // Q15
+
+  // Stay in Touch
+  stayConnected String[] @default([]) // Q16
+
+  // Raffle + Email
+  raffleOptIn String? // Would you like to be entered in a raffle?
+  email       String? // Q17
+
+  // Referral
+  learnedAbout String[] @default([]) // Where did you hear about Art Here?
+}
+
+// ─── Magic Link Tokens ────────────────────────────────────────────────────────
+// One-time links sent to featured-artist opt-ins after survey completion.
+// A token is single-use and expires after 72 hours.
+
+model MagicLinkToken {
+  id        String   @id @default(cuid())
+  token     String   @unique @default(cuid())
+  email     String
+  artistId  String
+  used      Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+}
+
+// ─── Admin Notes ──────────────────────────────────────────────────────────────
+
+model AdminNote {
+  id        String   @id @default(cuid())
+  artistId  String
+  body      String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  artist    Artist   @relation(fields: [artistId], references: [id], onDelete: Cascade)
 }

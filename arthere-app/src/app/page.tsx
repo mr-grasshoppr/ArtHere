@@ -19,23 +19,34 @@ export const metadata: Metadata = {
 
 // Cities we're planning to bring Art Here to next, but that don't have a
 // directory in the app yet.
-const COMING_SOON_CITIES = ['Biloxi, MS', 'San Jose, CA'];
+
+// The photo that slides behind the logo on the hero — a plein-air painting
+// held up against the view that inspired it (wide enough for the panning
+// effect). This is a landing-page-only asset, separate from any artist's
+// profile photos.
+const HERO_ART_URL = '/images/hero-painting.jpg';
+
+// Short blurbs for the "2026 Pilot" section, keyed by city slug. Cities
+// with a live directory but no entry here just show the status line with
+// no extra description.
+const PILOT_DESCRIPTIONS: Record<string, string> = {
+  portland: 'Piloting the Art Here interview booth and platform at the Multnomah Days Festival on August 15.',
+};
+
+const CITY_CODES: Record<string, string> = {
+  portland: 'PDX',
+};
+
+const COMING_SOON_CITY_DATA: { label: string; code: string }[] = [
+  { label: 'Biloxi, MS', code: 'BLX' },
+  { label: 'San Jose, CA', code: 'SJC' },
+];
 
 export default async function Home() {
-  const [cities, heroArtist] = await Promise.all([
-    prisma.city.findMany({
-      select: { slug: true, name: true, state: true, displayName: true },
-      orderBy: { name: 'asc' },
-    }),
-    // The painting that slides behind the logo on the hero — Yong Hong
-    // Zhong's featured piece (a wide image so there's room to pan).
-    prisma.artist.findUnique({
-      where: { slug: 'yong-hong-zhong' },
-      select: { heroImageUrl: true },
-    }),
-  ]);
-
-  const heroArtUrl = heroArtist?.heroImageUrl ?? '/images/bg-art1.png';
+  const cities = await prisma.city.findMany({
+    select: { slug: true, name: true, state: true, displayName: true },
+    orderBy: { name: 'asc' },
+  });
 
   return (
     <div className={`${nunito.variable} min-h-full bg-white text-[#1a1a1a]`}>
@@ -47,11 +58,11 @@ export default async function Home() {
           <div className={styles.imageTrack}>
             <div className={styles.slide}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={heroArtUrl} alt="" />
+              <img src={HERO_ART_URL} alt="" />
             </div>
             <div className={styles.slide}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={heroArtUrl} alt="" />
+              <img src={HERO_ART_URL} alt="" />
             </div>
           </div>
         </div>
@@ -69,7 +80,7 @@ export default async function Home() {
               </Link>
             );
           })}
-          {COMING_SOON_CITIES.map(label => (
+          {COMING_SOON_CITY_DATA.map(({ label }) => (
             <div key={label} className="flex items-baseline gap-2.5">
               <span className="font-heading text-[1.25rem] sm:text-[1.35rem] font-bold text-[#ccc]">{label}</span>
               <span className="text-[0.7rem] text-[#bbb] font-light tracking-[0.06em] uppercase">coming soon</span>
@@ -78,65 +89,152 @@ export default async function Home() {
         </div>
       </section>
 
-      <hr className="w-[min(60vw,520px)] mx-auto border-0 border-t border-[#f0f0f0]" />
+      {/* Below the fold: redesigned to match the main-site landing page */}
+      <div className="border-t border-[#f0f0f0]">
 
-      {/* About */}
-      <section id="about" className="max-w-[980px] mx-auto px-5 sm:px-10 pt-16 pb-10 scroll-mt-[70px]">
-        <div className="max-w-[680px]">
-          <h2 className="font-heading text-[1.35rem] sm:text-[1.6rem] font-bold tracking-[-0.01em] leading-tight mb-5">
+        {/* Survey CTA */}
+        <section className="bg-[#1a1a1a] text-white">
+          <div className="max-w-[760px] mx-auto px-6 sm:px-10 py-14 sm:py-20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-8">
+            <div className="max-w-[480px]">
+              <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#888] mb-4">Portland, 2026</div>
+              <h2 className="font-heading text-[clamp(1.5rem,3vw,2rem)] font-bold tracking-[-0.02em] leading-[1.2] mb-4">
+                Help support the arts &mdash; take our community survey.
+              </h2>
+              <p className="text-[0.95rem] text-[#aaa] font-light leading-[1.75]">
+                Tell us about your experiences with the arts in Portland. It takes just a few minutes and you&rsquo;ll have the chance to win a $25 gift card while benefitting local artists.
+              </p>
+            </div>
+            <a
+              href="/survey"
+              className="shrink-0 inline-block px-7 py-3.5 rounded-full border border-white text-[0.9rem] font-medium text-white hover:bg-white hover:text-[#1a1a1a] transition-colors whitespace-nowrap"
+            >
+              Take the survey →
+            </a>
+          </div>
+        </section>
+
+        {/* About */}
+        <section id="about" className="max-w-[760px] mx-auto px-6 sm:px-10 pt-16 sm:pt-24 pb-14 sm:pb-20 scroll-mt-[70px]">
+          <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#bbb] mb-6">About</div>
+          <h2 className="font-heading text-[clamp(1.7rem,3.5vw,2.4rem)] font-bold tracking-[-0.02em] leading-[1.2] mb-7 max-w-[600px]">
             Art Here puts local artists on the map.
           </h2>
-
-          <div className="text-[1.05rem] text-[#444] font-light leading-[1.8] [&>p]:mb-[18px] [&_a]:text-[#1a1a1a] [&_a]:underline [&_a]:underline-offset-4">
+          <div className="max-w-[600px] text-[1.05rem] text-[#555] font-light leading-[1.85] [&>p]:mb-[18px]">
             <p>
               Art Here is a community initiative that connects artists to local opportunities. We
               partner with local organizations to host artist celebrations, capture artist stories,
               and build a living directory of artists and the institutions that support them.
             </p>
-
             <p>
               Great neighborhoods are shaped by the artists who live in them. Art Here helps
               communities see, celebrate, and support their own.
             </p>
-
-            <p>
-              In summer 2026, we are piloting in Portland, OR, with a presence at the Multnomah
-              Days Festival. Next up: Biloxi, MS and San Jose, CA.
-            </p>
-
-            <p>
-              <strong>Artists:</strong> If you&rsquo;d like to be featured, share more{' '}
-              <a href="#contact">here</a>.
-            </p>
-
-            <p>
-              <strong>Organizations:</strong> If you&rsquo;d like to partner or collaborate,{' '}
-              <a href="#contact">reach out</a>.
-            </p>
-
-            <p>
-              <strong>Cities and neighborhoods:</strong> If you&rsquo;d like to invite Art Here to
-              your community, <a href="#contact">let&rsquo;s talk</a>.
-            </p>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Contact */}
-      <section id="contact" className="max-w-[980px] mx-auto px-5 sm:px-10 pb-12 scroll-mt-[70px]">
-        <div className="text-[0.75rem] uppercase tracking-[0.18em] text-[#999] mb-3">Contact</div>
-        <div className="flex flex-wrap gap-x-6 gap-y-2 items-baseline">
-          <a
-            href="mailto:hello@axlab.io"
-            className="text-[0.85rem] text-[#666] underline underline-offset-4 decoration-[#ccc] hover:decoration-[#1a1a1a] transition-colors"
-          >
-            hello@axlab.io
-          </a>
-        </div>
-      </section>
 
-      <footer className="px-10 py-10 text-center text-[#bbb] text-[0.78rem] tracking-[0.05em] border-t border-[#f0f0f0]">
-        © 2026 Art Here · A project of Art Experience Lab
+        {/* 2026 Pilot */}
+        <section className="border-t border-[#f0f0f0] bg-[#fafafa]">
+          <div className="max-w-[760px] mx-auto px-6 sm:px-10 py-14 sm:py-[72px]">
+            <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#bbb] mb-10">
+              2026 Pilot
+            </div>
+            <div className="grid grid-cols-3 gap-6 sm:gap-10">
+              {cities.map(city => {
+                const label = city.displayName ?? `${city.name}${city.state ? `, ${city.state}` : ''}`;
+                const code = CITY_CODES[city.slug] ?? city.slug.toUpperCase().slice(0, 3);
+                return (
+                  <Link
+                    key={city.slug}
+                    href={`/cities/${city.slug}`}
+                    className="group no-underline"
+                  >
+                    <div className="font-heading text-[clamp(2.2rem,6vw,3.8rem)] font-bold text-[#1a1a1a] leading-none tracking-[-0.03em] group-hover:opacity-60 transition-opacity">
+                      {code}
+                    </div>
+                    <div className="mt-3 text-[0.78rem] font-semibold text-[#1a1a1a] leading-snug">{label}</div>
+                    <div className="mt-1 text-[0.68rem] text-[#888] tracking-[0.06em] uppercase">Summer 2026</div>
+                    {PILOT_DESCRIPTIONS[city.slug] && (
+                      <p className="mt-2 text-[0.8rem] text-[#888] font-light leading-[1.6]">
+                        {PILOT_DESCRIPTIONS[city.slug]}
+                      </p>
+                    )}
+                  </Link>
+                );
+              })}
+              {COMING_SOON_CITY_DATA.map(({ label, code }) => (
+                <div key={label}>
+                  <div className="font-heading text-[clamp(2.2rem,6vw,3.8rem)] font-bold text-[#ddd] leading-none tracking-[-0.03em]">
+                    {code}
+                  </div>
+                  <div className="mt-3 text-[0.78rem] font-semibold text-[#bbb] leading-snug">{label}</div>
+                  <div className="mt-1 text-[0.68rem] text-[#ccc] tracking-[0.06em] uppercase">Coming Soon</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* What's coming */}
+        <section className="border-t border-[#f0f0f0]">
+          <div className="max-w-[760px] mx-auto px-6 sm:px-10 py-14 sm:py-[72px]">
+            <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#bbb] mb-10">
+              What&rsquo;s coming
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-12">
+              <div>
+                <h3 className="font-heading text-[1rem] font-bold mb-2.5">Artist Directory</h3>
+                <p className="text-[0.9rem] text-[#666] font-light leading-[1.7]">
+                  Discover local artists, artwork that you love, and the galleries and organizations that support them.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-heading text-[1rem] font-bold mb-2.5">Community Voices</h3>
+                <p className="text-[0.9rem] text-[#666] font-light leading-[1.7]">
+                  We&rsquo;re conducting surveys and interviews to help the community better understand how to support the arts. Stay tuned for stories and insights.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-heading text-[1rem] font-bold mb-2.5">Art Here Network</h3>
+                <p className="text-[0.9rem] text-[#666] font-light leading-[1.7]">
+                  A visualization of galleries, studios, and organizations supporting artists in your area.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Contact */}
+        <section id="contact" className="border-t border-[#f0f0f0] max-w-[760px] mx-auto px-6 sm:px-10 py-14 sm:py-24 scroll-mt-[70px]">
+          <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#bbb] mb-8">Get in Touch</div>
+          <div className="font-heading text-[clamp(1.4rem,3vw,2rem)] font-bold mb-10">
+            <a
+              href="mailto:hello@axlab.io"
+              className="text-[#1a1a1a] no-underline border-b-2 border-[#1a1a1a] pb-0.5 hover:opacity-50 transition-opacity"
+            >
+              hello@axlab.io
+            </a>
+          </div>
+          <div className="flex flex-col gap-4 border-t border-[#f0f0f0] pt-8">
+            <div className="flex items-baseline gap-4">
+              <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#bbb] w-36 shrink-0">Artists</span>
+              <a href="/survey" className="text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#ccc] hover:opacity-60 transition-opacity">Get featured →</a>
+            </div>
+            <div className="flex items-baseline gap-4">
+              <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#bbb] w-36 shrink-0">Organizations</span>
+              <a href="mailto:hello@axlab.io" className="text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#ccc] hover:opacity-60 transition-opacity">Partner with us →</a>
+            </div>
+            <div className="flex items-baseline gap-4">
+              <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#bbb] w-36 shrink-0">Cities &amp; Neighborhoods</span>
+              <a href="mailto:hello@axlab.io" className="text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#ccc] hover:opacity-60 transition-opacity">Bring Art Here →</a>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer className="border-t border-[#f0f0f0] px-6 sm:px-10 py-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left text-[#bbb] text-[0.78rem] tracking-[0.05em]">
+        <span>© 2026 Art Here</span>
+        <span>A project of Art Experience Lab</span>
       </footer>
     </div>
   );
