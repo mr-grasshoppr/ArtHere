@@ -107,7 +107,7 @@ const MV_FAMILIARITY_OPTIONS = [
 
 const NOT_INTERESTED_MULTNOMAH_DAYS = `I'm not interested`;
 const MULTNOMAH_DAYS_OPTIONS = [
-  'Join the parade to celebrate local artists' work',
+  `Join the parade to celebrate local artists' work`,
   'Help set up or take down our booth',
   `I can't volunteer but I'd love to attend`,
   'Spread the word about Art Here',
