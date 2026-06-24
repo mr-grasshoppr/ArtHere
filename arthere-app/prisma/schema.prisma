@@ -218,9 +218,11 @@ model SurveyResponse {
   neighborhoods String?  @db.Text // Q7
 
   // About Multnomah Village
-  mvFamiliarity String? // Q8
-  mvWords       String[] @default([]) // Q9 — three words
-  mvHelpers     String?  @db.Text // Q10
+  mvFamiliarity    String? // Q8
+  mvWords          String[] @default([]) // Q9 — three words (deprecated, kept for old responses)
+  mvConnectionLevel String? // How connected do you feel to the artist community in MV?
+  mvHelpers        String?  @db.Text // What people/places helped you discover artists in MV?
+  mvSupport        String?  @db.Text // How would you most like to support artists in MV?
 
   // Multnomah Days 2026
   multnomahDaysInvolvement String[] @default([]) // Q11

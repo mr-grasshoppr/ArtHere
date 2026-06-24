@@ -18,7 +18,9 @@ interface Answers {
 
   mvFamiliarity: string;
   mvWords: [string, string, string];
+  mvConnectionLevel: string;
   mvHelpers: string;
+  mvSupport: string;
 
   multnomahDaysInvolvement: string[];
 
@@ -47,7 +49,9 @@ const initialAnswers: Answers = {
   neighborhoods: '',
   mvFamiliarity: '',
   mvWords: ['', '', ''],
+  mvConnectionLevel: '',
   mvHelpers: '',
+  mvSupport: '',
   multnomahDaysInvolvement: [],
   practiceActivities: [],
   practiceGoals: [],
@@ -85,7 +89,14 @@ const ARTIST_STATUS_OPTIONS = [
   OTHER,
 ];
 
-const NOT_FAMILIAR_WITH_MV = 'Not at all — I’m not familiar with Multnomah Village';
+const MV_CONNECTION_OPTIONS = [
+  ‘Very connected’,
+  ‘Somewhat connected’,
+  ‘A little connected’,
+  ‘Not at all connected’,
+];
+
+const NOT_FAMILIAR_WITH_MV = ‘Not at all — I’m not familiar with Multnomah Village’;
 const MV_FAMILIARITY_OPTIONS = [
   'Extremely — I live or work in Multnomah Village',
   'Very — I visit Multnomah Village regularly',
@@ -511,7 +522,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
       case 'mv-familiarity':
         return !!answers.mvFamiliarity;
       case 'mv-detail':
-        return answers.mvHelpers.trim() !== '';
+        return !!answers.mvConnectionLevel && answers.mvSupport.trim() !== '';
       case 'practice':
         return answers.practiceActivities.length > 0;
       case 'practice-goals':
@@ -688,10 +699,31 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
       {step === 'mv-detail' && (
         <div className="flex flex-col gap-10">
           <Eyebrow>About Multnomah Village</Eyebrow>
-          <Question text="In your opinion, what people, places, or organizations are helping Multnomah Village thrive?" hint="Name one to three.">
+          <Question text="How connected do you feel to the artist community in Multnomah Village?">
+            <SingleSelect
+              options={MV_CONNECTION_OPTIONS}
+              value={answers.mvConnectionLevel}
+              onChange={v => update('mvConnectionLevel', v)}
+            />
+          </Question>
+          <Question
+            text="In your experience, what people, places, or organizations have helped you discover or connect with artists in Multnomah Village?"
+            hint="Optional."
+          >
             <textarea
               value={answers.mvHelpers}
               onChange={e => update('mvHelpers', e.target.value)}
+              className={TEXTAREA_CLASS}
+              placeholder="Your answer"
+            />
+          </Question>
+          <Question
+            text="How, if at all, would you most like to support artists in Multnomah Village?"
+            hint="For example: buy their work, attend events, hire them for projects, spread the word, or other ways."
+          >
+            <textarea
+              value={answers.mvSupport}
+              onChange={e => update('mvSupport', e.target.value)}
               className={TEXTAREA_CLASS}
               placeholder="Your answer"
             />

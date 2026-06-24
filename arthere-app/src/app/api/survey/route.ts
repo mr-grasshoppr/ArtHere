@@ -41,7 +41,9 @@ export async function POST(req: NextRequest) {
 
       mvFamiliarity: str(body.mvFamiliarity),
       mvWords: strArray(body.mvWords),
+      mvConnectionLevel: str(body.mvConnectionLevel),
       mvHelpers: str(body.mvHelpers),
+      mvSupport: str(body.mvSupport),
 
       multnomahDaysInvolvement: strArray(body.multnomahDaysInvolvement),
 
@@ -143,7 +145,9 @@ export async function PATCH(req: NextRequest) {
       neighborhoods: str(body.neighborhoods),
       mvFamiliarity: str(body.mvFamiliarity),
       mvWords: strArray(body.mvWords),
+      mvConnectionLevel: str(body.mvConnectionLevel),
       mvHelpers: str(body.mvHelpers),
+      mvSupport: str(body.mvSupport),
       multnomahDaysInvolvement: strArray(body.multnomahDaysInvolvement),
       practiceActivities: strArray(body.practiceActivities),
       practiceGoals: strArray(body.practiceGoals),
