@@ -708,7 +708,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
           </Question>
           <Question
             text="In your experience, what people, places, or organizations have helped you discover or connect with artists in Multnomah Village?"
-            hint="Optional."
+            hint="Name one to three. Optional."
           >
             <textarea
               value={answers.mvHelpers}
