@@ -193,7 +193,7 @@ export async function POST(req: NextRequest) {
     const artistId = artist.id;
     parseHireText(hireForClean)
       .then((tags) =>
-        prisma.artist.update({ where: { id: artistId }, data: { hireTags: tags } })
+        prisma.artist.update({ where: { id: artistId }, data: { hireTags: tags as object } })
       )
       .catch(() => {
         // Non-critical — tags will populate on next save
