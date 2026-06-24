@@ -33,8 +33,11 @@ export async function POST(req: NextRequest) {
       portlandHelpers: str(body.portlandHelpers),
       portlandWish: str(body.portlandWish),
 
+      occupation: strArray(body.occupation),
+      occupationOther: str(body.occupationOther),
       artistStatus: str(body.artistStatus),
       artistStatusOther: str(body.artistStatusOther),
+      ageRange: str(body.ageRange),
 
       zipCode: str(body.zipCode),
       neighborhoods: str(body.neighborhoods),
@@ -140,8 +143,11 @@ export async function PATCH(req: NextRequest) {
       portlandWords: strArray(body.portlandWords),
       portlandHelpers: str(body.portlandHelpers),
       portlandWish: str(body.portlandWish),
+      occupation: strArray(body.occupation),
+      occupationOther: str(body.occupationOther),
       artistStatus: str(body.artistStatus),
       artistStatusOther: str(body.artistStatusOther),
+      ageRange: str(body.ageRange),
       zipCode: str(body.zipCode),
       neighborhoods: str(body.neighborhoods),
       mvFamiliarity: str(body.mvFamiliarity),

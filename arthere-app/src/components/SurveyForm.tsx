@@ -10,8 +10,11 @@ interface Answers {
   portlandHelpers: string;
   portlandWish: string;
 
+  occupation: string[];
+  occupationOther: string;
   artistStatus: string;
   artistStatusOther: string;
+  ageRange: string;
 
   zipCode: string;
   neighborhoods: string;
@@ -44,8 +47,11 @@ const initialAnswers: Answers = {
   portlandWords: ['', '', ''],
   portlandHelpers: '',
   portlandWish: '',
+  occupation: [],
+  occupationOther: '',
   artistStatus: '',
   artistStatusOther: '',
+  ageRange: '',
   zipCode: '',
   neighborhoods: '',
   mvFamiliarity: '',
@@ -80,15 +86,41 @@ const PORTLAND_FAMILIARITY_OPTIONS = [
   NOT_FAMILIAR_WITH_PORTLAND,
 ];
 
-const NOT_PRACTICING_ARTIST = `No, I'm not a practicing artist`;
+const OCCUPATION_OTHER = 'Other';
+const OCCUPATION_PREFER_NOT = 'Prefer not to say';
+const OCCUPATION_OPTIONS = [
+  'Artist or creative professional',
+  'Educator',
+  'Government or public sector',
+  'Healthcare',
+  'Business or nonprofit',
+  'Student',
+  'Retired',
+  OCCUPATION_OTHER,
+  OCCUPATION_PREFER_NOT,
+];
+
+const NOT_PRACTICING_ARTIST = `Not at all -- I'm not a practicing artist`;
 const OTHER = 'Other';
 const ARTIST_STATUS_OPTIONS = [
-  'Yes, it is my primary career',
-  'Yes, I have an active practice alongside other work',
-  `I'm just getting started`,
-  'I make artwork as a hobby or for fun',
+  'Extremely -- the arts are central to my work and life',
+  'Very -- I have an active practice alongside other work',
+  `Somewhat -- I'm just getting started`,
+  'A little -- I make artwork as a hobby or for fun',
   NOT_PRACTICING_ARTIST,
   OTHER,
+];
+
+const AGE_PREFER_NOT = 'Prefer not to say';
+const AGE_OPTIONS = [
+  'Under 18',
+  '18-24',
+  '25-34',
+  '35-44',
+  '45-54',
+  '55-64',
+  '65+',
+  AGE_PREFER_NOT,
 ];
 
 const MV_SUPPORT_OTHER = 'Other';
@@ -532,7 +564,12 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
       case 'portland-detail':
         return answers.portlandHelpers.trim() !== '' && answers.portlandWish.trim() !== '';
       case 'about-you':
-        return !!answers.artistStatus && (answers.artistStatus !== OTHER || answers.artistStatusOther.trim() !== '');
+        return (
+          answers.occupation.length > 0 &&
+          !!answers.artistStatus &&
+          (answers.artistStatus !== OTHER || answers.artistStatusOther.trim() !== '') &&
+          !!answers.ageRange
+        );
       case 'location':
         return answers.zipCode.length === 5 && answers.neighborhoods.trim() !== '';
       case 'mv-familiarity':
@@ -651,8 +688,24 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
       )}
 
       {step === 'about-you' && (
-        <div>
+        <div className="flex flex-col gap-10">
           <Eyebrow>About You</Eyebrow>
+          <Question text="What is your occupation?" hint="Select all that apply.">
+            <MultiSelect
+              options={OCCUPATION_OPTIONS}
+              value={answers.occupation}
+              onChange={v => update('occupation', v)}
+              exclusive={[OCCUPATION_PREFER_NOT]}
+            />
+            {answers.occupation.includes(OCCUPATION_OTHER) && (
+              <input
+                value={answers.occupationOther}
+                onChange={e => update('occupationOther', e.target.value)}
+                className={`${INPUT_CLASS} mt-2`}
+                placeholder="Please describe…"
+              />
+            )}
+          </Question>
           <Question text="Are you a practicing artist?">
             <SingleSelect
               options={ARTIST_STATUS_OPTIONS}
@@ -665,9 +718,15 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
                 onChange={e => update('artistStatusOther', e.target.value)}
                 className={`${INPUT_CLASS} mt-2`}
                 placeholder="Tell us more"
-                autoFocus
               />
             )}
+          </Question>
+          <Question text="What is your age?">
+            <SingleSelect
+              options={AGE_OPTIONS}
+              value={answers.ageRange}
+              onChange={v => update('ageRange', v)}
+            />
           </Question>
         </div>
       )}

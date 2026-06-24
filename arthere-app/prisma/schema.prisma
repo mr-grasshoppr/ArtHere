@@ -210,8 +210,11 @@ model SurveyResponse {
   portlandWish        String?  @db.Text // Q4 — "magic wand" change
 
   // About You
-  artistStatus      String? // Q5
-  artistStatusOther String? // Q5 "Other" free text
+  occupation        String[] @default([])
+  occupationOther   String?
+  artistStatus      String?
+  artistStatusOther String?
+  ageRange          String?
 
   // Where are you based
   zipCode       String? // Q6
