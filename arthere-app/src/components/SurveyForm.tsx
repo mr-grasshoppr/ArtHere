@@ -72,18 +72,18 @@ const initialAnswers: Answers = {
 const NOT_FAMILIAR_WITH_PORTLAND = 'Not at all — not involved in the arts';
 const PORTLAND_FAMILIARITY_OPTIONS = [
   'Extremely — the arts are central to my work and life',
-  'Very — involved in Portland's arts community',
+  `Very — involved in Portland's arts community`,
   'Somewhat — engaged from time to time',
   'A little — aware but not plugged in',
   NOT_FAMILIAR_WITH_PORTLAND,
 ];
 
-const NOT_PRACTICING_ARTIST = 'No, I'm not a practicing artist';
+const NOT_PRACTICING_ARTIST = `No, I'm not a practicing artist`;
 const OTHER = 'Other';
 const ARTIST_STATUS_OPTIONS = [
   'Yes, it is my primary career',
   'Yes, I have an active practice alongside other work',
-  'I'm just getting started',
+  `I'm just getting started`,
   'I make artwork as a hobby or for fun',
   NOT_PRACTICING_ARTIST,
   OTHER,
@@ -96,20 +96,20 @@ const MV_CONNECTION_OPTIONS = [
   'Not at all connected',
 ];
 
-const NOT_FAMILIAR_WITH_MV = 'Not at all — I'm not familiar with Multnomah Village';
+const NOT_FAMILIAR_WITH_MV = `Not at all — I'm not familiar with Multnomah Village`;
 const MV_FAMILIARITY_OPTIONS = [
   'Extremely — I live or work in Multnomah Village',
   'Very — I visit Multnomah Village regularly',
-  'Somewhat — I've been to Multnomah Village a few times',
-  'A little — I've heard of Multnomah Village but don't know it well',
+  `Somewhat — I've been to Multnomah Village a few times`,
+  `A little — I've heard of Multnomah Village but don't know it well`,
   NOT_FAMILIAR_WITH_MV,
 ];
 
-const NOT_INTERESTED_MULTNOMAH_DAYS = 'I'm not interested';
+const NOT_INTERESTED_MULTNOMAH_DAYS = `I'm not interested`;
 const MULTNOMAH_DAYS_OPTIONS = [
   'Join the parade to celebrate local artists' work',
   'Help set up or take down our booth',
-  'I can't volunteer but I'd love to attend',
+  `I can't volunteer but I'd love to attend`,
   'Spread the word about Art Here',
   NOT_INTERESTED_MULTNOMAH_DAYS,
 ];
@@ -143,7 +143,7 @@ const FEATURED_ARTIST_OPTIONS = [
   'Yes, online through the Art Here platform',
   'Yes, in person at local events and celebrations',
   'Yes, both online and in person',
-  'I'd like more information before deciding',
+  `I'd like more information before deciding`,
   'Not at this time',
 ];
 
