@@ -222,7 +222,8 @@ model SurveyResponse {
   mvWords          String[] @default([]) // Q9 — three words (deprecated, kept for old responses)
   mvConnectionLevel String? // How connected do you feel to the artist community in MV?
   mvHelpers        String?  @db.Text // What people/places helped you discover artists in MV?
-  mvSupport        String?  @db.Text // How would you most like to support artists in MV?
+  mvSupport        String[] @default([]) // How would you most like to connect with/support artists in MV?
+  mvSupportOther   String? // Write-in for "Other" in mvSupport
 
   // Multnomah Days 2026
   multnomahDaysInvolvement String[] @default([]) // Q11

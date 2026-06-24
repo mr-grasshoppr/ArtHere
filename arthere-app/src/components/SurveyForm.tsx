@@ -20,7 +20,8 @@ interface Answers {
   mvWords: [string, string, string];
   mvConnectionLevel: string;
   mvHelpers: string;
-  mvSupport: string;
+  mvSupport: string[];
+  mvSupportOther: string;
 
   multnomahDaysInvolvement: string[];
 
@@ -51,7 +52,8 @@ const initialAnswers: Answers = {
   mvWords: ['', '', ''],
   mvConnectionLevel: '',
   mvHelpers: '',
-  mvSupport: '',
+  mvSupport: [],
+  mvSupportOther: '',
   multnomahDaysInvolvement: [],
   practiceActivities: [],
   practiceGoals: [],
@@ -87,6 +89,20 @@ const ARTIST_STATUS_OPTIONS = [
   'I make artwork as a hobby or for fun',
   NOT_PRACTICING_ARTIST,
   OTHER,
+];
+
+const MV_SUPPORT_OTHER = 'Other';
+const MV_SUPPORT_NONE = 'None of the above';
+const MV_SUPPORT_OPTIONS = [
+  'Attend events',
+  'Purchase artwork',
+  'Commission artwork',
+  'Hire them for a project',
+  'Help share their work',
+  'Collaborate with them',
+  'Volunteer with arts organizations',
+  MV_SUPPORT_OTHER,
+  MV_SUPPORT_NONE,
 ];
 
 const MV_CONNECTION_OPTIONS = [
@@ -522,7 +538,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
       case 'mv-familiarity':
         return !!answers.mvFamiliarity;
       case 'mv-detail':
-        return !!answers.mvConnectionLevel && answers.mvSupport.trim() !== '';
+        return !!answers.mvConnectionLevel && answers.mvSupport.length > 0;
       case 'practice':
         return answers.practiceActivities.length > 0;
       case 'practice-goals':
@@ -718,15 +734,23 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
             />
           </Question>
           <Question
-            text="How, if at all, would you most like to support artists in Multnomah Village?"
-            hint="For example: buy their work, attend events, hire them for projects, spread the word, or other ways."
+            text="How, if at all, would you most like to connect with or support artists in Multnomah Village?"
+            hint="Select all that apply."
           >
-            <textarea
+            <MultiSelect
+              options={MV_SUPPORT_OPTIONS}
               value={answers.mvSupport}
-              onChange={e => update('mvSupport', e.target.value)}
-              className={TEXTAREA_CLASS}
-              placeholder="Your answer"
+              onChange={v => update('mvSupport', v)}
+              exclusive={[MV_SUPPORT_NONE]}
             />
+            {answers.mvSupport.includes(MV_SUPPORT_OTHER) && (
+              <input
+                value={answers.mvSupportOther}
+                onChange={e => update('mvSupportOther', e.target.value)}
+                className={`${INPUT_CLASS} mt-2`}
+                placeholder="Please describe…"
+              />
+            )}
           </Question>
         </div>
       )}
