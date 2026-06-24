@@ -33,6 +33,7 @@ interface Answers {
   raffleOptIn: string;
   email: string;
   learnedAbout: string[];
+  learnedAboutOther: string;
 }
 
 const initialAnswers: Answers = {
@@ -57,6 +58,7 @@ const initialAnswers: Answers = {
   raffleOptIn: '',
   email: '',
   learnedAbout: [],
+  learnedAboutOther: '',
 };
 
 // ─── Option lists ────────────────────────────────────────────────────────────
@@ -147,13 +149,14 @@ const STAY_CONNECTED_OPTIONS = [
 const RAFFLE_YES = 'Yes';
 const RAFFLE_OPTIONS = [RAFFLE_YES, 'No'];
 
+const LEARNED_ABOUT_OTHER = 'Other';
 const LEARNED_ABOUT_OPTIONS = [
   'Multnomah Arts Center',
-  'Multnomah Village business',
+  'A business in Multnomah Village',
   'Local art gallery',
   'Word of mouth',
   'Art Here website',
-  'Other',
+  LEARNED_ABOUT_OTHER,
 ];
 
 // ─── Option order randomization ─────────────────────────────────────────────
@@ -450,6 +453,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
   const [practiceActivityOptions] = useState(() => shuffleOptions(PRACTICE_ACTIVITY_OPTIONS, [NONE_OF_THE_ABOVE]));
   const [practiceGoalOptions] = useState(() => shuffleOptions(PRACTICE_GOAL_OPTIONS, [OTHER]));
   const [stayConnectedOptions] = useState(() => shuffleOptions(STAY_CONNECTED_OPTIONS, [NONE_AT_THIS_TIME]));
+  const [learnedAboutOptions] = useState(() => shuffleOptions(LEARNED_ABOUT_OPTIONS, [LEARNED_ABOUT_OTHER]));
 
   function update<K extends keyof Answers>(key: K, value: Answers[K]) {
     setAnswers(a => ({ ...a, [key]: value }));
@@ -460,6 +464,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
       ...currentAnswers,
       portlandWords: currentAnswers.portlandWords.filter(w => w.trim() !== ''),
       mvWords: currentAnswers.mvWords.filter(w => w.trim() !== ''),
+      learnedAboutOther: undefined,
     };
     if (draftId) {
       fetch(`/api/survey?id=${draftId}`, {
@@ -521,8 +526,13 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
         return answers.stayConnected.length > 0;
       case 'multnomah-days':
         return answers.multnomahDaysInvolvement.length > 0;
-      case 'email':
-        return !!answers.raffleOptIn && (answers.email.trim() === '' || emailLooksValid);
+      case 'email': {
+        if (!answers.raffleOptIn) return false;
+        const wantsRaffle = answers.raffleOptIn === RAFFLE_YES;
+        const wantsFollowUp = answers.stayConnected.some(s => s !== NONE_AT_THIS_TIME);
+        const emailRequired = wantsRaffle || wantsFollowUp;
+        return emailRequired ? emailLooksValid : (answers.email.trim() === '' || emailLooksValid);
+      }
       default:
         return true;
     }
@@ -536,6 +546,12 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
         ...answers,
         portlandWords: answers.portlandWords.filter(w => w.trim() !== ''),
         mvWords: answers.mvWords.filter(w => w.trim() !== ''),
+        learnedAbout: [
+          ...answers.learnedAbout.filter(v => v !== LEARNED_ABOUT_OTHER),
+          ...(answers.learnedAbout.includes(LEARNED_ABOUT_OTHER) && answers.learnedAboutOther.trim()
+            ? [`Other: ${answers.learnedAboutOther.trim()}`]
+            : answers.learnedAbout.includes(LEARNED_ABOUT_OTHER) ? ['Other'] : []),
+        ],
       };
       // If we already have a draft, update it instead of creating a duplicate
       const url = draftId ? `/api/survey?id=${draftId}` : '/api/survey';
@@ -588,13 +604,6 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
       {step === 'portland-detail' && (
         <div className="flex flex-col gap-10">
           <Eyebrow>About Portland</Eyebrow>
-          <Question text="How would you describe the arts in Portland in three words?">
-            <ThreeWordBlanks
-              lead="The arts in Portland are"
-              value={answers.portlandWords}
-              onChange={v => update('portlandWords', v)}
-            />
-          </Question>
           <Question text="In your opinion, what people, places, or organizations are helping the arts thrive in Portland?" hint="Name one to three.">
             <textarea
               value={answers.portlandHelpers}
@@ -679,14 +688,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
       {step === 'mv-detail' && (
         <div className="flex flex-col gap-10">
           <Eyebrow>About Multnomah Village</Eyebrow>
-          <Question text="How would you describe Multnomah Village in three words?">
-            <ThreeWordBlanks
-              lead="Multnomah Village is"
-              value={answers.mvWords}
-              onChange={v => update('mvWords', v)}
-            />
-          </Question>
-          <Question text="In your opinion, what people, places, or organizations make Multnomah Village a great place to live, work, or spend time?" hint="Name one to three.">
+          <Question text="In your opinion, what people, places, or organizations are helping Multnomah Village thrive?" hint="Name one to three.">
             <textarea
               value={answers.mvHelpers}
               onChange={e => update('mvHelpers', e.target.value)}
@@ -762,6 +764,13 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
       {step === 'stay-connected' && (
         <div>
           <Eyebrow>Stay Connected</Eyebrow>
+          <Intro>
+            Art Here is building a living directory of local artists, hosting community
+            events, and capturing the stories that make Portland&rsquo;s creative
+            neighborhoods special. As we grow, there are lots of ways to get involved —
+            from staying in the loop to volunteering, partnering, or being featured as
+            an artist.
+          </Intro>
           <Question text="In what ways would you like to stay connected to Art Here?" hint="Select all that apply.">
             <MultiSelect
               options={stayConnectedOptions}
@@ -803,7 +812,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
           </Question>
           <Question
             text="Email address"
-            hint="Optional. If you’d like to stay involved in any way, or have a chance to win the $25 raffle gift card, please share your email address. We’ll only use it to follow up with you. It won’t be shared or connected to your answers."
+            hint="Required if you’d like to enter the raffle or stay connected. We’ll only use it to follow up with you — it won’t be shared or connected to your survey answers."
           >
             <input
               type="email"
@@ -825,10 +834,19 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
           <Eyebrow>Almost Done</Eyebrow>
           <Question text="Where did you learn about Art Here?" hint="Select all that apply.">
             <MultiSelect
-              options={LEARNED_ABOUT_OPTIONS}
+              options={learnedAboutOptions}
               value={answers.learnedAbout}
               onChange={v => update('learnedAbout', v)}
             />
+            {answers.learnedAbout.includes(LEARNED_ABOUT_OTHER) && (
+              <input
+                value={answers.learnedAboutOther}
+                onChange={e => update('learnedAboutOther', e.target.value)}
+                className={`${INPUT_CLASS} mt-2`}
+                placeholder="Please describe…"
+                autoFocus
+              />
+            )}
           </Question>
         </div>
       )}

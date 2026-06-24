@@ -142,18 +142,6 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark' }: Props) 
           )}
         </div>
 
-        {/* Active city name (shown when on a city page) */}
-        {activeCityLabel && activeCitySlug && (
-          <Link
-            href={`/cities/${activeCitySlug}`}
-            className={`font-heading font-bold text-[1rem] no-underline tracking-[0.03em] hover:opacity-70 transition-opacity ${
-              isLight ? 'text-[#1a1a1a]' : 'text-white/85'
-            }`}
-            onClick={closeAll}
-          >
-            {activeCityLabel}
-          </Link>
-        )}
       </div>
     </>
   );
