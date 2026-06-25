@@ -28,10 +28,10 @@ export function SurveyPageContent() {
           really appreciate you taking the time.
         </p>
         <a
-          href="/onboarding"
+          href="/#about"
           className="inline-block px-7 py-3 rounded-full border border-[#1a1a1a] text-[0.9rem] font-medium text-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-white transition-colors"
         >
-          Join the waitlist to be a featured artist
+          Learn more about Art Here
         </a>
       </div>
     );
@@ -53,14 +53,15 @@ export function SurveyPageContent() {
         </h1>
         <div className="text-[1.05rem] text-[#555] font-light leading-[1.85] [&>p]:mb-[18px]">
           <p>
-            We&rsquo;re working to understand how to better support artists in our neighborhoods
-            and cities — and we need your help. This five-minute survey gives us a picture of
-            Portland&rsquo;s creative community and what it needs to thrive.
+            Art Here is a community initiative to celebrate local artists and connect them to
+            the residents, businesses, and organizations around them.
           </p>
           <p>
-            Whether you&rsquo;re an artist, a neighbor, or just curious about Art Here, we&rsquo;d
-            love to hear from you. The survey also includes information about how to get involved
-            and join Art Here as a featured artist.
+            The purpose of this survey is to understand how to better support the arts in
+            Portland. We&rsquo;ll share findings publicly with the community and with our
+            partners — and your answers may also help Art Here connect you with local
+            opportunities. Whether you&rsquo;re an artist, a neighbor, or just curious,
+            we&rsquo;d love to hear from you.
           </p>
         </div>
 

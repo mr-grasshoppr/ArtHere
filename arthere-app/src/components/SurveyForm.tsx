@@ -513,6 +513,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
   const [practiceGoalOptions] = useState(() => shuffleOptions(PRACTICE_GOAL_OPTIONS, [OTHER]));
   const [stayConnectedOptions] = useState(() => shuffleOptions(STAY_CONNECTED_OPTIONS, [NONE_AT_THIS_TIME]));
   const [learnedAboutOptions] = useState(() => shuffleOptions(LEARNED_ABOUT_OPTIONS, [LEARNED_ABOUT_OTHER]));
+  const [occupationOptions] = useState(() => shuffleOptions(OCCUPATION_OPTIONS, [OCCUPATION_OTHER, OCCUPATION_PREFER_NOT]));
 
   function update<K extends keyof Answers>(key: K, value: Answers[K]) {
     setAnswers(a => ({ ...a, [key]: value }));
@@ -547,10 +548,12 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
   function goNext() {
     saveDraft(answers);
     setHistory(h => [...h, getNextStep(h[h.length - 1], answers)]);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function goBack() {
     setHistory(h => (h.length > 1 ? h.slice(0, -1) : h));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   const emailLooksValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(answers.email.trim());
@@ -692,7 +695,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
           <Eyebrow>About You</Eyebrow>
           <Question text="What is your occupation?" hint="Select all that apply.">
             <MultiSelect
-              options={OCCUPATION_OPTIONS}
+              options={occupationOptions}
               value={answers.occupation}
               onChange={v => update('occupation', v)}
               exclusive={[OCCUPATION_PREFER_NOT]}

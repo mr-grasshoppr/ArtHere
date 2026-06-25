@@ -165,7 +165,7 @@ function SimpleNav() {
           </button>
           {open && (
             <div className="absolute top-[calc(100%+8px)] right-0 rounded-md overflow-hidden min-w-[160px] bg-white border border-[#eee] shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
-              {[['/#about','About Us'],['/#contact','Contact Us'],['/survey','Take the Survey']].map(([href, label]) => (
+              {[['/#about','About Us'],['/survey','Join Us'],['/survey','Take the Survey'],['/#contact','Contact Us']].map(([href, label]) => (
                 <Link key={href} href={href} onClick={() => setOpen(false)}
                   className="block px-5 py-[13px] text-[0.9rem] text-[#444] border-b border-[#f0f0f0] last:border-b-0 hover:bg-[#fafafa] hover:text-[#1a1a1a] transition-colors">
                   {label}
