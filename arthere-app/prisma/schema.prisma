@@ -204,10 +204,12 @@ model SurveyResponse {
   createdAt DateTime @default(now())
 
   // About Portland
-  portlandFamiliarity String? // Q1
-  portlandWords       String[] @default([]) // Q2 — three words
-  portlandHelpers     String?  @db.Text // Q3
-  portlandWish        String?  @db.Text // Q4 — "magic wand" change
+  portlandFamiliarity  String? // Q1
+  portlandWords        String[] @default([]) // Q2 — three words
+  portlandHelpers      String?  @db.Text // Q3
+  portlandSupport      String[] @default([]) // How would you like to support the artist community in Portland?
+  portlandSupportOther String? // Write-in for "Other" in portlandSupport
+  portlandWish         String?  @db.Text // Q4 — "magic wand" change
 
   // About You
   occupation        String[] @default([])

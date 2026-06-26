@@ -8,23 +8,17 @@ interface Answers {
   portlandFamiliarity: string;
   portlandWords: [string, string, string];
   portlandHelpers: string;
+  portlandSupport: string[];
+  portlandSupportOther: string;
   portlandWish: string;
 
   occupation: string[];
   occupationOther: string;
   artistStatus: string;
   artistStatusOther: string;
-  ageRange: string;
 
   zipCode: string;
   neighborhoods: string;
-
-  mvFamiliarity: string;
-  mvWords: [string, string, string];
-  mvConnectionLevel: string;
-  mvHelpers: string;
-  mvSupport: string[];
-  mvSupportOther: string;
 
   multnomahDaysInvolvement: string[];
 
@@ -46,20 +40,15 @@ const initialAnswers: Answers = {
   portlandFamiliarity: '',
   portlandWords: ['', '', ''],
   portlandHelpers: '',
+  portlandSupport: [],
+  portlandSupportOther: '',
   portlandWish: '',
   occupation: [],
   occupationOther: '',
   artistStatus: '',
   artistStatusOther: '',
-  ageRange: '',
   zipCode: '',
   neighborhoods: '',
-  mvFamiliarity: '',
-  mvWords: ['', '', ''],
-  mvConnectionLevel: '',
-  mvHelpers: '',
-  mvSupport: [],
-  mvSupportOther: '',
   multnomahDaysInvolvement: [],
   practiceActivities: [],
   practiceGoals: [],
@@ -77,80 +66,59 @@ const initialAnswers: Answers = {
 // Branching decisions are keyed off these exact strings, so they're pulled
 // out as constants rather than re-typed inline.
 
-const NOT_FAMILIAR_WITH_PORTLAND = 'Not at all — not involved in the arts';
 const PORTLAND_FAMILIARITY_OPTIONS = [
-  'Extremely — the arts are central to my work and life',
-  `Very — involved in Portland's arts community`,
-  'Somewhat — engaged from time to time',
-  'A little — aware but not plugged in',
-  NOT_FAMILIAR_WITH_PORTLAND,
+  'Extremely -- artists are central to my work and life',
+  'Very -- I have regular relationships with artists in Portland',
+  'Somewhat -- I know a few artists or engage with the arts occasionally',
+  'A little -- I\'m aware of the arts community but not personally connected',
+  'Not at all -- I don\'t have personal connections to artists in Portland',
 ];
 
 const OCCUPATION_OTHER = 'Other';
 const OCCUPATION_PREFER_NOT = 'Prefer not to say';
 const OCCUPATION_OPTIONS = [
-  'Artist or creative professional',
-  'Educator',
-  'Government or public sector',
-  'Healthcare',
-  'Business or nonprofit',
-  'Student',
-  'Retired',
+  'Arts (Visual Art, Dance, Music, Theater)',
+  'Design or Creative Services',
+  'Media and Entertainment',
+  'Education',
+  'Technology and Software',
+  'Healthcare and Life Sciences',
+  'Finance and Insurance',
+  'Government and Public Administration',
+  'Nonprofit and Social Services',
+  'Professional Services (Legal, Consulting, Accounting)',
+  'Construction and Real Estate',
+  'Manufacturing',
+  'Retail, Hospitality, or Food Service',
+  'Transportation and Logistics',
+  'Not currently working or Homemaker',
   OCCUPATION_OTHER,
   OCCUPATION_PREFER_NOT,
 ];
 
-const NOT_PRACTICING_ARTIST = `Not at all -- I'm not a practicing artist`;
+const NOT_MAKING_ART = 'No';
 const OTHER = 'Other';
 const ARTIST_STATUS_OPTIONS = [
-  'Extremely -- the arts are central to my work and life',
-  'Very -- I have an active practice alongside other work',
-  `Somewhat -- I'm just getting started`,
-  'A little -- I make artwork as a hobby or for fun',
-  NOT_PRACTICING_ARTIST,
+  'Yes, it is my primary occupation',
+  'Yes, I have an active art practice alongside other work',
+  `Yes, I'm an art student`,
+  'Yes, for fun or as a hobby',
+  NOT_MAKING_ART,
   OTHER,
 ];
 
-const AGE_PREFER_NOT = 'Prefer not to say';
-const AGE_OPTIONS = [
-  'Under 18',
-  '18-24',
-  '25-34',
-  '35-44',
-  '45-54',
-  '55-64',
-  '65+',
-  AGE_PREFER_NOT,
-];
-
-const MV_SUPPORT_OTHER = 'Other';
-const MV_SUPPORT_NONE = 'None of the above';
-const MV_SUPPORT_OPTIONS = [
+const PORTLAND_SUPPORT_OTHER = 'Other';
+const PORTLAND_SUPPORT_NONE = 'None of the above';
+const PORTLAND_SUPPORT_OPTIONS = [
   'Attend events',
   'Purchase artwork',
   'Commission artwork',
-  'Hire them for a project',
-  'Help share their work',
-  'Collaborate with them',
+  'Hire an artist',
+  "Help share artists' work",
+  'Collaborate with artists',
   'Volunteer with arts organizations',
-  MV_SUPPORT_OTHER,
-  MV_SUPPORT_NONE,
-];
-
-const MV_CONNECTION_OPTIONS = [
-  'Very connected',
-  'Somewhat connected',
-  'A little connected',
-  'Not at all connected',
-];
-
-const NOT_FAMILIAR_WITH_MV = `Not at all — I'm not familiar with Multnomah Village`;
-const MV_FAMILIARITY_OPTIONS = [
-  'Extremely — I live or work in Multnomah Village',
-  'Very — I visit Multnomah Village regularly',
-  `Somewhat — I've been to Multnomah Village a few times`,
-  `A little — I've heard of Multnomah Village but don't know it well`,
-  NOT_FAMILIAR_WITH_MV,
+  PORTLAND_SUPPORT_OTHER,
+  PORTLAND_SUPPORT_NONE,
 ];
 
 const NOT_INTERESTED_MULTNOMAH_DAYS = `I'm not interested`;
@@ -167,7 +135,7 @@ const PRACTICE_ACTIVITY_OPTIONS = [
   'Sold original artwork',
   'Taken commissions for my artwork',
   'Exhibited or shown my artwork publicly',
-  'Performed or presented my work publicly',
+  'Performed or presented art publicly',
   'Applied for an artist grant or residency',
   'Received an artist grant or residency',
   'Collaborated with other artists or organizations on an art project',
@@ -214,7 +182,6 @@ const LEARNED_ABOUT_OPTIONS = [
   'A business in Multnomah Village',
   'Local art gallery',
   'Word of mouth',
-  'Art Here website',
   LEARNED_ABOUT_OTHER,
 ];
 
@@ -243,62 +210,44 @@ function shuffleOptions(options: string[], pinned: string[] = []): string[] {
 }
 
 // ─── Step machine ────────────────────────────────────────────────────────────
-// Each step is one screen of the survey. `getNextStep` encodes the
-// conditional skips described in the source doc:
-//   - Q1 "not familiar with the arts in Portland" -> skip straight to
-//     About You (skipping the Portland detail questions).
-//   - Q5 "practicing artist" -> go straight into "About Your Practice"
-//     (split across two pages) and "Become a Featured Artist" before
-//     moving on to location/Multnomah Village questions. Non-artists skip
-//     all of that and go straight to Location.
-//   - Q8 "not familiar with Multnomah Village" -> skip Q9-10.
-//   - Multnomah Days 2026 only shows to people who have some connection to
-//     Multnomah Village — skipped for anyone who said "I'm not familiar
-//     with Multnomah Village" (Q8).
-//   - Email is the very last question, and is optional.
 
 type StepId =
+  | 'location'
+  | 'about-you'
   | 'portland-familiarity'
   | 'portland-detail'
-  | 'about-you'
   | 'practice'
   | 'practice-goals'
   | 'featured-artist'
-  | 'location'
-  | 'mv-familiarity'
-  | 'mv-detail'
   | 'stay-connected'
   | 'multnomah-days'
   | 'email'
   | 'learned-about'
   | 'done';
 
-function isPracticingArtist(a: Answers) {
-  return a.artistStatus !== NOT_PRACTICING_ARTIST;
+function isMakingArt(a: Answers) {
+  return a.artistStatus !== NOT_MAKING_ART;
 }
 
 function getNextStep(step: StepId, a: Answers): StepId {
   switch (step) {
-    case 'portland-familiarity':
-      return a.portlandFamiliarity === NOT_FAMILIAR_WITH_PORTLAND ? 'about-you' : 'portland-detail';
-    case 'portland-detail':
+    case 'location':
       return 'about-you';
     case 'about-you':
-      return isPracticingArtist(a) ? 'practice' : 'location';
+      return 'portland-familiarity';
+    case 'portland-familiarity':
+      return 'portland-detail';
+    case 'portland-detail':
+      return isMakingArt(a) ? 'practice' : 'stay-connected';
     case 'practice':
       return 'practice-goals';
     case 'practice-goals':
       return 'featured-artist';
     case 'featured-artist':
-      return 'location';
-    case 'location':
-      return 'mv-familiarity';
-    case 'mv-familiarity':
-      return a.mvFamiliarity === NOT_FAMILIAR_WITH_MV ? 'stay-connected' : 'mv-detail';
-    case 'mv-detail':
       return 'stay-connected';
     case 'stay-connected':
-      return a.mvFamiliarity !== NOT_FAMILIAR_WITH_MV ? 'multnomah-days' : 'email';
+      // TODO: gate on Portland metro zip codes once zip list is available
+      return 'multnomah-days';
     case 'multnomah-days':
       return 'email';
     case 'email':
@@ -312,8 +261,8 @@ function getNextStep(step: StepId, a: Answers): StepId {
 /** Walks the step machine forward from the current answers to estimate the
  * full path length, for the progress bar. */
 function getFullPath(a: Answers): StepId[] {
-  const path: StepId[] = ['portland-familiarity'];
-  let current: StepId = 'portland-familiarity';
+  const path: StepId[] = ['location'];
+  let current: StepId = 'location';
   while (current !== 'done') {
     current = getNextStep(current, a);
     path.push(current);
@@ -331,8 +280,6 @@ const OPTION_ACTIVE = 'border-[#1a1a1a] bg-[#1a1a1a] text-white';
 const INPUT_CLASS =
   'w-full px-4 py-3 rounded-lg border border-[#e5e5e5] text-[0.95rem] text-[#1a1a1a] placeholder-[#bbb] focus:outline-none focus:border-[#1a1a1a] transition-colors';
 const TEXTAREA_CLASS = `${INPUT_CLASS} min-h-[96px] resize-y leading-[1.6]`;
-const BLANK_CLASS =
-  'w-[120px] px-1 py-1 border-0 border-b border-[#ccc] text-center text-[#1a1a1a] bg-transparent focus:outline-none focus:border-[#1a1a1a] transition-colors placeholder-[#ddd]';
 
 const BUTTON_PRIMARY =
   'px-6 py-3 rounded-full bg-[#1a1a1a] text-white text-[0.9rem] font-medium transition-opacity hover:opacity-80 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer';
@@ -454,33 +401,6 @@ function MultiSelect({
   );
 }
 
-function ThreeWordBlanks({
-  lead,
-  value,
-  onChange,
-}: {
-  lead: string;
-  value: [string, string, string];
-  onChange: (v: [string, string, string]) => void;
-}) {
-  function set(i: number, v: string) {
-    const next = [...value] as [string, string, string];
-    next[i] = v;
-    onChange(next);
-  }
-  return (
-    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-3 text-[1.05rem] text-[#444] font-light leading-[1.8]">
-      <span>{lead}</span>
-      <input value={value[0]} onChange={e => set(0, e.target.value)} className={BLANK_CLASS} placeholder="word" />
-      <span>,</span>
-      <input value={value[1]} onChange={e => set(1, e.target.value)} className={BLANK_CLASS} placeholder="word" />
-      <span>, and</span>
-      <input value={value[2]} onChange={e => set(2, e.target.value)} className={BLANK_CLASS} placeholder="word" />
-      <span>.</span>
-    </div>
-  );
-}
-
 function ProgressBar({ value }: { value: number }) {
   return (
     <div className="h-[3px] w-full bg-[#f0f0f0] rounded-full overflow-hidden mb-10">
@@ -497,7 +417,7 @@ function ProgressBar({ value }: { value: number }) {
  */
 export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
   const [answers, setAnswers] = useState<Answers>(initialAnswers);
-  const [history, setHistory] = useState<StepId[]>(['portland-familiarity']);
+  const [history, setHistory] = useState<StepId[]>(['location']);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
@@ -514,6 +434,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
   const [stayConnectedOptions] = useState(() => shuffleOptions(STAY_CONNECTED_OPTIONS, [NONE_AT_THIS_TIME]));
   const [learnedAboutOptions] = useState(() => shuffleOptions(LEARNED_ABOUT_OPTIONS, [LEARNED_ABOUT_OTHER]));
   const [occupationOptions] = useState(() => shuffleOptions(OCCUPATION_OPTIONS, [OCCUPATION_OTHER, OCCUPATION_PREFER_NOT]));
+  const [portlandSupportOptions] = useState(() => shuffleOptions(PORTLAND_SUPPORT_OPTIONS, [PORTLAND_SUPPORT_OTHER, PORTLAND_SUPPORT_NONE]));
 
   function update<K extends keyof Answers>(key: K, value: Answers[K]) {
     setAnswers(a => ({ ...a, [key]: value }));
@@ -523,7 +444,6 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
     const payload = {
       ...currentAnswers,
       portlandWords: currentAnswers.portlandWords.filter(w => w.trim() !== ''),
-      mvWords: currentAnswers.mvWords.filter(w => w.trim() !== ''),
       learnedAboutOther: undefined,
     };
     if (draftId) {
@@ -558,27 +478,22 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
 
   const emailLooksValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(answers.email.trim());
 
-  // Every question is required except the "three words" prompts (Portland
-  // and Multnomah Village) and email, which stay optional.
+  // Every question is required except the "three words" prompts, the portland
+  // helpers and wish textareas, and email, which stay optional.
   const canProceed = (() => {
     switch (step) {
-      case 'portland-familiarity':
-        return !!answers.portlandFamiliarity;
-      case 'portland-detail':
-        return answers.portlandHelpers.trim() !== '' && answers.portlandWish.trim() !== '';
+      case 'location':
+        return answers.zipCode.length === 5 && answers.neighborhoods.trim() !== '';
       case 'about-you':
         return (
           answers.occupation.length > 0 &&
           !!answers.artistStatus &&
-          (answers.artistStatus !== OTHER || answers.artistStatusOther.trim() !== '') &&
-          !!answers.ageRange
+          (answers.artistStatus !== OTHER || answers.artistStatusOther.trim() !== '')
         );
-      case 'location':
-        return answers.zipCode.length === 5 && answers.neighborhoods.trim() !== '';
-      case 'mv-familiarity':
-        return !!answers.mvFamiliarity;
-      case 'mv-detail':
-        return !!answers.mvConnectionLevel && answers.mvSupport.length > 0;
+      case 'portland-familiarity':
+        return !!answers.portlandFamiliarity;
+      case 'portland-detail':
+        return answers.portlandSupport.length > 0;
       case 'practice':
         return answers.practiceActivities.length > 0;
       case 'practice-goals':
@@ -612,7 +527,6 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
       const payload = {
         ...answers,
         portlandWords: answers.portlandWords.filter(w => w.trim() !== ''),
-        mvWords: answers.mvWords.filter(w => w.trim() !== ''),
         learnedAbout: [
           ...answers.learnedAbout.filter(v => v !== LEARNED_ABOUT_OTHER),
           ...(answers.learnedAbout.includes(LEARNED_ABOUT_OTHER) && answers.learnedAboutOther.trim()
@@ -652,88 +566,6 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
     <div className="max-w-[640px] mx-auto px-5 sm:px-10 py-10 sm:py-14">
       <ProgressBar value={progress} />
 
-      {step === 'portland-familiarity' && (
-        <div>
-          <Eyebrow>About Portland</Eyebrow>
-          <Question
-            text="How familiar are you with the arts in Portland?"
-            hint="This could include visual art, music, performance, community arts, arts education, or other arts in Portland."
-          >
-            <SingleSelect
-              options={PORTLAND_FAMILIARITY_OPTIONS}
-              value={answers.portlandFamiliarity}
-              onChange={v => update('portlandFamiliarity', v)}
-            />
-          </Question>
-        </div>
-      )}
-
-      {step === 'portland-detail' && (
-        <div className="flex flex-col gap-10">
-          <Eyebrow>About Portland</Eyebrow>
-          <Question text="In your opinion, what people, places, or organizations are helping the arts thrive in Portland?" hint="Name one to three.">
-            <textarea
-              value={answers.portlandHelpers}
-              onChange={e => update('portlandHelpers', e.target.value)}
-              className={TEXTAREA_CLASS}
-              placeholder="Your answer"
-            />
-          </Question>
-          <Question text="If you had a magic wand, what is one thing you would change to better support the arts in Portland?">
-            <textarea
-              value={answers.portlandWish}
-              onChange={e => update('portlandWish', e.target.value)}
-              className={TEXTAREA_CLASS}
-              placeholder="Your answer"
-            />
-          </Question>
-        </div>
-      )}
-
-      {step === 'about-you' && (
-        <div className="flex flex-col gap-10">
-          <Eyebrow>About You</Eyebrow>
-          <Question text="What is your occupation?" hint="Select all that apply.">
-            <MultiSelect
-              options={occupationOptions}
-              value={answers.occupation}
-              onChange={v => update('occupation', v)}
-              exclusive={[OCCUPATION_PREFER_NOT]}
-            />
-            {answers.occupation.includes(OCCUPATION_OTHER) && (
-              <input
-                value={answers.occupationOther}
-                onChange={e => update('occupationOther', e.target.value)}
-                className={`${INPUT_CLASS} mt-2`}
-                placeholder="Please describe…"
-              />
-            )}
-          </Question>
-          <Question text="Are you a practicing artist?">
-            <SingleSelect
-              options={ARTIST_STATUS_OPTIONS}
-              value={answers.artistStatus}
-              onChange={v => update('artistStatus', v)}
-            />
-            {answers.artistStatus === OTHER && (
-              <input
-                value={answers.artistStatusOther}
-                onChange={e => update('artistStatusOther', e.target.value)}
-                className={`${INPUT_CLASS} mt-2`}
-                placeholder="Tell us more"
-              />
-            )}
-          </Question>
-          <Question text="What is your age?">
-            <SingleSelect
-              options={AGE_OPTIONS}
-              value={answers.ageRange}
-              onChange={v => update('ageRange', v)}
-            />
-          </Question>
-        </div>
-      )}
-
       {step === 'location' && (
         <div className="flex flex-col gap-10">
           <Eyebrow>Where Are You Based?</Eyebrow>
@@ -761,66 +593,98 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
         </div>
       )}
 
-      {step === 'mv-familiarity' && (
-        <div>
-          <Eyebrow>About Multnomah Village</Eyebrow>
-          <Question text="How familiar are you with Multnomah Village, a neighborhood in Southwest Portland?">
-            <SingleSelect
-              options={MV_FAMILIARITY_OPTIONS}
-              value={answers.mvFamiliarity}
-              onChange={v => update('mvFamiliarity', v)}
-            />
-          </Question>
-        </div>
-      )}
-
-      {step === 'mv-detail' && (
+      {step === 'about-you' && (
         <div className="flex flex-col gap-10">
-          <Eyebrow>About Multnomah Village</Eyebrow>
-          <Question text="How connected do you feel to the artist community in Multnomah Village?">
-            <SingleSelect
-              options={MV_CONNECTION_OPTIONS}
-              value={answers.mvConnectionLevel}
-              onChange={v => update('mvConnectionLevel', v)}
-            />
-          </Question>
-          <Question
-            text="In your experience, what people, places, or organizations have helped you discover or connect with artists in Multnomah Village?"
-            hint="Name one to three. Optional."
-          >
-            <textarea
-              value={answers.mvHelpers}
-              onChange={e => update('mvHelpers', e.target.value)}
-              className={TEXTAREA_CLASS}
-              placeholder="Your answer"
-            />
-          </Question>
-          <Question
-            text="How, if at all, would you most like to connect with or support artists in Multnomah Village?"
-            hint="Select all that apply."
-          >
+          <Eyebrow>About You</Eyebrow>
+          <Question text="What is your occupation?" hint="Select all that apply.">
             <MultiSelect
-              options={MV_SUPPORT_OPTIONS}
-              value={answers.mvSupport}
-              onChange={v => update('mvSupport', v)}
-              exclusive={[MV_SUPPORT_NONE]}
+              options={occupationOptions}
+              value={answers.occupation}
+              onChange={v => update('occupation', v)}
+              exclusive={[OCCUPATION_PREFER_NOT]}
             />
-            {answers.mvSupport.includes(MV_SUPPORT_OTHER) && (
+            {answers.occupation.includes(OCCUPATION_OTHER) && (
               <input
-                value={answers.mvSupportOther}
-                onChange={e => update('mvSupportOther', e.target.value)}
+                value={answers.occupationOther}
+                onChange={e => update('occupationOther', e.target.value)}
                 className={`${INPUT_CLASS} mt-2`}
                 placeholder="Please describe…"
+              />
+            )}
+          </Question>
+          <Question text="Do you make art?">
+            <SingleSelect
+              options={ARTIST_STATUS_OPTIONS}
+              value={answers.artistStatus}
+              onChange={v => update('artistStatus', v)}
+            />
+            {answers.artistStatus === OTHER && (
+              <input
+                value={answers.artistStatusOther}
+                onChange={e => update('artistStatusOther', e.target.value)}
+                className={`${INPUT_CLASS} mt-2`}
+                placeholder="Tell us more"
               />
             )}
           </Question>
         </div>
       )}
 
+      {step === 'portland-familiarity' && (
+        <div>
+          <Eyebrow>About Portland</Eyebrow>
+          <Question text="How involved are you with the artist community in Portland?">
+            <SingleSelect
+              options={PORTLAND_FAMILIARITY_OPTIONS}
+              value={answers.portlandFamiliarity}
+              onChange={v => update('portlandFamiliarity', v)}
+            />
+          </Question>
+        </div>
+      )}
+
+      {step === 'portland-detail' && (
+        <div className="flex flex-col gap-10">
+          <Eyebrow>About Portland</Eyebrow>
+          <Question text="In your opinion or experience, what people, places, or organizations most help artists thrive in Portland?" hint="Name one to three.">
+            <textarea
+              value={answers.portlandHelpers}
+              onChange={e => update('portlandHelpers', e.target.value)}
+              className={TEXTAREA_CLASS}
+              placeholder="Your answer"
+            />
+          </Question>
+          <Question text="How, if at all, would you like to connect with or support the artist community in Portland?" hint="Select all that apply.">
+            <MultiSelect
+              options={portlandSupportOptions}
+              value={answers.portlandSupport}
+              onChange={v => update('portlandSupport', v)}
+              exclusive={[PORTLAND_SUPPORT_NONE]}
+            />
+            {answers.portlandSupport.includes(PORTLAND_SUPPORT_OTHER) && (
+              <input
+                value={answers.portlandSupportOther}
+                onChange={e => update('portlandSupportOther', e.target.value)}
+                className={`${INPUT_CLASS} mt-2`}
+                placeholder="Please describe…"
+              />
+            )}
+          </Question>
+          <Question text="If you had a magic wand, what is one thing you would change to better support the artist community in Portland?">
+            <textarea
+              value={answers.portlandWish}
+              onChange={e => update('portlandWish', e.target.value)}
+              className={TEXTAREA_CLASS}
+              placeholder="Your answer"
+            />
+          </Question>
+        </div>
+      )}
+
       {step === 'practice' && (
         <div className="flex flex-col gap-10">
-          <Eyebrow>About Your Practice</Eyebrow>
-          <Question text="In the past year, which of the following have you done?" hint="Select all that apply.">
+          <Eyebrow>About Your Art</Eyebrow>
+          <Question text="In the past year, which of the following have you done in support of your art?" hint="Select all that apply.">
             <MultiSelect
               options={practiceActivityOptions}
               value={answers.practiceActivities}
@@ -833,7 +697,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
 
       {step === 'practice-goals' && (
         <div className="flex flex-col gap-10">
-          <Eyebrow>About Your Practice</Eyebrow>
+          <Eyebrow>About Your Art</Eyebrow>
           <Question text="What are your current goals as an artist?">
             <MultiSelect
               options={practiceGoalOptions}
