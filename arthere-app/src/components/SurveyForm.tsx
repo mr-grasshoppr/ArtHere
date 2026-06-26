@@ -192,6 +192,26 @@ const LEARNED_ABOUT_OPTIONS = [
 // "Other" / "None of the above" / "I'm not interested" style options stay
 // pinned at the bottom, where people expect to find them.
 
+const PORTLAND_METRO_ZIPS = new Set([
+  '97004','97005','97006','97007','97008','97009','97010','97011','97013',
+  '97015','97016','97017','97018','97019','97022','97023','97024','97027',
+  '97028','97030','97034','97035','97036','97038','97042','97045','97048',
+  '97049','97051','97053','97054','97055','97056','97060','97062','97064',
+  '97067','97068','97070','97075','97076','97077','97080','97086','97089',
+  '97101','97106','97109','97111','97113','97114','97115','97116','97117',
+  '97119','97123','97124','97125','97127','97128','97132','97133','97140',
+  '97144','97148','97201','97202','97203','97204','97205','97206','97207',
+  '97208','97209','97210','97211','97212','97213','97214','97215','97216',
+  '97217','97218','97219','97220','97221','97222','97223','97224','97225',
+  '97227','97228','97229','97230','97231','97232','97233','97236','97238',
+  '97239','97240','97242','97256','97258','97266','97267','97268','97269',
+  '97280','97281','97282','97283','97286','97290','97291','97292','97293',
+  '97294','97296','97298','97299','97378','97396',
+  '98601','98604','98606','98607','98622','98629','98642','98660','98661',
+  '98662','98663','98664','98665','98666','98668','98671','98675','98682',
+  '98683','98684','98685','98686','98687',
+]);
+
 function shuffle<T>(items: T[]): T[] {
   const result = [...items];
   for (let i = result.length - 1; i > 0; i--) {
@@ -246,8 +266,7 @@ function getNextStep(step: StepId, a: Answers): StepId {
     case 'featured-artist':
       return 'stay-connected';
     case 'stay-connected':
-      // TODO: gate on Portland metro zip codes once zip list is available
-      return 'multnomah-days';
+      return PORTLAND_METRO_ZIPS.has(a.zipCode) ? 'multnomah-days' : 'email';
     case 'multnomah-days':
       return 'email';
     case 'email':
@@ -768,8 +787,11 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
         <div>
           <Eyebrow>Multnomah Days 2026</Eyebrow>
           <Intro>
-            Art Here will have a booth and parade presence at Multnomah Days on August 15, 2026,
-            and we&rsquo;re inviting locals to join us to celebrate local arts.
+            Art Here will have a booth and parade presence at{' '}
+            <a href="https://www.multnomahvillage.org/event-details/multnomah-days-2026" target="_blank" rel="noopener noreferrer" className="underline underline-offset-[3px] hover:opacity-70 transition-opacity">
+              Multnomah Days
+            </a>
+            {' '}on August 15, 2026. We&rsquo;d love to have you join us to celebrate local arts!
           </Intro>
           <Question text="Would you like to join us for the Multnomah Days Festival on August 15?">
             <MultiSelect
