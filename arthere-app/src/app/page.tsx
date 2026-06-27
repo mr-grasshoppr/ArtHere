@@ -134,52 +134,6 @@ export default async function Home() {
         </section>
 
 
-        {/* 2026 Pilot */}
-        <section className="border-t border-[#f0f0f0] bg-[#fafafa]">
-          <div className="max-w-[760px] mx-auto px-6 sm:px-10 py-14 sm:py-[72px]">
-            <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-10">
-              2026 Pilot
-            </div>
-            <div className="grid grid-cols-3 gap-6 sm:gap-10">
-              {cities.map(city => {
-                const label = city.displayName ?? `${city.name}${city.state ? `, ${city.state}` : ''}`;
-                const code = CITY_CODES[city.slug] ?? city.slug.toUpperCase().slice(0, 3);
-                return (
-                  <Link
-                    key={city.slug}
-                    href={`/cities/${city.slug}`}
-                    className="group no-underline"
-                  >
-                    <div className="font-heading text-[clamp(2.2rem,6vw,3.8rem)] font-bold text-[#1a1a1a] leading-none tracking-[-0.03em] group-hover:opacity-60 transition-opacity">
-                      {code}
-                    </div>
-                    <div className="mt-3 text-[0.78rem] font-semibold text-[#1a1a1a] leading-snug">{label}</div>
-                    <div className="mt-1 text-[0.68rem] text-[#888] tracking-[0.06em] uppercase">Summer 2026</div>
-                    {PILOT_DESCRIPTIONS[city.slug] && (
-                      <p className="mt-2 text-[0.8rem] text-[#888] font-light leading-[1.6]">
-                        {PILOT_DESCRIPTIONS[city.slug]}
-                      </p>
-                    )}
-                  </Link>
-                );
-              })}
-              {COMING_SOON_CITY_DATA.map(({ label, code }) => (
-                <div key={label}>
-                  <div className="font-heading text-[clamp(2.2rem,6vw,3.8rem)] font-bold text-[#ddd] leading-none tracking-[-0.03em]">
-                    {code}
-                  </div>
-                  <div className="mt-3 text-[0.78rem] font-semibold text-[#bbb] leading-snug">{label}</div>
-                  <div className="mt-1 text-[0.68rem] text-[#ccc] tracking-[0.06em] uppercase">Coming Soon</div>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-10 -mx-6 sm:-mx-10">
-              <UsMap />
-            </div>
-          </div>
-        </section>
-
         {/* What's coming */}
         <section className="border-t border-[#f0f0f0]">
           <div className="max-w-[760px] mx-auto px-6 sm:px-10 py-14 sm:py-[72px]">
@@ -205,6 +159,18 @@ export default async function Home() {
                   A visualization of galleries, studios, and organizations supporting artists in your area.
                 </p>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Map */}
+        <section className="border-t border-[#f0f0f0] bg-[#fafafa]">
+          <div className="max-w-[760px] mx-auto px-6 sm:px-10 py-14 sm:py-[72px]">
+            <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-10">
+              Art Here is Here
+            </div>
+            <div className="-mx-6 sm:-mx-10">
+              <UsMap />
             </div>
           </div>
         </section>
