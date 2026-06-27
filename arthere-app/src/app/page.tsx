@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Nunito } from 'next/font/google';
 import { NavBar } from '@/components/NavBar';
+import { UsMap } from '@/components/UsMap';
 import styles from './page.module.css';
 
 const nunito = Nunito({
@@ -171,6 +172,10 @@ export default async function Home() {
                   <div className="mt-1 text-[0.68rem] text-[#ccc] tracking-[0.06em] uppercase">Coming Soon</div>
                 </div>
               ))}
+            </div>
+
+            <div className="mt-10 -mx-6 sm:-mx-10">
+              <UsMap />
             </div>
           </div>
         </section>
