@@ -114,33 +114,27 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* About */}
-        <section id="about" className="max-w-[760px] mx-auto px-6 sm:px-10 pt-16 sm:pt-24 pb-14 sm:pb-20 scroll-mt-[70px]">
-          <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-6">About</div>
-          <h2 className="font-heading text-[clamp(1.7rem,3.5vw,2.4rem)] font-bold tracking-[-0.02em] leading-[1.2] mb-7 max-w-[600px]">
-            Art Here puts local artists on the map.
-          </h2>
-          <div className="max-w-[600px] text-[1.05rem] text-[#555] font-light leading-[1.85] [&>p]:mb-[18px]">
-            <p>
-              Art Here is a community initiative that connects artists to local opportunities. We
-              partner with local organizations to host artist celebrations, capture artist stories,
-              and build a living directory of artists and the institutions that support them.
-            </p>
-            <p>
-              Great neighborhoods are shaped by the artists who live in them. Art Here helps
-              communities see, celebrate, and support their own.
-            </p>
-          </div>
-        </section>
-
-
-        {/* Map */}
-        <section className="border-t border-[#f0f0f0] bg-[#fafafa]">
-          <div className="max-w-[760px] mx-auto px-6 sm:px-10 py-14 sm:py-[72px]">
-            <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-10">
-              Art Here is Here
+        {/* About + Map side by side */}
+        <section id="about" className="border-t border-[#f0f0f0] scroll-mt-[70px]">
+          <div className="max-w-[960px] mx-auto px-6 sm:px-10 py-16 sm:py-24 flex flex-col sm:flex-row gap-12 sm:gap-16 items-center">
+            <div className="flex-1 min-w-0">
+              <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-6">About</div>
+              <h2 className="font-heading text-[clamp(1.7rem,3.5vw,2.4rem)] font-bold tracking-[-0.02em] leading-[1.2] mb-7">
+                Art Here puts local artists on the map.
+              </h2>
+              <div className="text-[1.05rem] text-[#555] font-light leading-[1.85] [&>p]:mb-[18px]">
+                <p>
+                  Art Here is a community initiative that connects artists to local opportunities. We
+                  partner with local organizations to host artist celebrations, capture artist stories,
+                  and build a living directory of artists and the institutions that support them.
+                </p>
+                <p>
+                  Great neighborhoods are shaped by the artists who live in them. Art Here helps
+                  communities see, celebrate, and support their own.
+                </p>
+              </div>
             </div>
-            <div className="max-w-[480px] mx-auto">
+            <div className="w-full sm:w-[340px] shrink-0">
               <UsMap />
             </div>
           </div>
