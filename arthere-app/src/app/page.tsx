@@ -199,8 +199,8 @@ export default async function Home() {
         </section>
       </div>
 
-      <footer className="border-t border-[#f0f0f0] py-8">
-        <div className="max-w-[900px] mx-auto px-6 sm:px-10 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left text-[#888] text-[0.82rem] tracking-[0.05em]">
+      <footer className="bg-[#1a1a1a] py-5">
+        <div className="max-w-[900px] mx-auto px-6 sm:px-10 flex flex-col sm:flex-row items-center justify-between gap-1 text-center sm:text-left text-[#555] text-[0.78rem] tracking-[0.05em]">
           <span>© 2026 Art Here</span>
           <span>A project of Art Experience Lab</span>
         </div>
