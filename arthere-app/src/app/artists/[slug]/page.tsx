@@ -159,23 +159,37 @@ export default async function ArtistPage({
         <section className="max-w-[980px] mx-auto px-5 sm:px-10 pb-12">
           <div className="text-[0.75rem] uppercase tracking-[0.18em] text-[#999] mb-3">Community</div>
           <div className="flex flex-wrap gap-x-6 gap-y-2 items-baseline">
-            {artist.placeRelations.map(rel =>
-              rel.place.website ? (
-                <a
-                  key={rel.id}
-                  href={rel.place.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[0.85rem] text-[#666] underline underline-offset-4 decoration-[#ccc] hover:decoration-[#1a1a1a] transition-colors"
-                >
-                  {rel.place.name}
-                </a>
-              ) : (
+            {artist.placeRelations.map(rel => {
+              if (rel.place.inDirectory) {
+                return (
+                  <Link
+                    key={rel.id}
+                    href={`/places/${rel.place.slug}`}
+                    className="text-[0.85rem] text-[#666] underline underline-offset-4 decoration-[#ccc] hover:decoration-[#1a1a1a] transition-colors"
+                  >
+                    {rel.place.name}
+                  </Link>
+                );
+              }
+              if (rel.place.website) {
+                return (
+                  <a
+                    key={rel.id}
+                    href={rel.place.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[0.85rem] text-[#666] underline underline-offset-4 decoration-[#ccc] hover:decoration-[#1a1a1a] transition-colors"
+                  >
+                    {rel.place.name}
+                  </a>
+                );
+              }
+              return (
                 <span key={rel.id} className="text-[0.85rem] text-[#aaa] font-light">
                   {rel.place.name}
                 </span>
-              )
-            )}
+              );
+            })}
           </div>
         </section>
       )}
