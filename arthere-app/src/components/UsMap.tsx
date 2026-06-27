@@ -102,13 +102,13 @@ export function UsMap() {
             .attr('r', city.active ? 5.5 : 4.5)
             .attr('fill', city.active ? '#1a1a1a' : '#b8b4ae');
 
-          // City name label — anchor right of dot for west-coast cities to avoid clipping
+          // City name label — west coast anchors right of dot; others go below
           const isWestCoast = city.lon < -100;
           g.append('text')
             .attr('x', isWestCoast ? cx + 8 : cx)
-            .attr('y', cy + (city.active ? 4 : 3))
+            .attr('y', isWestCoast ? cy + 4 : cy + 14)
             .attr('text-anchor', isWestCoast ? 'start' : 'middle')
-            .attr('dominant-baseline', 'middle')
+            .attr('dominant-baseline', isWestCoast ? 'middle' : 'auto')
             .attr('font-family', 'var(--font-nunito), Arial Rounded MT Bold, Arial, sans-serif')
             .attr('font-size', city.active ? 11 : 9.5)
             .attr('font-weight', city.active ? '700' : '600')
