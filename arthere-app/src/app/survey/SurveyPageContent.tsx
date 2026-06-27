@@ -66,7 +66,7 @@ export function SurveyPageContent() {
         </div>
 
         <div className="text-[1.05rem] text-[#555] font-light leading-[1.85] [&>p]:mb-[18px]">
-          <p className="text-[0.88rem] text-[#999]">
+          <p className="text-[0.88rem] text-[#666]">
             By completing this survey, you agree to the use of your responses to support the arts
             and artists in Portland. Any quotes or data shared with our partners will not be tied
             to your name or personal information. You will have the option to respond completely

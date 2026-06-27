@@ -115,7 +115,7 @@ export default async function Home() {
 
         {/* About */}
         <section id="about" className="max-w-[760px] mx-auto px-6 sm:px-10 pt-16 sm:pt-24 pb-14 sm:pb-20 scroll-mt-[70px]">
-          <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#bbb] mb-6">About</div>
+          <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-6">About</div>
           <h2 className="font-heading text-[clamp(1.7rem,3.5vw,2.4rem)] font-bold tracking-[-0.02em] leading-[1.2] mb-7 max-w-[600px]">
             Art Here puts local artists on the map.
           </h2>
@@ -136,7 +136,7 @@ export default async function Home() {
         {/* 2026 Pilot */}
         <section className="border-t border-[#f0f0f0] bg-[#fafafa]">
           <div className="max-w-[760px] mx-auto px-6 sm:px-10 py-14 sm:py-[72px]">
-            <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#bbb] mb-10">
+            <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-10">
               2026 Pilot
             </div>
             <div className="grid grid-cols-3 gap-6 sm:gap-10">
@@ -178,7 +178,7 @@ export default async function Home() {
         {/* What's coming */}
         <section className="border-t border-[#f0f0f0]">
           <div className="max-w-[760px] mx-auto px-6 sm:px-10 py-14 sm:py-[72px]">
-            <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#bbb] mb-10">
+            <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-10">
               What&rsquo;s coming
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-12">
@@ -206,7 +206,7 @@ export default async function Home() {
 
         {/* Contact */}
         <section id="contact" className="border-t border-[#f0f0f0] max-w-[760px] mx-auto px-6 sm:px-10 py-14 sm:py-24 scroll-mt-[70px]">
-          <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#bbb] mb-8">Get in Touch</div>
+          <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-8">Get in Touch</div>
           <div className="font-heading text-[clamp(1.4rem,3vw,2rem)] font-bold mb-10">
             <a
               href="mailto:hello@axlab.io"
@@ -217,22 +217,22 @@ export default async function Home() {
           </div>
           <div className="flex flex-col gap-4 border-t border-[#f0f0f0] pt-8">
             <div className="flex items-baseline gap-4">
-              <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#bbb] w-36 shrink-0">Artists</span>
+              <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#777] w-36 shrink-0">Artists</span>
               <a href="/survey" className="text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#ccc] hover:opacity-60 transition-opacity">Get featured →</a>
             </div>
             <div className="flex items-baseline gap-4">
-              <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#bbb] w-36 shrink-0">Organizations</span>
+              <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#777] w-36 shrink-0">Organizations</span>
               <a href="mailto:hello@axlab.io" className="text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#ccc] hover:opacity-60 transition-opacity">Partner with us →</a>
             </div>
             <div className="flex items-baseline gap-4">
-              <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#bbb] w-36 shrink-0">Cities &amp; Neighborhoods</span>
+              <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#777] w-36 shrink-0">Cities &amp; Neighborhoods</span>
               <a href="mailto:hello@axlab.io" className="text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#ccc] hover:opacity-60 transition-opacity">Bring Art Here →</a>
             </div>
           </div>
         </section>
       </div>
 
-      <footer className="border-t border-[#f0f0f0] px-6 sm:px-10 py-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left text-[#bbb] text-[0.78rem] tracking-[0.05em]">
+      <footer className="border-t border-[#f0f0f0] px-6 sm:px-10 py-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left text-[#888] text-[0.82rem] tracking-[0.05em]">
         <span>© 2026 Art Here</span>
         <span>A project of Art Experience Lab</span>
       </footer>

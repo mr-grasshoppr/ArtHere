@@ -75,6 +75,7 @@ const PORTLAND_FAMILIARITY_OPTIONS = [
 ];
 
 const OCCUPATION_OTHER = 'Other';
+const OCCUPATION_RETIRED = 'Retired';
 const OCCUPATION_PREFER_NOT = 'Prefer not to say';
 const OCCUPATION_OPTIONS = [
   'Arts (Visual Art, Dance, Music, Theater)',
@@ -91,7 +92,9 @@ const OCCUPATION_OPTIONS = [
   'Manufacturing',
   'Retail, Hospitality, or Food Service',
   'Transportation and Logistics',
-  'Not currently working or Homemaker',
+  'Not currently working',
+  'Homemaker',
+  OCCUPATION_RETIRED,
   OCCUPATION_OTHER,
   OCCUPATION_PREFER_NOT,
 ];
@@ -163,11 +166,10 @@ const FEATURED_ARTIST_OPTIONS = [
   'Not at this time',
 ];
 
-const EXPAND_TO_MY_AREA = 'Get involved when Art Here expands to my area';
 const NONE_AT_THIS_TIME = 'None at this time';
 const STAY_CONNECTED_OPTIONS = [
   'Keep me posted on Art Here news',
-  EXPAND_TO_MY_AREA,
+  'Become a featured artist',
   'Volunteer',
   'Partner or collaborate',
   NONE_AT_THIS_TIME,
@@ -234,6 +236,7 @@ function shuffleOptions(options: string[], pinned: string[] = []): string[] {
 type StepId =
   | 'location'
   | 'about-you'
+  | 'about-you-art'
   | 'portland-familiarity'
   | 'portland-detail'
   | 'practice'
@@ -254,6 +257,8 @@ function getNextStep(step: StepId, a: Answers): StepId {
     case 'location':
       return 'about-you';
     case 'about-you':
+      return 'about-you-art';
+    case 'about-you-art':
       return 'portland-familiarity';
     case 'portland-familiarity':
       return 'portland-detail';
@@ -308,7 +313,7 @@ const BUTTON_SECONDARY =
 // ─── Small building blocks ──────────────────────────────────────────────────
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
-  return <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#bbb] mb-3">{children}</div>;
+  return <div className="text-[0.72rem] font-semibold tracking-[0.14em] uppercase text-[#999] mb-3">{children}</div>;
 }
 
 // A callout box for context that's important to actually read (not just a
@@ -328,7 +333,7 @@ function Question({ text, hint, children }: { text: string; hint?: string; child
       <div className="font-heading text-[1.05rem] sm:text-[1.15rem] font-bold text-[#1a1a1a] leading-snug mb-1">
         {text}
       </div>
-      {hint && <p className="text-[0.82rem] text-[#999] font-light mb-3">{hint}</p>}
+      {hint && <p className="text-[0.85rem] text-[#666] font-light mb-3">{hint}</p>}
       {!hint && <div className="mb-3" />}
       {children}
     </div>
@@ -452,7 +457,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
   const [practiceGoalOptions] = useState(() => shuffleOptions(PRACTICE_GOAL_OPTIONS, [OTHER]));
   const [stayConnectedOptions] = useState(() => shuffleOptions(STAY_CONNECTED_OPTIONS, [NONE_AT_THIS_TIME]));
   const [learnedAboutOptions] = useState(() => shuffleOptions(LEARNED_ABOUT_OPTIONS, [LEARNED_ABOUT_OTHER]));
-  const [occupationOptions] = useState(() => shuffleOptions(OCCUPATION_OPTIONS, [OCCUPATION_OTHER, OCCUPATION_PREFER_NOT]));
+  const [occupationOptions] = useState(() => shuffleOptions(OCCUPATION_OPTIONS, [OCCUPATION_RETIRED, OCCUPATION_OTHER, OCCUPATION_PREFER_NOT]));
   const [portlandSupportOptions] = useState(() => shuffleOptions(PORTLAND_SUPPORT_OPTIONS, [PORTLAND_SUPPORT_OTHER, PORTLAND_SUPPORT_NONE]));
 
   function update<K extends keyof Answers>(key: K, value: Answers[K]) {
@@ -504,8 +509,9 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
       case 'location':
         return answers.zipCode.length === 5 && answers.neighborhoods.trim() !== '';
       case 'about-you':
+        return answers.occupation.length > 0;
+      case 'about-you-art':
         return (
-          answers.occupation.length > 0 &&
           !!answers.artistStatus &&
           (answers.artistStatus !== OTHER || answers.artistStatusOther.trim() !== '')
         );
@@ -615,22 +621,48 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
       {step === 'about-you' && (
         <div className="flex flex-col gap-10">
           <Eyebrow>About You</Eyebrow>
-          <Question text="What is your occupation?" hint="Select all that apply.">
-            <MultiSelect
-              options={occupationOptions}
-              value={answers.occupation}
-              onChange={v => update('occupation', v)}
-              exclusive={[OCCUPATION_PREFER_NOT]}
-            />
-            {answers.occupation.includes(OCCUPATION_OTHER) && (
-              <input
-                value={answers.occupationOther}
-                onChange={e => update('occupationOther', e.target.value)}
-                className={`${INPUT_CLASS} mt-2`}
-                placeholder="Please describe…"
-              />
-            )}
+          <Question text="What field do you work in?" hint="If not currently working, what field did you most recently work in? Select all that apply.">
+            <div className="flex flex-col gap-2">
+              {occupationOptions.map(opt => {
+                const selected = answers.occupation.includes(opt);
+                const isExclusive = opt === OCCUPATION_PREFER_NOT;
+                return (
+                  <div key={opt}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (isExclusive) {
+                          update('occupation', selected ? [] : [opt]);
+                        } else {
+                          const base = answers.occupation.filter(v => v !== OCCUPATION_PREFER_NOT);
+                          update('occupation', base.includes(opt) ? base.filter(v => v !== opt) : [...base, opt]);
+                        }
+                      }}
+                      className={`w-full ${OPTION_BASE} ${selected ? OPTION_ACTIVE : OPTION_INACTIVE}`}
+                    >
+                      <Indicator selected={selected} shape="square" />
+                      {opt}
+                    </button>
+                    {opt === OCCUPATION_OTHER && selected && (
+                      <input
+                        value={answers.occupationOther}
+                        onChange={e => update('occupationOther', e.target.value)}
+                        className={`${INPUT_CLASS} mt-2`}
+                        placeholder="Please describe…"
+                        autoFocus
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </Question>
+        </div>
+      )}
+
+      {step === 'about-you-art' && (
+        <div>
+          <Eyebrow>About You</Eyebrow>
           <Question text="Do you make art?">
             <SingleSelect
               options={ARTIST_STATUS_OPTIONS}
@@ -665,7 +697,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
       {step === 'portland-detail' && (
         <div className="flex flex-col gap-10">
           <Eyebrow>About Portland</Eyebrow>
-          <Question text="In your opinion or experience, what people, places, or organizations most help artists thrive in Portland?" hint="Name one to three.">
+          <Question text="In your opinion, what people, places, or organizations most help artists thrive in Portland?" hint="Name one to three.">
             <textarea
               value={answers.portlandHelpers}
               onChange={e => update('portlandHelpers', e.target.value)}
@@ -689,7 +721,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
               />
             )}
           </Question>
-          <Question text="If you had a magic wand, what is one thing you would change to better support the artist community in Portland?">
+          <Question text="If you had a magic wand that could change one thing in Portland to better support artists, what would you change?">
             <textarea
               value={answers.portlandWish}
               onChange={e => update('portlandWish', e.target.value)}
@@ -766,11 +798,12 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
         <div>
           <Eyebrow>Stay Connected</Eyebrow>
           <Intro>
-            Art Here is building a living directory of local artists, hosting community
-            events, and capturing the stories that make Portland&rsquo;s creative
-            neighborhoods special. As we grow, there are lots of ways to get involved —
-            from staying in the loop to volunteering, partnering, or being featured as
-            an artist.
+            <a href="/#about" target="_blank" rel="noopener noreferrer" className="underline underline-offset-[3px] hover:opacity-70 transition-opacity">Art Here</a>
+            {' '}connects local artists with the residents, organizations, and businesses around them.
+            We are hosting community events, building a living directory of local artists, and
+            capturing stories to highlight Portland&rsquo;s artist community. As we grow, there
+            are lots of ways to get involved — from staying in the loop to volunteering,
+            partnering, or being featured as an artist.
           </Intro>
           <Question text="In what ways would you like to stay connected to Art Here?" hint="Select all that apply.">
             <MultiSelect
@@ -807,7 +840,10 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
       {step === 'email' && (
         <div className="flex flex-col gap-10">
           <Eyebrow>One Last Thing</Eyebrow>
-          <Question text="Would you like to be entered in a raffle for completing this survey?">
+          <Question
+            text="Would you like to be entered in a raffle for completing this survey?"
+            hint="One winner receives a $25 gift card to a local shop that supports Portland artists."
+          >
             <SingleSelect
               options={RAFFLE_OPTIONS}
               value={answers.raffleOptIn}
