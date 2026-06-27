@@ -141,26 +141,26 @@ export default async function Home() {
         </section>
 
         {/* What's coming */}
-        <section className="border-t border-[#f0f0f0]">
+        <section className="border-t border-[#f0f0f0] bg-[#f7f6f3]">
           <div className="max-w-[760px] mx-auto px-6 sm:px-10 py-14 sm:py-[72px]">
             <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-10">
               What&rsquo;s coming
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-              <div className="rounded-xl border border-[#ebebeb] bg-white p-6">
-                <h3 className="font-heading text-[1rem] font-bold mb-2.5">Artist Directory</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-12">
+              <div>
+                <h3 className="font-heading text-[1.15rem] font-bold mb-3">Artist Directory</h3>
                 <p className="text-[0.88rem] text-[#666] font-light leading-[1.7]">
                   Discover local artists, artwork that you love, and the galleries and organizations that support them.
                 </p>
               </div>
-              <div className="rounded-xl border border-[#ebebeb] bg-white p-6">
-                <h3 className="font-heading text-[1rem] font-bold mb-2.5">Community Voices</h3>
+              <div>
+                <h3 className="font-heading text-[1.15rem] font-bold mb-3">Community Voices</h3>
                 <p className="text-[0.88rem] text-[#666] font-light leading-[1.7]">
                   We&rsquo;re conducting surveys and interviews to help the community better understand how to support the arts. Stay tuned for stories and insights.
                 </p>
               </div>
-              <div className="rounded-xl border border-[#ebebeb] bg-white p-6">
-                <h3 className="font-heading text-[1rem] font-bold mb-2.5">Art Here Network</h3>
+              <div>
+                <h3 className="font-heading text-[1.15rem] font-bold mb-3">Art Here Network</h3>
                 <p className="text-[0.88rem] text-[#666] font-light leading-[1.7]">
                   A visualization of galleries, studios, and organizations supporting artists in your area.
                 </p>

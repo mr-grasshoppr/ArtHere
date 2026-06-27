@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
-import { feature, mesh } from 'topojson-client';
+import { feature } from 'topojson-client';
 import type { Topology } from 'topojson-specification';
 
 interface CityDef {
@@ -15,21 +15,21 @@ interface CityDef {
 
 const CITIES: CityDef[] = [
   {
-    code: 'Portland, OR',
+    code: 'Portland',
     lat: 45.52,
     lon: -122.68,
     active: true,
     tooltip: ['Launching Summer 2026', 'Find us at Multnomah Days, August 15!'],
   },
   {
-    code: 'San Jose, CA',
+    code: 'San Jose',
     lat: 37.34,
     lon: -121.89,
     active: false,
     tooltip: ['Coming soon'],
   },
   {
-    code: 'Biloxi, MS',
+    code: 'Biloxi',
     lat: 30.39,
     lon: -88.89,
     active: false,
@@ -61,7 +61,6 @@ export function UsMap() {
       .then(r => r.json())
       .then((topo: Topology) => {
         const states = feature(topo, topo.objects.states as any);
-        const borders = mesh(topo, topo.objects.states as any, (a, b) => a !== b);
 
         const root = d3.select(svg);
         root.selectAll('*').remove();
@@ -77,14 +76,6 @@ export function UsMap() {
           .attr('fill', '#eeede9')
           .attr('stroke', 'none');
 
-        // Interior state borders
-        root
-          .append('path')
-          .datum(borders)
-          .attr('d', pathGen as any)
-          .attr('fill', 'none')
-          .attr('stroke', '#d5d2cc')
-          .attr('stroke-width', 0.6);
 
         // City markers
         CITIES.forEach(city => {
@@ -111,11 +102,13 @@ export function UsMap() {
             .attr('r', city.active ? 5.5 : 4.5)
             .attr('fill', city.active ? '#1a1a1a' : '#b8b4ae');
 
-          // City name label
+          // City name label — anchor right of dot for west-coast cities to avoid clipping
+          const isWestCoast = city.lon < -100;
           g.append('text')
-            .attr('x', cx)
-            .attr('y', cy + (city.active ? 16 : 14))
-            .attr('text-anchor', 'middle')
+            .attr('x', isWestCoast ? cx + 8 : cx)
+            .attr('y', cy + (city.active ? 4 : 3))
+            .attr('text-anchor', isWestCoast ? 'start' : 'middle')
+            .attr('dominant-baseline', 'middle')
             .attr('font-family', 'var(--font-nunito), Arial Rounded MT Bold, Arial, sans-serif')
             .attr('font-size', city.active ? 11 : 9.5)
             .attr('font-weight', city.active ? '700' : '600')
