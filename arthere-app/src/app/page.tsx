@@ -95,7 +95,7 @@ export default async function Home() {
 
         {/* Survey CTA */}
         <section className="bg-[#1a1a1a] text-white">
-          <div className="max-w-[760px] mx-auto px-6 sm:px-10 py-14 sm:py-20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-8">
+          <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-14 sm:py-20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-8">
             <div className="max-w-[480px]">
               <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#888] mb-4">Portland, 2026</div>
               <h2 className="font-heading text-[clamp(1.5rem,3vw,2rem)] font-bold tracking-[-0.02em] leading-[1.2] mb-4">
@@ -116,7 +116,7 @@ export default async function Home() {
 
         {/* About + Map side by side */}
         <section id="about" className="border-t border-[#f0f0f0] scroll-mt-[70px]">
-          <div className="max-w-[960px] mx-auto px-6 sm:px-10 py-16 sm:py-24 flex flex-col sm:flex-row gap-12 sm:gap-16 items-center">
+          <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-16 sm:py-24 flex flex-col sm:flex-row gap-12 sm:gap-16 items-center">
             <div className="flex-1 min-w-0">
               <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-6">About</div>
               <h2 className="font-heading text-[clamp(1.7rem,3.5vw,2.4rem)] font-bold tracking-[-0.02em] leading-[1.2] mb-7">
@@ -142,7 +142,7 @@ export default async function Home() {
 
         {/* What's coming */}
         <section className="border-t border-[#f0f0f0] bg-[#f7f6f3]">
-          <div className="max-w-[760px] mx-auto px-6 sm:px-10 py-14 sm:py-[72px]">
+          <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-14 sm:py-[72px]">
             <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-10">
               What&rsquo;s coming
             </div>
@@ -171,7 +171,7 @@ export default async function Home() {
 
         {/* Contact — black bg to match survey CTA */}
         <section id="contact" className="bg-[#1a1a1a] scroll-mt-[70px]">
-          <div className="max-w-[760px] mx-auto px-6 sm:px-10 py-14 sm:py-24">
+          <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-14 sm:py-24">
             <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#666] mb-8">Get in Touch</div>
             <div className="font-heading text-[clamp(1.4rem,3vw,2rem)] font-bold mb-10">
               <a
@@ -199,9 +199,11 @@ export default async function Home() {
         </section>
       </div>
 
-      <footer className="border-t border-[#f0f0f0] px-6 sm:px-10 py-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left text-[#888] text-[0.82rem] tracking-[0.05em]">
-        <span>© 2026 Art Here</span>
-        <span>A project of Art Experience Lab</span>
+      <footer className="border-t border-[#f0f0f0] py-8">
+        <div className="max-w-[900px] mx-auto px-6 sm:px-10 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left text-[#888] text-[0.82rem] tracking-[0.05em]">
+          <span>© 2026 Art Here</span>
+          <span>A project of Art Experience Lab</span>
+        </div>
       </footer>
     </div>
   );
