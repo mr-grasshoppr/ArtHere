@@ -537,7 +537,8 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
         if (!answers.raffleOptIn) return false;
         const wantsRaffle = answers.raffleOptIn === RAFFLE_YES;
         const wantsFollowUp = answers.stayConnected.some(s => s !== NONE_AT_THIS_TIME);
-        const emailRequired = wantsRaffle || wantsFollowUp;
+        const wantsFeatured = !!answers.featuredArtistInterest && answers.featuredArtistInterest !== 'Not at this time';
+        const emailRequired = wantsRaffle || wantsFollowUp || wantsFeatured;
         return emailRequired ? emailLooksValid : (answers.email.trim() === '' || emailLooksValid);
       }
       default:
@@ -852,7 +853,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
           </Question>
           <Question
             text="Email address"
-            hint="Required if you'd like to enter the raffle or stay connected. We'll only use it to follow up with you — it won't be shared or connected to your survey answers."
+            hint="Required if you'd like to enter the raffle, stay connected, or be considered as a featured artist. We'll only use it to follow up with you — it won't be shared or connected to your survey answers."
           >
             <input
               type="email"
