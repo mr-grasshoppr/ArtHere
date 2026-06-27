@@ -134,28 +134,40 @@ export default async function Home() {
         </section>
 
 
+        {/* Map */}
+        <section className="border-t border-[#f0f0f0] bg-[#fafafa]">
+          <div className="max-w-[760px] mx-auto px-6 sm:px-10 py-14 sm:py-[72px]">
+            <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-10">
+              Art Here is Here
+            </div>
+            <div className="max-w-[480px] mx-auto">
+              <UsMap />
+            </div>
+          </div>
+        </section>
+
         {/* What's coming */}
         <section className="border-t border-[#f0f0f0]">
           <div className="max-w-[760px] mx-auto px-6 sm:px-10 py-14 sm:py-[72px]">
             <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-10">
               What&rsquo;s coming
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-12">
-              <div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+              <div className="rounded-xl border border-[#ebebeb] bg-white p-6">
                 <h3 className="font-heading text-[1rem] font-bold mb-2.5">Artist Directory</h3>
-                <p className="text-[0.9rem] text-[#666] font-light leading-[1.7]">
+                <p className="text-[0.88rem] text-[#666] font-light leading-[1.7]">
                   Discover local artists, artwork that you love, and the galleries and organizations that support them.
                 </p>
               </div>
-              <div>
+              <div className="rounded-xl border border-[#ebebeb] bg-white p-6">
                 <h3 className="font-heading text-[1rem] font-bold mb-2.5">Community Voices</h3>
-                <p className="text-[0.9rem] text-[#666] font-light leading-[1.7]">
+                <p className="text-[0.88rem] text-[#666] font-light leading-[1.7]">
                   We&rsquo;re conducting surveys and interviews to help the community better understand how to support the arts. Stay tuned for stories and insights.
                 </p>
               </div>
-              <div>
+              <div className="rounded-xl border border-[#ebebeb] bg-white p-6">
                 <h3 className="font-heading text-[1rem] font-bold mb-2.5">Art Here Network</h3>
-                <p className="text-[0.9rem] text-[#666] font-light leading-[1.7]">
+                <p className="text-[0.88rem] text-[#666] font-light leading-[1.7]">
                   A visualization of galleries, studios, and organizations supporting artists in your area.
                 </p>
               </div>
@@ -163,41 +175,31 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Map */}
-        <section className="border-t border-[#f0f0f0] bg-[#fafafa]">
-          <div className="max-w-[760px] mx-auto px-6 sm:px-10 py-14 sm:py-[72px]">
-            <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-10">
-              Art Here is Here
+        {/* Contact — black bg to match survey CTA */}
+        <section id="contact" className="bg-[#1a1a1a] scroll-mt-[70px]">
+          <div className="max-w-[760px] mx-auto px-6 sm:px-10 py-14 sm:py-24">
+            <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#666] mb-8">Get in Touch</div>
+            <div className="font-heading text-[clamp(1.4rem,3vw,2rem)] font-bold mb-10">
+              <a
+                href="mailto:hello@axlab.io"
+                className="text-white no-underline border-b-2 border-white pb-0.5 hover:opacity-50 transition-opacity"
+              >
+                hello@axlab.io
+              </a>
             </div>
-            <div className="-mx-6 sm:-mx-10">
-              <UsMap />
-            </div>
-          </div>
-        </section>
-
-        {/* Contact */}
-        <section id="contact" className="border-t border-[#f0f0f0] max-w-[760px] mx-auto px-6 sm:px-10 py-14 sm:py-24 scroll-mt-[70px]">
-          <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-8">Get in Touch</div>
-          <div className="font-heading text-[clamp(1.4rem,3vw,2rem)] font-bold mb-10">
-            <a
-              href="mailto:hello@axlab.io"
-              className="text-[#1a1a1a] no-underline border-b-2 border-[#1a1a1a] pb-0.5 hover:opacity-50 transition-opacity"
-            >
-              hello@axlab.io
-            </a>
-          </div>
-          <div className="flex flex-col gap-4 border-t border-[#f0f0f0] pt-8">
-            <div className="flex items-baseline gap-4">
-              <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#777] w-36 shrink-0">Artists</span>
-              <a href="/survey" className="text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#ccc] hover:opacity-60 transition-opacity">Get featured →</a>
-            </div>
-            <div className="flex items-baseline gap-4">
-              <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#777] w-36 shrink-0">Organizations</span>
-              <a href="mailto:hello@axlab.io" className="text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#ccc] hover:opacity-60 transition-opacity">Partner with us →</a>
-            </div>
-            <div className="flex items-baseline gap-4">
-              <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#777] w-36 shrink-0">Cities &amp; Neighborhoods</span>
-              <a href="mailto:hello@axlab.io" className="text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#ccc] hover:opacity-60 transition-opacity">Bring Art Here →</a>
+            <div className="flex flex-col gap-4 border-t border-[#333] pt-8">
+              <div className="flex items-baseline gap-4">
+                <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#555] w-36 shrink-0">Artists</span>
+                <a href="/survey" className="text-[0.9rem] text-white underline underline-offset-[3px] decoration-[#555] hover:opacity-60 transition-opacity">Get featured →</a>
+              </div>
+              <div className="flex items-baseline gap-4">
+                <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#555] w-36 shrink-0">Organizations</span>
+                <a href="mailto:hello@axlab.io" className="text-[0.9rem] text-white underline underline-offset-[3px] decoration-[#555] hover:opacity-60 transition-opacity">Partner with us →</a>
+              </div>
+              <div className="flex items-baseline gap-4">
+                <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#555] w-36 shrink-0">Cities &amp; Neighborhoods</span>
+                <a href="mailto:hello@axlab.io" className="text-[0.9rem] text-white underline underline-offset-[3px] decoration-[#555] hover:opacity-60 transition-opacity">Bring Art Here →</a>
+              </div>
             </div>
           </div>
         </section>

@@ -15,21 +15,21 @@ interface CityDef {
 
 const CITIES: CityDef[] = [
   {
-    code: 'PDX',
+    code: 'Portland, OR',
     lat: 45.52,
     lon: -122.68,
     active: true,
     tooltip: ['Launching Summer 2026', 'Find us at Multnomah Days, August 15!'],
   },
   {
-    code: 'SJC',
+    code: 'San Jose, CA',
     lat: 37.34,
     lon: -121.89,
     active: false,
     tooltip: ['Coming soon'],
   },
   {
-    code: 'BLX',
+    code: 'Biloxi, MS',
     lat: 30.39,
     lon: -88.89,
     active: false,
@@ -111,15 +111,15 @@ export function UsMap() {
             .attr('r', city.active ? 5.5 : 4.5)
             .attr('fill', city.active ? '#1a1a1a' : '#b8b4ae');
 
-          // City code label
+          // City name label
           g.append('text')
             .attr('x', cx)
-            .attr('y', cy - 9)
+            .attr('y', cy + (city.active ? 16 : 14))
             .attr('text-anchor', 'middle')
             .attr('font-family', 'var(--font-nunito), Arial Rounded MT Bold, Arial, sans-serif')
-            .attr('font-size', 8)
-            .attr('font-weight', '700')
-            .attr('letter-spacing', '0.07em')
+            .attr('font-size', city.active ? 11 : 9.5)
+            .attr('font-weight', city.active ? '700' : '600')
+            .attr('letter-spacing', '0.02em')
             .attr('fill', city.active ? '#1a1a1a' : '#aaa')
             .text(city.code);
 
