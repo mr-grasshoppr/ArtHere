@@ -13,6 +13,7 @@ const RELATIONSHIP_LABELS: Record<PlaceRelationship, string> = {
   GRANTEE: 'Grantee',
   EXHIBITING_ARTIST: 'Exhibiting Artist',
   MEMBER: 'Member',
+  IN_SHOP: '',
 };
 
 export async function generateStaticParams() {
@@ -121,7 +122,9 @@ export default async function PlacePage({
                 >
                   {rel.artist.name}
                 </Link>
-                <span className="text-[#bbb] font-light"> · {RELATIONSHIP_LABELS[rel.relationship]}</span>
+                {RELATIONSHIP_LABELS[rel.relationship] && (
+                  <span className="text-[#bbb] font-light"> · {RELATIONSHIP_LABELS[rel.relationship]}</span>
+                )}
               </div>
             ))}
           </div>

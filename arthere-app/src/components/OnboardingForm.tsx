@@ -18,6 +18,7 @@ const RELATIONSHIP_TYPES = [
   { value: "STUDENT", label: "Student" },
   { value: "EXHIBITING_ARTIST", label: "Exhibiting artist" },
   { value: "GRANTEE", label: "Grantee" },
+  { value: "IN_SHOP", label: "In shop" },
 ];
 
 const OFFERING_OPTIONS = [

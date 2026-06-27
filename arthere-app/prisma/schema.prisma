@@ -163,6 +163,7 @@ enum PlaceRelationship {
   GRANTEE
   EXHIBITING_ARTIST
   MEMBER
+  IN_SHOP
 }
 
 // ─── Artist Intake (structured data for search) ───────────────────────────────

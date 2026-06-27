@@ -5,6 +5,15 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { PlaceRelationship } from '@prisma/client';
 
+const RELATIONSHIP_LABELS: Partial<Record<PlaceRelationship, string>> = {
+  INSTRUCTOR: 'Instructor',
+  STUDENT: 'Student',
+  GRANTEE: 'Grantee',
+  EXHIBITING_ARTIST: 'Exhibiting artist',
+  MEMBER: 'Member',
+  IN_SHOP: 'In shop',
+};
+
 export interface CommunityArtistData {
   slug: string;
   name: string;
@@ -119,6 +128,20 @@ function PlaceCard({ place }: { place: CommunityPlaceData }) {
 
         {metaParts.length > 0 && (
           <p className="text-[0.82rem] text-[#888] font-light mt-1">{metaParts.join(' · ')}</p>
+        )}
+
+        {place.artists.length > 0 && (
+          <div className="mt-3 flex flex-col gap-0.5">
+            {place.artists.map(a => {
+              const label = RELATIONSHIP_LABELS[a.relationship];
+              return (
+                <div key={a.slug} className="flex items-baseline gap-1.5 text-[0.8rem]">
+                  <span className="text-[#555]">{a.name}</span>
+                  {label && <span className="text-[#bbb] font-light">· {label}</span>}
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
     </Link>
