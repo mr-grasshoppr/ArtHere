@@ -107,13 +107,13 @@ const ARTIST_STATUS_OPTIONS = [
 const PORTLAND_SUPPORT_OTHER = 'Other';
 const PORTLAND_SUPPORT_NONE = 'None of the above';
 const PORTLAND_SUPPORT_OPTIONS = [
-  'Attend events',
   'Purchase artwork',
-  'Commission artwork',
-  'Hire an artist',
-  "Help share artists' work",
+  'Hire or commission artwork',
   'Collaborate with artists',
-  'Volunteer with arts organizations',
+  'Attend events',
+  'Visit art galleries or shows',
+  "Share artists' work",
+  'Volunteer',
   PORTLAND_SUPPORT_OTHER,
   PORTLAND_SUPPORT_NONE,
 ];
