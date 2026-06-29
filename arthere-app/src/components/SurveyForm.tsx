@@ -144,7 +144,8 @@ const PRACTICE_ACTIVITY_OPTIONS = [
 ];
 
 const PRACTICE_GOAL_OPTIONS = [
-  'Sell more work or find commissions',
+  'Sell more artwork',
+  'Find more commissions',
   'Share my artwork with more people',
   'Connect with other local artists',
   'Show my artwork in galleries, shows, or public spaces',
