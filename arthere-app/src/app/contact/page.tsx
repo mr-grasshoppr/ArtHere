@@ -21,13 +21,13 @@ const INTENTS: Record<string, { greeting: string; opening: string }> = {
   },
   invite: {
     greeting: 'Request an Art Here invite',
-    opening: 'I'd like to request an invite to join Art Here.',
+    opening: `I'd like to request an invite to join Art Here.`,
   },
 };
 
 const DEFAULT_INTENT = {
   greeting: 'Get in touch',
-  opening: 'I'd like to learn more about Art Here.',
+  opening: `I'd like to learn more about Art Here.`,
 };
 
 const INPUT = 'w-full px-4 py-3 rounded-lg border border-[#e5e5e5] text-[0.95rem] text-[#1a1a1a] placeholder-[#bbb] focus:outline-none focus:border-[#1a1a1a] transition-colors bg-white';
