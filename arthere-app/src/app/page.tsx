@@ -73,11 +73,11 @@ export default async function Home() {
           {cities.map(city => {
             const label = city.displayName ?? `${city.name}${city.state ? `, ${city.state}` : ''}`;
             return (
-              <div key={city.slug} className="flex items-center gap-3 group">
+              <div key={city.slug} className="flex items-center gap-3">
                 <span className="font-heading text-[1.25rem] sm:text-[1.35rem] font-bold text-[#1a1a1a] cursor-default">
                   {label}
                 </span>
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 bg-[#1a1a1a] text-white text-[0.85rem] font-semibold tracking-[0.02em] px-3.5 py-1.5 rounded-full whitespace-nowrap">
+                <span className="bg-[#1a1a1a] text-white text-[0.85rem] font-semibold tracking-[0.02em] px-3.5 py-1.5 rounded-full whitespace-nowrap">
                   Launching August 2026!
                 </span>
               </div>
