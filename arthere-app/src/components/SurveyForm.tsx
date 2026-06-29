@@ -21,6 +21,7 @@ interface Answers {
   neighborhoods: string;
 
   practiceActivities: string[];
+  practiceActivitiesOther: string;
   practiceGoals: string[];
   practiceGoalsOther: string;
   practiceSupport: string;
@@ -48,6 +49,7 @@ const initialAnswers: Answers = {
   zipCode: '',
   neighborhoods: '',
   practiceActivities: [],
+  practiceActivitiesOther: '',
   practiceGoals: [],
   practiceGoalsOther: '',
   practiceSupport: '',
@@ -134,12 +136,12 @@ const NONE_OF_THE_ABOVE = 'None of the above';
 const PRACTICE_ACTIVITY_OPTIONS = [
   'Sold original artwork',
   'Taken commissions for my artwork',
-  'Exhibited or shown my artwork publicly',
-  'Performed or presented art publicly',
+  'Shown my artwork in galleries, shows, or public events',
   'Applied for an artist grant or residency',
   'Received an artist grant or residency',
   'Collaborated with other artists or organizations',
   'Taken a class or workshop to support my art practice',
+  OTHER,
   NONE_OF_THE_ABOVE,
 ];
 
@@ -433,7 +435,7 @@ export function SurveyForm({ onSubmitted, onStepChange }: { onSubmitted?: () => 
   // Shuffled once per visit (not on every render, so the order doesn't jump
   // around as people answer).
 
-  const [practiceActivityOptions] = useState(() => shuffleOptions(PRACTICE_ACTIVITY_OPTIONS, [NONE_OF_THE_ABOVE]));
+  const [practiceActivityOptions] = useState(() => shuffleOptions(PRACTICE_ACTIVITY_OPTIONS, [OTHER, NONE_OF_THE_ABOVE]));
   const [practiceGoalOptions] = useState(() => shuffleOptions(PRACTICE_GOAL_OPTIONS, [OTHER]));
   const [learnedAboutOptions] = useState(() => shuffleOptions(LEARNED_ABOUT_OPTIONS, [LEARNED_ABOUT_OTHER]));
   const occupationOptions = OCCUPATION_OPTIONS;
@@ -718,6 +720,14 @@ export function SurveyForm({ onSubmitted, onStepChange }: { onSubmitted?: () => 
               onChange={v => update('practiceActivities', v)}
               exclusive={[NONE_OF_THE_ABOVE]}
             />
+            {answers.practiceActivities.includes(OTHER) && (
+              <input
+                value={answers.practiceActivitiesOther}
+                onChange={e => update('practiceActivitiesOther', e.target.value)}
+                className={`${INPUT_CLASS} mt-2`}
+                placeholder="Please describe…"
+              />
+            )}
           </Question>
         </div>
       )}
