@@ -125,7 +125,9 @@ export function ContactForm() {
           </div>
 
           <div>
-            <label className="block text-[0.72rem] font-semibold text-[#aaa] mb-1.5 uppercase tracking-widest">Website or social media</label>
+            <label className="block text-[0.72rem] font-semibold text-[#aaa] mb-1.5 uppercase tracking-widest">
+              Website or social media <span className="normal-case font-normal text-[#ccc]">(optional)</span>
+            </label>
             <input
               type="text"
               value={social}
