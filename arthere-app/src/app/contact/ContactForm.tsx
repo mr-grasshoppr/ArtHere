@@ -38,6 +38,7 @@ export function ContactForm() {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [social, setSocial] = useState('');
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'sent' | 'error'>('idle');
 
@@ -48,7 +49,7 @@ export function ContactForm() {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, message, intent: intentKey }),
+        body: JSON.stringify({ name, email, social, message, intent: intentKey }),
       });
       if (!res.ok) throw new Error();
       setStatus('sent');
@@ -121,6 +122,17 @@ export function ContactForm() {
                 className={INPUT}
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-[0.72rem] font-semibold text-[#aaa] mb-1.5 uppercase tracking-widest">Website or social media</label>
+            <input
+              type="text"
+              value={social}
+              onChange={e => setSocial(e.target.value)}
+              placeholder="https://yoursite.com or @yourhandle"
+              className={INPUT}
+            />
           </div>
 
           <div>

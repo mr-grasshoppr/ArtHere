@@ -10,7 +10,7 @@ const INTENTS: Record<string, string> = {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { name, email, message, intent } = body;
+  const { name, email, social, message, intent } = body;
 
   if (!name?.trim() || !email?.trim()) {
     return NextResponse.json({ error: 'Name and email are required.' }, { status: 400 });
@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
         <h2 style="font-size: 1.2rem; font-weight: 500; margin: 0 0 24px;">${subject}</h2>
         <p style="color: #555; margin: 0 0 8px;"><strong>Name:</strong> ${name.trim()}</p>
         <p style="color: #555; margin: 0 0 8px;"><strong>Email:</strong> ${email.trim()}</p>
+        ${social?.trim() ? `<p style="color: #555; margin: 0 0 8px;"><strong>Website / Social:</strong> ${social.trim()}</p>` : ''}
         ${message?.trim() ? `<p style="color: #555; margin: 24px 0 0;"><strong>Message:</strong><br>${message.trim().replace(/\n/g, '<br>')}</p>` : ''}
       </div>
     `,
