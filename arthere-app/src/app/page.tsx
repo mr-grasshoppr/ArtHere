@@ -72,17 +72,13 @@ export default async function Home() {
           {cities.map(city => {
             const label = city.displayName ?? `${city.name}${city.state ? `, ${city.state}` : ''}`;
             return (
-              <div key={city.slug} className="relative group">
+              <div key={city.slug} className="flex items-baseline gap-2.5 group">
                 <span className="font-heading text-[1.25rem] sm:text-[1.35rem] font-bold text-[#1a1a1a] cursor-default">
                   {label}
                 </span>
-                <div className="pointer-events-none absolute left-[40px] bottom-[calc(100%+10px)] opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-10">
-                  <div className="relative bg-[#1a1a1a] text-white text-[0.72rem] font-semibold tracking-[0.04em] px-3 py-1.5 rounded-lg whitespace-nowrap">
-                    Launching August 2026
-                    {/* tail pointing down-left */}
-                    <span className="absolute left-3 top-full w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[7px] border-t-[#1a1a1a]" />
-                  </div>
-                </div>
+                <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 bg-[#1a1a1a] text-white text-[0.7rem] font-semibold tracking-[0.06em] px-2.5 py-1 rounded-full whitespace-nowrap">
+                  Launching August 2026
+                </span>
               </div>
             );
           })}
