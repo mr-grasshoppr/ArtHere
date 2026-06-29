@@ -766,7 +766,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
           </Question>
           <Question
             text="Would you like to be entered in a raffle for completing this survey?"
-            hint="One winner receives a $25 gift card to a local shop that supports Portland artists."
+            hint="Raffle winners will receive a $25 gift card to a local shop that supports Portland artists."
           >
             <SingleSelect
               options={RAFFLE_OPTIONS}
