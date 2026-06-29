@@ -250,14 +250,14 @@ function getNextStep(step: StepId, a: Answers): StepId {
     case 'location':
       return 'about-you';
     case 'about-you':
-      return 'about-you-art';
-    case 'about-you-art':
-      return showsCareerStage(a) ? 'career-stage' : 'portland-familiarity';
-    case 'career-stage':
       return 'portland-familiarity';
     case 'portland-familiarity':
       return 'portland-detail';
     case 'portland-detail':
+      return 'about-you-art';
+    case 'about-you-art':
+      return showsCareerStage(a) ? 'career-stage' : (isMakingArt(a) ? 'practice' : 'involvement');
+    case 'career-stage':
       return isMakingArt(a) ? 'practice' : 'involvement';
     case 'practice':
       return 'practice-goals';
