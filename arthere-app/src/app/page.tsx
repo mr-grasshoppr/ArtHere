@@ -176,7 +176,7 @@ export default async function Home() {
             <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#666] mb-8">Get in Touch</div>
             <div className="font-heading text-[clamp(1.4rem,3vw,2rem)] font-bold mb-10">
               <a
-                href="mailto:hello@axlab.io"
+                href="mailto:hello@artishere.org"
                 className="text-white no-underline border-b-2 border-white pb-0.5 hover:opacity-50 transition-opacity"
               >
                 hello@axlab.io
@@ -185,15 +185,15 @@ export default async function Home() {
             <div className="flex flex-col gap-4 border-t border-[#333] pt-8">
               <div className="flex items-baseline gap-4">
                 <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#555] w-36 shrink-0">Artists</span>
-                <a href="/survey" className="text-[0.9rem] text-white underline underline-offset-[3px] decoration-[#555] hover:opacity-60 transition-opacity">Get featured →</a>
+                <a href="mailto:hello@artishere.org?subject=Get Featured on Art Here" className="text-[0.9rem] text-white underline underline-offset-[3px] decoration-[#555] hover:opacity-60 transition-opacity">Get featured →</a>
               </div>
               <div className="flex items-baseline gap-4">
                 <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#555] w-36 shrink-0">Organizations</span>
-                <a href="mailto:hello@axlab.io" className="text-[0.9rem] text-white underline underline-offset-[3px] decoration-[#555] hover:opacity-60 transition-opacity">Partner with us →</a>
+                <a href="mailto:hello@artishere.org" className="text-[0.9rem] text-white underline underline-offset-[3px] decoration-[#555] hover:opacity-60 transition-opacity">Partner with us →</a>
               </div>
               <div className="flex items-baseline gap-4">
                 <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#555] w-36 shrink-0">Cities &amp; Neighborhoods</span>
-                <a href="mailto:hello@axlab.io" className="text-[0.9rem] text-white underline underline-offset-[3px] decoration-[#555] hover:opacity-60 transition-opacity">Bring Art Here →</a>
+                <a href="mailto:hello@artishere.org" className="text-[0.9rem] text-white underline underline-offset-[3px] decoration-[#555] hover:opacity-60 transition-opacity">Bring Art Here →</a>
               </div>
             </div>
           </div>

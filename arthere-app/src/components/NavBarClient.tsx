@@ -105,7 +105,7 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark' }: Props) 
                 About Us
               </Link>
               <a
-                href="mailto:hello@axlab.io"
+                href="mailto:hello@artishere.org?subject=Request an Art Here Invite"
                 onClick={closeAll}
                 className={`group block px-5 py-[13px] text-[0.9rem] transition-colors border-b ${
                   isLight
@@ -114,7 +114,7 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark' }: Props) 
                 }`}
               >
                 <span className="group-hover:hidden">Join Us</span>
-                <span className="hidden group-hover:inline">Request an Invite</span>
+                <span className="hidden group-hover:inline italic">Request an Invite</span>
               </a>
               <Link
                 href="/my-art-here"
