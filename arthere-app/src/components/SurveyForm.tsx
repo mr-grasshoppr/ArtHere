@@ -501,12 +501,11 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
           answers.practiceSupport.trim() !== ''
         );
       case 'involvement':
-        return answers.involvementInterests.length > 0;
+        return answers.involvementInterests.length > 0 && !!answers.raffleOptIn;
       case 'email': {
-        if (!answers.raffleOptIn) return false;
         const wantsRaffle = answers.raffleOptIn === RAFFLE_YES;
-        const wantsFeatured = answers.involvementInterests.includes('Become a featured artist');
-        const emailRequired = wantsRaffle || wantsFeatured;
+        const wantsInvolvement = answers.involvementInterests.some(s => s !== INVOLVEMENT_NONE);
+        const emailRequired = wantsRaffle || wantsInvolvement;
         return emailRequired ? emailLooksValid : (answers.email.trim() === '' || emailLooksValid);
       }
       default:
@@ -747,7 +746,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
       )}
 
       {step === 'involvement' && (
-        <div>
+        <div className="flex flex-col gap-10">
           <Eyebrow>Get Involved</Eyebrow>
           <Question text="In what ways, if any, would you like to get involved with Art Here?" hint="Select all that apply.">
             <MultiSelect
@@ -762,16 +761,9 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
                 onChange={e => update('involvementInterestsOther', e.target.value)}
                 className={`${INPUT_CLASS} mt-2`}
                 placeholder="Please describe…"
-                autoFocus
               />
             )}
           </Question>
-        </div>
-      )}
-
-      {step === 'email' && (
-        <div className="flex flex-col gap-10">
-          <Eyebrow>One Last Thing</Eyebrow>
           <Question
             text="Would you like to be entered in a raffle for completing this survey?"
             hint="One winner receives a $25 gift card to a local shop that supports Portland artists."
@@ -782,9 +774,15 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
               onChange={v => update('raffleOptIn', v)}
             />
           </Question>
+        </div>
+      )}
+
+      {step === 'email' && (
+        <div className="flex flex-col gap-10">
+          <Eyebrow>One Last Thing</Eyebrow>
           <Question
             text="Email address"
-            hint="Required if you'd like to enter the raffle, stay connected, or be considered as a featured artist. We'll only use it to follow up with you — it won't be shared or connected to your survey answers."
+            hint="Required if you'd like to get involved or enter the raffle. We'll only use it to follow up — it won't be shared or connected to your survey answers."
           >
             <input
               type="email"
