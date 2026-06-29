@@ -105,16 +105,15 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark' }: Props) 
                 About Us
               </Link>
               <Link
-                href="/contact?type=featured"
-                className={`group block px-5 py-[13px] text-[0.9rem] transition-colors border-b ${
+                href="/#contact"
+                className={`block px-5 py-[13px] text-[0.9rem] transition-colors border-b ${
                   isLight
                     ? 'text-[#444] border-[#f0f0f0] hover:bg-[#fafafa] hover:text-[#1a1a1a]'
                     : 'text-[#ccc] border-[#222] hover:bg-[#222] hover:text-white'
                 }`}
                 onClick={closeAll}
               >
-                <span className="group-hover:hidden">Join Us</span>
-                <span className="hidden group-hover:inline italic">Request an Invite</span>
+                Join Us
               </Link>
               <Link
                 href="/my-art-here"

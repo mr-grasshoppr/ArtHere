@@ -176,6 +176,9 @@ export default async function Home() {
         {/* Contact — black bg to match survey CTA */}
         <section id="contact" className="bg-[#1a1a1a] scroll-mt-[70px]">
           <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-14 sm:py-24">
+            <h2 className="font-heading text-[clamp(2.2rem,5vw,3.5rem)] font-bold tracking-[-0.02em] text-white mb-3">
+              Join Us!
+            </h2>
             <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#666] mb-8">Get in Touch</div>
             <div className="font-heading text-[clamp(1.4rem,3vw,2rem)] font-bold mb-10">
               <Link
