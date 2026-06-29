@@ -105,7 +105,7 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark' }: Props) 
                 About Us
               </Link>
               <Link
-                href="/contact?type=invite"
+                href="/contact?type=featured"
                 className={`group block px-5 py-[13px] text-[0.9rem] transition-colors border-b ${
                   isLight
                     ? 'text-[#444] border-[#f0f0f0] hover:bg-[#fafafa] hover:text-[#1a1a1a]'
