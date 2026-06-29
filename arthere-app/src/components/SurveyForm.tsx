@@ -413,7 +413,7 @@ function ProgressBar({ value }: { value: number }) {
  * Multi-step "Portland Community Survey" form. Branches based on a few key
  * answers (see `getNextStep`) and posts the final result to /api/survey.
  */
-export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
+export function SurveyForm({ onSubmitted, onStepChange }: { onSubmitted?: () => void; onStepChange?: (isFirstStep: boolean) => void }) {
   const [answers, setAnswers] = useState<Answers>(initialAnswers);
   const [history, setHistory] = useState<StepId[]>(['location']);
   const [submitting, setSubmitting] = useState(false);
@@ -464,12 +464,16 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
 
   function goNext() {
     saveDraft(answers);
-    setHistory(h => [...h, getNextStep(h[h.length - 1], answers)]);
+    const next = getNextStep(history[history.length - 1], answers);
+    setHistory(h => [...h, next]);
+    onStepChange?.(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function goBack() {
-    setHistory(h => (h.length > 1 ? h.slice(0, -1) : h));
+    const newHistory = history.length > 1 ? history.slice(0, -1) : history;
+    setHistory(newHistory);
+    onStepChange?.(newHistory.length === 1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
