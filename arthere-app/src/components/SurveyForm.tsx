@@ -142,7 +142,7 @@ const PRACTICE_ACTIVITY_OPTIONS = [
   'Applied for an artist grant or residency',
   'Received an artist grant or residency',
   'Collaborated with other artists or organizations',
-  'Taken a class or workshop to support my art practice',
+  'Taken a class or training to support my art practice',
   OTHER,
   NONE_OF_THE_ABOVE,
 ];
@@ -156,7 +156,7 @@ const PRACTICE_GOAL_OPTIONS = [
   'Find studio space or places to make my work',
   'Receive an artist grant or residency',
   'Collaborate with other artists',
-  'Find classes or training to develop my skills',
+  'Find classes or training to support my art practice',
   OTHER,
 ];
 
