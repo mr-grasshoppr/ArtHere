@@ -16,6 +16,7 @@ interface Answers {
   occupationOther: string;
   artistStatus: string;
   artistStatusOther: string;
+  careerStage: string;
 
   zipCode: string;
   neighborhoods: string;
@@ -46,6 +47,7 @@ const initialAnswers: Answers = {
   occupationOther: '',
   artistStatus: '',
   artistStatusOther: '',
+  careerStage: '',
   zipCode: '',
   neighborhoods: '',
   practiceActivities: [],
@@ -220,6 +222,7 @@ type StepId =
   | 'location'
   | 'about-you'
   | 'about-you-art'
+  | 'career-stage'
   | 'portland-familiarity'
   | 'portland-detail'
   | 'practice'
@@ -233,6 +236,15 @@ function isMakingArt(a: Answers) {
   return a.artistStatus !== NOT_MAKING_ART;
 }
 
+const CAREER_STAGE_STATUSES = [
+  'Yes, it is my primary occupation',
+  'Yes, I have an active art practice alongside other work',
+];
+
+function showsCareerStage(a: Answers) {
+  return CAREER_STAGE_STATUSES.includes(a.artistStatus);
+}
+
 function getNextStep(step: StepId, a: Answers): StepId {
   switch (step) {
     case 'location':
@@ -240,6 +252,8 @@ function getNextStep(step: StepId, a: Answers): StepId {
     case 'about-you':
       return 'about-you-art';
     case 'about-you-art':
+      return showsCareerStage(a) ? 'career-stage' : 'portland-familiarity';
+    case 'career-stage':
       return 'portland-familiarity';
     case 'portland-familiarity':
       return 'portland-detail';
@@ -498,6 +512,8 @@ export function SurveyForm({ onSubmitted, onStepChange }: { onSubmitted?: () => 
           !!answers.artistStatus &&
           (answers.artistStatus !== OTHER || answers.artistStatusOther.trim() !== '')
         );
+      case 'career-stage':
+        return !!answers.careerStage;
       case 'portland-familiarity':
         return !!answers.portlandFamiliarity;
       case 'portland-detail':
@@ -655,6 +671,24 @@ export function SurveyForm({ onSubmitted, onStepChange }: { onSubmitted?: () => 
                 placeholder="Tell us more"
               />
             )}
+          </Question>
+        </div>
+      )}
+
+      {step === 'career-stage' && (
+        <div>
+          <Eyebrow>About You</Eyebrow>
+          <Question text="How long have you been practicing as an artist?">
+            <SingleSelect
+              options={[
+                'Just getting started (less than 2 years)',
+                'Early career (2–5 years)',
+                'Established (5–15 years)',
+                'Longtime (15+ years)',
+              ]}
+              value={answers.careerStage}
+              onChange={v => update('careerStage', v)}
+            />
           </Question>
         </div>
       )}

@@ -221,6 +221,7 @@ model SurveyResponse {
   occupationOther   String?
   artistStatus      String?
   artistStatusOther String?
+  careerStage       String?
   ageRange          String?
 
   // Where are you based

@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
       occupationOther: str(body.occupationOther),
       artistStatus: str(body.artistStatus),
       artistStatusOther: str(body.artistStatusOther),
+      careerStage: str(body.careerStage),
       ageRange: str(body.ageRange),
 
       zipCode: str(body.zipCode),
@@ -153,6 +154,7 @@ export async function PATCH(req: NextRequest) {
       occupationOther: str(body.occupationOther),
       artistStatus: str(body.artistStatus),
       artistStatusOther: str(body.artistStatusOther),
+      careerStage: str(body.careerStage),
       ageRange: str(body.ageRange),
       zipCode: str(body.zipCode),
       neighborhoods: str(body.neighborhoods),
