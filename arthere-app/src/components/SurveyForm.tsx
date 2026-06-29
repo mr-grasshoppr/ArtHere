@@ -307,7 +307,7 @@ function Question({ text, hint, children }: { text: string; hint?: string; child
       <div className="font-heading text-[1.05rem] sm:text-[1.15rem] font-bold text-[#1a1a1a] leading-snug mb-1">
         {text}
       </div>
-      {hint && <p className="text-[0.85rem] text-[#666] font-light mb-3">{hint}</p>}
+      {hint && <p className="text-[0.85rem] text-[#999] font-semibold mb-3">{hint}</p>}
       {!hint && <div className="mb-3" />}
       {children}
     </div>
