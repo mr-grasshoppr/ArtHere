@@ -8,7 +8,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Nodemailer({
       server: process.env.EMAIL_SERVER,
-      from: process.env.EMAIL_FROM ?? "Art Here Portland <hello@arthere.portland>",
+      from: process.env.EMAIL_FROM ?? "Art Here <hello@artishere.org>",
       // Magic links expire in 20 minutes
       maxAge: 60 * 20,
       sendVerificationRequest: async ({ identifier: email, url, provider }) => {
