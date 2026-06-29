@@ -87,7 +87,7 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark' }: Props) 
 
           {menuOpen && (
             <div
-              className={`absolute top-[calc(100%+8px)] right-0 rounded-md overflow-hidden min-w-[160px] ${
+              className={`absolute top-[calc(100%+8px)] right-0 rounded-md min-w-[160px] ${
                 isLight
                   ? 'bg-white border border-[#eee] shadow-[0_4px_20px_rgba(0,0,0,0.08)]'
                   : 'bg-[#1a1a1a] border border-[#333] shadow-[0_4px_20px_rgba(0,0,0,0.5)]'
@@ -106,23 +106,21 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark' }: Props) 
               </Link>
               <div className="relative group">
                 <span
-                  className={`block px-5 py-[13px] text-[0.9rem] cursor-default border-b ${
+                  className={`block px-5 py-[13px] text-[0.9rem] cursor-default border-b transition-colors ${
                     isLight
-                      ? 'text-[#444] border-[#f0f0f0]'
-                      : 'text-[#ccc] border-[#222]'
+                      ? 'text-[#444] border-[#f0f0f0] group-hover:bg-[#fafafa] group-hover:text-[#1a1a1a]'
+                      : 'text-[#ccc] border-[#222] group-hover:bg-[#222] group-hover:text-white'
                   }`}
                 >
                   Join Us
                 </span>
-                <div className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-[300]">
-                  <a
-                    href="mailto:hello@axlab.io"
-                    className="pointer-events-auto block bg-[#1a1a1a] text-white text-[0.75rem] font-semibold px-3 py-1.5 rounded-md whitespace-nowrap no-underline hover:opacity-80 transition-opacity"
-                    onClick={closeAll}
-                  >
-                    Request an Invite
-                  </a>
-                </div>
+                <a
+                  href="mailto:hello@axlab.io"
+                  onClick={closeAll}
+                  className="pointer-events-none group-hover:pointer-events-auto absolute right-[calc(100%+8px)] top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-[300] block bg-[#1a1a1a] text-white text-[0.75rem] font-semibold px-3 py-1.5 rounded-md whitespace-nowrap no-underline hover:opacity-80"
+                >
+                  Request an Invite
+                </a>
               </div>
               <Link
                 href="/survey"
