@@ -11,11 +11,11 @@ const INTENTS: Record<string, { greeting: string; opening: string }> = {
   },
   partner: {
     greeting: 'Partner with Art Here',
-    opening: 'I want to partner or collaborate with Art Here.',
+    opening: `I'm interested in partnering or collaborating with Art Here.`,
   },
   bring: {
     greeting: 'Bring Art Here to my city',
-    opening: 'I want to bring Art Here to my city or neighborhood.',
+    opening: `I'm interested in bringing Art Here to my city or neighborhood.`,
   },
   invite: {
     greeting: 'Request an Art Here invite',
