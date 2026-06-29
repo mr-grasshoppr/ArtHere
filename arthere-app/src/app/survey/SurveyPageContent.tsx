@@ -25,7 +25,7 @@ export function SurveyPageContent() {
           Thank You!
         </h1>
         <p className="text-[1.05rem] text-[#555] font-light leading-[1.85] max-w-[440px] mx-auto mb-10">
-          Your answers help us understand what Portland&rsquo;s creative community needs. We
+          Your answers help us understand what Portland&rsquo;s arts community needs. We
           really appreciate you taking the time.
         </p>
         <a
