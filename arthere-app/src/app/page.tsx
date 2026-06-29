@@ -72,13 +72,16 @@ export default async function Home() {
           {cities.map(city => {
             const label = city.displayName ?? `${city.name}${city.state ? `, ${city.state}` : ''}`;
             return (
-              <Link
-                key={city.slug}
-                href={`/cities/${city.slug}`}
-                className="font-heading text-[1.25rem] sm:text-[1.35rem] font-bold text-[#1a1a1a] no-underline hover:opacity-60 transition-opacity"
-              >
-                {label}
-              </Link>
+              <div key={city.slug} className="relative group">
+                <span className="font-heading text-[1.25rem] sm:text-[1.35rem] font-bold text-[#1a1a1a] cursor-default">
+                  {label}
+                </span>
+                <div className="pointer-events-none absolute left-0 bottom-[calc(100%+6px)] opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-10">
+                  <div className="bg-[#1a1a1a] text-white text-[0.72rem] font-semibold tracking-[0.04em] px-3 py-1.5 rounded-md whitespace-nowrap">
+                    Launching August 2026
+                  </div>
+                </div>
+              </div>
             );
           })}
           {COMING_SOON_CITY_DATA.map(({ label }) => (
