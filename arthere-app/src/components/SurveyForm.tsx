@@ -152,7 +152,6 @@ const PRACTICE_GOAL_OPTIONS = [
   'Receive grants or residencies',
   'Collaborate with other artists',
   'Find classes or training to develop my skills',
-  'Attend more community gatherings or events',
   OTHER,
 ];
 
