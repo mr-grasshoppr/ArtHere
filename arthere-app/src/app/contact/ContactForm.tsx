@@ -14,7 +14,7 @@ const INTENTS: Record<string, { greeting: string; opening: string }> = {
     opening: `I'm interested in partnering or collaborating with Art Here.`,
   },
   bring: {
-    greeting: 'Bring Art Here to my city',
+    greeting: 'Bring Art Here to us',
     opening: `I'm interested in bringing Art Here to my city or neighborhood.`,
   },
   invite: {
