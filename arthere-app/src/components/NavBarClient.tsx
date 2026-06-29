@@ -104,17 +104,26 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark' }: Props) 
               >
                 About Us
               </Link>
-              <Link
-                href="/onboarding"
-                className={`block px-5 py-[13px] text-[0.9rem] transition-colors ${
-                  isLight
-                    ? 'text-[#444] border-b border-[#f0f0f0] hover:bg-[#fafafa] hover:text-[#1a1a1a]'
-                    : 'text-[#ccc] border-b border-[#222] hover:bg-[#222] hover:text-white'
-                }`}
-                onClick={closeAll}
-              >
-                Join Us
-              </Link>
+              <div className="relative group">
+                <span
+                  className={`block px-5 py-[13px] text-[0.9rem] cursor-default border-b ${
+                    isLight
+                      ? 'text-[#444] border-[#f0f0f0]'
+                      : 'text-[#ccc] border-[#222]'
+                  }`}
+                >
+                  Join Us
+                </span>
+                <div className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-[300]">
+                  <a
+                    href="mailto:hello@axlab.io"
+                    className="pointer-events-auto block bg-[#1a1a1a] text-white text-[0.75rem] font-semibold px-3 py-1.5 rounded-md whitespace-nowrap no-underline hover:opacity-80 transition-opacity"
+                    onClick={closeAll}
+                  >
+                    Request an Invite
+                  </a>
+                </div>
+              </div>
               <Link
                 href="/survey"
                 className={`block px-5 py-[13px] text-[0.9rem] transition-colors ${
