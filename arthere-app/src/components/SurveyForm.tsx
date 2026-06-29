@@ -138,7 +138,7 @@ const PRACTICE_ACTIVITY_OPTIONS = [
   'Performed or presented art publicly',
   'Applied for an artist grant or residency',
   'Received an artist grant or residency',
-  'Collaborated with other artists or organizations on an art project',
+  'Collaborated with other artists or organizations',
   'Taken a class or workshop to support my art practice',
   NONE_OF_THE_ABOVE,
 ];
