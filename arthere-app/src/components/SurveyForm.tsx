@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 // ─── Answer shape ───────────────────────────────────────────────────────────
 
@@ -424,6 +424,11 @@ export function SurveyForm({ onSubmitted, onStepChange }: { onSubmitted?: () => 
 
   const step = history[history.length - 1];
 
+  // Scroll to top after each step change, once the new content has rendered.
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [step]);
+
   // Shuffled once per visit (not on every render, so the order doesn't jump
   // around as people answer).
 
@@ -467,14 +472,12 @@ export function SurveyForm({ onSubmitted, onStepChange }: { onSubmitted?: () => 
     const next = getNextStep(history[history.length - 1], answers);
     setHistory(h => [...h, next]);
     onStepChange?.(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function goBack() {
     const newHistory = history.length > 1 ? history.slice(0, -1) : history;
     setHistory(newHistory);
     onStepChange?.(newHistory.length === 1);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   const emailLooksValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(answers.email.trim());
