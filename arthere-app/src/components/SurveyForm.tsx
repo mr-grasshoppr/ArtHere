@@ -734,7 +734,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
               />
             )}
           </Question>
-          <Question text="What local places, organizations, institutions, or businesses have been most important to supporting you and your art practice in the past year?" hint="Name one to three.">
+          <Question text="What local places, organizations, institutions, or businesses have been most important to supporting you and your art practice?" hint="Name one to three.">
             <textarea
               value={answers.practiceSupport}
               onChange={e => update('practiceSupport', e.target.value)}
