@@ -90,14 +90,19 @@ export default function MyArtHerePage() {
               <p className="text-[0.88rem] text-[#999] font-light leading-[1.7]">
                 <strong className="text-[#555] font-semibold">Not yet on Art Here?</strong>
                 <br />
-                Art Here is currently invite-only. If you&rsquo;d like to join,{' '}
-                <Link
-                  href="/contact?type=invite"
-                  className="underline underline-offset-[3px] text-[#555] hover:text-[#1a1a1a] transition-colors"
-                >
-                  request an invite
+                Let us know how you&rsquo;d like to be involved!{' '}
+                <Link href="/contact?type=featured" className="underline underline-offset-[3px] text-[#555] hover:text-[#1a1a1a] transition-colors">
+                  Request an invite to become a featured artist
                 </Link>
-                {' '}and we&rsquo;ll be in touch.
+                ,{' '}
+                <Link href="/contact?type=partner" className="underline underline-offset-[3px] text-[#555] hover:text-[#1a1a1a] transition-colors">
+                  partner with us
+                </Link>
+                , or{' '}
+                <Link href="/contact?type=bring" className="underline underline-offset-[3px] text-[#555] hover:text-[#1a1a1a] transition-colors">
+                  bring us to you
+                </Link>
+                .
               </p>
             </div>
           </div>
