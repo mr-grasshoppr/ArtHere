@@ -62,6 +62,9 @@ export async function POST(req: NextRequest) {
 
       stayConnected: strArray(body.stayConnected),
 
+      involvementInterests: strArray(body.involvementInterests),
+      involvementInterestsOther: str(body.involvementInterestsOther),
+
       raffleOptIn: str(body.raffleOptIn),
       email: str(body.email),
       learnedAbout: strArray(body.learnedAbout),
@@ -70,9 +73,8 @@ export async function POST(req: NextRequest) {
 
   // If the respondent wants to be a featured artist and left an email, provision
   // their account and send a magic link so they can set up their profile.
-  const wantsToBeFeatures =
-    typeof body.featuredArtistInterest === 'string' &&
-    body.featuredArtistInterest.startsWith('Yes');
+  const involvementList = Array.isArray(body.involvementInterests) ? body.involvementInterests : [];
+  const wantsToBeFeatures = involvementList.includes('Become a featured artist');
   const email = response.email;
 
   if (wantsToBeFeatures && email) {
@@ -167,6 +169,8 @@ export async function PATCH(req: NextRequest) {
       practiceSupport: str(body.practiceSupport),
       featuredArtistInterest: str(body.featuredArtistInterest),
       stayConnected: strArray(body.stayConnected),
+      involvementInterests: strArray(body.involvementInterests),
+      involvementInterestsOther: str(body.involvementInterestsOther),
       raffleOptIn: str(body.raffleOptIn),
       email: str(body.email),
       learnedAbout: strArray(body.learnedAbout),

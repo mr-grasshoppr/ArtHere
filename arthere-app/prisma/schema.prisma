@@ -231,8 +231,8 @@ model SurveyResponse {
   mvSupport        String[] @default([]) // How would you most like to connect with/support artists in MV?
   mvSupportOther   String? // Write-in for "Other" in mvSupport
 
-  // Multnomah Days 2026
-  multnomahDaysInvolvement String[] @default([]) // Q11
+  // Multnomah Days 2026 (deprecated — kept for old responses)
+  multnomahDaysInvolvement String[] @default([])
 
   // About Your Practice
   practiceActivities String[] @default([]) // Q12
@@ -240,18 +240,22 @@ model SurveyResponse {
   practiceGoalsOther String? // Q13 "Other" free text
   practiceSupport    String?  @db.Text // Q14
 
-  // Become a Featured Artist
-  featuredArtistInterest String? // Q15
+  // Become a Featured Artist (deprecated — kept for old responses)
+  featuredArtistInterest String?
 
-  // Stay in Touch
-  stayConnected String[] @default([]) // Q16
+  // Stay in Touch (deprecated — kept for old responses)
+  stayConnected String[] @default([])
+
+  // Get Involved (replaces featured artist + stay connected + multnomah days)
+  involvementInterests      String[] @default([])
+  involvementInterestsOther String?
 
   // Raffle + Email
-  raffleOptIn String? // Would you like to be entered in a raffle?
-  email       String? // Q17
+  raffleOptIn String?
+  email       String?
 
   // Referral
-  learnedAbout String[] @default([]) // Where did you hear about Art Here?
+  learnedAbout String[] @default([])
 }
 
 // ─── Magic Link Tokens ────────────────────────────────────────────────────────

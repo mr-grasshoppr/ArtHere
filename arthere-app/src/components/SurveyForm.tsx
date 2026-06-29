@@ -20,16 +20,14 @@ interface Answers {
   zipCode: string;
   neighborhoods: string;
 
-  multnomahDaysInvolvement: string[];
-
   practiceActivities: string[];
   practiceGoals: string[];
   practiceGoalsOther: string;
   practiceSupport: string;
 
-  featuredArtistInterest: string;
+  involvementInterests: string[];
+  involvementInterestsOther: string;
 
-  stayConnected: string[];
   raffleOptIn: string;
   email: string;
   learnedAbout: string[];
@@ -49,13 +47,12 @@ const initialAnswers: Answers = {
   artistStatusOther: '',
   zipCode: '',
   neighborhoods: '',
-  multnomahDaysInvolvement: [],
   practiceActivities: [],
   practiceGoals: [],
   practiceGoalsOther: '',
   practiceSupport: '',
-  featuredArtistInterest: '',
-  stayConnected: [],
+  involvementInterests: [],
+  involvementInterestsOther: '',
   raffleOptIn: '',
   email: '',
   learnedAbout: [],
@@ -67,33 +64,30 @@ const initialAnswers: Answers = {
 // out as constants rather than re-typed inline.
 
 const PORTLAND_FAMILIARITY_OPTIONS = [
-  'Extremely -- artists are central to my work and life',
-  'Very -- I have regular relationships with artists in Portland',
-  'Somewhat -- I know a few artists or engage with the arts occasionally',
-  'A little -- I\'m aware of the arts community but not personally connected',
-  'Not at all -- I don\'t have personal connections to artists in Portland',
+  'Very aware',
+  'Somewhat aware',
+  'A little aware',
+  'Not at all aware',
 ];
 
 const OCCUPATION_OTHER = 'Other';
 const OCCUPATION_RETIRED = 'Retired';
 const OCCUPATION_PREFER_NOT = 'Prefer not to say';
+// Pinned at bottom (not randomized): Homemaker, Not currently working, Retired, Other, Prefer not to say
+const OCCUPATION_PINNED = ['Homemaker', 'Not currently working', OCCUPATION_RETIRED, OCCUPATION_OTHER, OCCUPATION_PREFER_NOT];
 const OCCUPATION_OPTIONS = [
   'Arts (Visual Art, Dance, Music, Theater)',
+  'Business or Professional Services',
   'Design or Creative Services',
-  'Media and Entertainment',
   'Education',
-  'Technology and Software',
-  'Healthcare and Life Sciences',
-  'Finance and Insurance',
-  'Government and Public Administration',
-  'Nonprofit and Social Services',
-  'Professional Services (Legal, Consulting, Accounting)',
-  'Construction and Real Estate',
-  'Manufacturing',
-  'Retail, Hospitality, or Food Service',
-  'Transportation and Logistics',
-  'Not currently working',
+  'Federal or State Government',
+  'Healthcare',
+  'Local Government (City or County)',
+  'Non-profit',
+  'Technology',
+  'Trades or Manufacturing',
   'Homemaker',
+  'Not currently working',
   OCCUPATION_RETIRED,
   OCCUPATION_OTHER,
   OCCUPATION_PREFER_NOT,
@@ -124,13 +118,16 @@ const PORTLAND_SUPPORT_OPTIONS = [
   PORTLAND_SUPPORT_NONE,
 ];
 
-const NOT_INTERESTED_MULTNOMAH_DAYS = `I'm not interested`;
-const MULTNOMAH_DAYS_OPTIONS = [
-  `Join the parade to celebrate local artists' work`,
-  'Help set up or take down our booth',
-  `I can't volunteer but I'd love to attend`,
-  'Spread the word about Art Here',
-  NOT_INTERESTED_MULTNOMAH_DAYS,
+const INVOLVEMENT_OTHER = 'Other';
+const INVOLVEMENT_NONE = 'None of the above';
+const INVOLVEMENT_OPTIONS = [
+  'Keep me posted on Art Here news',
+  'Become a featured artist',
+  'Volunteer to help Art Here',
+  'Join the parade at Multnomah Days 2026 (August 15, Portland)',
+  'Partner or collaborate',
+  INVOLVEMENT_OTHER,
+  INVOLVEMENT_NONE,
 ];
 
 const NONE_OF_THE_ABOVE = 'None of the above';
@@ -156,23 +153,6 @@ const PRACTICE_GOAL_OPTIONS = [
   'Find classes or training to develop my skills',
   'Attend more community gatherings or events',
   OTHER,
-];
-
-const FEATURED_ARTIST_OPTIONS = [
-  'Yes, online through the Art Here platform',
-  'Yes, in person at local events and celebrations',
-  'Yes, both online and in person',
-  `I'd like more information before deciding`,
-  'Not at this time',
-];
-
-const NONE_AT_THIS_TIME = 'None at this time';
-const STAY_CONNECTED_OPTIONS = [
-  'Keep me posted on Art Here news',
-  'Become a featured artist',
-  'Volunteer',
-  'Partner or collaborate',
-  NONE_AT_THIS_TIME,
 ];
 
 const RAFFLE_YES = 'Yes';
@@ -241,9 +221,7 @@ type StepId =
   | 'portland-detail'
   | 'practice'
   | 'practice-goals'
-  | 'featured-artist'
-  | 'stay-connected'
-  | 'multnomah-days'
+  | 'involvement'
   | 'email'
   | 'learned-about'
   | 'done';
@@ -263,16 +241,12 @@ function getNextStep(step: StepId, a: Answers): StepId {
     case 'portland-familiarity':
       return 'portland-detail';
     case 'portland-detail':
-      return isMakingArt(a) ? 'practice' : 'stay-connected';
+      return isMakingArt(a) ? 'practice' : 'involvement';
     case 'practice':
       return 'practice-goals';
     case 'practice-goals':
-      return 'featured-artist';
-    case 'featured-artist':
-      return 'stay-connected';
-    case 'stay-connected':
-      return PORTLAND_METRO_ZIPS.has(a.zipCode) ? 'multnomah-days' : 'email';
-    case 'multnomah-days':
+      return 'involvement';
+    case 'involvement':
       return 'email';
     case 'email':
       return 'learned-about';
@@ -452,12 +426,11 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
 
   // Shuffled once per visit (not on every render, so the order doesn't jump
   // around as people answer).
-  const [multnomahDaysOptions] = useState(() => shuffleOptions(MULTNOMAH_DAYS_OPTIONS, [NOT_INTERESTED_MULTNOMAH_DAYS]));
+
   const [practiceActivityOptions] = useState(() => shuffleOptions(PRACTICE_ACTIVITY_OPTIONS, [NONE_OF_THE_ABOVE]));
   const [practiceGoalOptions] = useState(() => shuffleOptions(PRACTICE_GOAL_OPTIONS, [OTHER]));
-  const [stayConnectedOptions] = useState(() => shuffleOptions(STAY_CONNECTED_OPTIONS, [NONE_AT_THIS_TIME]));
   const [learnedAboutOptions] = useState(() => shuffleOptions(LEARNED_ABOUT_OPTIONS, [LEARNED_ABOUT_OTHER]));
-  const [occupationOptions] = useState(() => shuffleOptions(OCCUPATION_OPTIONS, [OCCUPATION_RETIRED, OCCUPATION_OTHER, OCCUPATION_PREFER_NOT]));
+  const [occupationOptions] = useState(() => shuffleOptions(OCCUPATION_OPTIONS, OCCUPATION_PINNED));
   const [portlandSupportOptions] = useState(() => shuffleOptions(PORTLAND_SUPPORT_OPTIONS, [PORTLAND_SUPPORT_OTHER, PORTLAND_SUPPORT_NONE]));
 
   function update<K extends keyof Answers>(key: K, value: Answers[K]) {
@@ -527,18 +500,13 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
           (!answers.practiceGoals.includes(OTHER) || answers.practiceGoalsOther.trim() !== '') &&
           answers.practiceSupport.trim() !== ''
         );
-      case 'featured-artist':
-        return !!answers.featuredArtistInterest;
-      case 'stay-connected':
-        return answers.stayConnected.length > 0;
-      case 'multnomah-days':
-        return answers.multnomahDaysInvolvement.length > 0;
+      case 'involvement':
+        return answers.involvementInterests.length > 0;
       case 'email': {
         if (!answers.raffleOptIn) return false;
         const wantsRaffle = answers.raffleOptIn === RAFFLE_YES;
-        const wantsFollowUp = answers.stayConnected.some(s => s !== NONE_AT_THIS_TIME);
-        const wantsFeatured = !!answers.featuredArtistInterest && answers.featuredArtistInterest !== 'Not at this time';
-        const emailRequired = wantsRaffle || wantsFollowUp || wantsFeatured;
+        const wantsFeatured = answers.involvementInterests.includes('Become a featured artist');
+        const emailRequired = wantsRaffle || wantsFeatured;
         return emailRequired ? emailLooksValid : (answers.email.trim() === '' || emailLooksValid);
       }
       default:
@@ -685,7 +653,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
       {step === 'portland-familiarity' && (
         <div>
           <Eyebrow>About Portland</Eyebrow>
-          <Question text="How involved are you with the artist community in Portland?">
+          <Question text="How aware are you of local artists in your area?">
             <SingleSelect
               options={PORTLAND_FAMILIARITY_OPTIONS}
               value={answers.portlandFamiliarity}
@@ -778,62 +746,25 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
         </div>
       )}
 
-      {step === 'featured-artist' && (
+      {step === 'involvement' && (
         <div>
-          <Eyebrow>Become a Featured Artist</Eyebrow>
-          <Intro>
-            Art Here is currently piloting in Portland with a small but mighty team. We&rsquo;re
-            growing thoughtfully and would love to have you involved.
-          </Intro>
-          <Question text="Would you like to be a featured artist with Art Here?">
-            <SingleSelect
-              options={FEATURED_ARTIST_OPTIONS}
-              value={answers.featuredArtistInterest}
-              onChange={v => update('featuredArtistInterest', v)}
-            />
-          </Question>
-        </div>
-      )}
-
-      {step === 'stay-connected' && (
-        <div>
-          <Eyebrow>Stay Connected</Eyebrow>
-          <Intro>
-            <a href="/#about" target="_blank" rel="noopener noreferrer" className="underline underline-offset-[3px] hover:opacity-70 transition-opacity">Art Here</a>
-            {' '}connects local artists with the residents, organizations, and businesses around them.
-            We are hosting community events, building a living directory of local artists, and
-            capturing stories to highlight Portland&rsquo;s artist community. As we grow, there
-            are lots of ways to get involved — from staying in the loop to volunteering,
-            partnering, or being featured as an artist.
-          </Intro>
-          <Question text="In what ways would you like to stay connected to Art Here?" hint="Select all that apply.">
+          <Eyebrow>Get Involved</Eyebrow>
+          <Question text="In what ways, if any, would you like to get involved with Art Here?" hint="Select all that apply.">
             <MultiSelect
-              options={stayConnectedOptions}
-              value={answers.stayConnected}
-              onChange={v => update('stayConnected', v)}
-              exclusive={[NONE_AT_THIS_TIME]}
+              options={INVOLVEMENT_OPTIONS}
+              value={answers.involvementInterests}
+              onChange={v => update('involvementInterests', v)}
+              exclusive={[INVOLVEMENT_NONE]}
             />
-          </Question>
-        </div>
-      )}
-
-      {step === 'multnomah-days' && (
-        <div>
-          <Eyebrow>Multnomah Days 2026</Eyebrow>
-          <Intro>
-            Art Here will have a booth and parade presence at{' '}
-            <a href="https://www.multnomahvillage.org/event-details/multnomah-days-2026" target="_blank" rel="noopener noreferrer" className="underline underline-offset-[3px] hover:opacity-70 transition-opacity">
-              Multnomah Days
-            </a>
-            {' '}on August 15, 2026. We&rsquo;d love to have you join us to celebrate local arts!
-          </Intro>
-          <Question text="Would you like to join us for the Multnomah Days Festival on August 15?">
-            <MultiSelect
-              options={multnomahDaysOptions}
-              value={answers.multnomahDaysInvolvement}
-              onChange={v => update('multnomahDaysInvolvement', v)}
-              exclusive={[NOT_INTERESTED_MULTNOMAH_DAYS]}
-            />
+            {answers.involvementInterests.includes(INVOLVEMENT_OTHER) && (
+              <input
+                value={answers.involvementInterestsOther}
+                onChange={e => update('involvementInterestsOther', e.target.value)}
+                className={`${INPUT_CLASS} mt-2`}
+                placeholder="Please describe…"
+                autoFocus
+              />
+            )}
           </Question>
         </div>
       )}
