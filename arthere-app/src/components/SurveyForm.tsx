@@ -430,7 +430,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
   const [practiceActivityOptions] = useState(() => shuffleOptions(PRACTICE_ACTIVITY_OPTIONS, [NONE_OF_THE_ABOVE]));
   const [practiceGoalOptions] = useState(() => shuffleOptions(PRACTICE_GOAL_OPTIONS, [OTHER]));
   const [learnedAboutOptions] = useState(() => shuffleOptions(LEARNED_ABOUT_OPTIONS, [LEARNED_ABOUT_OTHER]));
-  const [occupationOptions] = useState(() => shuffleOptions(OCCUPATION_OPTIONS, OCCUPATION_PINNED));
+  const occupationOptions = OCCUPATION_OPTIONS;
   const [portlandSupportOptions] = useState(() => shuffleOptions(PORTLAND_SUPPORT_OPTIONS, [PORTLAND_SUPPORT_OTHER, PORTLAND_SUPPORT_NONE]));
 
   function update<K extends keyof Answers>(key: K, value: Answers[K]) {
