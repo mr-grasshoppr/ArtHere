@@ -61,7 +61,8 @@ export function SurveyPageContent() {
             Portland. We&rsquo;ll share findings publicly with the community and with our
             partners — and your answers may also help Art Here connect you with local
             opportunities. Whether you&rsquo;re an artist, a neighbor, or just curious,
-            we&rsquo;d love to hear from you.
+            we&rsquo;d love to hear from you. Everyone who completes the survey is eligible
+            to win a $25 gift card to a local shop that supports Portland artists.
           </p>
         </div>
 
