@@ -104,24 +104,18 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark' }: Props) 
               >
                 About Us
               </Link>
-              <div className="relative group">
-                <span
-                  className={`block px-5 py-[13px] text-[0.9rem] cursor-default border-b transition-colors ${
-                    isLight
-                      ? 'text-[#444] border-[#f0f0f0] group-hover:bg-[#fafafa] group-hover:text-[#1a1a1a]'
-                      : 'text-[#ccc] border-[#222] group-hover:bg-[#222] group-hover:text-white'
-                  }`}
-                >
-                  Join Us
-                </span>
-                <a
-                  href="mailto:hello@axlab.io"
-                  onClick={closeAll}
-                  className="pointer-events-none group-hover:pointer-events-auto absolute right-[calc(100%+8px)] top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-[300] block bg-[#1a1a1a] text-white text-[0.75rem] font-semibold px-3 py-1.5 rounded-md whitespace-nowrap no-underline hover:opacity-80"
-                >
-                  Request an Invite
-                </a>
-              </div>
+              <a
+                href="mailto:hello@axlab.io"
+                onClick={closeAll}
+                className={`group block px-5 py-[13px] text-[0.9rem] transition-colors border-b ${
+                  isLight
+                    ? 'text-[#444] border-[#f0f0f0] hover:bg-[#fafafa] hover:text-[#1a1a1a]'
+                    : 'text-[#ccc] border-[#222] hover:bg-[#222] hover:text-white'
+                }`}
+              >
+                <span className="group-hover:hidden">Join Us</span>
+                <span className="hidden group-hover:inline">Request an Invite</span>
+              </a>
               <Link
                 href="/survey"
                 className={`block px-5 py-[13px] text-[0.9rem] transition-colors ${
