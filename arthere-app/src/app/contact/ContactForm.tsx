@@ -39,7 +39,7 @@ export function ContactForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [social, setSocial] = useState('');
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState(intent.opening);
   const [status, setStatus] = useState<'idle' | 'submitting' | 'sent' | 'error'>('idle');
 
   async function handleSubmit(e: React.FormEvent) {
@@ -133,20 +133,15 @@ export function ContactForm() {
             />
           </div>
 
-          <div className="text-[0.95rem] text-[#555] font-light leading-[1.8] pt-1 pb-2 border-t border-[#f0f0f0]">
-            {intent.opening}
-          </div>
-
-          <div>
-            <label className="block text-[0.72rem] font-semibold text-[#aaa] mb-1.5 uppercase tracking-widest">
-              Anything else you&rsquo;d like to share?{' '}
-              <span className="normal-case font-normal text-[#ccc]">(optional)</span>
+          <div className="border-t border-[#f0f0f0] pt-3">
+            <label className="block text-[0.72rem] font-semibold text-[#aaa] mb-0.5 uppercase tracking-widest">
+              Tell us how you&rsquo;d like to get involved.
             </label>
+            <p className="text-[0.78rem] text-[#ccc] font-light mb-2">[Feel free to edit / add any other relevant information.]</p>
             <textarea
               value={message}
               onChange={e => setMessage(e.target.value)}
-              rows={4}
-              placeholder="Tell us a bit more about yourself or what you have in mind…"
+              rows={5}
               className={`${INPUT} resize-none`}
             />
           </div>
