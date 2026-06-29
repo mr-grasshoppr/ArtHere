@@ -50,7 +50,7 @@ export function SurveyPageContent() {
           Art Here · Portland
         </div>
         <h1 className="font-heading text-[clamp(2rem,5vw,2.8rem)] font-bold tracking-[-0.02em] leading-[1.15] mb-7">
-          Portland Community Survey
+          PDX Community Survey
         </h1>
 
         {onFirstStep && (
