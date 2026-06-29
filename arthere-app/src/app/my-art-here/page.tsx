@@ -91,12 +91,12 @@ export default function MyArtHerePage() {
                 <strong className="text-[#555] font-semibold">Not yet on Art Here?</strong>
                 <br />
                 Art Here is currently invite-only. If you&rsquo;d like to join,{' '}
-                <a
-                  href="mailto:hello@artishere.org?subject=Request an Art Here Invite"
+                <Link
+                  href="/contact?type=invite"
                   className="underline underline-offset-[3px] text-[#555] hover:text-[#1a1a1a] transition-colors"
                 >
                   request an invite
-                </a>
+                </Link>
                 {' '}and we&rsquo;ll be in touch.
               </p>
             </div>
