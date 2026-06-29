@@ -7,7 +7,7 @@ import Link from 'next/link';
 const INTENTS: Record<string, { greeting: string; opening: string }> = {
   featured: {
     greeting: 'Get featured on Art Here',
-    opening: 'I want to be a featured artist on Art Here.',
+    opening: `I'm interested in being featured as an artist on Art Here.`,
   },
   partner: {
     greeting: 'Partner with Art Here',
@@ -94,10 +94,6 @@ export function ContactForm() {
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-4">
-          <div className="text-[0.95rem] text-[#555] font-light leading-[1.8] pb-2 border-b border-[#f0f0f0]">
-            {intent.opening}
-          </div>
-
           <div className="flex gap-3 flex-wrap">
             <div className="flex-1 min-w-[180px]">
               <label className="block text-[0.72rem] font-semibold text-[#aaa] mb-1.5 uppercase tracking-widest">Your name</label>
@@ -135,6 +131,10 @@ export function ContactForm() {
               placeholder="https://yoursite.com or @yourhandle"
               className={INPUT}
             />
+          </div>
+
+          <div className="text-[0.95rem] text-[#555] font-light leading-[1.8] pt-1 pb-2 border-t border-[#f0f0f0]">
+            {intent.opening}
           </div>
 
           <div>
