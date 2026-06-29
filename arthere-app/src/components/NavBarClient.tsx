@@ -104,10 +104,14 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark' }: Props) 
               >
                 About Us
               </Link>
-              <a
-                href="mailto:hello@artishere.org?subject=Request an Art Here Invite"
-                onClick={closeAll}
-                className={`group block px-5 py-[13px] text-[0.9rem] transition-colors border-b ${
+              <button
+                type="button"
+                onClick={() => {
+                  closeAll();
+                  navigator.clipboard.writeText('hello@artishere.org').catch(() => {});
+                  window.location.href = 'mailto:hello@artishere.org?subject=Request an Art Here Invite';
+                }}
+                className={`group w-full text-left block px-5 py-[13px] text-[0.9rem] transition-colors border-b bg-transparent ${
                   isLight
                     ? 'text-[#444] border-[#f0f0f0] hover:bg-[#fafafa] hover:text-[#1a1a1a]'
                     : 'text-[#ccc] border-[#222] hover:bg-[#222] hover:text-white'
@@ -115,7 +119,7 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark' }: Props) 
               >
                 <span className="group-hover:hidden">Join Us</span>
                 <span className="hidden group-hover:inline italic">Request an Invite</span>
-              </a>
+              </button>
               <Link
                 href="/my-art-here"
                 className={`block px-5 py-[13px] text-[0.9rem] transition-colors border-b ${

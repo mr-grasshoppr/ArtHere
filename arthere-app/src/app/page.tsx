@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Nunito } from 'next/font/google';
 import { NavBar } from '@/components/NavBar';
 import { UsMap } from '@/components/UsMap';
+import { CopyEmail } from '@/components/CopyEmail';
 import styles from './page.module.css';
 
 const nunito = Nunito({
@@ -175,25 +176,24 @@ export default async function Home() {
           <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-14 sm:py-24">
             <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#666] mb-8">Get in Touch</div>
             <div className="font-heading text-[clamp(1.4rem,3vw,2rem)] font-bold mb-10">
-              <a
-                href="mailto:hello@artishere.org"
-                className="text-white no-underline border-b-2 border-white pb-0.5 hover:opacity-50 transition-opacity"
-              >
-                hello@axlab.io
-              </a>
+              <CopyEmail
+                email="hello@artishere.org"
+                label="hello@artishere.org"
+                className="text-white no-underline border-b-2 border-white pb-0.5 hover:opacity-50 transition-opacity font-heading text-[clamp(1.4rem,3vw,2rem)] font-bold bg-transparent border-x-0 border-t-0 cursor-pointer"
+              />
             </div>
             <div className="flex flex-col gap-4 border-t border-[#333] pt-8">
               <div className="flex items-baseline gap-4">
                 <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#555] w-36 shrink-0">Artists</span>
-                <a href="mailto:hello@artishere.org?subject=Get Featured on Art Here" className="text-[0.9rem] text-white underline underline-offset-[3px] decoration-[#555] hover:opacity-60 transition-opacity">Get featured →</a>
+                <CopyEmail email="hello@artishere.org" label="Get featured →" className="text-[0.9rem] text-white underline underline-offset-[3px] decoration-[#555] hover:opacity-60 transition-opacity bg-transparent border-none cursor-pointer p-0" />
               </div>
               <div className="flex items-baseline gap-4">
                 <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#555] w-36 shrink-0">Organizations</span>
-                <a href="mailto:hello@artishere.org" className="text-[0.9rem] text-white underline underline-offset-[3px] decoration-[#555] hover:opacity-60 transition-opacity">Partner with us →</a>
+                <CopyEmail email="hello@artishere.org" label="Partner with us →" className="text-[0.9rem] text-white underline underline-offset-[3px] decoration-[#555] hover:opacity-60 transition-opacity bg-transparent border-none cursor-pointer p-0" />
               </div>
               <div className="flex items-baseline gap-4">
                 <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#555] w-36 shrink-0">Cities &amp; Neighborhoods</span>
-                <a href="mailto:hello@artishere.org" className="text-[0.9rem] text-white underline underline-offset-[3px] decoration-[#555] hover:opacity-60 transition-opacity">Bring Art Here →</a>
+                <CopyEmail email="hello@artishere.org" label="Bring Art Here →" className="text-[0.9rem] text-white underline underline-offset-[3px] decoration-[#555] hover:opacity-60 transition-opacity bg-transparent border-none cursor-pointer p-0" />
               </div>
             </div>
           </div>
