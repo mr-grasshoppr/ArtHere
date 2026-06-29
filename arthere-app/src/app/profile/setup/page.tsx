@@ -32,12 +32,17 @@ export default async function ProfileSetupPage({
   }
 
   // ── 2. Verify token ───────────────────────────────────────────────────────
-  let artist: Awaited<ReturnType<typeof verifyMagicLinkToken>>;
+  let result: Awaited<ReturnType<typeof verifyMagicLinkToken>>;
   try {
-    artist = await verifyMagicLinkToken(token);
+    result = await verifyMagicLinkToken(token);
   } catch (err) {
     const message = err instanceof Error ? err.message : 'This link is invalid.';
     return <ErrorPage message={message} />;
+  }
+
+  const userId = result.artist?.userId ?? result.place?.userId;
+  if (!userId) {
+    return <ErrorPage message="This link is not associated with a valid account." />;
   }
 
   // ── 3. Create a NextAuth database session ─────────────────────────────────
@@ -45,11 +50,7 @@ export default async function ProfileSetupPage({
   const expires = new Date(Date.now() + SESSION_MAX_AGE_SECONDS * 1000);
 
   await prisma.session.create({
-    data: {
-      sessionToken,
-      userId: artist.userId,
-      expires,
-    },
+    data: { sessionToken, userId, expires },
   });
 
   // ── 4. Set the session cookie ─────────────────────────────────────────────
@@ -67,8 +68,8 @@ export default async function ProfileSetupPage({
     expires,
   });
 
-  // ── 5. Redirect to profile editor ─────────────────────────────────────────
-  redirect('/onboarding');
+  // ── 5. Redirect to the right editor ──────────────────────────────────────
+  redirect(result.place ? '/place/edit' : '/onboarding');
 }
 
 // ─── Error UI ────────────────────────────────────────────────────────────────

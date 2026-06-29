@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { sendMagicLink } from '@/lib/magic-link';
+import { sendMagicLink, sendPlaceMagicLink } from '@/lib/magic-link';
 
 // Always returns 200 — we never confirm whether an email exists.
 export async function POST(req: NextRequest) {
@@ -16,15 +16,23 @@ export async function POST(req: NextRequest) {
 
   const user = await prisma.user.findUnique({
     where: { email },
-    include: { artist: true },
+    include: {
+      artist: true,
+      place: true,
+    },
   });
 
   if (user?.artist) {
-    const { artist } = user;
     await sendMagicLink({
       email,
-      artistId: artist.id,
-      artistName: artist.name,
+      artistId: user.artist.id,
+      artistName: user.artist.name,
+    });
+  } else if (user?.place) {
+    await sendPlaceMagicLink({
+      email,
+      placeId: user.place.id,
+      placeName: user.place.name,
     });
   }
 

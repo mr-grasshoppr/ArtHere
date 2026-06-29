@@ -5,30 +5,29 @@ import React from 'react';
 
 const TOKEN_TTL_HOURS = 72;
 const FROM_ADDRESS = 'Art Here <hello@artishere.org>';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://artishere.org';
 
-interface SendMagicLinkParams {
+// ─── Artist magic links ───────────────────────────────────────────────────────
+
+interface SendArtistLinkParams {
   email: string;
   artistId: string;
   artistName: string;
 }
 
-export async function sendMagicLink({ email, artistId, artistName }: SendMagicLinkParams) {
-  // Invalidate any existing unused tokens for this artist so only one is live at a time.
+export async function sendMagicLink({ email, artistId, artistName }: SendArtistLinkParams) {
   await prisma.magicLinkToken.updateMany({
     where: { artistId, used: false },
     data: { used: true },
   });
 
   const expiresAt = new Date(Date.now() + TOKEN_TTL_HOURS * 60 * 60 * 1000);
-
   const { token } = await prisma.magicLinkToken.create({
     data: { email, artistId, expiresAt },
     select: { token: true },
   });
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://artishere.org';
-  const link = `${baseUrl}/profile/setup?token=${token}`;
-
+  const link = `${BASE_URL}/profile/setup?token=${token}`;
   await resend.emails.send({
     from: FROM_ADDRESS,
     to: email,
@@ -39,33 +38,56 @@ export async function sendMagicLink({ email, artistId, artistName }: SendMagicLi
   return token;
 }
 
+// ─── Place magic links ────────────────────────────────────────────────────────
+
+interface SendPlaceLinkParams {
+  email: string;
+  placeId: string;
+  placeName: string;
+}
+
+export async function sendPlaceMagicLink({ email, placeId, placeName }: SendPlaceLinkParams) {
+  await prisma.magicLinkToken.updateMany({
+    where: { placeId, used: false },
+    data: { used: true },
+  });
+
+  const expiresAt = new Date(Date.now() + TOKEN_TTL_HOURS * 60 * 60 * 1000);
+  const { token } = await prisma.magicLinkToken.create({
+    data: { email, placeId, expiresAt },
+    select: { token: true },
+  });
+
+  const link = `${BASE_URL}/place/setup?token=${token}`;
+  await resend.emails.send({
+    from: FROM_ADDRESS,
+    to: email,
+    subject: `Manage your Art Here page — ${placeName}`,
+    react: React.createElement(MagicLinkEmail, {
+      artistName: placeName,
+      link,
+    }),
+  });
+
+  return token;
+}
+
+// ─── Token verification ───────────────────────────────────────────────────────
+
 export async function verifyMagicLinkToken(token: string) {
   const record = await prisma.magicLinkToken.findUnique({
     where: { token },
     include: {
-      artist: {
-        include: {
-          user: true,
-          city: true,
-        },
-      },
+      artist: { include: { user: true, city: true } },
+      place: { include: { user: true } },
     },
   });
 
-  if (!record) {
-    throw new Error('Link not found. It may have already been used or never existed.');
-  }
-  if (record.used) {
-    throw new Error('This link has already been used. Request a new one below.');
-  }
-  if (record.expiresAt < new Date()) {
-    throw new Error('This link has expired. Request a new one below.');
-  }
+  if (!record) throw new Error('Link not found. It may have already been used or never existed.');
+  if (record.used) throw new Error('This link has already been used. Request a new one below.');
+  if (record.expiresAt < new Date()) throw new Error('This link has expired. Request a new one below.');
 
-  await prisma.magicLinkToken.update({
-    where: { token },
-    data: { used: true },
-  });
+  await prisma.magicLinkToken.update({ where: { token }, data: { used: true } });
 
-  return record.artist;
+  return { artist: record.artist, place: record.place };
 }

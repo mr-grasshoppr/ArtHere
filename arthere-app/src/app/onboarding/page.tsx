@@ -48,6 +48,14 @@ export default async function OnboardingPage() {
   return (
     <main className={`${nunito.variable} min-h-screen bg-white text-[#1a1a1a]`} style={{ colorScheme: "light" }}>
       <OnboardingForm places={places} userEmail={user.email ?? ""} initialData={initialData} />
+      <div className="max-w-[980px] mx-auto px-4 sm:px-10 pb-10 text-center">
+        <p className="text-[0.82rem] text-[#aaa] font-light">
+          Experiencing tech issues?{' '}
+          <a href="mailto:hello@artishere.org" className="underline underline-offset-[3px] hover:text-[#555] transition-colors">
+            Contact us here
+          </a>
+        </p>
+      </div>
     </main>
   );
 }

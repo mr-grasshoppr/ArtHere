@@ -60,6 +60,7 @@ model User {
   accounts  Account[]
   sessions  Session[]
   artist    Artist?
+  place     Place?
 }
 
 model Artist {
@@ -139,7 +140,10 @@ model Place {
   inDirectory  Boolean       @default(true)
   createdAt    DateTime      @default(now())
 
+  userId       String?       @unique
+  user         User?         @relation(fields: [userId], references: [id])
   artists      ArtistPlace[]
+  magicLinkTokens MagicLinkToken[]
 }
 
 model ArtistPlace {
@@ -266,12 +270,14 @@ model MagicLinkToken {
   id        String   @id @default(cuid())
   token     String   @unique @default(cuid())
   email     String
-  artistId  String
+  artistId  String?
+  placeId   String?
   used      Boolean  @default(false)
   expiresAt DateTime
   createdAt DateTime @default(now())
 
-  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  artist Artist? @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  place  Place?  @relation(fields: [placeId], references: [id], onDelete: Cascade)
 }
 
 // ─── Admin Notes ──────────────────────────────────────────────────────────────

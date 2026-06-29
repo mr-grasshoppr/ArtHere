@@ -15,8 +15,9 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const artist = await verifyMagicLinkToken(token);
-    return NextResponse.json({ artistId: artist.id });
+    const result = await verifyMagicLinkToken(token);
+    const id = result.artist?.id ?? result.place?.id;
+    return NextResponse.json({ artistId: id });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Something went wrong';
     return NextResponse.json({ error: message }, { status: 400 });
