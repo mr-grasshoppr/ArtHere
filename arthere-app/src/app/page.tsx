@@ -126,9 +126,11 @@ export default async function Home() {
               </h2>
               <div className="text-[1.05rem] text-[#555] font-light leading-[1.85] [&>p]:mb-[18px]">
                 <p>
-                  Art Here is a community initiative that connects artists to local opportunities. We
-                  partner with local organizations to host artist celebrations, capture artist stories,
-                  and build a living directory of artists and the institutions that support them.
+                  Art Here celebrates and highlights local artists. We partner with local organizations
+                  to host artist celebrations, capture artist stories, and build a living directory of
+                  artists and the institutions that support them. Connecting local artists to the
+                  residents, organizations, and businesses around them builds more vibrant, economically
+                  resilient neighborhoods.
                 </p>
                 <p>
                   Great neighborhoods are shaped by the artists who live in them. Art Here helps
