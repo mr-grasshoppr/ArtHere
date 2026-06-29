@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { sendMagicLink } from '@/lib/magic-link';
+import { resend } from '@/lib/resend';
 
 // Returns a trimmed string, or null if empty/not a string. Keeps the
 // SurveyResponse table free of empty-string noise for skipped questions.
@@ -82,9 +83,30 @@ export async function POST(req: NextRequest) {
     try {
       await provisionArtistAndSendLink(email);
     } catch (err) {
-      // Log but don't fail the survey submission.
       console.error('[survey] magic-link provisioning failed:', err);
     }
+  }
+
+  // Send a thank-you to anyone who left an email.
+  if (email) {
+    resend.emails.send({
+      from: 'Art Here <hello@artishere.org>',
+      to: email,
+      subject: 'Thank you for completing the PDX Community Survey!',
+      text: `Thank you for completing Art Here's PDX Community Survey! If you expressed interest in getting involved, we'll be in touch soon!\n\n— The Art Here Team\nartishere.org`,
+      html: `
+        <div style="font-family: Georgia, serif; max-width: 480px; margin: 0 auto; padding: 40px 24px; color: #1a1a1a;">
+          <h2 style="font-size: 1.3rem; font-weight: 500; margin: 0 0 20px;">Thank you!</h2>
+          <p style="color: #555; line-height: 1.75; margin: 0 0 16px;">
+            Thank you for completing Art Here's PDX Community Survey! If you expressed interest in getting involved, we'll be in touch soon!
+          </p>
+          <p style="color: #999; font-size: 0.85rem; margin: 32px 0 0;">
+            — The Art Here Team<br>
+            <a href="https://artishere.org" style="color: #999;">artishere.org</a>
+          </p>
+        </div>
+      `,
+    }).catch(err => console.error('[survey] thank-you email failed:', err));
   }
 
   return NextResponse.json({ ok: true, id: response.id });
