@@ -86,24 +86,19 @@ export default function MyArtHerePage() {
               </button>
             </form>
 
-            <div className="border-t border-[#f0f0f0] pt-8">
-              <p className="text-[0.88rem] text-[#999] font-light leading-[1.7]">
-                <strong className="text-[#555] font-semibold">Not yet on Art Here?</strong>
-                <br />
-                Let us know how you&rsquo;d like to be involved!{' '}
-                <Link href="/contact?type=featured" className="underline underline-offset-[3px] text-[#555] hover:text-[#1a1a1a] transition-colors">
-                  Request an invite to become a featured artist
-                </Link>
-                ,{' '}
-                <Link href="/contact?type=partner" className="underline underline-offset-[3px] text-[#555] hover:text-[#1a1a1a] transition-colors">
-                  partner with us
-                </Link>
-                , or{' '}
-                <Link href="/contact?type=bring" className="underline underline-offset-[3px] text-[#555] hover:text-[#1a1a1a] transition-colors">
-                  bring us to you
-                </Link>
-                .
-              </p>
+            <div className="border-t border-[#f0f0f0] pt-8 flex flex-col gap-4">
+              <div className="flex items-baseline gap-4">
+                <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#bbb] w-36 shrink-0">Artists</span>
+                <Link href="/contact?type=featured" className="text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#ccc] hover:opacity-60 transition-opacity">Get featured →</Link>
+              </div>
+              <div className="flex items-baseline gap-4">
+                <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#bbb] w-36 shrink-0">Organizations</span>
+                <Link href="/contact?type=partner" className="text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#ccc] hover:opacity-60 transition-opacity">Partner with us →</Link>
+              </div>
+              <div className="flex items-baseline gap-4">
+                <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#bbb] w-36 shrink-0">Cities &amp; Neighborhoods</span>
+                <Link href="/contact?type=bring" className="text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#ccc] hover:opacity-60 transition-opacity">Bring Art Here →</Link>
+              </div>
             </div>
           </div>
         )}
