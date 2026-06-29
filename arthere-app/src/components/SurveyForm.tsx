@@ -783,7 +783,7 @@ export function SurveyForm({ onSubmitted, onStepChange }: { onSubmitted?: () => 
 
       {step === 'email' && (
         <div className="flex flex-col gap-10">
-          <Eyebrow>One Last Thing</Eyebrow>
+          <Eyebrow>Almost Done</Eyebrow>
           <Question
             text="Email address"
             hint="Required if you'd like to get involved or enter the raffle. We'll only use it to follow up — it won't be shared or connected to your survey answers."
@@ -805,7 +805,7 @@ export function SurveyForm({ onSubmitted, onStepChange }: { onSubmitted?: () => 
 
       {step === 'learned-about' && (
         <div className="flex flex-col gap-10">
-          <Eyebrow>Almost Done</Eyebrow>
+          <Eyebrow>One Last Thing</Eyebrow>
           <Question text="Where did you learn about Art Here?" hint="Select all that apply.">
             <MultiSelect
               options={learnedAboutOptions}
