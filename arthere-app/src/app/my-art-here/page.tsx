@@ -87,7 +87,8 @@ export default function MyArtHerePage() {
             </form>
 
             <div className="border-t border-[#f0f0f0] pt-8 flex flex-col gap-4">
-              <p className="text-[0.88rem] text-[#555] font-light">Let us know how you&rsquo;d like to be involved!</p>
+              <p className="font-heading text-[1.1rem] font-bold text-[#1a1a1a]">Not on Art Here yet?</p>
+              <p className="text-[0.88rem] text-[#555] font-light -mt-2">Let us know how you&rsquo;d like to be involved!</p>
               <div className="flex items-baseline gap-4">
                 <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#bbb] w-36 shrink-0">Artists</span>
                 <Link href="/contact?type=featured" className="text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#ccc] hover:opacity-60 transition-opacity">Get featured →</Link>
