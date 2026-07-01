@@ -55,7 +55,7 @@ export function SurveyPageContent() {
 
         {onFirstStep && (
           <>
-            <div className="text-[1.05rem] text-[#555] font-light leading-[1.85] [&>p]:mb-[18px]">
+            <div className="max-w-[600px] text-[1.05rem] text-[#1a1a1a] font-light leading-[1.85] [&>p]:mb-[18px]">
               <p>
                 Art Here is a community initiative to celebrate local artists and connect them to
                 the residents, businesses, and organizations around them.
@@ -69,8 +69,8 @@ export function SurveyPageContent() {
               </p>
             </div>
 
-            <div className="text-[1.05rem] text-[#555] font-light leading-[1.85] [&>p]:mb-[18px]">
-              <p className="text-[0.88rem] text-[#999] font-semibold">
+            <div className="max-w-[600px] text-[1.05rem] font-light leading-[1.85] [&>p]:mb-[18px]">
+              <p className="text-[13px] text-[#999] font-normal">
                 By completing this survey, you agree to the use of your responses to support the arts
                 and artists in Portland. Any quotes or data shared with our partners will not be tied
                 to your name or personal information. You will have the option to respond completely
