@@ -51,7 +51,11 @@ export default async function ArtistPage({
 
   const galleryImages = artist.artworkImages.filter(img => img.url !== heroUrl);
 
-  const metaParts = [artist.medium, artist.neighborhood, cityDisplayName].filter(Boolean);
+  const metaParts = [
+    artist.medium,
+    artist.neighborhood !== cityDisplayName ? artist.neighborhood : null,
+    cityDisplayName,
+  ].filter(Boolean);
 
   const bioParagraphs = (artist.bio ?? '')
     .split(/\n\s*\n/)
@@ -61,6 +65,12 @@ export default async function ArtistPage({
   return (
     <div className="min-h-full bg-white text-[#1a1a1a] pt-14 pb-14">
       <NavBar activeCitySlug={citySlug} theme="light" />
+
+      {artist.isPlaceholder && (
+        <div className="bg-amber-50 border-b border-amber-200 px-5 py-2.5 text-center text-[0.8rem] text-amber-700">
+          This is a prototype profile. The artist has not yet set up their own page.
+        </div>
+      )}
 
       {/* Hero image */}
       {heroUrl && (
