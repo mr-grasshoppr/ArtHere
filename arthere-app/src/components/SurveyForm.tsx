@@ -10,8 +10,6 @@ interface Answers {
   portlandHelpers: string;
   portlandSupport: string[];
   portlandSupportOther: string;
-  portlandWish: string;
-
   occupation: string[];
   occupationOther: string;
   artistStatus: string;
@@ -42,7 +40,6 @@ const initialAnswers: Answers = {
   portlandHelpers: '',
   portlandSupport: [],
   portlandSupportOther: '',
-  portlandWish: '',
   occupation: [],
   occupationOther: '',
   artistStatus: '',
@@ -438,6 +435,8 @@ export function SurveyForm({ onSubmitted, onStepChange }: { onSubmitted?: () => 
   const [error, setError] = useState('');
   const [emailTouched, setEmailTouched] = useState(false);
   const [draftId, setDraftId] = useState<string | null>(null);
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
+  const [privacyConfirmed, setPrivacyConfirmed] = useState(false);
 
   const step = history[history.length - 1];
 
@@ -504,7 +503,7 @@ export function SurveyForm({ onSubmitted, onStepChange }: { onSubmitted?: () => 
   const canProceed = (() => {
     switch (step) {
       case 'location':
-        return answers.zipCode.length === 5 && answers.neighborhoods.trim() !== '';
+        return answers.zipCode.length === 5 && answers.neighborhoods.trim() !== '' && ageConfirmed && privacyConfirmed;
       case 'about-you':
         return answers.occupation.length > 0;
       case 'about-you-art':
@@ -609,6 +608,35 @@ export function SurveyForm({ onSubmitted, onStepChange }: { onSubmitted?: () => 
               placeholder="e.g. Multnomah Village, St. Johns, Hawthorne…"
             />
           </Question>
+
+          <div className="flex flex-col gap-3 pt-2">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={ageConfirmed}
+                onChange={e => setAgeConfirmed(e.target.checked)}
+                className="mt-[3px] flex-shrink-0 w-4 h-4 rounded border-[#ccc] accent-[#1a1a1a] cursor-pointer"
+              />
+              <span className="text-[0.9rem] text-[#444] font-light leading-snug">
+                I am 18 years of age or older. <span className="text-[#b91c1c]">*</span>
+              </span>
+            </label>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={privacyConfirmed}
+                onChange={e => setPrivacyConfirmed(e.target.checked)}
+                className="mt-[3px] flex-shrink-0 w-4 h-4 rounded border-[#ccc] accent-[#1a1a1a] cursor-pointer"
+              />
+              <span className="text-[0.9rem] text-[#444] font-light leading-snug">
+                I understand my responses will not be tied to my name or personal information. <span className="text-[#b91c1c]">*</span>
+              </span>
+            </label>
+          </div>
+
+          <p className="text-[0.75rem] text-[#aaa] font-light leading-[1.6] pt-2">
+            No purchase necessary. Open to US residents 18 and older. One winner randomly selected weekly through September 15, 2026. Winners receive a $25 gift card to a local business that supports Portland artists. Notified by email.
+          </p>
         </div>
       )}
 
@@ -732,14 +760,6 @@ export function SurveyForm({ onSubmitted, onStepChange }: { onSubmitted?: () => 
                 placeholder="Please describe…"
               />
             )}
-          </Question>
-          <Question text="If you had a magic wand that could change one thing in Portland to better support artists, what would you change?">
-            <textarea
-              value={answers.portlandWish}
-              onChange={e => update('portlandWish', e.target.value)}
-              className={TEXTAREA_CLASS}
-              placeholder="Your answer"
-            />
           </Question>
         </div>
       )}

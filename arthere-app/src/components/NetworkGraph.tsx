@@ -33,12 +33,18 @@ const PALETTE = d3.schemeTableau10;
 const UNKNOWN_COLOR = '#6b6b6b';
 const UNKNOWN_LABEL = 'Other';
 
-// Sentinel key used in the hidden-neighborhoods toggle set for nodes with no
-// neighborhood on file (real neighborhood names are used as-is for the rest).
-const OTHER_KEY = '__other__';
+// City-level strings that should not appear as filter options in the legend —
+// they're too broad to be useful for neighborhood-level filtering.
+const CITY_LEVEL = /^Portland(,?\s*(OR|Oregon))?$/i;
 
 function getNeighborhoods(nodes: NetworkNode[]): string[] {
-  return Array.from(new Set(nodes.map(n => n.neighborhood).filter((n): n is string => !!n))).sort();
+  return Array.from(
+    new Set(
+      nodes
+        .map(n => n.neighborhood)
+        .filter((n): n is string => !!n && !CITY_LEVEL.test(n))
+    )
+  ).sort();
 }
 
 function colorForNeighborhood(neighborhood: string | null, neighborhoods: string[]): string {
@@ -79,7 +85,7 @@ export function NetworkGraph({ nodes, links }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [showArtists, setShowArtists] = useState(true);
   const [showPlaces, setShowPlaces] = useState(true);
-  const [hiddenNeighborhoods, setHiddenNeighborhoods] = useState<Set<string>>(() => new Set());
+  const [selectedArea, setSelectedArea] = useState<string | null>(null);
   const [hover, setHover] = useState<HoverState | null>(null);
   const [neighborhoodsOpen, setNeighborhoodsOpen] = useState(false);
 
@@ -91,15 +97,6 @@ export function NetworkGraph({ nodes, links }: Props) {
   // "flip out" / restart-the-simulation behavior on hover.
   const neighborhoods = useMemo(() => getNeighborhoods(nodes), [nodes]);
 
-  function toggleNeighborhood(key: string) {
-    setHiddenNeighborhoods(prev => {
-      const next = new Set(prev);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
-  }
-
   useEffect(() => {
     const container = containerRef.current;
     const svgEl = svgRef.current;
@@ -108,12 +105,37 @@ export function NetworkGraph({ nodes, links }: Props) {
     const width = container.clientWidth;
     const height = container.clientHeight;
 
-    const visibleNodes = nodes.filter(n => {
-      if (n.type === 'artist' ? !showArtists : !showPlaces) return false;
-      return !hiddenNeighborhoods.has(n.neighborhood ?? OTHER_KEY);
-    });
+    // Artists visible when their type toggle is on and they match the selected area.
+    const visibleArtists = new Set(
+      nodes
+        .filter(n => n.type === 'artist' && showArtists)
+        .filter(n => selectedArea === null || n.neighborhood === selectedArea)
+        .map(n => n.id)
+    );
+
+    // Places visible only when their type toggle is on AND they are linked to
+    // at least one visible artist (or their own neighborhood matches).
+    const visiblePlaces = new Set<string>();
+    if (showPlaces) {
+      for (const l of links) {
+        const src = l.source as string;
+        const tgt = l.target as string;
+        if (visibleArtists.has(src)) visiblePlaces.add(tgt);
+        if (visibleArtists.has(tgt)) visiblePlaces.add(src);
+      }
+      // Also include places whose own neighborhood matches the selected area.
+      if (selectedArea !== null) {
+        nodes
+          .filter(n => n.type === 'place' && n.neighborhood === selectedArea)
+          .forEach(n => visiblePlaces.add(n.id));
+      }
+    }
+
+    const visibleNodes = nodes.filter(n =>
+      n.type === 'artist' ? visibleArtists.has(n.id) : visiblePlaces.has(n.id)
+    );
     const visibleIds = new Set(visibleNodes.map(n => n.id));
-    const visibleLinks = links.filter(l => visibleIds.has(l.source) && visibleIds.has(l.target));
+    const visibleLinks = links.filter(l => visibleIds.has(l.source as string) && visibleIds.has(l.target as string));
 
     const simNodes: SimNode[] = visibleNodes.map(n => ({ ...n }));
     const idMap = new Map(simNodes.map(n => [n.id, n]));
@@ -341,7 +363,7 @@ export function NetworkGraph({ nodes, links }: Props) {
       sim.stop();
       resizeObserver.disconnect();
     };
-  }, [nodes, links, showArtists, showPlaces, hiddenNeighborhoods, neighborhoods]);
+  }, [nodes, links, showArtists, showPlaces, selectedArea, neighborhoods]);
 
   return (
     <div ref={containerRef} className="absolute inset-0 overflow-hidden">
@@ -386,14 +408,31 @@ export function NetworkGraph({ nodes, links }: Props) {
       <div className="absolute bottom-4 left-4 z-10 text-[0.72rem]">
         {neighborhoodsOpen && (
           <div className="mb-2 w-[200px] max-h-[40vh] overflow-y-auto flex flex-col gap-2 bg-[#111]/95 backdrop-blur-sm border border-[#222] rounded-lg p-3 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+            {/* All — clears the area filter */}
+            <button
+              type="button"
+              onClick={() => setSelectedArea(null)}
+              className={`flex items-center gap-2 text-left transition-colors select-none cursor-pointer ${
+                selectedArea === null ? 'text-[#bbb]' : 'text-[#555]'
+              }`}
+            >
+              <span
+                className="w-2.5 h-2.5 rounded-full border flex-shrink-0 transition-colors"
+                style={{
+                  borderColor: selectedArea === null ? '#bbb' : '#555',
+                  backgroundColor: selectedArea === null ? '#bbb' : 'transparent',
+                }}
+              />
+              All
+            </button>
             {neighborhoods.map(n => {
               const color = colorForNeighborhood(n, neighborhoods);
-              const on = !hiddenNeighborhoods.has(n);
+              const on = selectedArea === n;
               return (
                 <button
                   key={n}
                   type="button"
-                  onClick={() => toggleNeighborhood(n)}
+                  onClick={() => setSelectedArea(on ? null : n)}
                   className={`flex items-center gap-2 text-left transition-colors select-none cursor-pointer ${
                     on ? 'text-[#bbb]' : 'text-[#555]'
                   }`}
@@ -406,22 +445,6 @@ export function NetworkGraph({ nodes, links }: Props) {
                 </button>
               );
             })}
-            <button
-              type="button"
-              onClick={() => toggleNeighborhood(OTHER_KEY)}
-              className={`flex items-center gap-2 text-left transition-colors select-none cursor-pointer ${
-                !hiddenNeighborhoods.has(OTHER_KEY) ? 'text-[#bbb]' : 'text-[#555]'
-              }`}
-            >
-              <span
-                className="w-2.5 h-2.5 rounded-full border flex-shrink-0 transition-colors"
-                style={{
-                  borderColor: UNKNOWN_COLOR,
-                  backgroundColor: !hiddenNeighborhoods.has(OTHER_KEY) ? UNKNOWN_COLOR : 'transparent',
-                }}
-              />
-              {UNKNOWN_LABEL}
-            </button>
           </div>
         )}
 
@@ -466,10 +489,10 @@ export function NetworkGraph({ nodes, links }: Props) {
             onClick={() => setNeighborhoodsOpen(o => !o)}
             className="flex items-center gap-1.5 text-[#bbb] hover:text-white transition-colors select-none cursor-pointer"
           >
-            Neighborhoods
-            {hiddenNeighborhoods.size > 0 && (
+            {selectedArea ?? 'Areas'}
+            {selectedArea !== null && (
               <span className="flex items-center justify-center min-w-[15px] h-[15px] px-1 rounded-full bg-[#333] text-[0.6rem] text-[#bbb]">
-                {hiddenNeighborhoods.size}
+                1
               </span>
             )}
             <span

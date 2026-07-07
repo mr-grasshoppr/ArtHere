@@ -55,7 +55,7 @@ export function SurveyPageContent() {
 
         {onFirstStep && (
           <>
-            <div className="max-w-[600px] text-[1.05rem] text-[#1a1a1a] font-light leading-[1.85] [&>p]:mb-[18px]">
+            <div className="max-w-[600px] text-[1.05rem] text-[#1a1a1a] font-normal leading-[1.85] [&>p]:mb-[18px]">
               <p>
                 Art Here is a community initiative to celebrate local artists and connect them to
                 the residents, businesses, and organizations around them.

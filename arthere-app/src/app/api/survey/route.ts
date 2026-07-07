@@ -34,7 +34,6 @@ export async function POST(req: NextRequest) {
       portlandHelpers: str(body.portlandHelpers),
       portlandSupport: strArray(body.portlandSupport),
       portlandSupportOther: str(body.portlandSupportOther),
-      portlandWish: str(body.portlandWish),
 
       occupation: strArray(body.occupation),
       occupationOther: str(body.occupationOther),
@@ -171,7 +170,6 @@ export async function PATCH(req: NextRequest) {
       portlandHelpers: str(body.portlandHelpers),
       portlandSupport: strArray(body.portlandSupport),
       portlandSupportOther: str(body.portlandSupportOther),
-      portlandWish: str(body.portlandWish),
       occupation: strArray(body.occupation),
       occupationOther: str(body.occupationOther),
       artistStatus: str(body.artistStatus),

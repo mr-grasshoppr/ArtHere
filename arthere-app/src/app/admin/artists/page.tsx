@@ -103,6 +103,9 @@ export default async function AdminArtistsPage({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="font-medium truncate">{a.name}</span>
+                  {a.isPlaceholder && (
+                    <span className="text-xs bg-amber-50 text-amber-600 border border-amber-200 px-1.5 py-0.5 rounded">placeholder</span>
+                  )}
                   {a.user.emailVerified && (
                     <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">verified</span>
                   )}

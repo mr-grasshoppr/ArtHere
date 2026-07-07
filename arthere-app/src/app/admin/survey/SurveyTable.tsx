@@ -14,7 +14,6 @@ type SurveyResponse = {
   portlandFamiliarity: string | null;
   portlandWords: string[];
   portlandHelpers: string | null;
-  portlandWish: string | null;
   mvFamiliarity: string | null;
   mvWords: string[];
   mvHelpers: string | null;
@@ -76,7 +75,6 @@ function Row({ r }: { r: SurveyResponse }) {
                 <Field label="Familiarity" value={r.portlandFamiliarity} />
                 <Field label="Words" value={r.portlandWords} />
                 <Field label="What helps" value={r.portlandHelpers} />
-                <Field label="Magic wand" value={r.portlandWish} />
               </div>
               <div>
                 <p className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-2">Multnomah Village</p>

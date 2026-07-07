@@ -82,6 +82,7 @@ model Artist {
   sizeRangeMax     Int?
   hireFor          String?          @db.Text
   hireTags         Json?
+  isPlaceholder    Boolean          @default(false)
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 

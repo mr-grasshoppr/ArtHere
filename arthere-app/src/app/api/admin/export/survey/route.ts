@@ -27,15 +27,19 @@ export async function GET() {
     orderBy: { createdAt: "desc" },
   });
 
+  const flag = (arr: string[], value: string) => arr.includes(value) ? "Yes" : "";
+
   const headers = [
     "id", "createdAt", "email", "raffleOptIn",
     "artistStatus", "artistStatusOther",
     "zipCode", "neighborhoods",
-    "portlandFamiliarity", "portlandWords", "portlandHelpers", "portlandWish",
+    "portlandFamiliarity", "portlandWords", "portlandHelpers",
     "mvFamiliarity", "mvWords", "mvHelpers",
     "multnomahDaysInvolvement",
     "practiceActivities", "practiceGoals", "practiceGoalsOther", "practiceSupport",
-    "featuredArtistInterest", "stayConnected",
+    "involvement_newsUpdates", "involvement_featuredArtist", "involvement_volunteer",
+    "involvement_joinParade", "involvement_partner", "involvement_other", "involvement_otherText",
+    "involvement_none",
   ];
 
   const lines = [
@@ -53,7 +57,6 @@ export async function GET() {
         r.portlandFamiliarity,
         r.portlandWords.join("; "),
         r.portlandHelpers,
-        r.portlandWish,
         r.mvFamiliarity,
         r.mvWords.join("; "),
         r.mvHelpers,
@@ -62,8 +65,14 @@ export async function GET() {
         r.practiceGoals.join("; "),
         r.practiceGoalsOther,
         r.practiceSupport,
-        r.featuredArtistInterest,
-        r.stayConnected.join("; "),
+        flag(r.involvementInterests, "Keep me posted on Art Here news"),
+        flag(r.involvementInterests, "Become a featured artist"),
+        flag(r.involvementInterests, "Volunteer to help Art Here"),
+        flag(r.involvementInterests, "Join the parade at Multnomah Days 2026 (August 15, Portland)"),
+        flag(r.involvementInterests, "Partner or collaborate"),
+        flag(r.involvementInterests, "Other"),
+        r.involvementInterestsOther,
+        flag(r.involvementInterests, "None of the above"),
       ])
     ),
   ];
