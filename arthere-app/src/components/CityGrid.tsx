@@ -140,7 +140,7 @@ export function CityGrid({ artists, overlayImageUrl, maskImageUrl }: Props) {
       const img = document.createElement('img');
       img.src = art.src;
       img.alt = '';
-      img.loading = 'lazy';
+      img.loading = 'eager';
       cell.appendChild(img);
       track.appendChild(cell);
     }
