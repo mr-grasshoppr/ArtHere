@@ -86,8 +86,9 @@ export default async function CityCommunityPage({
 
   const places = [...placeMap.values()].sort((a, b) => a.name.localeCompare(b.name));
 
+  const isCityLevel = (v: string) => /^(Portland(,?\s*(OR|Oregon))?|Vancouver(,?\s*WA)?)$/i.test(v);
   const neighborhoodOptions = [
-    ...new Set(places.map(p => p.neighborhood).filter((v): v is string => !!v)),
+    ...new Set(places.map(p => p.neighborhood).filter((v): v is string => !!v && !isCityLevel(v))),
   ].sort();
 
   return (

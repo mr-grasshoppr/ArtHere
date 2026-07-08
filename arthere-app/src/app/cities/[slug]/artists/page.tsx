@@ -57,7 +57,8 @@ export default async function CityArtistsPage({
 
   // Distinct, sorted option lists for the filter dropdowns.
   const mediumOptions = [...new Set(artists.map(a => a.medium).filter((v): v is string => !!v))].sort();
-  const neighborhoodOptions = [...new Set(artists.map(a => a.neighborhood).filter((v): v is string => !!v))].sort();
+  const isCityLevel = (v: string) => /^(Portland(,?\s*(OR|Oregon))?|Vancouver(,?\s*WA)?)$/i.test(v);
+  const neighborhoodOptions = [...new Set(artists.map(a => a.neighborhood).filter((v): v is string => !!v && !isCityLevel(v)))].sort();
   const communityOptions = [...new Set(artists.flatMap(a => a.communities))].sort();
 
   return (
