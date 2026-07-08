@@ -51,7 +51,7 @@ export default async function ArtistPage({
     artist.artworkImages[0]?.url ??
     null;
 
-  const galleryImages = artist.artworkImages.filter(img => img.url !== heroUrl);
+  const galleryImages = artist.artworkImages.filter(img => !img.isHero);
 
   const metaParts = [
     artist.medium,
