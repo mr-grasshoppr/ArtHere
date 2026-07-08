@@ -6,6 +6,7 @@ import Link from 'next/link';
 import type { PlaceRelationship } from '@prisma/client';
 import { NavBar } from '@/components/NavBar';
 import { CityBottomBar } from '@/components/CityBottomBar';
+import { SiteFooter } from '@/components/SiteFooter';
 
 const RELATIONSHIP_LABELS: Record<PlaceRelationship, string> = {
   INSTRUCTOR: 'Instructor',
@@ -160,9 +161,7 @@ export default async function PlacePage({
         </Link>
       )}
 
-      <footer className="px-10 py-10 text-center text-[#bbb] text-[0.78rem] tracking-[0.05em] border-t border-[#f0f0f0]">
-        © 2026 Art Here · A project of Art Experience Lab
-      </footer>
+      <SiteFooter />
 
       {citySlug && <CityBottomBar citySlug={citySlug} cityDisplayName={cityDisplayName} />}
     </div>

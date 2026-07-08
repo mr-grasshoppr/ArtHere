@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Nunito } from 'next/font/google';
 import { NavBar } from '@/components/NavBar';
 import { UsMap } from '@/components/UsMap';
+import { SiteFooter } from '@/components/SiteFooter';
 
 import styles from './page.module.css';
 
@@ -203,12 +204,7 @@ export default async function Home() {
         </section>
       </div>
 
-      <footer className="bg-[#1a1a1a] py-5">
-        <div className="max-w-[900px] mx-auto px-6 sm:px-10 flex flex-col sm:flex-row items-center justify-between gap-1 text-center sm:text-left text-[#555] text-[0.78rem] tracking-[0.05em]">
-          <span>© 2026 Art Here</span>
-          <span>A project of Art Experience Lab</span>
-        </div>
-      </footer>
+      <SiteFooter dark />
     </div>
   );
 }

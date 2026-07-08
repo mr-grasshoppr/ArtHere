@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { NavBar } from '@/components/NavBar';
 import { CityBottomBar } from '@/components/CityBottomBar';
 import { CommunityBrowser, type CommunityPlaceData } from '@/components/CommunityBrowser';
+import { SiteFooter } from '@/components/SiteFooter';
 
 export async function generateStaticParams() {
   const cities = await prisma.city.findMany({ select: { slug: true } });
@@ -118,9 +119,7 @@ export default async function CityCommunityPage({
         </Link>
       </div>
 
-      <footer className="px-10 py-10 text-center text-[#bbb] text-[0.78rem] tracking-[0.05em] border-t border-[#f0f0f0]">
-        © 2026 Art Here · A project of Art Experience Lab
-      </footer>
+      <SiteFooter />
 
       <CityBottomBar citySlug={slug} cityDisplayName={cityDisplayName} />
     </div>
