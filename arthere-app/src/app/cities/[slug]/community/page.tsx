@@ -6,6 +6,7 @@ import { NavBar } from '@/components/NavBar';
 import { CityBottomBar } from '@/components/CityBottomBar';
 import { CommunityBrowser, type CommunityPlaceData } from '@/components/CommunityBrowser';
 import { SiteFooter } from '@/components/SiteFooter';
+import { TechSupportLink } from '@/components/TechSupportLink';
 
 export async function generateStaticParams() {
   const cities = await prisma.city.findMany({ select: { slug: true } });
@@ -120,6 +121,7 @@ export default async function CityCommunityPage({
       </div>
 
       <SiteFooter />
+      <TechSupportLink />
 
       <CityBottomBar citySlug={slug} cityDisplayName={cityDisplayName} />
     </div>

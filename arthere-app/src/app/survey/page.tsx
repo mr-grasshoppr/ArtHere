@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { NavBar } from '@/components/NavBar';
 import { SurveyPageContent } from './SurveyPageContent';
 import { SiteFooter } from '@/components/SiteFooter';
+import { TechSupportLink } from '@/components/TechSupportLink';
 
 export const metadata: Metadata = {
   title: 'Community Survey — Art Here',
@@ -16,6 +17,7 @@ export default function SurveyPage() {
       <SurveyPageContent />
 
       <SiteFooter />
+      <TechSupportLink />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import type { PlaceRelationship } from '@prisma/client';
 import { NavBar } from '@/components/NavBar';
 import { CityBottomBar } from '@/components/CityBottomBar';
 import { SiteFooter } from '@/components/SiteFooter';
+import { TechSupportLink } from '@/components/TechSupportLink';
 
 const RELATIONSHIP_LABELS: Record<PlaceRelationship, string> = {
   INSTRUCTOR: 'Instructor',
@@ -162,6 +163,7 @@ export default async function PlacePage({
       )}
 
       <SiteFooter />
+      <TechSupportLink />
 
       {citySlug && <CityBottomBar citySlug={citySlug} cityDisplayName={cityDisplayName} />}
     </div>

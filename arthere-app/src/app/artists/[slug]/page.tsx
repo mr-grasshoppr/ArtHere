@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { NavBar } from '@/components/NavBar';
 import { CityBottomBar } from '@/components/CityBottomBar';
 import { SiteFooter } from '@/components/SiteFooter';
+import { TechSupportLink } from '@/components/TechSupportLink';
 
 export async function generateStaticParams() {
   const artists = await prisma.artist.findMany({ select: { slug: true } });
@@ -235,6 +236,7 @@ export default async function ArtistPage({
       )}
 
       <SiteFooter />
+      <TechSupportLink />
 
       {citySlug && <CityBottomBar citySlug={citySlug} cityDisplayName={cityDisplayName} />}
     </div>
