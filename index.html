@@ -119,14 +119,21 @@
             display: flex;
             animation: slide 50s linear infinite;
         }
-        .image-track .slide { position: relative; height: 100%; flex-shrink: 0; }
-        .image-track .slide img { height: 100%; width: auto; min-width: 100%; object-fit: cover; display: block; }
+        .image-track .slide { position: relative; height: 100%; flex-shrink: 0; min-width: min(60vw, 520px); }
+        .image-track .slide .kurtis-bg {
+            height: 100%;
+            width: 100%;
+            background-image: url('https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kurtis-piltz/Kurtis_Piltz1.jpeg');
+            background-size: 200%;
+            background-position: 50% 50%;
+            background-repeat: no-repeat;
+        }
         .image-track .slide .kristin-bg {
             height: 100%;
             aspect-ratio: 2500 / 1767;
             background-image: url('https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kristin-casaletto/Kristin_Casaletto4.webp');
-            background-size: auto 320%;
-            background-position: 5% 55%;
+            background-size: auto 400%;
+            background-position: 10% 53%;
             background-repeat: no-repeat;
         }
         .image-track .slide .artist-credit {
@@ -410,9 +417,9 @@
     <div class="logo-window">
         <div class="logo-mask">
             <div class="image-track">
-                <div class="slide"><img src="https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kurtis-piltz/Kurtis_Piltz1.jpeg" alt=""><span class="artist-credit">Kurtis Piltz</span></div>
+                <div class="slide"><div class="kurtis-bg"></div><span class="artist-credit">Kurtis Piltz</span></div>
                 <div class="slide"><div class="kristin-bg"></div><span class="artist-credit">Kristin Casaletto</span></div>
-                <div class="slide"><img src="https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kurtis-piltz/Kurtis_Piltz1.jpeg" alt=""><span class="artist-credit">Kurtis Piltz</span></div>
+                <div class="slide"><div class="kurtis-bg"></div><span class="artist-credit">Kurtis Piltz</span></div>
                 <div class="slide"><div class="kristin-bg"></div><span class="artist-credit">Kristin Casaletto</span></div>
             </div>
         </div>
