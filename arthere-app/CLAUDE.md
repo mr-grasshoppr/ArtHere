@@ -3,18 +3,23 @@
 ## Stack & project layout
 
 - **Next.js 16 / React 19 / TypeScript / Tailwind 4**, with **Prisma 5 +
-  PostgreSQL (Neon)**, **NextAuth (Auth.js v5 beta)** w/ email magic links,
-  **Vercel Blob** for image storage, and **Claude (Anthropic SDK)** for
-  AI image tagging.
-- This app lives in `arthere-app/` inside the `ArtHere` repo, which otherwise
-  contains a separate static HTML/CSS/JS site (unrelated to this Next app).
-- **The Next.js app's work is on the `prototype` git branch — not `main`.**
-  If files like `package.json`/`prisma/`/`src/lib` appear to be "missing",
-  check `git branch` / `git status` before assuming data loss — it's probably
-  just a branch mismatch (`git checkout prototype`).
+  PostgreSQL (Neon)**, **NextAuth (Auth.js v5 beta)** w/ email magic links
+  sent via **Resend**, **Vercel Blob** for image storage, and **Claude
+  (Anthropic SDK)** for AI image tagging.
+- This app lives in `arthere-app/` inside the `ArtHere` repo. The retired
+  static-site prototype is archived in `legacy-static/` (tag
+  `static-site-final`); it is not deployed anywhere.
+- **All work happens on `main`.** (Historical note: early app work lived on
+  the `prototype` branch; that branch is superseded.)
 - Vercel project: `arthere-app` (org `mr-grasshopprs-projects`). Linked via
   `.vercel/project.json`. Postgres is a **Neon** database, connected to the
   Vercel project through the Neon integration (Storage tab).
+  artishere.org serves this app.
+- Admin access is controlled by the `ADMIN_EMAILS` env var (comma-separated;
+  defaults to the founding admin). The `/cities/portland-demo` preview is
+  gated by `DEMO_TOKEN` (middleware fails closed if unset).
+- After changing `prisma/schema.prisma`, run `npx prisma migrate deploy`
+  against Neon **before** deploying code that uses the new columns.
 
 ## Env files: `.env` vs `.env.local`
 
