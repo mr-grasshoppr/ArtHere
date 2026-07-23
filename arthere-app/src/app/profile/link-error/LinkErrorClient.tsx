@@ -60,7 +60,7 @@ export default function LinkErrorClient() {
             </form>
             <p className="mt-4 text-[0.78rem] text-[#bbb] leading-[1.6]">
               We&rsquo;ll send a fresh link to the email you used when completing the survey.
-              It arrives within a minute and works for 72 hours.
+              It arrives within a minute and works for 48 hours.
             </p>
           </div>
         )}

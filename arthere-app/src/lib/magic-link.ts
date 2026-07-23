@@ -18,7 +18,7 @@ async function renderEmail(element: React.ReactElement) {
   return { html, text };
 }
 
-const TOKEN_TTL_HOURS = 72;
+const TOKEN_TTL_HOURS = 48;
 
 // Bearer tokens must be unguessable — cuid() (the old default) is partially
 // predictable, so we mint them from the CSPRNG instead.

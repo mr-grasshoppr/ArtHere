@@ -68,7 +68,7 @@ export function MagicLinkEmail({ artistName, link }: MagicLinkEmailProps) {
           <Hr style={hr} />
 
           <Text style={footnote}>
-            This link works once and expires in 72 hours. If you need a new one, visit{' '}
+            This link works once and expires in 48 hours. If you need a new one, visit{' '}
             <a href="https://artishere.org/my-art-here" style={footerLink}>
               artishere.org/my-art-here
             </a>{' '}

@@ -33,7 +33,7 @@ export function MyArtHereForm() {
         </h1>
         <p className="text-[1rem] text-[#555] font-light leading-[1.8] mb-8">
           If your email is associated with an Art Here account, we&rsquo;ve sent you a sign-in link.
-          It expires in 72 hours.
+          It expires in 48 hours.
         </p>
         <p className="text-[0.88rem] text-[#999]">
           Don&rsquo;t see an email?{' '}
