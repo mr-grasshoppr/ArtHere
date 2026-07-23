@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { waitUntil } from "@vercel/functions";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { put } from "@vercel/blob";
@@ -94,29 +95,36 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // Kick off AI tagging + crop detection asynchronously (don't block the response)
-  tagArtworkImage(blob.url)
-    .then(async (tags) => {
-      await prisma.artworkImage.update({
-        where: { id: image.id },
-        data: { aiTags: tags as unknown as Prisma.InputJsonValue, aiTaggedAt: new Date() },
-      });
-    })
-    .catch((err) => {
-      console.error("AI tagging failed for image", image.id, err);
-    });
+  // AI tagging + crop detection run after the response is sent. waitUntil
+  // keeps the serverless function alive until they finish — a bare
+  // fire-and-forget promise would be frozen (and often lost) once the
+  // response returns on Vercel.
+  waitUntil(
+    tagArtworkImage(blob.url)
+      .then(async (tags) => {
+        await prisma.artworkImage.update({
+          where: { id: image.id },
+          data: { aiTags: tags as unknown as Prisma.InputJsonValue, aiTaggedAt: new Date() },
+        });
+      })
+      .catch((err) => {
+        console.error("AI tagging failed for image", image.id, err);
+      })
+  );
 
-  detectArtworkCrop(blob.url)
-    .then(async (cropBox) => {
-      if (!cropBox) return;
-      await prisma.artworkImage.update({
-        where: { id: image.id },
-        data: { cropBox: cropBox as unknown as Prisma.InputJsonValue },
-      });
-    })
-    .catch((err) => {
-      console.error("Crop detection failed for image", image.id, err);
-    });
+  waitUntil(
+    detectArtworkCrop(blob.url)
+      .then(async (cropBox) => {
+        if (!cropBox) return;
+        await prisma.artworkImage.update({
+          where: { id: image.id },
+          data: { cropBox: cropBox as unknown as Prisma.InputJsonValue },
+        });
+      })
+      .catch((err) => {
+        console.error("Crop detection failed for image", image.id, err);
+      })
+  );
 
   return NextResponse.json({
     id: image.id,

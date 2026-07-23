@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { waitUntil } from "@vercel/functions";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { PlaceRelationship } from "@prisma/client";
@@ -78,6 +79,14 @@ export async function POST(req: NextRequest) {
 
   const hireForClean = hireFor?.trim() || null;
 
+  // Coerce numeric fields defensively — inputs arrive as strings and a
+  // non-numeric value would otherwise become NaN and crash the Prisma write.
+  const num = (v: unknown): number | null => {
+    if (v == null || v === "") return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.round(n) : null;
+  };
+
   const artistData = {
     name: name.trim(),
     bio: bio?.trim() || null,
@@ -87,10 +96,10 @@ export async function POST(req: NextRequest) {
     website: website?.trim() || null,
     instagram: instagram?.trim().replace(/^@/, "") || null,
     commissionStatus: commissionStatus || "UNSPECIFIED",
-    priceRangeMin: priceRangeMin ? Number(priceRangeMin) : null,
-    priceRangeMax: priceRangeMax ? Number(priceRangeMax) : null,
-    sizeRangeMin: sizeRangeMin ? Number(sizeRangeMin) : null,
-    sizeRangeMax: sizeRangeMax ? Number(sizeRangeMax) : null,
+    priceRangeMin: num(priceRangeMin),
+    priceRangeMax: num(priceRangeMax),
+    sizeRangeMin: num(sizeRangeMin),
+    sizeRangeMax: num(sizeRangeMax),
     isPlaceholder: false,
   };
 
@@ -101,13 +110,25 @@ export async function POST(req: NextRequest) {
       data: artistData,
     });
   } else {
-    artist = await prisma.artist.create({
-      data: {
-        ...artistData,
-        slug,
-        userId: session.user.id,
-      },
-    });
+    try {
+      artist = await prisma.artist.create({
+        data: {
+          ...artistData,
+          slug,
+          userId: session.user.id,
+        },
+      });
+    } catch {
+      // A concurrent request can claim the slug between our uniqueness check
+      // and the insert — retry once with a random suffix instead of a 500.
+      artist = await prisma.artist.create({
+        data: {
+          ...artistData,
+          slug: `${baseSlug}-${Math.random().toString(36).slice(2, 8)}`,
+          userId: session.user.id,
+        },
+      });
+    }
   }
 
   // Update place relations
@@ -175,14 +196,14 @@ export async function POST(req: NextRequest) {
       create: {
         artistId: artist.id,
         commissionTypes: intake.commissionTypes ?? [],
-        turnaroundWeeks: intake.turnaroundWeeks ? Number(intake.turnaroundWeeks) : null,
+        turnaroundWeeks: num(intake.turnaroundWeeks),
         shipsInternationally: intake.shipsInternationally ?? false,
         worksInPerson: intake.worksInPerson ?? false,
         notes: intake.notes?.trim() || null,
       },
       update: {
         commissionTypes: intake.commissionTypes ?? [],
-        turnaroundWeeks: intake.turnaroundWeeks ? Number(intake.turnaroundWeeks) : null,
+        turnaroundWeeks: num(intake.turnaroundWeeks),
         shipsInternationally: intake.shipsInternationally ?? false,
         worksInPerson: intake.worksInPerson ?? false,
         notes: intake.notes?.trim() || null,
@@ -190,16 +211,19 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // Fire-and-forget: parse hireFor text into structured tags if present
+  // Parse hireFor text into structured tags after the response is sent.
+  // waitUntil keeps the function alive; a bare promise would be frozen.
   if (hireForClean) {
     const artistId = artist.id;
-    parseHireText(hireForClean)
-      .then((tags) =>
-        prisma.artist.update({ where: { id: artistId }, data: { hireTags: tags as object } })
-      )
-      .catch(() => {
-        // Non-critical — tags will populate on next save
-      });
+    waitUntil(
+      parseHireText(hireForClean)
+        .then((tags) =>
+          prisma.artist.update({ where: { id: artistId }, data: { hireTags: tags as object } })
+        )
+        .catch(() => {
+          // Non-critical — tags will populate on next save
+        })
+    );
   }
 
   // Never expose hireTags to the client

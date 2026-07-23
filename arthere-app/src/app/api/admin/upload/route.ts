@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { waitUntil } from "@vercel/functions";
 import { prisma } from "@/lib/db";
 import { put } from "@vercel/blob";
 import { tagArtworkImage } from "@/lib/claude";
@@ -48,14 +49,20 @@ export async function POST(req: NextRequest) {
     await prisma.artist.update({ where: { id: artistId }, data: { heroImageUrl: blob.url } });
   }
 
-  tagArtworkImage(blob.url)
-    .then(async (tags) => {
-      await prisma.artworkImage.update({
-        where: { id: image.id },
-        data: { aiTags: tags as unknown as Prisma.InputJsonValue, aiTaggedAt: new Date() },
-      });
-    })
-    .catch(() => {});
+  // waitUntil keeps the function alive for post-response tagging (a bare
+  // promise would be frozen once the response returns on Vercel).
+  waitUntil(
+    tagArtworkImage(blob.url)
+      .then(async (tags) => {
+        await prisma.artworkImage.update({
+          where: { id: image.id },
+          data: { aiTags: tags as unknown as Prisma.InputJsonValue, aiTaggedAt: new Date() },
+        });
+      })
+      .catch((err) => {
+        console.error("AI tagging failed for image", image.id, err);
+      })
+  );
 
   return NextResponse.json({ id: image.id, url: blob.url, isHero });
 }

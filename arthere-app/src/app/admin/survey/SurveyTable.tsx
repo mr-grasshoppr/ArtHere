@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { INVOLVEMENT_FEATURED, INVOLVEMENT_VOLUNTEER, RAFFLE_YES } from "@/lib/survey-constants";
 
 type SurveyResponse = {
   id: string;
@@ -24,7 +25,24 @@ type SurveyResponse = {
   practiceSupport: string | null;
   featuredArtistInterest: string | null;
   stayConnected: string[];
+  involvementInterests: string[];
+  involvementInterestsOther: string | null;
+  completedAt: Date | null;
+  openFeedback: string | null;
+  learnedAbout: string[];
 };
+
+// Legacy-aware accessors: pre-redesign responses stored involvement answers
+// in stayConnected / featuredArtistInterest / multnomahDaysInvolvement.
+function wantsToVolunteer(r: SurveyResponse) {
+  return r.involvementInterests.includes(INVOLVEMENT_VOLUNTEER) || r.stayConnected.includes("Volunteer");
+}
+function wantsToBeFeatured(r: SurveyResponse) {
+  return r.involvementInterests.includes(INVOLVEMENT_FEATURED) || !!r.featuredArtistInterest?.startsWith("Yes");
+}
+function isCompleted(r: SurveyResponse) {
+  return r.completedAt != null || r.learnedAbout.length > 0 || !!r.openFeedback;
+}
 
 function Field({ label, value }: { label: string; value: string | string[] | null | undefined }) {
   if (!value || (Array.isArray(value) && value.length === 0)) return null;
@@ -53,13 +71,20 @@ function Row({ r }: { r: SurveyResponse }) {
             day: "numeric",
             year: "numeric",
           })}
+          {!isCompleted(r) && (
+            <span className="ml-2 text-[10px] uppercase tracking-wide bg-[#f0f0f0] text-[#999] px-1.5 py-0.5 rounded">draft</span>
+          )}
         </td>
         <td className="px-4 py-3 text-sm font-medium">{r.email ?? <span className="text-[#bbb]">Anonymous</span>}</td>
         <td className="px-4 py-3 text-sm">{r.artistStatus ?? <span className="text-[#bbb]">—</span>}</td>
         <td className="px-4 py-3 text-sm">{r.neighborhoods ?? <span className="text-[#bbb]">—</span>}</td>
-        <td className="px-4 py-3 text-sm">{r.featuredArtistInterest ?? <span className="text-[#bbb]">—</span>}</td>
         <td className="px-4 py-3 text-sm">
-          {r.stayConnected.includes("Volunteer")
+          {wantsToBeFeatured(r)
+            ? <span className="text-blue-700 font-medium">Yes</span>
+            : <span className="text-[#bbb]">—</span>}
+        </td>
+        <td className="px-4 py-3 text-sm">
+          {wantsToVolunteer(r)
             ? <span className="text-amber-700 font-medium">Yes</span>
             : <span className="text-[#bbb]">—</span>}
         </td>
@@ -98,11 +123,14 @@ function Row({ r }: { r: SurveyResponse }) {
                 <Field label="Support needed" value={r.practiceSupport} />
               </div>
               <div>
-                <p className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-2">Stay Connected</p>
-                <Field label="Channels" value={r.stayConnected} />
-                <Field label="Featured artist" value={r.featuredArtistInterest} />
+                <p className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-2">Get Involved</p>
+                <Field label="Involvement" value={r.involvementInterests} />
+                <Field label="Involvement (other)" value={r.involvementInterestsOther} />
+                <Field label="Channels (legacy)" value={r.stayConnected} />
+                <Field label="Featured (legacy)" value={r.featuredArtistInterest} />
                 <Field label="Email" value={r.email} />
                 <Field label="Raffle" value={r.raffleOptIn} />
+                <Field label="Feedback" value={r.openFeedback} />
               </div>
             </div>
           </td>
@@ -115,11 +143,11 @@ function Row({ r }: { r: SurveyResponse }) {
 function applyCategoryFilter(responses: SurveyResponse[], category: string): SurveyResponse[] {
   switch (category) {
     case "volunteer":
-      return responses.filter((r) => r.stayConnected.includes("Volunteer"));
+      return responses.filter(wantsToVolunteer);
     case "featured":
-      return responses.filter((r) => r.featuredArtistInterest?.startsWith("Yes"));
+      return responses.filter(wantsToBeFeatured);
     case "raffle":
-      return responses.filter((r) => r.raffleOptIn === "Yes");
+      return responses.filter((r) => r.raffleOptIn === RAFFLE_YES);
     default:
       return responses;
   }
@@ -135,7 +163,11 @@ function applyFieldFilter(
     const v = r[field as keyof SurveyResponse];
     if (Array.isArray(v)) return v.includes(value);
     if (field === "participate") {
-      return r.stayConnected.includes(value) || r.multnomahDaysInvolvement.includes(value);
+      return (
+        r.involvementInterests.includes(value) ||
+        r.stayConnected.includes(value) ||
+        r.multnomahDaysInvolvement.includes(value)
+      );
     }
     return v === value;
   });

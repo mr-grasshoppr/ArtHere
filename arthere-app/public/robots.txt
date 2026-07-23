@@ -43,4 +43,4 @@ Allow: /search
 Disallow: /api/
 Disallow: /profile/
 
-Sitemap: https://arthere.portland/sitemap.xml
+Sitemap: https://artishere.org/sitemap.xml

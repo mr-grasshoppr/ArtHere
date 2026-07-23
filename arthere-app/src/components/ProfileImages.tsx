@@ -9,6 +9,12 @@ async function deleteImage(id: string) {
   await fetch(`/api/images?id=${id}`, { method: "DELETE" });
 }
 
+// Deleting removes the image from the database and blob storage — there is
+// no undo, so always confirm first.
+function confirmDelete(): boolean {
+  return window.confirm("Remove this photo? This can't be undone.");
+}
+
 export function ProfileHero({
   initialImages,
   artistName,
@@ -22,6 +28,7 @@ export function ProfileHero({
   const heroImage = images.find((img) => img.isHero) ?? images[0] ?? null;
 
   async function remove(id: string) {
+    if (!confirmDelete()) return;
     setImages((prev) => prev.filter((img) => img.id !== id));
     await deleteImage(id);
   }
@@ -54,15 +61,17 @@ export function ProfileGallery({
 }: {
   initialImages: ArtworkImage[];
 }) {
-  const heroImage = initialImages.find((img) => img.isHero) ?? initialImages[0] ?? null;
-  const [images, setImages] = useState(
-    initialImages.filter((img) => img.id !== heroImage?.id).slice(0, 3)
-  );
+  // Keep the full list in state and derive the visible gallery from it, so
+  // a delete reveals the next image instead of leaving a stale 3-item slice.
+  const [allImages, setAllImages] = useState(initialImages);
+  const heroImage = allImages.find((img) => img.isHero) ?? allImages[0] ?? null;
+  const images = allImages.filter((img) => img.id !== heroImage?.id).slice(0, 3);
 
   if (images.length === 0) return null;
 
   async function remove(id: string) {
-    setImages((prev) => prev.filter((img) => img.id !== id));
+    if (!confirmDelete()) return;
+    setAllImages((prev) => prev.filter((img) => img.id !== id));
     await deleteImage(id);
   }
 

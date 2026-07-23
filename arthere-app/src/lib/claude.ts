@@ -4,6 +4,31 @@ const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
+/**
+ * Parse JSON out of a model response. Models occasionally wrap output in
+ * ```json fences or add a stray sentence despite instructions — a raw
+ * JSON.parse would then throw and fail the whole request. This strips
+ * fences and falls back to extracting the first {...} or [...] block.
+ * Throws only if no parseable JSON exists at all.
+ */
+export function parseModelJson<T>(text: string): T {
+  const stripped = text
+    .replace(/^\s*```(?:json)?\s*/i, "")
+    .replace(/\s*```\s*$/, "")
+    .trim();
+
+  try {
+    return JSON.parse(stripped) as T;
+  } catch {
+    // Fall back to the first JSON-looking block in the text.
+    const match = stripped.match(/[{[][\s\S]*[}\]]/);
+    if (match) {
+      return JSON.parse(match[0]) as T;
+    }
+    throw new Error(`Model response contained no parseable JSON: ${text.slice(0, 200)}`);
+  }
+}
+
 // ─── Image Tagging ────────────────────────────────────────────────────────────
 
 export interface ArtworkTags {
@@ -57,7 +82,7 @@ Return ONLY the JSON object, no other text. Be specific about colors (e.g. "dust
   });
 
   const text = response.content[0].type === "text" ? response.content[0].text : "";
-  return JSON.parse(text) as ArtworkTags;
+  return parseModelJson<ArtworkTags>(text);
 }
 
 // ─── Natural Language Search ──────────────────────────────────────────────────
@@ -114,7 +139,7 @@ Only include filters that the query clearly implies. Return ONLY the JSON.`,
   });
 
   const text = response.content[0].type === "text" ? response.content[0].text : "";
-  return JSON.parse(text) as SearchIntent;
+  return parseModelJson<SearchIntent>(text);
 }
 
 // ─── Artist Directory Search ───────────────────────────────────────────────────
@@ -187,7 +212,7 @@ Only include artists with score >= 40, sorted by score descending. If nothing ma
   });
 
   const text = response.content[0].type === "text" ? response.content[0].text : '{"matches":[],"explanation":""}';
-  return JSON.parse(text) as ArtistSearchResult;
+  return parseModelJson<ArtistSearchResult>(text);
 }
 
 export interface ScoredArtwork {
@@ -239,7 +264,7 @@ Score 80+ only for strong matches. Return ONLY the JSON array.`,
   });
 
   const text = response.content[0].type === "text" ? response.content[0].text : "[]";
-  return JSON.parse(text) as ScoredArtwork[];
+  return parseModelJson<ScoredArtwork[]>(text);
 }
 
 // ─── Artwork Crop Detection ───────────────────────────────────────────────────
@@ -278,9 +303,9 @@ Respond with ONLY the JSON object or null, nothing else.`,
   });
 
   const text = (response.content[0].type === "text" ? response.content[0].text : "").trim();
-  if (text === "null" || !text) return null;
+  if (!text || /^(```(json)?\s*)?null(\s*```)?$/i.test(text)) return null;
   try {
-    const parsed = JSON.parse(text) as ArtworkCropBox;
+    const parsed = parseModelJson<ArtworkCropBox>(text);
     // Sanity-check: reject degenerate boxes
     if (parsed.w <= 0.05 || parsed.h <= 0.05 || parsed.w > 1 || parsed.h > 1) return null;
     return parsed;
@@ -323,5 +348,5 @@ Be specific and concrete. Return ONLY the JSON object.`,
   });
 
   const raw = response.content[0].type === "text" ? response.content[0].text : "{}";
-  return JSON.parse(raw) as HireTags;
+  return parseModelJson<HireTags>(raw);
 }

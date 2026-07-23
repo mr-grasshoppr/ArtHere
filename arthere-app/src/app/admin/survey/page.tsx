@@ -4,6 +4,30 @@ import Link from "next/link";
 import SurveyTable from "./SurveyTable";
 import SurveyCharts from "./SurveyCharts";
 import SurveyFunnel from "./SurveyFunnel";
+import {
+  NOT_MAKING_ART,
+  INVOLVEMENT_FEATURED,
+  INVOLVEMENT_VOLUNTEER,
+  RAFFLE_YES,
+} from "@/lib/survey-constants";
+
+// Older responses (before the "Get Involved" redesign) stored these answers
+// in the now-deprecated stayConnected / featuredArtistInterest /
+// multnomahDaysInvolvement fields — keep counting them.
+type LegacyFields = {
+  stayConnected: string[];
+  featuredArtistInterest: string | null;
+  multnomahDaysInvolvement: string[];
+  involvementInterests: string[];
+};
+
+function wantsToVolunteer(r: LegacyFields) {
+  return r.involvementInterests.includes(INVOLVEMENT_VOLUNTEER) || r.stayConnected.includes("Volunteer");
+}
+
+function wantsToBeFeatured(r: LegacyFields) {
+  return r.involvementInterests.includes(INVOLVEMENT_FEATURED) || !!r.featuredArtistInterest?.startsWith("Yes");
+}
 
 function tally(values: string[], total: number) {
   const counts: Record<string, number> = {};
@@ -30,7 +54,6 @@ export default async function AdminSurveyPage({
   // Each step's count = how many responses have data for that step's sentinel field.
   // Since the form saves a draft on every Next click, partial responses tell us
   // exactly how far someone got.
-  const NOT_MAKING_ART = "No, I'm not making art";
   const funnelSteps = [
     { label: "Started", count: responses.length },
     { label: "Location", count: responses.filter((r) => !!(r.zipCode || r.neighborhoods)).length },
@@ -40,7 +63,12 @@ export default async function AdminSurveyPage({
     { label: "Portland Support", count: responses.filter((r) => !!(r.portlandHelpers || r.portlandSupport.length)).length },
     { label: "Involvement", count: responses.filter((r) => r.involvementInterests.length > 0).length },
     { label: "Email / Raffle", count: responses.filter((r) => !!r.raffleOptIn).length },
-    { label: "Completed", count: responses.filter((r) => r.learnedAbout.length > 0 || !!r.openFeedback).length },
+    {
+      label: "Completed",
+      // completedAt is authoritative for new responses; the learnedAbout /
+      // openFeedback heuristic covers rows submitted before it existed.
+      count: responses.filter((r) => r.completedAt != null || r.learnedAbout.length > 0 || !!r.openFeedback).length,
+    },
   ];
 
   const artistOnly = responses.filter((r) => r.artistStatus && r.artistStatus !== NOT_MAKING_ART);
@@ -52,9 +80,7 @@ export default async function AdminSurveyPage({
   ];
 
   // Respondents who are practicing artists (saw the practice/goals questions)
-  const artistResponses = responses.filter(
-    (r) => r.artistStatus && r.artistStatus !== "No, I'm not a practicing artist"
-  );
+  const artistResponses = artistOnly;
 
   const artistStatusData = tally(
     responses.map((r) => r.artistStatus).filter(Boolean) as string[],
@@ -69,21 +95,28 @@ export default async function AdminSurveyPage({
     artistResponses.length
   );
   const participateData = tally(
-    responses.flatMap((r) => [...r.stayConnected, ...r.multnomahDaysInvolvement]).filter(Boolean),
+    responses
+      .flatMap((r) => [...r.involvementInterests, ...r.stayConnected, ...r.multnomahDaysInvolvement])
+      .filter(Boolean),
     responses.length
   );
 
+  const completedResponses = responses.filter(
+    (r) => r.completedAt != null || r.learnedAbout.length > 0 || !!r.openFeedback
+  );
+
   const stats = {
-    total: responses.length,
-    volunteer: responses.filter((r) => r.stayConnected.includes("Volunteer")).length,
-    featured: responses.filter((r) => r.featuredArtistInterest?.startsWith("Yes")).length,
-    raffle: responses.filter((r) => r.raffleOptIn === "Yes").length,
+    total: completedResponses.length,
+    drafts: responses.length - completedResponses.length,
+    volunteer: responses.filter(wantsToVolunteer).length,
+    featured: responses.filter(wantsToBeFeatured).length,
+    raffle: responses.filter((r) => r.raffleOptIn === RAFFLE_YES).length,
   };
 
   const cards = [
     {
       key: "total",
-      label: "Completed surveys",
+      label: `Completed surveys${stats.drafts > 0 ? ` (+${stats.drafts} drafts)` : ""}`,
       value: stats.total,
       href: "/admin/survey",
       color: "bg-[#f5f5f5]",

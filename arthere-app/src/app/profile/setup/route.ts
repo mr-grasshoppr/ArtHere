@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
 import { verifyMagicLinkToken } from '@/lib/magic-link';
-
-const SESSION_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
+import { createSessionForUser } from '@/lib/auth';
 
 export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get('token');
@@ -29,22 +27,11 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const sessionToken = crypto.randomUUID();
-  const expires = new Date(Date.now() + SESSION_MAX_AGE_SECONDS * 1000);
-  await prisma.session.create({ data: { sessionToken, userId, expires } });
-
-  const isProd = process.env.NODE_ENV === 'production';
-  const cookieName = isProd ? '__Secure-authjs.session-token' : 'authjs.session-token';
+  const cookie = await createSessionForUser(userId);
 
   const destination = result.place ? '/place/edit' : '/profile';
   const response = NextResponse.redirect(`${base}${destination}`);
-  response.cookies.set(cookieName, sessionToken, {
-    httpOnly: true,
-    secure: isProd,
-    sameSite: 'lax',
-    path: '/',
-    expires,
-  });
+  response.cookies.set(cookie.name, cookie.value, cookie.options);
 
   return response;
 }

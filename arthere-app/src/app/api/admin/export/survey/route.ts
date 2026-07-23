@@ -2,6 +2,15 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getAdminSession } from "@/lib/admin";
 import { row, csvResponse } from "@/lib/csv";
+import {
+  INVOLVEMENT_NEWS,
+  INVOLVEMENT_FEATURED,
+  INVOLVEMENT_VOLUNTEER,
+  INVOLVEMENT_PARADE,
+  INVOLVEMENT_PARTNER,
+  INVOLVEMENT_OTHER,
+  INVOLVEMENT_NONE,
+} from "@/lib/survey-constants";
 
 export async function GET() {
   if (!(await getAdminSession())) {
@@ -15,7 +24,7 @@ export async function GET() {
   const flag = (arr: string[], value: string) => arr.includes(value) ? "Yes" : "";
 
   const headers = [
-    "id", "createdAt", "email", "raffleOptIn",
+    "id", "createdAt", "completedAt", "email", "raffleOptIn",
     "zipCode", "neighborhoods",
     "occupation", "occupationOther",
     "artistStatus", "artistStatusOther",
@@ -38,6 +47,7 @@ export async function GET() {
       row([
         r.id,
         r.createdAt.toISOString(),
+        r.completedAt?.toISOString() ?? "",
         r.email,
         r.raffleOptIn,
         r.zipCode,
@@ -62,14 +72,14 @@ export async function GET() {
         r.practiceGoals.join("; "),
         r.practiceGoalsOther,
         r.practiceSupport,
-        flag(r.involvementInterests, "Keep me posted on Art Here news"),
-        flag(r.involvementInterests, "Showcase my work on the Art Here platform"),
-        flag(r.involvementInterests, "Volunteer to help Art Here"),
-        flag(r.involvementInterests, "Join the parade at Multnomah Days 2026 (August 15, Portland)"),
-        flag(r.involvementInterests, "Partner or collaborate"),
-        flag(r.involvementInterests, "Other"),
+        flag(r.involvementInterests, INVOLVEMENT_NEWS),
+        flag(r.involvementInterests, INVOLVEMENT_FEATURED),
+        flag(r.involvementInterests, INVOLVEMENT_VOLUNTEER),
+        flag(r.involvementInterests, INVOLVEMENT_PARADE),
+        flag(r.involvementInterests, INVOLVEMENT_PARTNER),
+        flag(r.involvementInterests, INVOLVEMENT_OTHER),
         r.involvementInterestsOther,
-        flag(r.involvementInterests, "None of the above"),
+        flag(r.involvementInterests, INVOLVEMENT_NONE),
         r.learnedAbout.join("; "),
         r.openFeedback,
       ])

@@ -50,10 +50,10 @@ export function MagicLinkEmail({ artistName, link }: MagicLinkEmailProps) {
 
           <Text style={footnote}>
             This link works once and expires in 72 hours. If you need a new one, visit{' '}
-            <a href="https://artishere.org/pages/survey.html" style={footerLink}>
-              artishere.org
+            <a href="https://artishere.org/my-art-here" style={footerLink}>
+              artishere.org/my-art-here
             </a>{' '}
-            and click &ldquo;Already a member? Edit your profile.&rdquo;
+            and we&rsquo;ll send you a fresh sign-in link.
           </Text>
           <Text style={footnote}>
             If you didn&rsquo;t fill out the Art Here survey, you can safely ignore this email.

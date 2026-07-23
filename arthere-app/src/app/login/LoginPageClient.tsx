@@ -35,7 +35,7 @@ export default function LoginPage() {
     setDevLink("");
     try {
       const callbackUrl = params.get("callbackUrl") ?? "/profile";
-      await signIn("nodemailer", { email, callbackUrl, redirect: false });
+      await signIn("resend", { email, callbackUrl, redirect: false });
       // In development, fetch the sign-in link directly so it can be shown on screen
       if (process.env.NODE_ENV === "development") {
         await new Promise((r) => setTimeout(r, 600));
@@ -162,8 +162,8 @@ function SimpleNav() {
           </button>
           {open && (
             <div className="absolute top-[calc(100%+8px)] right-0 rounded-md overflow-hidden min-w-[160px] bg-white border border-[#eee] shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
-              {[['/#about','About Us'],['/survey','Join Us'],['/survey','Take the Survey'],['/#contact','Contact Us']].map(([href, label]) => (
-                <Link key={href} href={href} onClick={() => setOpen(false)}
+              {[['/#about','About Us'],['/survey','Take the Survey'],['/#contact','Contact Us']].map(([href, label]) => (
+                <Link key={label} href={href} onClick={() => setOpen(false)}
                   className="block px-5 py-[13px] text-[0.9rem] text-[#444] border-b border-[#f0f0f0] last:border-b-0 hover:bg-[#fafafa] hover:text-[#1a1a1a] transition-colors">
                   {label}
                 </Link>

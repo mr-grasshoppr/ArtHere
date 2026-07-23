@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { waitUntil } from '@vercel/functions';
 import { randomBytes } from 'crypto';
 import { prisma } from '@/lib/db';
 import { sendMagicLink } from '@/lib/magic-link';
@@ -79,7 +80,9 @@ async function onCompleted(response: { id: string; email: string | null; involve
     }
   }
 
-  resend.emails.send({
+  // waitUntil keeps the serverless function alive until the emails send —
+  // bare fire-and-forget promises are frozen once the response returns.
+  waitUntil(resend.emails.send({
     from: 'Art Here <hello@artishere.org>',
     to: 'maryannamail@gmail.com',
     subject: 'New PDX Community Survey Response',
@@ -102,10 +105,10 @@ async function onCompleted(response: { id: string; email: string | null; involve
         </p>
       </div>
     `,
-  }).catch(err => console.error('[survey] admin notification failed:', err));
+  }).catch(err => console.error('[survey] admin notification failed:', err)));
 
   if (email) {
-    resend.emails.send({
+    waitUntil(resend.emails.send({
       from: 'Art Here <hello@artishere.org>',
       to: email,
       bcc: 'hello@artishere.org',
@@ -123,7 +126,7 @@ async function onCompleted(response: { id: string; email: string | null; involve
           </p>
         </div>
       `,
-    }).catch(err => console.error('[survey] thank-you email failed:', err));
+    }).catch(err => console.error('[survey] thank-you email failed:', err)));
   }
 }
 
