@@ -2,17 +2,23 @@ import {
   Body,
   Button,
   Container,
+  Font,
   Head,
   Heading,
   Hr,
   Html,
+  Img,
   Preview,
   Section,
   Text,
 } from '@react-email/components';
 import * as React from 'react';
 
+const LOGO_URL =
+  'https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/brand/arthere-logo-email.png';
+
 interface MagicLinkEmailProps {
+  /** Name used in the greeting — an artist's first name, or a place's full name. */
   artistName: string;
   link: string;
 }
@@ -20,12 +26,25 @@ interface MagicLinkEmailProps {
 export function MagicLinkEmail({ artistName, link }: MagicLinkEmailProps) {
   return (
     <Html>
-      <Head />
+      <Head>
+        {/* Matches the site's heading font. Clients that strip webfonts fall
+            back to Arial Rounded MT Bold — the same fallback the site uses. */}
+        <Font
+          fontFamily="Nunito"
+          fallbackFontFamily="Arial"
+          webFont={{
+            url: 'https://fonts.gstatic.com/s/nunito/v32/XRXI3I6Li01BKofiOc5wtlZ2di8HDFwmdTQ3j6zbXWjgeg.woff2',
+            format: 'woff2',
+          }}
+          fontWeight={700}
+          fontStyle="normal"
+        />
+      </Head>
       <Preview>Set up your Art Here artist profile</Preview>
       <Body style={body}>
         <Container style={container}>
           <Section style={logoSection}>
-            <Text style={logoText}>Art Here</Text>
+            <Img src={LOGO_URL} width="80" alt="Art Here" style={logoImg} />
           </Section>
 
           <Heading style={heading}>You&rsquo;re in.</Heading>
@@ -82,15 +101,19 @@ const logoSection: React.CSSProperties = {
   marginBottom: '40px',
 };
 
-const logoText: React.CSSProperties = {
-  fontSize: '1rem',
-  fontWeight: '700',
-  letterSpacing: '0.04em',
-  color: '#1a1a1a',
-  margin: '0',
+const logoImg: React.CSSProperties = {
+  display: 'block',
+  width: '80px',
+  height: 'auto',
+  border: '0',
 };
 
+// Mirrors the site's `font-heading` stack (Nunito → Arial Rounded MT Bold).
+const headingFont =
+  'Nunito, "Arial Rounded MT Bold", "Helvetica Rounded", Arial, sans-serif';
+
 const heading: React.CSSProperties = {
+  fontFamily: headingFont,
   fontSize: '2rem',
   fontWeight: '700',
   letterSpacing: '-0.02em',

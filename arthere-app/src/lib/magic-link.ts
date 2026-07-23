@@ -29,6 +29,12 @@ const FROM_ADDRESS = 'Art Here <hello@artishere.org>';
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://artishere.org';
 const ADMIN_BCC = 'hello@artishere.org';
 
+// Emails greet artists by first name only. Falls back to the full string for
+// single-word names. Place emails deliberately keep the full venue name.
+function firstName(fullName: string): string {
+  return fullName.trim().split(/\s+/)[0] || fullName;
+}
+
 // ─── Artist magic links ───────────────────────────────────────────────────────
 
 interface SendArtistLinkParams {
@@ -51,7 +57,7 @@ export async function sendMagicLink({ email, artistId, artistName }: SendArtistL
 
   const link = `${BASE_URL}/profile/setup?token=${token}`;
   const { html, text } = await renderEmail(
-    React.createElement(MagicLinkEmail, { artistName, link }),
+    React.createElement(MagicLinkEmail, { artistName: firstName(artistName), link }),
   );
   const { error } = await resend.emails.send({
     from: FROM_ADDRESS,
