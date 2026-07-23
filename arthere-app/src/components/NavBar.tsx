@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/db';
+import { getCachedCities } from '@/lib/cities';
 import { NavBarClient, type CityEntry, type NavBarTheme } from './NavBarClient';
 
 interface Props {
@@ -9,10 +9,7 @@ interface Props {
 }
 
 export async function NavBar({ activeCitySlug, theme }: Props) {
-  const rawCities = await prisma.city.findMany({
-    select: { slug: true, name: true, state: true, displayName: true },
-    orderBy: { name: 'asc' },
-  });
+  const rawCities = await getCachedCities();
 
   const cities: CityEntry[] = rawCities.map(c => ({
     slug: c.slug,

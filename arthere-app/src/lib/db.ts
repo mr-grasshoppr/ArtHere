@@ -1,3 +1,4 @@
+import "./env"; // boot-time env validation — fail loudly, not mid-request
 import { PrismaClient } from "@prisma/client";
 
 const globalForPrisma = globalThis as unknown as {

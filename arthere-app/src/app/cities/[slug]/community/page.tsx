@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db';
+import { safeStaticParams } from '@/lib/static-params';
 import { getCityScope, artistScopeWhere } from '@/lib/city-scope';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
@@ -10,8 +11,10 @@ import { SiteFooter } from '@/components/SiteFooter';
 import { TechSupportLink } from '@/components/TechSupportLink';
 
 export async function generateStaticParams() {
-  const cities = await prisma.city.findMany({ select: { slug: true } });
-  return cities.map(c => ({ slug: c.slug }));
+  return safeStaticParams(async () => {
+    const cities = await prisma.city.findMany({ select: { slug: true } });
+    return cities.map(c => ({ slug: c.slug }));
+  });
 }
 
 export async function generateMetadata({

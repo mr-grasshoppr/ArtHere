@@ -95,6 +95,8 @@ model Artist {
   intake           ArtistIntake?
   adminNotes       AdminNote[]
   magicLinkTokens  MagicLinkToken[]
+
+  @@index([cityId])
 }
 
 enum CommissionStatus {
@@ -122,6 +124,8 @@ model ArtworkImage {
   aiTaggedAt DateTime?
 
   artist     Artist    @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@index([artistId])
 }
 
 // ─── Places ───────────────────────────────────────────────────────────────────
@@ -164,6 +168,7 @@ model ArtistPlace {
   place        Place             @relation(fields: [placeId], references: [id], onDelete: Cascade)
 
   @@unique([artistId, placeId, relationship])
+  @@index([placeId])
 }
 
 enum PlaceRelationship {
@@ -282,6 +287,8 @@ model SurveyResponse {
   // Referral
   learnedAbout String[] @default([])
   openFeedback String?  @db.Text
+
+  @@index([createdAt])
 }
 
 // ─── Magic Link Tokens ────────────────────────────────────────────────────────
@@ -302,6 +309,9 @@ model MagicLinkToken {
 
   artist Artist? @relation(fields: [artistId], references: [id], onDelete: Cascade)
   place  Place?  @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@index([artistId])
+  @@index([placeId])
 }
 
 // ─── Contact Form Submissions ────────────────────────────────────────────────
@@ -326,4 +336,6 @@ model AdminNote {
   updatedAt DateTime @updatedAt
 
   artist    Artist   @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@index([artistId])
 }

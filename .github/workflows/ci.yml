@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  app:
+    name: arthere-app checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: arthere-app
+    env:
+      # Build-time placeholders — no runtime secrets are needed to compile.
+      # src/lib/env.ts skips enforcement during the build phase, and pages
+      # that query the DB at build time fall back to dynamic rendering.
+      DATABASE_URL: "postgresql://ci:ci@localhost:5432/ci"
+      AUTH_SECRET: "ci-placeholder"
+      RESEND_API_KEY: "re_ci_placeholder"
+      ANTHROPIC_API_KEY: "sk-ant-ci-placeholder"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: arthere-app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build
+        run: npm run build

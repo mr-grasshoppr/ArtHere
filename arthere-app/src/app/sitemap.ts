@@ -4,14 +4,21 @@ import { prisma } from '@/lib/db';
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://artishere.org';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [cities, artists, places] = await Promise.all([
-    prisma.city.findMany({ select: { slug: true } }),
-    prisma.artist.findMany({
-      where: { isPlaceholder: false },
-      select: { slug: true, updatedAt: true },
-    }),
-    prisma.place.findMany({ where: { inDirectory: true }, select: { slug: true } }),
-  ]);
+  let cities: { slug: string }[] = [];
+  let artists: { slug: string; updatedAt: Date }[] = [];
+  let places: { slug: string }[] = [];
+  try {
+    [cities, artists, places] = await Promise.all([
+      prisma.city.findMany({ select: { slug: true } }),
+      prisma.artist.findMany({
+        where: { isPlaceholder: false },
+        select: { slug: true, updatedAt: true },
+      }),
+      prisma.place.findMany({ where: { inDirectory: true }, select: { slug: true } }),
+    ]);
+  } catch {
+    // Database unreachable (CI build) — emit the static entries only.
+  }
 
   const publicCities = cities.filter(c => !c.slug.endsWith('-demo'));
 

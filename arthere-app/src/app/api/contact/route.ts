@@ -3,6 +3,7 @@ import { resend } from '@/lib/resend';
 import { prisma } from '@/lib/db';
 import { rateLimit } from '@/lib/rate-limit';
 import { escapeHtml, escapeHtmlWithBreaks, isValidEmail } from '@/lib/email';
+import { contactSchema, parseBody } from '@/lib/schemas';
 
 const INTENTS: Record<string, string> = {
   featured: 'Get Featured on Art Here',
@@ -11,37 +12,27 @@ const INTENTS: Record<string, string> = {
   invite: 'Request an Art Here Invite',
 };
 
-const MAX_NAME = 200;
-const MAX_SOCIAL = 300;
-const MAX_MESSAGE = 5000;
-
 export async function POST(req: NextRequest) {
   const limited = rateLimit(req, 'contact', { limit: 5, windowSeconds: 600 });
   if (limited) return limited;
 
-  let body: Record<string, unknown>;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-  }
+  const raw = await req.json().catch(() => null);
+  const body = parseBody(contactSchema, raw);
+  if (!body) return NextResponse.json({ error: 'Invalid request.' }, { status: 400 });
 
-  const { name, email, social, message, intent, website } = body as Record<string, string | undefined>;
+  const { name, email, social, message, intent, website } = body;
 
   // Honeypot: the visible form never fills this field — bots do.
   if (website?.trim()) return NextResponse.json({ ok: true });
 
-  if (!name?.trim() || !email?.trim()) {
+  if (!name.trim() || !email.trim()) {
     return NextResponse.json({ error: 'Name and email are required.' }, { status: 400 });
   }
   if (!isValidEmail(email.trim())) {
     return NextResponse.json({ error: 'Please enter a valid email address.' }, { status: 400 });
   }
-  if (name.length > MAX_NAME || (social?.length ?? 0) > MAX_SOCIAL || (message?.length ?? 0) > MAX_MESSAGE) {
-    return NextResponse.json({ error: 'Message too long.' }, { status: 400 });
-  }
 
-  const subject = INTENTS[intent ?? ''] ?? 'Message from Art Here website';
+  const subject = (intent && INTENTS[intent]) || 'Message from Art Here website';
 
   const submitterEmail = email.trim();
   const submitterName = name.trim();
@@ -87,7 +78,7 @@ export async function POST(req: NextRequest) {
       email: submitterEmail,
       social: social?.trim() || null,
       message: message?.trim() || null,
-      intent: intent || null,
+      intent: intent?.trim() || null,
     },
   });
 

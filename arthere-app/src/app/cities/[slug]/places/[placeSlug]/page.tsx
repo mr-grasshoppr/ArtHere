@@ -1,32 +1,35 @@
 import { prisma } from '@/lib/db';
+import { safeStaticParams } from '@/lib/static-params';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { PlaceProfilePage } from '@/components/PlaceProfilePage';
 import { cityLabel } from '@/components/ArtistProfilePage';
 
 export async function generateStaticParams() {
-  const places = await prisma.place.findMany({
-    where: { inDirectory: true },
-    select: {
-      slug: true,
-      artists: { select: { artist: { select: { city: { select: { slug: true } } } } } },
-    },
-  });
+  return safeStaticParams(async () => {
+    const places = await prisma.place.findMany({
+      where: { inDirectory: true },
+      select: {
+        slug: true,
+        artists: { select: { artist: { select: { city: { select: { slug: true } } } } } },
+      },
+    });
 
-  const params: { slug: string; placeSlug: string }[] = [];
-  for (const place of places) {
-    const citySlugs = [
-      ...new Set(
-        place.artists
-          .map(r => r.artist.city?.slug)
-          .filter((s): s is string => !!s)
-      ),
-    ];
-    for (const citySlug of citySlugs) {
-      params.push({ slug: citySlug, placeSlug: place.slug });
+    const params: { slug: string; placeSlug: string }[] = [];
+    for (const place of places) {
+      const citySlugs = [
+        ...new Set(
+          place.artists
+            .map(r => r.artist.city?.slug)
+            .filter((s): s is string => !!s)
+        ),
+      ];
+      for (const citySlug of citySlugs) {
+        params.push({ slug: citySlug, placeSlug: place.slug });
+      }
     }
-  }
-  return params;
+    return params;
+  });
 }
 
 export async function generateMetadata({

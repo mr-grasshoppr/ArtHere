@@ -7,6 +7,7 @@ import { resend } from '@/lib/resend';
 import { rateLimit } from '@/lib/rate-limit';
 import { escapeHtml } from '@/lib/email';
 import { INVOLVEMENT_FEATURED } from '@/lib/survey-constants';
+import { surveySchema, parseBody } from '@/lib/schemas';
 
 // Returns a trimmed string, or null if empty/not a string. Keeps the
 // SurveyResponse table free of empty-string noise for skipped questions.
@@ -137,12 +138,9 @@ export async function POST(req: NextRequest) {
   const limited = rateLimit(req, 'survey-post', { limit: 10, windowSeconds: 600 });
   if (limited) return limited;
 
-  let body: Record<string, unknown>;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-  }
+  const raw = await req.json().catch(() => null);
+  const body = parseBody(surveySchema, raw);
+  if (!body) return NextResponse.json({ error: 'Invalid request.' }, { status: 400 });
 
   const completed = body.completed === true;
   const draftToken = randomBytes(24).toString('base64url');
@@ -210,12 +208,9 @@ export async function PATCH(req: NextRequest) {
   const id = req.nextUrl.searchParams.get('id');
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
 
-  let body: Record<string, unknown>;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-  }
+  const raw = await req.json().catch(() => null);
+  const body = parseBody(surveySchema, raw);
+  if (!body) return NextResponse.json({ error: 'Invalid request.' }, { status: 400 });
 
   const draftToken = typeof body.draftToken === 'string' ? body.draftToken : null;
   if (!draftToken) return NextResponse.json({ error: 'Missing draft token' }, { status: 401 });

@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/db';
+import { getCachedCities } from '@/lib/cities';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { NavBar } from '@/components/NavBar';
@@ -33,10 +33,7 @@ const COMING_SOON_CITY_DATA: { label: string; code: string }[] = [
 ];
 
 export default async function Home() {
-  const allCities = await prisma.city.findMany({
-    select: { slug: true, name: true, state: true, displayName: true },
-    orderBy: { name: 'asc' },
-  });
+  const allCities = await getCachedCities();
   const cities = allCities.filter(c => !c.slug.endsWith('-demo'));
 
   return (

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
+import { placeProfileSchema, parseBody } from '@/lib/schemas';
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -9,7 +10,9 @@ export async function POST(req: NextRequest) {
   const place = await prisma.place.findUnique({ where: { userId: session.user.id } });
   if (!place) return NextResponse.json({ error: 'No place found for this account' }, { status: 404 });
 
-  const body = await req.json();
+  const raw = await req.json().catch(() => null);
+  const body = parseBody(placeProfileSchema, raw);
+  if (!body) return NextResponse.json({ error: 'Invalid request.' }, { status: 400 });
   const { name, neighborhood, description, website, heroImageUrl, galleryImages } = body;
 
   const updated = await prisma.place.update({

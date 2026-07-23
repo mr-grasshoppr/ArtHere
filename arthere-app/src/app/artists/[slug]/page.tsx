@@ -1,11 +1,14 @@
 import { prisma } from '@/lib/db';
+import { safeStaticParams } from '@/lib/static-params';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { ArtistProfilePage, cityLabel } from '@/components/ArtistProfilePage';
 
 export async function generateStaticParams() {
-  const artists = await prisma.artist.findMany({ select: { slug: true } });
-  return artists.map(a => ({ slug: a.slug }));
+  return safeStaticParams(async () => {
+    const artists = await prisma.artist.findMany({ select: { slug: true } });
+    return artists.map(a => ({ slug: a.slug }));
+  });
 }
 
 export async function generateMetadata({

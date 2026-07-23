@@ -32,6 +32,7 @@ import {
   LEARNED_ABOUT_OTHER,
   LEARNED_ABOUT_OPTIONS,
 } from '@/lib/survey-constants';
+import { type StepId, isMakingArt, getNextStep, getFullPath } from '@/lib/survey-flow';
 
 
 // ─── Answer shape ───────────────────────────────────────────────────────────
@@ -137,70 +138,6 @@ function shuffleOptions(options: string[], pinned: string[] = []): string[] {
   const movable = options.filter(o => !pinned.includes(o));
   const fixed = options.filter(o => pinned.includes(o));
   return [...shuffle(movable), ...fixed];
-}
-
-// ─── Step machine ────────────────────────────────────────────────────────────
-
-type StepId =
-  | 'location'
-  | 'about-you'
-  | 'about-you-art'
-  | 'art-medium'
-  | 'portland-familiarity'
-  | 'discovery'
-  | 'portland-detail'
-  | 'career-stage'
-  | 'practice'
-  | 'practice-goals'
-  | 'involvement'
-  | 'email'
-  | 'learned-about'
-  | 'done';
-
-function isMakingArt(a: Answers) {
-  return a.artistStatus !== NOT_MAKING_ART && a.artistStatus !== '';
-}
-
-function getNextStep(step: StepId, a: Answers): StepId {
-  switch (step) {
-    case 'location':
-      return 'about-you';
-    case 'about-you':
-      return 'about-you-art';
-    case 'about-you-art':
-      return isMakingArt(a) ? 'art-medium' : 'portland-familiarity';
-    case 'art-medium':
-      return 'portland-familiarity';
-    case 'portland-familiarity':
-      return 'discovery';
-    case 'discovery':
-      return 'portland-detail';
-    case 'portland-detail':
-      return isMakingArt(a) ? 'career-stage' : 'involvement';
-    case 'career-stage':
-      return 'practice';
-    case 'practice':
-      return 'practice-goals';
-    case 'practice-goals':
-      return 'involvement';
-    case 'involvement':
-      return 'email';
-    case 'email':
-      return 'learned-about';
-    case 'learned-about':
-    case 'done':
-      return 'done';
-  }
-}
-
-function getFullPath(a: Answers): StepId[] {
-  const path: StepId[] = ['location'];
-  let current: StepId = 'location';
-  while (current !== 'done') {
-    current = getNextStep(current, a);
-    path.push(current);
-  }
-  return path;
 }
 
 // ─── Shared styles ───────────────────────────────────────────────────────────

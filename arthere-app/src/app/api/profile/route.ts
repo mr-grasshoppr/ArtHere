@@ -4,13 +4,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { PlaceRelationship } from "@prisma/client";
 import { parseHireText } from "@/lib/claude";
-
-function slugify(name: string) {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-}
+import { profileSchema, parseBody } from "@/lib/schemas";
+import { slugify } from "@/lib/slug";
 
 // GET — fetch current user's artist profile
 export async function GET() {
@@ -34,7 +29,11 @@ export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const body = await req.json();
+  const raw = await req.json().catch(() => null);
+  const body = parseBody(profileSchema, raw);
+  if (!body) {
+    return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+  }
   const {
     name,
     bio,
