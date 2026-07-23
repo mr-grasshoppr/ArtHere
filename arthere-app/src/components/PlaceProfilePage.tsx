@@ -5,6 +5,7 @@ import { NavBar } from '@/components/NavBar';
 import { CityBottomBar } from '@/components/CityBottomBar';
 import { SiteFooter } from '@/components/SiteFooter';
 import { TechSupportLink } from '@/components/TechSupportLink';
+import { FadeImage } from '@/components/FadeImage';
 
 const RELATIONSHIP_LABELS: Record<PlaceRelationship, string> = {
   INSTRUCTOR: 'Instructor',
@@ -45,7 +46,7 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName }: Props) {
       {/* Hero image */}
       {place.heroImageUrl && (
         <section className="relative w-full h-[38vh] min-h-[260px] overflow-hidden bg-[#f4f4f0]">
-          <Image
+          <FadeImage
             src={place.heroImageUrl}
             alt={place.name}
             fill

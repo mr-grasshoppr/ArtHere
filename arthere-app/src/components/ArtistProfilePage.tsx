@@ -5,6 +5,7 @@ import { NavBar } from '@/components/NavBar';
 import { CityBottomBar } from '@/components/CityBottomBar';
 import { SiteFooter } from '@/components/SiteFooter';
 import { TechSupportLink } from '@/components/TechSupportLink';
+import { FadeImage } from '@/components/FadeImage';
 
 export type ArtistWithProfile = Artist & {
   artworkImages: ArtworkImage[];
@@ -70,7 +71,7 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName }: Props) 
       {/* Hero image */}
       {heroUrl && (
         <section className="relative w-full h-[38vh] min-h-[260px] overflow-hidden bg-[#f4f4f0]">
-          <Image
+          <FadeImage
             src={heroUrl}
             alt={`${artist.name} artwork`}
             fill
@@ -90,7 +91,7 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName }: Props) 
                 heroUrl ? '-mt-[55px] sm:-mt-[70px]' : ''
               }`}
             >
-              <Image
+              <FadeImage
                 src={artist.bioPhotoUrl}
                 alt={artist.name}
                 fill
