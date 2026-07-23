@@ -57,7 +57,7 @@ export default async function CityPage({
     city.logoOverlayImageUrl ?? '/images/arthere-portland-overlay.png';
 
   return (
-    <div className="h-full overflow-hidden bg-[#0a0a0a] text-white">
+    <div className="h-screen overflow-hidden bg-[#0a0a0a] text-white">
       <NavBar activeCitySlug={slug} />
       <CityGrid
         artists={artists}
