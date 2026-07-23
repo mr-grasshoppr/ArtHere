@@ -1,15 +1,7 @@
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { redirect } from 'next/navigation';
-import { Nunito } from 'next/font/google';
 import PlaceEditForm from './PlaceEditForm';
-
-const nunito = Nunito({
-  subsets: ['latin'],
-  weight: ['600', '700'],
-  variable: '--font-nunito',
-  display: 'swap',
-});
 
 export default async function PlaceEditPage() {
   const session = await auth();
@@ -28,7 +20,7 @@ export default async function PlaceEditPage() {
   if (!place) redirect('/my-art-here');
 
   return (
-    <div className={`${nunito.variable} min-h-full bg-white text-[#1a1a1a]`}>
+    <div className="min-h-full bg-white text-[#1a1a1a]">
       <PlaceEditForm
         initialData={{
           name: place.name,

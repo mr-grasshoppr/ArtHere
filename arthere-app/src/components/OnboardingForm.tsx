@@ -3,14 +3,22 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
-type Place = { id: string; name: string; neighborhood: string | null };
-
 type InitialData = {
   name: string; medium: string; neighborhood: string; bio: string;
   website: string; instagram: string; bioPhotoUrl: string | null; hireFor: string;
+  commissionStatus: string;
+  priceRangeMin: number | null; priceRangeMax: number | null;
+  sizeRangeMin: number | null; sizeRangeMax: number | null;
   images: { id: string; url: string; isHero: boolean }[];
   placeRelations: { placeName: string; relationship: string }[];
 } | null;
+
+const COMMISSION_OPTIONS = [
+  { value: "OPEN", label: "Open" },
+  { value: "ON_REQUEST", label: "By request" },
+  { value: "CLOSED", label: "Closed" },
+  { value: "UNSPECIFIED", label: "Prefer not to say" },
+];
 
 const RELATIONSHIP_TYPES = [
   { value: "MEMBER", label: "Member" },
@@ -47,7 +55,7 @@ const LABEL = "block text-[0.7rem] font-semibold text-[#aaa] mb-2 uppercase trac
 const BTN =
   "px-6 py-2.5 rounded-full bg-[#1a1a1a] text-white text-[0.88rem] font-medium transition-opacity hover:opacity-80 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer";
 
-export default function OnboardingForm({ initialData }: { places: Place[]; userEmail: string; initialData: InitialData }) {
+export default function OnboardingForm({ initialData }: { initialData: InitialData }) {
   const router = useRouter();
   const heroInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
@@ -100,6 +108,13 @@ export default function OnboardingForm({ initialData }: { places: Place[]; userE
   });
   const [offeringsOther, setOfferingsOther] = useState("");
 
+  // Commissions & pricing (shown under Additional details)
+  const [commissionStatus, setCommissionStatus] = useState(initialData?.commissionStatus ?? "UNSPECIFIED");
+  const [priceMin, setPriceMin] = useState(initialData?.priceRangeMin != null ? String(initialData.priceRangeMin) : "");
+  const [priceMax, setPriceMax] = useState(initialData?.priceRangeMax != null ? String(initialData.priceRangeMax) : "");
+  const [sizeMin, setSizeMin] = useState(initialData?.sizeRangeMin != null ? String(initialData.sizeRangeMin) : "");
+  const [sizeMax, setSizeMax] = useState(initialData?.sizeRangeMax != null ? String(initialData.sizeRangeMax) : "");
+
   // Images
   const [images, setImages] = useState<{ id: string; url: string; isHero: boolean }[]>(initialData?.images ?? []);
   const [bioPhotoUrl, setBioPhotoUrl] = useState<string | null>(initialData?.bioPhotoUrl ?? null);
@@ -150,7 +165,11 @@ export default function OnboardingForm({ initialData }: { places: Place[]; userE
           hireFor: buildOfferingsText() || null,
           website,
           instagram,
-          commissionStatus: "UNSPECIFIED",
+          commissionStatus,
+          priceRangeMin: priceMin || null,
+          priceRangeMax: priceMax || null,
+          sizeRangeMin: sizeMin || null,
+          sizeRangeMax: sizeMax || null,
           placeRelations: places
             .filter((p) => p.placeName.trim())
             .map((p) => ({ placeName: p.placeName.trim(), relationship: p.relationship, relationshipLabel: p.relationshipLabel.trim() || null })),
@@ -172,7 +191,7 @@ export default function OnboardingForm({ initialData }: { places: Place[]; userE
     saveTimer.current = setTimeout(persist, 900);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, bio, JSON.stringify(mediumValues), mediumOther, neighborhood, website, instagram, JSON.stringify(offerings), offeringsOther, JSON.stringify(places)]);
+  }, [name, bio, JSON.stringify(mediumValues), mediumOther, neighborhood, website, instagram, JSON.stringify(offerings), offeringsOther, JSON.stringify(places), commissionStatus, priceMin, priceMax, sizeMin, sizeMax]);
 
   // ─── Images ──────────────────────────────────────────────────────────
 
@@ -233,10 +252,6 @@ export default function OnboardingForm({ initialData }: { places: Place[]; userE
     } catch (err) { setUploadError(err instanceof Error ? err.message : "Upload failed."); }
     setUploadingBio(false);
     e.target.value = "";
-  }
-
-  function setHero(id: string) {
-    setImages((prev) => prev.map((img) => ({ ...img, isHero: img.id === id })));
   }
 
   async function handleGalleryReplace(oldId: string, e: React.ChangeEvent<HTMLInputElement>) {
@@ -550,6 +565,41 @@ export default function OnboardingForm({ initialData }: { places: Place[]; userE
                 />
               </div>
             </label>
+          </div>
+        </fieldset>
+
+        <fieldset className="mb-4">
+          <legend className={LABEL}>Commission availability</legend>
+          <div className="flex flex-wrap gap-2 mb-5">
+            {COMMISSION_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setCommissionStatus(opt.value)}
+                className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${commissionStatus === opt.value ? "bg-[#1a1a1a] text-white border-[#1a1a1a]" : "bg-white text-[#555] border-[#e0e0e0] hover:border-[#999]"}`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex gap-3 flex-wrap">
+            <div className="flex-1 min-w-[200px]">
+              <p className={LABEL}>Price range (USD)</p>
+              <div className="flex items-center gap-2">
+                <input type="number" min="0" value={priceMin} onChange={(e) => setPriceMin(e.target.value)} placeholder="Min" className={FIELD} />
+                <span className="text-[#ccc]">–</span>
+                <input type="number" min="0" value={priceMax} onChange={(e) => setPriceMax(e.target.value)} placeholder="Max" className={FIELD} />
+              </div>
+            </div>
+            <div className="flex-1 min-w-[200px]">
+              <p className={LABEL}>Size range (inches)</p>
+              <div className="flex items-center gap-2">
+                <input type="number" min="0" value={sizeMin} onChange={(e) => setSizeMin(e.target.value)} placeholder="Min" className={FIELD} />
+                <span className="text-[#ccc]">–</span>
+                <input type="number" min="0" value={sizeMax} onChange={(e) => setSizeMax(e.target.value)} placeholder="Max" className={FIELD} />
+              </div>
+            </div>
           </div>
         </fieldset>
       </div>

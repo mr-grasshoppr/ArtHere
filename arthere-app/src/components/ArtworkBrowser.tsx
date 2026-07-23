@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { FilterDropdown, pillClass } from './FilterDropdown';
 
 interface CropBox { x: number; y: number; w: number; h: number; }
 
@@ -39,11 +40,6 @@ interface SequenceItem {
 }
 
 type DropdownKey = 'medium' | 'neighborhood' | 'community';
-
-const PILL_BASE =
-  'px-[13px] py-[5px] rounded-full border text-[0.78rem] transition-colors whitespace-nowrap cursor-pointer';
-const PILL_INACTIVE = 'border-[#444] text-[#888] bg-transparent hover:border-[#888] hover:text-[#ccc]';
-const PILL_ACTIVE = 'bg-white border-white text-black';
 
 function shuffle<T>(arr: T[]): T[] {
   const a = arr.slice();
@@ -83,61 +79,6 @@ function buildSequence(artists: ArtworkArtistData[]): SequenceItem[] {
     lastWasTall = useTall;
     return { ...item, tall: useTall };
   });
-}
-
-interface FilterDropdownProps {
-  label: string;
-  pluralLabel: string;
-  options: string[];
-  value: string;
-  onChange: (value: string) => void;
-  isOpen: boolean;
-  onToggle: () => void;
-}
-
-function FilterDropdown({ label, pluralLabel, options, value, onChange, isOpen, onToggle }: FilterDropdownProps) {
-  const buttonLabel = value ? `${value} ▾` : `${label} ▾`;
-
-  return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={e => { e.stopPropagation(); onToggle(); }}
-        className={`${PILL_BASE} ${value ? PILL_ACTIVE : PILL_INACTIVE}`}
-      >
-        {buttonLabel}
-      </button>
-
-      {isOpen && (
-        <div className="absolute top-[calc(100%+6px)] left-0 bg-[#1a1a1a] border border-[#333] rounded-md overflow-hidden min-w-[170px] z-[100] shadow-[0_4px_16px_rgba(0,0,0,0.5)]">
-          <button
-            type="button"
-            onClick={e => { e.stopPropagation(); onChange(''); }}
-            className={`block w-full text-left px-4 py-2.5 text-[0.82rem] border-b border-[#222] transition-colors hover:bg-[#222] hover:text-white ${
-              value === '' ? 'text-white' : 'text-[#888]'
-            }`}
-          >
-            All {pluralLabel}
-          </button>
-          {options.length === 0 && (
-            <div className="px-4 py-2.5 text-[0.82rem] text-[#555] italic">Nothing tagged yet</div>
-          )}
-          {options.map(opt => (
-            <button
-              key={opt}
-              type="button"
-              onClick={e => { e.stopPropagation(); onChange(opt); }}
-              className={`block w-full text-left px-4 py-2.5 text-[0.82rem] border-b border-[#222] last:border-b-0 transition-colors hover:bg-[#222] hover:text-white ${
-                value === opt ? 'text-white' : 'text-[#888]'
-              }`}
-            >
-              {opt}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
 }
 
 /**
@@ -194,9 +135,11 @@ export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, co
   );
   if (filtered.length === 0) filtered = artists;
 
-  // Re-shuffle the grid whenever the filters change. Built on the client so
-  // the randomized order doesn't cause a server/client markup mismatch.
+  // Re-shuffle the grid whenever the filters change. Built on the client
+  // (not useMemo) so the randomized order can't cause a server/client
+  // hydration mismatch — the first paint is intentionally empty.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSequence(buildSequence(filtered));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mediumFilter, neighborhoodFilter, communityFilter, artists]);
@@ -230,12 +173,13 @@ export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, co
         <button
           type="button"
           onClick={clearFilters}
-          className={`${PILL_BASE} ${!hasFilter ? PILL_ACTIVE : PILL_INACTIVE}`}
+          className={pillClass('dark', !hasFilter)}
         >
           All
         </button>
 
         <FilterDropdown
+          theme="dark"
           label="Medium"
           pluralLabel="mediums"
           options={mediumOptions}
@@ -245,6 +189,7 @@ export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, co
           onToggle={() => toggleDropdown('medium')}
         />
         <FilterDropdown
+          theme="dark"
           label="Neighborhood"
           pluralLabel="neighborhoods"
           options={neighborhoodOptions}
@@ -254,6 +199,7 @@ export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, co
           onToggle={() => toggleDropdown('neighborhood')}
         />
         <FilterDropdown
+          theme="dark"
           label="Community"
           pluralLabel="communities"
           options={communityOptions}

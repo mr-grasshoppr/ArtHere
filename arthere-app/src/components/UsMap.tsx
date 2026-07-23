@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { feature } from 'topojson-client';
-import type { Topology } from 'topojson-specification';
+import type { Topology, GeometryCollection } from 'topojson-specification';
+import type { FeatureCollection, Geometry } from 'geojson';
 
 interface CityDef {
   code: string;
@@ -41,6 +42,9 @@ export function UsMap() {
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const [tip, setTip] = useState<{ x: number; y: number; lines: string[] } | null>(null);
+  // Rendered svg dimensions, captured when the map is drawn — the tooltip
+  // math needs them, and reading refs during render is not allowed.
+  const [dims, setDims] = useState<{ w: number; h: number } | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -60,19 +64,23 @@ export function UsMap() {
     fetch('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json')
       .then(r => r.json())
       .then((topo: Topology) => {
-        const states = feature(topo, topo.objects.states as any);
+        const states = feature(
+          topo,
+          topo.objects.states as GeometryCollection
+        ) as FeatureCollection<Geometry>;
 
         const root = d3.select(svg);
         root.selectAll('*').remove();
         root.attr('viewBox', `0 0 ${W} ${H}`).attr('width', W).attr('height', H);
+        setDims({ w: W, h: H });
 
         // State fills
         root
           .append('g')
           .selectAll('path')
-          .data((states as any).features)
+          .data(states.features)
           .join('path')
-          .attr('d', pathGen as any)
+          .attr('d', pathGen)
           .attr('fill', '#eeede9')
           .attr('stroke', 'none');
 
@@ -130,12 +138,12 @@ export function UsMap() {
   return (
     <div ref={containerRef} className="relative w-full select-none">
       <svg ref={svgRef} className="w-full block" />
-      {tip && containerRef.current && svgRef.current && (
+      {tip && dims && (
         <div
           className="absolute z-10 pointer-events-none bg-[#1a1a1a] text-white rounded-md px-3 py-2 text-[0.78rem] leading-[1.55] whitespace-nowrap"
           style={{
-            left: `${(tip.x / (svgRef.current.clientWidth || 700)) * 100}%`,
-            top: `${(tip.y / (svgRef.current.clientHeight || 434)) * 100}%`,
+            left: `${(tip.x / dims.w) * 100}%`,
+            top: `${(tip.y / dims.h) * 100}%`,
             transform: 'translate(10px, -50%)',
           }}
         >

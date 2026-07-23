@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { SurveyForm } from '@/components/SurveyForm';
+import Link from 'next/link';
 import { AnimatedLogoMask } from '@/components/AnimatedLogoMask';
 
 /**
@@ -29,12 +30,12 @@ export function SurveyPageContent() {
           Your answers help us understand what Portland&rsquo;s arts community needs. We
           really appreciate you taking the time.
         </p>
-        <a
+        <Link
           href="/#about"
           className="inline-block px-7 py-3 rounded-full border border-[#1a1a1a] text-[0.9rem] font-medium text-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-white transition-colors"
         >
           Learn more about Art Here
-        </a>
+        </Link>
       </div>
     );
   }

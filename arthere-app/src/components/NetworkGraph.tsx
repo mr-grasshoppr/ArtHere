@@ -31,7 +31,6 @@ type SimLink = d3.SimulationLinkDatum<SimNode>;
 // fall back to a neutral gray.
 const PALETTE = d3.schemeTableau10;
 const UNKNOWN_COLOR = '#6b6b6b';
-const UNKNOWN_LABEL = 'Other';
 
 // City-level strings that should not appear as filter options in the legend —
 // they're too broad to be useful for neighborhood-level filtering.

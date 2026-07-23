@@ -30,7 +30,7 @@ export default async function AdminOverviewPage() {
       <h1 className="text-2xl font-medium mb-8">Overview</h1>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-12">
         {[
           { label: "Survey Responses", value: surveyCount, href: "/admin/survey" },
           { label: "Artist Profiles", value: artistCount, href: "/admin/artists" },

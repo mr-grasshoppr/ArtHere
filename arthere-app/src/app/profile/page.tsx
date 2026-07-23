@@ -100,9 +100,9 @@ export default async function ProfilePage() {
     <main className="max-w-3xl mx-auto px-4 py-12 bg-white text-[#1a1a1a]" style={{ colorScheme: "light" }}>
       {/* Header / nav */}
       <div className="flex justify-between items-center mb-10">
-        <a href="/" className="text-[#999] text-sm hover:text-[#1a1a1a] transition-colors">
+        <Link href="/" className="text-[#999] text-sm hover:text-[#1a1a1a] transition-colors">
           ← Art Here Portland
-        </a>
+        </Link>
         <Link
           href="/onboarding"
           className="text-sm font-medium bg-[#1a1a1a] text-white px-5 py-2 rounded-full hover:opacity-80 transition-opacity"
@@ -177,9 +177,10 @@ export default async function ProfilePage() {
       )}
 
       <div className="mt-10 pt-8 border-t border-[#f0f0f0]">
-        <a href="/artists" className="text-sm text-[#888] hover:text-[#1a1a1a] transition-colors">
+        {/* /artists alone is not a route — the public directory lives under /cities */}
+        <Link href="/cities/portland/artists" className="text-sm text-[#888] hover:text-[#1a1a1a] transition-colors">
           ← Portland Artists
-        </a>
+        </Link>
       </div>
     </main>
   );

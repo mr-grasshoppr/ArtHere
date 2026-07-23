@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db';
+import { getCityScope, artistScopeWhere } from '@/lib/city-scope';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -31,17 +32,12 @@ export default async function CityCommunityPage({
 }) {
   const { slug } = await params;
 
-  const city = await prisma.city.findUnique({ where: { slug } });
-  if (!city) notFound();
-
-  const linkedCity = slug.endsWith('-demo')
-    ? await prisma.city.findUnique({ where: { slug: slug.replace('-demo', '') }, select: { id: true } })
-    : null;
-  const cityIds = linkedCity ? [city.id, linkedCity.id] : [city.id];
-  const isDemo = slug.endsWith('-demo');
+  const scope = await getCityScope(slug);
+  if (!scope) notFound();
+  const { city, cityDisplayName } = scope;
 
   const cityArtists = await prisma.artist.findMany({
-    where: { cityId: { in: cityIds }, ...(!isDemo && { isPlaceholder: false }) },
+    where: artistScopeWhere(scope),
     orderBy: { name: 'asc' },
     include: {
       placeRelations: {
@@ -50,9 +46,6 @@ export default async function CityCommunityPage({
       },
     },
   });
-
-  const cityDisplayName =
-    city.displayName ?? `${city.name}${city.state ? `, ${city.state}` : ''}`;
 
   // Collect every place connected to one of this city's artists, along with
   // who's connected to it and how.

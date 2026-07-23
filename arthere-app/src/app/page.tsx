@@ -1,18 +1,10 @@
 import { prisma } from '@/lib/db';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Nunito } from 'next/font/google';
 import { NavBar } from '@/components/NavBar';
 import { UsMap } from '@/components/UsMap';
 import { SiteFooter } from '@/components/SiteFooter';
 import { AnimatedLogoMask } from '@/components/AnimatedLogoMask';
-
-const nunito = Nunito({
-  subsets: ['latin'],
-  weight: ['600', '700'],
-  variable: '--font-nunito',
-  display: 'swap',
-});
 
 export const dynamic = 'force-dynamic';
 
@@ -48,7 +40,7 @@ export default async function Home() {
   const cities = allCities.filter(c => !c.slug.endsWith('-demo'));
 
   return (
-    <div className={`${nunito.variable} min-h-full bg-white text-[#1a1a1a]`}>
+    <div className="min-h-full bg-white text-[#1a1a1a]">
       <NavBar theme="light" />
 
       {/* Hero: logo shape with artwork sliding behind it, plus cities list */}

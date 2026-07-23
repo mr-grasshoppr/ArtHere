@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db';
+import { getCityScope, artistScopeWhere } from '@/lib/city-scope';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { NavBar } from '@/components/NavBar';
@@ -28,26 +29,18 @@ export default async function CityArtworkPage({
 }) {
   const { slug } = await params;
 
-  const city = await prisma.city.findUnique({ where: { slug } });
-  if (!city) notFound();
-
-  const linkedCity = slug.endsWith('-demo')
-    ? await prisma.city.findUnique({ where: { slug: slug.replace('-demo', '') }, select: { id: true } })
-    : null;
-  const cityIds = linkedCity ? [city.id, linkedCity.id] : [city.id];
-  const isDemo = slug.endsWith('-demo');
+  const scope = await getCityScope(slug);
+  if (!scope) notFound();
+  const { city, cityDisplayName } = scope;
 
   const cityArtists = await prisma.artist.findMany({
-    where: { cityId: { in: cityIds }, ...(!isDemo && { isPlaceholder: false }) },
+    where: artistScopeWhere(scope),
     orderBy: { name: 'asc' },
     include: {
       artworkImages: { orderBy: { sortOrder: 'asc' } },
       placeRelations: { include: { place: true } },
     },
   });
-
-  const cityDisplayName =
-    city.displayName ?? `${city.name}${city.state ? `, ${city.state}` : ''}`;
 
   const artists: ArtworkArtistData[] = cityArtists
     .filter(artist => artist.artworkImages.length > 0)

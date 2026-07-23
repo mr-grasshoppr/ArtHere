@@ -59,24 +59,24 @@ export default async function AdminArtistsPage({
           {activeField && activeValue && (
             <span className="text-sm bg-[#f0f0f0] px-2 py-0.5 rounded-full text-[#555]">
               {activeField === "placeholder" ? (activeValue === "true" ? "Placeholder" : "Real") : activeValue}
-              <a href="/admin/artists" className="ml-1.5 text-[#bbb] hover:text-[#555]">✕</a>
+              <Link href="/admin/artists" className="ml-1.5 text-[#bbb] hover:text-[#555]">✕</Link>
             </span>
           )}
         </div>
         <div className="flex items-center gap-3">
           <div className="flex gap-1 text-xs">
-            <a
+            <Link
               href="/admin/artists?field=placeholder&value=true"
               className={`px-3 py-1.5 rounded-full border transition-colors ${activeField === "placeholder" && activeValue === "true" ? "bg-amber-50 border-amber-300 text-amber-700" : "border-[#e5e5e5] text-[#888] hover:border-[#999]"}`}
             >
               Placeholder
-            </a>
-            <a
+            </Link>
+            <Link
               href="/admin/artists?field=placeholder&value=false"
               className={`px-3 py-1.5 rounded-full border transition-colors ${activeField === "placeholder" && activeValue === "false" ? "bg-green-50 border-green-300 text-green-700" : "border-[#e5e5e5] text-[#888] hover:border-[#999]"}`}
             >
               Real
-            </a>
+            </Link>
           </div>
           <a
             href="/api/admin/export/artists"

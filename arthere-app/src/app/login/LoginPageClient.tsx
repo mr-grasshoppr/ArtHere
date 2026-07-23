@@ -3,16 +3,8 @@
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Nunito } from "next/font/google";
 import Link from "next/link";
 import { AnimatedLogoMask } from '@/components/AnimatedLogoMask';
-
-const nunito = Nunito({
-  subsets: ["latin"],
-  weight: ["600", "700"],
-  variable: "--font-nunito",
-  display: "swap",
-});
 
 const INPUT_CLASS =
   "w-full px-4 py-3 rounded-lg border border-[#e5e5e5] text-[0.95rem] text-[#1a1a1a] placeholder-[#bbb] focus:outline-none focus:border-[#1a1a1a] transition-colors bg-white";
@@ -52,7 +44,7 @@ export default function LoginPage() {
 
   if (verify) {
     return (
-      <div className={`${nunito.variable} min-h-screen bg-white text-[#1a1a1a]`}>
+      <div className="min-h-screen bg-white text-[#1a1a1a]">
         <SimpleNav />
         <main className="flex items-center justify-center px-4 pt-28 pb-16">
           <div className="w-full max-w-sm text-center">
@@ -73,7 +65,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className={`${nunito.variable} min-h-screen flex items-center justify-center px-4 bg-white text-[#1a1a1a]`}>
+    <main className="min-h-screen flex items-center justify-center px-4 bg-white text-[#1a1a1a]">
       <div className="w-full max-w-sm">
         <div className="mb-10 text-center">
           <Link href="/" className="inline-block mb-8">

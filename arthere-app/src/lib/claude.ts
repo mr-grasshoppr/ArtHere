@@ -85,63 +85,6 @@ Return ONLY the JSON object, no other text. Be specific about colors (e.g. "dust
   return parseModelJson<ArtworkTags>(text);
 }
 
-// ─── Natural Language Search ──────────────────────────────────────────────────
-
-export interface SearchIntent {
-  query: string;
-  filters: {
-    medium?: string[];
-    colors?: string[];
-    scale?: string[];
-    style?: string[];
-    subjects?: string[];
-    indoor_outdoor?: string;
-    mood?: string[];
-    wall_art?: boolean;
-    functional?: boolean;
-    commissions_open?: boolean;
-  };
-  explanation: string; // brief explanation of how the query was interpreted
-}
-
-export async function parseSearchQuery(query: string): Promise<SearchIntent> {
-  const response = await client.messages.create({
-    model: "claude-haiku-4-5",
-    max_tokens: 600,
-    messages: [
-      {
-        role: "user",
-        content: `You are helping match art buyers with Portland artists. Parse this search query into structured filters.
-
-Query: "${query}"
-
-Return a JSON object:
-{
-  "query": "${query}",
-  "filters": {
-    "medium": ["optional", "list"] or null,
-    "colors": ["optional", "dominant colors"] or null,
-    "scale": ["small", "medium", "large", "monumental"] or null,
-    "style": ["optional", "styles"] or null,
-    "subjects": ["optional", "subjects"] or null,
-    "indoor_outdoor": "indoor|outdoor|both" or null,
-    "mood": ["optional", "moods"] or null,
-    "wall_art": true/false/null,
-    "functional": true/false/null,
-    "commissions_open": true/false/null
-  },
-  "explanation": "Brief plain-English explanation of search interpretation"
-}
-
-Only include filters that the query clearly implies. Return ONLY the JSON.`,
-      },
-    ],
-  });
-
-  const text = response.content[0].type === "text" ? response.content[0].text : "";
-  return parseModelJson<SearchIntent>(text);
-}
-
 // ─── Artist Directory Search ───────────────────────────────────────────────────
 
 export interface ArtistSearchCandidate {
@@ -213,58 +156,6 @@ Only include artists with score >= 40, sorted by score descending. If nothing ma
 
   const text = response.content[0].type === "text" ? response.content[0].text : '{"matches":[],"explanation":""}';
   return parseModelJson<ArtistSearchResult>(text);
-}
-
-export interface ScoredArtwork {
-  artworkId: string;
-  artistId: string;
-  score: number; // 0-100
-  reason: string;
-}
-
-export async function rankResultsWithClaude(
-  query: string,
-  candidates: Array<{
-    artworkId: string;
-    artistId: string;
-    artistName: string;
-    imageUrl: string;
-    aiTags: ArtworkTags | null;
-    intake: object | null;
-  }>
-): Promise<ScoredArtwork[]> {
-  if (candidates.length === 0) return [];
-
-  const summaries = candidates.map((c, i) => ({
-    index: i,
-    artworkId: c.artworkId,
-    artistId: c.artistId,
-    artistName: c.artistName,
-    tags: c.aiTags,
-    intake: c.intake,
-  }));
-
-  const response = await client.messages.create({
-    model: "claude-haiku-4-5",
-    max_tokens: 1200,
-    messages: [
-      {
-        role: "user",
-        content: `Rank these artworks for relevance to the search query: "${query}"
-
-Artworks:
-${JSON.stringify(summaries, null, 2)}
-
-Return a JSON array of objects, one per artwork, sorted by relevance descending:
-[{ "artworkId": "...", "artistId": "...", "score": 0-100, "reason": "brief reason" }]
-
-Score 80+ only for strong matches. Return ONLY the JSON array.`,
-      },
-    ],
-  });
-
-  const text = response.content[0].type === "text" ? response.content[0].text : "[]";
-  return parseModelJson<ScoredArtwork[]>(text);
 }
 
 // ─── Artwork Crop Detection ───────────────────────────────────────────────────

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ArtistsGrid, type ArtistCardData } from './ArtistsGrid';
+import { FilterDropdown, pillClass } from './FilterDropdown';
 
 interface Props {
   citySlug: string;
@@ -18,66 +19,6 @@ interface SearchMatch {
 }
 
 type DropdownKey = 'medium' | 'neighborhood' | 'community';
-
-const PILL_BASE =
-  'px-4 py-[7px] rounded-full border text-[0.82rem] transition-colors whitespace-nowrap cursor-pointer';
-const PILL_INACTIVE = 'border-[#ddd] text-[#888] bg-transparent hover:border-[#999] hover:text-[#444]';
-const PILL_ACTIVE = 'bg-[#1a1a1a] border-[#1a1a1a] text-white';
-
-interface FilterDropdownProps {
-  label: string;
-  pluralLabel: string;
-  options: string[];
-  value: string;
-  onChange: (value: string) => void;
-  isOpen: boolean;
-  onToggle: () => void;
-}
-
-function FilterDropdown({ label, pluralLabel, options, value, onChange, isOpen, onToggle }: FilterDropdownProps) {
-  const buttonLabel = value ? `${value} ▾` : `${label} ▾`;
-
-  return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={e => { e.stopPropagation(); onToggle(); }}
-        className={`${PILL_BASE} ${value ? PILL_ACTIVE : PILL_INACTIVE}`}
-      >
-        {buttonLabel}
-      </button>
-
-      {isOpen && (
-        <div className="absolute top-[calc(100%+6px)] left-0 bg-white border border-[#ddd] rounded-lg overflow-hidden min-w-[180px] z-[100] shadow-[0_4px_16px_rgba(0,0,0,0.1)]">
-          <button
-            type="button"
-            onClick={e => { e.stopPropagation(); onChange(''); }}
-            className={`block w-full text-left px-[18px] py-2.5 text-[0.85rem] border-b border-[#f5f5f5] transition-colors hover:bg-[#fafafa] hover:text-[#1a1a1a] ${
-              value === '' ? 'text-[#1a1a1a] font-medium' : 'text-[#666]'
-            }`}
-          >
-            All {pluralLabel}
-          </button>
-          {options.length === 0 && (
-            <div className="px-[18px] py-2.5 text-[0.85rem] text-[#bbb] italic">Nothing tagged yet</div>
-          )}
-          {options.map(opt => (
-            <button
-              key={opt}
-              type="button"
-              onClick={e => { e.stopPropagation(); onChange(opt); }}
-              className={`block w-full text-left px-[18px] py-2.5 text-[0.85rem] border-b border-[#f5f5f5] last:border-b-0 transition-colors hover:bg-[#fafafa] hover:text-[#1a1a1a] ${
-                value === opt ? 'text-[#1a1a1a] font-medium' : 'text-[#666]'
-              }`}
-            >
-              {opt}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 /**
  * Filter pills (Medium / Neighborhood / Community) plus a search box for a
@@ -170,7 +111,7 @@ export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOp
           <button
             type="button"
             onClick={clearFilters}
-            className={`${PILL_BASE} ${!hasFilter ? PILL_ACTIVE : PILL_INACTIVE}`}
+            className={pillClass('light', !hasFilter)}
           >
             All
           </button>
@@ -214,7 +155,7 @@ export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOp
             <button
               type="submit"
               disabled={loading || !query.trim()}
-              className={`${PILL_BASE} ${PILL_ACTIVE} disabled:opacity-40 disabled:cursor-not-allowed border-none`}
+              className={`${pillClass('light', true)} disabled:opacity-40 disabled:cursor-not-allowed border-none`}
             >
               {loading ? 'Searching…' : 'Search'}
             </button>
