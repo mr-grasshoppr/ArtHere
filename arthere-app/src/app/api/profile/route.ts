@@ -6,6 +6,7 @@ import { PlaceRelationship } from "@prisma/client";
 import { parseHireText } from "@/lib/claude";
 import { profileSchema, parseBody } from "@/lib/schemas";
 import { slugify } from "@/lib/slug";
+import { snapshotArtist } from "@/lib/profile-revision";
 
 // GET — fetch current user's artist profile
 export async function GET() {
@@ -209,6 +210,9 @@ export async function POST(req: NextRequest) {
       },
     });
   }
+
+  // Record an append-only revision snapshot of the just-saved profile.
+  await snapshotArtist(artist.id, "artist", session.user.email);
 
   // Parse hireFor text into structured tags after the response is sent.
   // waitUntil keeps the function alive; a bare promise would be frozen.

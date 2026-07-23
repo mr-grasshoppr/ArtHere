@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { placeProfileSchema, parseBody } from '@/lib/schemas';
+import { snapshotPlace } from '@/lib/profile-revision';
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -26,6 +27,8 @@ export async function POST(req: NextRequest) {
       galleryImages: Array.isArray(galleryImages) ? galleryImages : undefined,
     },
   });
+
+  await snapshotPlace(updated.id, 'place', session.user.email);
 
   return NextResponse.json({ ok: true, slug: updated.slug });
 }

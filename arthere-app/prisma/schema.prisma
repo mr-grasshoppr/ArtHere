@@ -339,3 +339,22 @@ model AdminNote {
 
   @@index([artistId])
 }
+
+// ─── Profile Revision History ─────────────────────────────────────────────────
+// An append-only audit trail: one row is written on every profile save (artist
+// or place), capturing the full post-save state as JSON. Never updated or
+// deleted by the app — it's the record of "what was shared" over time. Not a
+// foreign-key relation on purpose, so a revision survives even if the artist or
+// place row is later deleted.
+
+model ProfileRevision {
+  id          String   @id @default(cuid())
+  entityType  String   // "artist" | "place"
+  entityId    String   // the Artist.id or Place.id this revision belongs to
+  editedBy    String   // "artist" | "place" | "admin" | "system"
+  editorEmail String?  // email of the account that made the change, when known
+  snapshot    Json     // full profile snapshot (fields + relations + image list)
+  createdAt   DateTime @default(now())
+
+  @@index([entityType, entityId, createdAt])
+}

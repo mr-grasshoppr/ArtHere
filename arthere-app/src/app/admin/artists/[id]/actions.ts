@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { PlaceRelationship } from "@prisma/client";
 import { sendMagicLink } from "@/lib/magic-link";
 import { requireAdmin } from "@/lib/admin";
+import { snapshotArtist } from "@/lib/profile-revision";
 
 export async function sendArtistInvite(artistId: string) {
   await requireAdmin();
@@ -37,7 +38,7 @@ type ProfileInput = {
 };
 
 export async function updateArtistProfile(artistId: string, data: ProfileInput) {
-  await requireAdmin();
+  const session = await requireAdmin();
 
   const artist = await prisma.artist.update({
     where: { id: artistId },
@@ -73,21 +74,23 @@ export async function updateArtistProfile(artistId: string, data: ProfileInput) 
     });
   }
 
+  await snapshotArtist(artistId, "admin", session.user?.email);
   return artist;
 }
 
 export async function setHeroImage(artistId: string, imageId: string) {
-  await requireAdmin();
+  const session = await requireAdmin();
   const image = await prisma.artworkImage.findUnique({ where: { id: imageId } });
   if (!image || image.artistId !== artistId) throw new Error("Image not found");
 
   await prisma.artworkImage.updateMany({ where: { artistId }, data: { isHero: false } });
   await prisma.artworkImage.update({ where: { id: imageId }, data: { isHero: true } });
   await prisma.artist.update({ where: { id: artistId }, data: { heroImageUrl: image.url } });
+  await snapshotArtist(artistId, "admin", session.user?.email);
 }
 
 export async function deleteImage(artistId: string, imageId: string) {
-  await requireAdmin();
+  const session = await requireAdmin();
   const image = await prisma.artworkImage.findUnique({ where: { id: imageId } });
   if (!image || image.artistId !== artistId) throw new Error("Image not found");
   await prisma.artworkImage.delete({ where: { id: imageId } });
@@ -95,9 +98,11 @@ export async function deleteImage(artistId: string, imageId: string) {
     const next = await prisma.artworkImage.findFirst({ where: { artistId }, orderBy: { sortOrder: "asc" } });
     await prisma.artist.update({ where: { id: artistId }, data: { heroImageUrl: next?.url ?? null } });
   }
+  await snapshotArtist(artistId, "admin", session.user?.email);
 }
 
 export async function setBioPhoto(artistId: string, url: string) {
-  await requireAdmin();
+  const session = await requireAdmin();
   await prisma.artist.update({ where: { id: artistId }, data: { bioPhotoUrl: url } });
+  await snapshotArtist(artistId, "admin", session.user?.email);
 }
