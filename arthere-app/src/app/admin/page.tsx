@@ -2,11 +2,12 @@ import { prisma } from "@/lib/db";
 import Link from "next/link";
 
 export default async function AdminOverviewPage() {
-  const [surveyCount, artistCount, userCount, noteCount] = await Promise.all([
+  const [surveyCount, artistCount, userCount, noteCount, contactCount] = await Promise.all([
     prisma.surveyResponse.count(),
     prisma.artist.count(),
     prisma.user.count(),
     prisma.adminNote.count(),
+    prisma.contactSubmission.count(),
   ]);
 
   const recentSurveys = await prisma.surveyResponse.findMany({
@@ -32,6 +33,7 @@ export default async function AdminOverviewPage() {
           { label: "Artist Profiles", value: artistCount, href: "/admin/artists" },
           { label: "Registered Users", value: userCount, href: "/admin/artists" },
           { label: "Admin Notes", value: noteCount, href: "/admin/artists" },
+          { label: "Contact Submissions", value: contactCount, href: "/admin/contacts" },
         ].map((stat) => (
           <Link
             key={stat.label}

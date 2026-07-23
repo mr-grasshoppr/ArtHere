@@ -242,6 +242,53 @@ Score 80+ only for strong matches. Return ONLY the JSON array.`,
   return JSON.parse(text) as ScoredArtwork[];
 }
 
+// ─── Artwork Crop Detection ───────────────────────────────────────────────────
+
+export interface ArtworkCropBox {
+  x: number; // left edge as fraction of image width (0–1)
+  y: number; // top edge as fraction of image height (0–1)
+  w: number; // width as fraction of image width (0–1)
+  h: number; // height as fraction of image height (0–1)
+}
+
+export async function detectArtworkCrop(imageUrl: string): Promise<ArtworkCropBox | null> {
+  const response = await client.messages.create({
+    model: "claude-opus-4-5",
+    max_tokens: 200,
+    messages: [
+      {
+        role: "user",
+        content: [
+          { type: "image", source: { type: "url", url: imageUrl } },
+          {
+            type: "text",
+            text: `Look at this artwork image.
+
+If a frame, mat, wall, or background surface is clearly visible around a flat wall-hanging work (painting, drawing, print, etc.), return the bounding box of just the artwork surface as JSON — excluding any visible frame, mat, or wall:
+{"x": 0.0, "y": 0.0, "w": 1.0, "h": 1.0}
+where x and y are the top-left corner (as fractions of full image width/height) and w and h are the width and height of the artwork region (as fractions of full image width/height).
+
+If the image shows a ceramic, sculpture, textile, fiber art, or other 3D/object work — OR if the artwork already fills the frame with no visible border, wall, or mat — return: null
+
+Respond with ONLY the JSON object or null, nothing else.`,
+          },
+        ],
+      },
+    ],
+  });
+
+  const text = (response.content[0].type === "text" ? response.content[0].text : "").trim();
+  if (text === "null" || !text) return null;
+  try {
+    const parsed = JSON.parse(text) as ArtworkCropBox;
+    // Sanity-check: reject degenerate boxes
+    if (parsed.w <= 0.05 || parsed.h <= 0.05 || parsed.w > 1 || parsed.h > 1) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
 // ─── Hire Text Parsing ────────────────────────────────────────────────────────
 
 export interface HireTags {

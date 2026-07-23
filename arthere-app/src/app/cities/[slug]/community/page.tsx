@@ -31,22 +31,25 @@ export default async function CityCommunityPage({
 }) {
   const { slug } = await params;
 
-  const city = await prisma.city.findUnique({
-    where: { slug },
+  const city = await prisma.city.findUnique({ where: { slug } });
+  if (!city) notFound();
+
+  const linkedCity = slug.endsWith('-demo')
+    ? await prisma.city.findUnique({ where: { slug: slug.replace('-demo', '') }, select: { id: true } })
+    : null;
+  const cityIds = linkedCity ? [city.id, linkedCity.id] : [city.id];
+  const isDemo = slug.endsWith('-demo');
+
+  const cityArtists = await prisma.artist.findMany({
+    where: { cityId: { in: cityIds }, ...(!isDemo && { isPlaceholder: false }) },
+    orderBy: { name: 'asc' },
     include: {
-      artists: {
-        orderBy: { name: 'asc' },
-        include: {
-          placeRelations: {
-            orderBy: { createdAt: 'asc' },
-            include: { place: true },
-          },
-        },
+      placeRelations: {
+        orderBy: { createdAt: 'asc' },
+        include: { place: true },
       },
     },
   });
-
-  if (!city) notFound();
 
   const cityDisplayName =
     city.displayName ?? `${city.name}${city.state ? `, ${city.state}` : ''}`;
@@ -55,7 +58,7 @@ export default async function CityCommunityPage({
   // who's connected to it and how.
   const placeMap = new Map<string, CommunityPlaceData>();
 
-  for (const artist of city.artists) {
+  for (const artist of cityArtists) {
     for (const rel of artist.placeRelations) {
       const { place } = rel;
 
@@ -84,7 +87,20 @@ export default async function CityCommunityPage({
     }
   }
 
-  const places = [...placeMap.values()].sort((a, b) => a.name.localeCompare(b.name));
+  const PLACE_ORDER = [
+    'multnomah-arts-center',
+    'comeunity-pdx',
+    'nw-marine-art-works',
+    'alberta-street-gallery',
+  ];
+  const places = [...placeMap.values()].sort((a, b) => {
+    const ai = PLACE_ORDER.indexOf(a.slug);
+    const bi = PLACE_ORDER.indexOf(b.slug);
+    if (ai === -1 && bi === -1) return a.name.localeCompare(b.name);
+    if (ai === -1) return 1;
+    if (bi === -1) return -1;
+    return ai - bi;
+  });
 
   const isCityLevel = (v: string) => /^(Portland(,?\s*(OR|Oregon))?|Vancouver(,?\s*WA)?)$/i.test(v);
   const neighborhoodOptions = [
@@ -105,7 +121,7 @@ export default async function CityCommunityPage({
       </div>
 
       {places.length > 0 ? (
-        <CommunityBrowser places={places} neighborhoodOptions={neighborhoodOptions} />
+        <CommunityBrowser places={places} neighborhoodOptions={neighborhoodOptions} citySlug={slug} />
       ) : (
         <div className="max-w-[1400px] mx-auto px-5 sm:px-10 py-16 text-center text-[#999] text-[0.95rem]">
           No community connections yet.

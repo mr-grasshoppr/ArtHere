@@ -3,7 +3,7 @@
   "configurations": [
     {
       "name": "arthere-app",
-      "runtimeExecutable": "/tmp/node-shims/npm",
+      "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 3000
     },

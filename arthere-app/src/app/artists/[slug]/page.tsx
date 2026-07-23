@@ -51,7 +51,9 @@ export default async function ArtistPage({
     artist.artworkImages[0]?.url ??
     null;
 
-  const galleryImages = artist.artworkImages.filter(img => !img.isHero);
+  const galleryImages = artist.artworkImages
+    .filter(img => !img.isHero && img.url !== artist.heroImageUrl)
+    .slice(0, 3);
 
   const metaParts = [
     artist.medium,
@@ -139,16 +141,18 @@ export default async function ArtistPage({
             })}
             {(artist.website || artist.instagram) && (
               <p className="text-[#999] text-[0.9rem]">
-                {artist.website && (
-                  <a
-                    href={artist.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#999] underline underline-offset-4 decoration-[#ddd] hover:text-[#1a1a1a] hover:decoration-[#aaa] transition-colors"
-                  >
-                    {artist.website.replace(/^https?:\/\//, '')}
-                  </a>
-                )}
+                {artist.website && (() => {
+                  const label = artist.websiteLabel;
+                  const match = label?.match(/^(.*?)\[(.+?)\](.*)$/);
+                  if (match) {
+                    return <span>{match[1]}<a href={artist.website} target="_blank" rel="noopener noreferrer" className="text-[#999] underline underline-offset-4 decoration-[#ddd] hover:text-[#1a1a1a] hover:decoration-[#aaa] transition-colors">{match[2]}</a>{match[3]}.</span>;
+                  }
+                  return (
+                    <a href={artist.website} target="_blank" rel="noopener noreferrer" className="text-[#999] underline underline-offset-4 decoration-[#ddd] hover:text-[#1a1a1a] hover:decoration-[#aaa] transition-colors">
+                      {label ?? artist.website.replace(/^https?:\/\//, '')}
+                    </a>
+                  );
+                })()}
                 {artist.website && artist.instagram && ' · '}
                 {artist.instagram && (
                   <a

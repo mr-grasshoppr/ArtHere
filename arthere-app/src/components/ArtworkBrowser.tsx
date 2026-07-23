@@ -1,11 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
+interface CropBox { x: number; y: number; w: number; h: number; }
+
 export interface ArtworkImageData {
   src: string;
+  cropBox?: CropBox | null;
   alt: string;
   isHero: boolean;
 }
@@ -29,6 +32,7 @@ interface Props {
 
 interface SequenceItem {
   src: string;
+  cropBox?: CropBox | null;
   alt: string;
   tall: boolean;
   url: string;
@@ -67,7 +71,7 @@ function buildSequence(artists: ArtworkArtistData[]): SequenceItem[] {
     for (const q of shuffle(queues)) {
       const img = q.queue.shift();
       if (img) {
-        raw.push({ src: img.src, alt: img.alt, tall: img.isHero, url: q.url });
+        raw.push({ src: img.src, cropBox: img.cropBox, alt: img.alt, tall: img.isHero, url: q.url });
         if (q.queue.length > 0) remaining = true;
       }
     }
@@ -132,6 +136,39 @@ function FilterDropdown({ label, pluralLabel, options, value, onChange, isOpen, 
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * Renders an artwork image cropped to show only the artwork surface,
+ * excluding any visible frame, wall, or mat. Uses onLoad to get natural
+ * image dimensions and applies exact CSS positioning.
+ */
+function CroppedTile({ src, alt, cropBox }: { src: string; alt: string; cropBox: CropBox }) {
+  const ref = useRef<HTMLImageElement>(null);
+
+  const onLoad = () => {
+    const img = ref.current;
+    if (!img?.parentElement) return;
+    const { naturalWidth: iw, naturalHeight: ih } = img;
+    const { offsetWidth: cw, offsetHeight: ch } = img.parentElement;
+    const { x, y, w, h } = cropBox;
+    const scale = Math.max(cw / (w * iw), ch / (h * ih));
+    Object.assign(img.style, {
+      position: 'absolute',
+      width: `${iw * scale}px`,
+      height: `${ih * scale}px`,
+      left: `${-x * iw * scale}px`,
+      top: `${-y * ih * scale}px`,
+      maxWidth: 'none',
+      transition: 'transform 300ms',
+    });
+  };
+
+  return (
+    <div className="absolute inset-0 overflow-hidden group-hover:scale-[1.04] transition-transform duration-300">
+      <img ref={ref} src={src} alt={alt} onLoad={onLoad} className="block" loading="eager" />
     </div>
   );
 }
@@ -234,13 +271,17 @@ export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, co
             href={item.url}
             className={`group relative block overflow-hidden rounded-md bg-[#111] ${item.tall ? 'row-span-2' : ''}`}
           >
-            <Image
-              src={item.src}
-              alt={item.alt}
-              fill
-              sizes="(max-width: 640px) 33vw, 25vw"
-              className="object-cover object-[center_35%] transition-transform duration-300 group-hover:scale-[1.04]"
-            />
+            {item.cropBox ? (
+              <CroppedTile src={item.src} alt={item.alt} cropBox={item.cropBox} />
+            ) : (
+              <Image
+                src={item.src}
+                alt={item.alt}
+                fill
+                sizes="(max-width: 640px) 33vw, 25vw"
+                className="object-cover object-[center_35%] transition-transform duration-300 group-hover:scale-[1.04]"
+              />
+            )}
           </Link>
         ))}
       </div>

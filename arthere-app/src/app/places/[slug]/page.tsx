@@ -16,6 +16,7 @@ const RELATIONSHIP_LABELS: Record<PlaceRelationship, string> = {
   EXHIBITING_ARTIST: 'Exhibiting Artist',
   MEMBER: 'Member',
   IN_SHOP: '',
+  OTHER: '',
 };
 
 export async function generateStaticParams() {
@@ -74,7 +75,7 @@ export default async function PlacePage({
             alt={place.name}
             fill
             sizes="100vw"
-            className="object-cover"
+            className="object-cover object-[center_100px]"
             priority
           />
         </section>
@@ -103,7 +104,7 @@ export default async function PlacePage({
                   rel="noopener noreferrer"
                   className="text-[#999] underline underline-offset-4 decoration-[#ddd] hover:text-[#1a1a1a] hover:decoration-[#aaa] transition-colors"
                 >
-                  {place.website.replace(/^https?:\/\//, '')}
+                  {place.websiteLabel ?? place.website.replace(/^https?:\/\//, '')}
                 </a>
               </p>
             )}
@@ -124,8 +125,8 @@ export default async function PlacePage({
                 >
                   {rel.artist.name}
                 </Link>
-                {RELATIONSHIP_LABELS[rel.relationship] && (
-                  <span className="text-[#bbb] font-light"> · {RELATIONSHIP_LABELS[rel.relationship]}</span>
+                {(rel.relationship === 'OTHER' ? rel.relationshipLabel : RELATIONSHIP_LABELS[rel.relationship]) && (
+                  <span className="text-[#bbb] font-light"> · {rel.relationship === 'OTHER' ? rel.relationshipLabel : RELATIONSHIP_LABELS[rel.relationship]}</span>
                 )}
               </div>
             ))}

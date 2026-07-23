@@ -13,6 +13,7 @@ export interface ArtistCardData {
 
 interface Props {
   artists: ArtistCardData[];
+  citySlug?: string;
 }
 
 /**
@@ -20,7 +21,7 @@ interface Props {
  * neighborhood). Each card links to that artist's profile page.
  * Used by the city "artists" tab and reusable for future directory views.
  */
-export function ArtistsGrid({ artists }: Props) {
+export function ArtistsGrid({ artists, citySlug }: Props) {
   if (artists.length === 0) {
     return (
       <div className="max-w-[1400px] mx-auto px-5 sm:px-10 py-16 text-center text-[#888]">
@@ -34,7 +35,7 @@ export function ArtistsGrid({ artists }: Props) {
       {artists.map(artist => (
         <Link
           key={artist.slug}
-          href={`/artists/${artist.slug}`}
+          href={citySlug ? `/cities/${citySlug}/artists/${artist.slug}` : `/artists/${artist.slug}`}
           className="block text-center text-inherit no-underline transition-opacity duration-200 hover:opacity-80"
         >
           <div className="w-full aspect-square rounded-full overflow-hidden bg-[#f4f4f0] mb-3.5">

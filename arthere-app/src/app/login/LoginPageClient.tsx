@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Nunito } from "next/font/google";
 import Link from "next/link";
-import styles from "./page.module.css";
+import { AnimatedLogoMask } from '@/components/AnimatedLogoMask';
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -77,10 +77,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="mb-10 text-center">
           <Link href="/" className="inline-block mb-8">
-            <div className={`${styles.logoMask} mx-auto`}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/images/hero-painting.jpg" alt="Art Here" />
-            </div>
+            <AnimatedLogoMask width="min(55vw, 220px)" className="mx-auto" />
           </Link>
           <h1 className="font-heading text-[1.7rem] font-bold tracking-[-0.01em] leading-[1.2] mb-3">
             Join us to put artists on the map!

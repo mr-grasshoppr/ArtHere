@@ -91,6 +91,7 @@ export async function POST(req: NextRequest) {
     priceRangeMax: priceRangeMax ? Number(priceRangeMax) : null,
     sizeRangeMin: sizeRangeMin ? Number(sizeRangeMin) : null,
     sizeRangeMax: sizeRangeMax ? Number(sizeRangeMax) : null,
+    isPlaceholder: false,
   };
 
   let artist;
@@ -113,8 +114,8 @@ export async function POST(req: NextRequest) {
   if (Array.isArray(placeRelations)) {
     await prisma.artistPlace.deleteMany({ where: { artistId: artist.id } });
 
-    const resolved: { placeId: string; relationship: PlaceRelationship }[] = [];
-    for (const r of placeRelations as { placeId?: string; placeName?: string; relationship: string }[]) {
+    const resolved: { placeId: string; relationship: PlaceRelationship; relationshipLabel: string | null }[] = [];
+    for (const r of placeRelations as { placeId?: string; placeName?: string; relationship: string; relationshipLabel?: string | null }[]) {
       if (!r.relationship) continue;
 
       let placeId = r.placeId;
@@ -142,7 +143,7 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      resolved.push({ placeId, relationship: r.relationship as PlaceRelationship });
+      resolved.push({ placeId, relationship: r.relationship as PlaceRelationship, relationshipLabel: r.relationshipLabel ?? null });
     }
 
     // Drop duplicate (placeId, relationship) pairs — the table has a unique
@@ -161,6 +162,7 @@ export async function POST(req: NextRequest) {
           artistId: artist.id,
           placeId: r.placeId,
           relationship: r.relationship,
+          relationshipLabel: r.relationshipLabel ?? null,
         })),
       });
     }

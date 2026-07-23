@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { PlaceRelationship } from "@prisma/client";
+import { sendMagicLink } from "@/lib/magic-link";
 
 const ADMIN_EMAIL = "maryannamail@gmail.com";
 
@@ -11,6 +12,16 @@ async function requireAdmin() {
   if (!session?.user?.email || session.user.email !== ADMIN_EMAIL) {
     throw new Error("Unauthorized");
   }
+}
+
+export async function sendArtistInvite(artistId: string) {
+  await requireAdmin();
+  const artist = await prisma.artist.findUnique({
+    where: { id: artistId },
+    include: { user: true },
+  });
+  if (!artist) throw new Error("Artist not found");
+  await sendMagicLink({ email: artist.user.email, artistId, artistName: artist.name });
 }
 
 export async function addNote(artistId: string, body: string) {
@@ -31,7 +42,7 @@ type ProfileInput = {
   hireFor: string;
   website: string;
   instagram: string;
-  placeRelations: { placeId: string; relationship: string }[];
+  placeRelations: { placeId: string; relationship: string; relationshipLabel?: string }[];
 };
 
 export async function updateArtistProfile(artistId: string, data: ProfileInput) {
@@ -66,6 +77,7 @@ export async function updateArtistProfile(artistId: string, data: ProfileInput) 
         artistId,
         placeId: r.placeId,
         relationship: r.relationship as PlaceRelationship,
+        relationshipLabel: r.relationshipLabel?.trim() || null,
       })),
     });
   }

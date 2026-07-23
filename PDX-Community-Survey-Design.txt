@@ -1,0 +1,497 @@
+ART HERE PORTLAND
+PDX Community Survey — Design Document
+Last updated: July 6, 2026
+
+================================================================================
+OVERVIEW
+================================================================================
+
+The PDX Community Survey is a multi-step form at artishere.org/survey. It
+collects information about Portland-area residents, their awareness of local
+artists, and—for artists—details about their practice and goals. Results are
+shared publicly with the community and used to shape Art Here's programming.
+
+Platform:         artishere.org/survey (Next.js, mobile-responsive)
+Response storage: PostgreSQL via Neon / Vercel Postgres
+Draft saving:     Responses are saved to the database after each step
+                  (partial drafts are captured)
+Raffle:           One winner randomly selected weekly through September 15, 2026.
+                  $25 gift card to a local Portland business.
+
+
+================================================================================
+INTRO PAGE
+================================================================================
+
+Shown before the first survey step. Disappears once the respondent advances
+past Step 1.
+
+--- Intro copy ---
+
+Art Here is a community initiative to celebrate local artists and connect them
+to the residents, businesses, and organizations around them.
+
+The purpose of this survey is to understand how to better support the arts in
+Portland, OR. We'll share findings publicly with the community and with our
+partners. Whether you're an artist, a neighbor, or just curious, we'd love to
+hear from you. Everyone who completes the survey is eligible to win a $25 gift
+card to a local shop that supports Portland artists.
+
+--- Disclaimer ---
+
+By completing this survey, you agree to the use of your responses to support
+the arts and artists in Portland. Any quotes or data shared with our partners
+will not be tied to your name or personal information. You will have the option
+to respond completely anonymously if you choose not to share your email or
+participate in the raffle.
+
+
+================================================================================
+SURVEY FLOW
+================================================================================
+
+The survey has 9–11 screens depending on the respondent's answers. Two branches
+are driven by the "Do you make art?" question (Step 5).
+
+PATH A — Artist (primary occupation or active practice):
+  Step 1:  Location
+  Step 2:  About You — Occupation
+  Step 3:  About Portland — Familiarity
+  Step 4:  About Portland — Detail
+  Step 5:  About You — Do you make art?
+  Step 6:  About You — Career Stage  [shown only for primary/active artists]
+  Step 7:  About Your Art — Recent Activities
+  Step 8:  About Your Art — Goals & Support
+  Step 9:  Get Involved
+  Step 10: Email
+  Step 11: One Last Thing (referral)
+
+PATH B — Non-artist (student, hobby, or "No"):
+  Step 1:  Location
+  Step 2:  About You — Occupation
+  Step 3:  About Portland — Familiarity
+  Step 4:  About Portland — Detail
+  Step 5:  About You — Do you make art?
+           → If student/hobby/Other: skip Career Stage, skip Practice screens
+           → If "No": skip Career Stage and all Practice screens
+  Step 6:  Get Involved
+  Step 7:  Email
+  Step 8:  One Last Thing (referral)
+
+
+================================================================================
+STEP-BY-STEP QUESTION REFERENCE
+================================================================================
+
+Each step occupies its own screen. Respondents can navigate back to previous
+steps. Progress is shown as a thin bar at the top of the form.
+
+
+--------------------------------------------------------------------------------
+STEP 1 — Location (Where Are You Based?)
+--------------------------------------------------------------------------------
+
+Q1. What is your zip code?
+    Type: Text input — numeric only, max 5 digits
+    Required. Must be exactly 5 digits to proceed.
+    No validation against a list of accepted zip codes (any 5-digit code accepted).
+    Field accepts numerals only; non-numeric input is stripped automatically.
+
+Q2. What neighborhood(s) do you consider yourself part of?
+    Type: Text input — open text
+    Hint: "Whether you live, work, or spend time there."
+    Required. Must be non-empty to proceed.
+    Placeholder: "e.g. Multnomah Village, St. Johns, Hawthorne…"
+
+C1. I am 18 years of age or older.
+    Type: Checkbox — required
+    Required. Must be checked to proceed.
+    This survey is for adults only (18+).
+
+C2. I understand my responses will not be tied to my name or personal
+    information.
+    Type: Checkbox — required
+    Required. Must be checked to proceed.
+    Both checkboxes (C1 and C2) must be checked along with Q1 and Q2 before
+    the Next button activates.
+
+[Raffle footnote displayed at bottom of Step 1:]
+No purchase necessary. Open to US residents 18 and older. One winner randomly
+selected weekly through September 15, 2026. Winners receive a $25 gift card to
+a local business that supports Portland artists. Notified by email.
+
+
+--------------------------------------------------------------------------------
+STEP 2 — About You (Occupation)
+--------------------------------------------------------------------------------
+
+Q3. What field do you work in?
+    Type: Multi-select (checkboxes) — select all that apply
+    Hint: "If not currently working, what field did you most recently work in?
+          Select all that apply."
+    Required: at least one option must be selected to proceed.
+
+    Options (first 10 randomized; last 5 always pinned at bottom):
+      Arts (Visual Art, Dance, Music, Theater)
+      Business or Professional Services
+      Design or Creative Services
+      Education
+      Federal or State Government
+      Healthcare
+      Local Government (City or County)
+      Non-profit
+      Technology
+      Trades or Manufacturing
+      Homemaker  [pinned]
+      Not currently working  [pinned]
+      Retired  [pinned]
+      Other  [pinned] → reveals text input
+      Prefer not to say  [pinned, exclusive]
+
+    Notes:
+    - The first 10 options are randomized in order on each visit.
+    - "Prefer not to say" is exclusive: selecting it clears all other
+      selections, and selecting any other option clears it.
+    - Selecting "Other" reveals a text input for free-text description.
+
+
+--------------------------------------------------------------------------------
+STEP 3 — About Portland (Familiarity)
+--------------------------------------------------------------------------------
+
+Q4. How aware are you of local artists in your area?
+    Type: Single-select (radio)
+    Required. One option must be selected to proceed.
+
+    Options:
+      Very aware
+      Somewhat aware
+      A little aware
+      Not at all aware
+
+
+--------------------------------------------------------------------------------
+STEP 4 — About Portland (Detail)
+--------------------------------------------------------------------------------
+
+Q5. In your opinion, what people, places, or organizations most help artists
+    thrive in Portland?
+    Type: Textarea — open text
+    Hint: "Name one to three."
+    Optional. Not required to proceed.
+
+Q6. How, if at all, would you like to connect with or support the artist
+    community in Portland?
+    Type: Multi-select (checkboxes) — select all that apply
+    Hint: "Select all that apply."
+    Required: at least one option must be selected to proceed.
+
+    Options (first 7 randomized; last 2 pinned):
+      Purchase artwork  [randomized]
+      Hire or commission artwork  [randomized]
+      Collaborate with artists  [randomized]
+      Attend events  [randomized]
+      Visit art galleries or shows  [randomized]
+      Share artists' work  [randomized]
+      Volunteer  [randomized]
+      Other  [pinned] → reveals text input
+      None of the above  [pinned, exclusive]
+
+    Notes:
+    - "None of the above" is exclusive: selecting it clears all other selections.
+    - Selecting "Other" reveals a text input for free-text description.
+
+
+--------------------------------------------------------------------------------
+STEP 5 — About You (Artist Status)
+--------------------------------------------------------------------------------
+
+Q7. Do you make art?
+    Type: Single-select (radio)
+    Required. One option must be selected to proceed.
+    This answer drives the branching logic for Steps 6–8 (see Skip Logic).
+
+    Options:
+      Yes, it is my primary occupation
+      Yes, I have an active art practice alongside other work
+      Yes, I'm an art student
+      Yes, for fun or as a hobby
+      No
+      Other → reveals text input
+
+    Notes:
+    - Selecting "Other" reveals a text input ("Tell us more").
+      The text input must be non-empty to proceed.
+
+
+--------------------------------------------------------------------------------
+STEP 6 — About You (Career Stage) — CONDITIONAL
+--------------------------------------------------------------------------------
+
+SHOWN IF:   Q7 = "Yes, it is my primary occupation"
+            OR "Yes, I have an active art practice alongside other work"
+SKIPPED IF: Any other answer to Q7 (student, hobby, No, Other)
+
+Q8. How long have you been practicing as an artist?
+    Type: Single-select (radio)
+    Required. One option must be selected to proceed.
+
+    Options:
+      Just getting started (less than 2 years)
+      Early career (2–5 years)
+      Established (5–15 years)
+      Longtime (15+ years)
+
+
+--------------------------------------------------------------------------------
+STEP 7 — About Your Art (Recent Activities) — CONDITIONAL
+--------------------------------------------------------------------------------
+
+SHOWN IF:   Q7 = anything other than "No" (respondent is making art in any form)
+SKIPPED IF: Q7 = "No"
+
+Q9. In the past year, which of the following have you done in support of
+    your art?
+    Type: Multi-select (checkboxes) — select all that apply
+    Hint: "Select all that apply."
+    Required: at least one option must be selected to proceed.
+
+    Options (first 7 randomized; last 2 pinned):
+      Sold original artwork  [randomized]
+      Taken commissions for my artwork  [randomized]
+      Shown my artwork in galleries, shows, or public events  [randomized]
+      Applied for an artist grant or residency  [randomized]
+      Received an artist grant or residency  [randomized]
+      Collaborated with other artists or organizations  [randomized]
+      Taken a class or training to support my art practice  [randomized]
+      Other  [pinned] → reveals text input
+      None of the above  [pinned, exclusive]
+
+    Notes:
+    - "None of the above" is exclusive: selecting it clears all other selections.
+    - Selecting "Other" reveals a text input for free-text description.
+
+
+--------------------------------------------------------------------------------
+STEP 8 — About Your Art (Goals & Support) — CONDITIONAL
+--------------------------------------------------------------------------------
+
+SHOWN IF:   Q7 = anything other than "No"
+SKIPPED IF: Q7 = "No"
+
+Q10. What are your current goals as an artist?
+     Type: Multi-select (checkboxes) — select up to 3
+     Required: at least one option must be selected to proceed.
+
+     Options (all randomized except "Other" which is pinned):
+       Sell my artwork  [randomized]
+       Find more commissions  [randomized]
+       Share my artwork with more people  [randomized]
+       Connect with other local artists  [randomized]
+       Show my artwork in galleries, shows, or public events  [randomized]
+       Find studio space or places to make my work  [randomized]
+       Receive an artist grant or residency  [randomized]
+       Collaborate with other artists  [randomized]
+       Find classes or training to support my art practice  [randomized]
+       Other  [pinned] → reveals text input
+
+     Notes:
+     - Maximum 3 selections. Once 3 are selected, remaining options are
+       visually disabled.
+     - Selecting "Other" reveals a text input ("Tell us more"). The text input
+       must be non-empty if Other is selected.
+
+Q11. What local places, organizations, institutions, or businesses have been
+     most important to supporting you and your art practice?
+     Type: Textarea — open text
+     Hint: "Name one to three."
+     Required. Must be non-empty to proceed.
+
+
+--------------------------------------------------------------------------------
+STEP 9 — Get Involved
+--------------------------------------------------------------------------------
+
+Q12. In what ways, if any, would you like to get involved with Art Here?
+     Type: Multi-select (checkboxes) — select all that apply
+     Hint: "Select all that apply."
+     Required: at least one option must be selected to proceed.
+
+     Options (fixed order — NOT randomized):
+       Keep me posted on Art Here news
+       Become a featured artist
+       Volunteer to help Art Here
+       Join the parade at Multnomah Days 2026 (August 15, Portland)
+       Partner or collaborate
+       Other → reveals text input
+       None of the above  [exclusive]
+
+     Notes:
+     - "None of the above" is exclusive: selecting it clears all other selections.
+     - Selecting "Become a featured artist" + providing an email triggers an
+       automatic magic link to set up an artist profile.
+
+Q13. Would you like to be entered in a raffle for completing this survey?
+     Type: Single-select (radio)
+     Hint: "Raffle winners will receive a $25 gift card to a local shop that
+           supports Portland artists."
+     Required. One option must be selected to proceed.
+     Answering "Yes" makes the email address field required on the next step.
+
+     Options:
+       Yes
+       No
+
+
+--------------------------------------------------------------------------------
+STEP 10 — Email (Almost Done)
+--------------------------------------------------------------------------------
+
+Q14. Email address
+     Type: Email input
+     Hint: "Required if you'd like to get involved or enter the raffle. We'll
+           only use it to follow up — it won't be shared or connected to your
+           survey answers."
+
+     Required IF:  Respondent selected "Yes" to the raffle (Q13)
+                   OR selected any involvement option other than "None of the
+                   above" (Q12).
+     Optional IF:  Respondent declined the raffle AND selected "None of the
+                   above" for involvement.
+
+     Notes:
+     - If optional and left blank: proceed is allowed.
+     - If optional and partially entered: must be a valid email format to proceed.
+     - Inline validation error shown on blur if email is non-empty and invalid.
+     - Respondents who provide an email receive an automated thank-you email
+       upon submission.
+     - Respondents who selected "Become a featured artist" receive a magic link
+       to set up their artist profile.
+
+
+--------------------------------------------------------------------------------
+STEP 11 — One Last Thing (Referral)
+--------------------------------------------------------------------------------
+
+Q15. Where did you learn about Art Here?
+     Type: Multi-select (checkboxes) — select all that apply
+     Hint: "Select all that apply."
+     Required: at least one option must be selected to submit.
+     (This screen's Next button is the Submit button.)
+
+     Options (first 4 randomized; "Other" pinned):
+       Multnomah Arts Center  [randomized]
+       A business in Multnomah Village  [randomized]
+       Local art gallery  [randomized]
+       Word of mouth  [randomized]
+       Other  [pinned] → reveals text input
+
+     Notes:
+     - If Other text is entered, stored as "Other: [text]".
+     - If Other is selected but no text entered, stored as "Other".
+
+
+================================================================================
+SKIP LOGIC SUMMARY
+================================================================================
+
+Screen              Condition to Show                          Notes
+--------------------------------------------------------------------------------
+Step 6              Q7 = "Primary occupation" OR               Skipped for
+Career Stage        "Active practice alongside other work"      students, hobby,
+                                                               "No", "Other"
+
+Step 7              Q7 ≠ "No"                                  Skipped only when
+Recent Activities   (i.e., any form of art-making)             respondent said "No"
+
+Step 8              Q7 ≠ "No"                                  Same condition as
+Goals & Support                                                Step 7 — always
+                                                               shown/skipped together
+
+Email               Q13 = "Yes" (raffle) OR                    Email field is
+(required)          Q12 includes any option other than          required in either
+                    "None of the above"                         of these cases
+
+Email               Q13 = "No" AND                             Respondent may leave
+(optional)          Q12 = "None of the above" only             email blank to remain
+                                                               fully anonymous
+
+
+================================================================================
+VALIDATION & REQUIRED FIELDS
+================================================================================
+
+Step 1:   Zip code (5 digits), neighborhood (non-empty), both checkboxes checked
+          Optional: —
+
+Step 2:   At least one occupation selected
+          Optional: —
+
+Step 3:   One familiarity level selected
+          Optional: —
+
+Step 4:   At least one Portland support option selected
+          Optional: Portland helpers textarea (Q5)
+
+Step 5:   One artist status selected; if "Other", text field non-empty
+          Optional: —
+
+Step 6:   One career stage selected (if shown)
+          Optional: —
+
+Step 7:   At least one activity selected (if shown)
+          Optional: —
+
+Step 8:   At least one goal; if "Other", text field non-empty;
+          support textarea non-empty (if shown)
+          Optional: —
+
+Step 9:   At least one involvement option + one raffle answer
+          Optional: —
+
+Step 10:  Valid email if raffle = Yes or involvement ≠ None
+          Optional: Email (if raffle = No and involvement = None)
+
+Step 11:  At least one referral source selected
+          Optional: —
+
+
+================================================================================
+AUTOMATED ACTIONS ON SUBMISSION
+================================================================================
+
+Two actions are triggered automatically when a survey is submitted:
+
+1. Thank-You Email
+   Sent to any respondent who provided an email address.
+   From: hello@artishere.org
+   Subject: "Thank you for completing the PDX Community Survey!"
+
+2. Artist Profile Magic Link
+   Sent when the respondent selected "Become a featured artist" AND provided
+   an email. A user account and placeholder artist profile are created
+   automatically. The magic link allows the artist to log in and complete their
+   profile without a password.
+
+
+================================================================================
+OPTION RANDOMIZATION
+================================================================================
+
+Several multi-select questions randomize their option order on each page load
+to prevent order bias. "Other," "None of the above," and similar catch-all
+options are always pinned at the bottom.
+
+Question              Randomized?           Pinned at Bottom
+--------------------------------------------------------------------------------
+Occupation (Q3)       First 10 options      Homemaker, Not currently working,
+                                            Retired, Other, Prefer not to say
+Portland Support (Q6) First 7 options       Other, None of the above
+Recent Activities (Q9) First 7 options      Other, None of the above
+Goals (Q10)           All options           Other
+Referral (Q15)        First 4 options       Other
+Get Involved (Q12)    None — fixed order    Other, None of the above
+Artist Status (Q7)    None — fixed order    —
+Familiarity (Q4)      None — fixed order    —
+Career Stage (Q8)     None — fixed order    —
+Raffle (Q13)          None — fixed order    —

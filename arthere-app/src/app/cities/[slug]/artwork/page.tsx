@@ -28,25 +28,28 @@ export default async function CityArtworkPage({
 }) {
   const { slug } = await params;
 
-  const city = await prisma.city.findUnique({
-    where: { slug },
+  const city = await prisma.city.findUnique({ where: { slug } });
+  if (!city) notFound();
+
+  const linkedCity = slug.endsWith('-demo')
+    ? await prisma.city.findUnique({ where: { slug: slug.replace('-demo', '') }, select: { id: true } })
+    : null;
+  const cityIds = linkedCity ? [city.id, linkedCity.id] : [city.id];
+  const isDemo = slug.endsWith('-demo');
+
+  const cityArtists = await prisma.artist.findMany({
+    where: { cityId: { in: cityIds }, ...(!isDemo && { isPlaceholder: false }) },
+    orderBy: { name: 'asc' },
     include: {
-      artists: {
-        orderBy: { name: 'asc' },
-        include: {
-          artworkImages: { orderBy: { sortOrder: 'asc' } },
-          placeRelations: { include: { place: true } },
-        },
-      },
+      artworkImages: { orderBy: { sortOrder: 'asc' } },
+      placeRelations: { include: { place: true } },
     },
   });
-
-  if (!city) notFound();
 
   const cityDisplayName =
     city.displayName ?? `${city.name}${city.state ? `, ${city.state}` : ''}`;
 
-  const artists: ArtworkArtistData[] = city.artists
+  const artists: ArtworkArtistData[] = cityArtists
     .filter(artist => artist.artworkImages.length > 0)
     .map(artist => ({
       slug: artist.slug,
@@ -54,12 +57,17 @@ export default async function CityArtworkPage({
       medium: artist.medium,
       neighborhood: artist.neighborhood,
       communities: artist.placeRelations.map(r => r.place.name),
-      images: artist.artworkImages.map(img => ({
-        src: img.url,
-        alt: img.altText ?? `Artwork by ${artist.name}`,
-        isHero: img.isHero,
-      })),
-    }));
+      images: artist.artworkImages
+        .filter(img => !img.isHero && img.url !== artist.heroImageUrl)
+        .slice(0, 3)
+        .map(img => ({
+          src: img.url,
+          cropBox: img.cropBox as { x: number; y: number; w: number; h: number } | null,
+          alt: img.altText ?? `Artwork by ${artist.name}`,
+          isHero: img.isHero,
+        })),
+    }))
+    .filter(artist => artist.images.length > 0);
 
   // Distinct, sorted option lists for the filter dropdowns.
   const mediumOptions = [...new Set(artists.map(a => a.medium).filter((v): v is string => !!v))].sort();

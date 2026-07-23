@@ -29,24 +29,25 @@ export default async function CityArtistsPage({
 }) {
   const { slug } = await params;
 
-  const city = await prisma.city.findUnique({
-    where: { slug },
-    include: {
-      artists: {
-        orderBy: { name: 'asc' },
-        include: {
-          placeRelations: { include: { place: true } },
-        },
-      },
-    },
-  });
-
+  const city = await prisma.city.findUnique({ where: { slug } });
   if (!city) notFound();
+
+  const linkedCity = slug.endsWith('-demo')
+    ? await prisma.city.findUnique({ where: { slug: slug.replace('-demo', '') }, select: { id: true } })
+    : null;
+  const cityIds = linkedCity ? [city.id, linkedCity.id] : [city.id];
+  const isDemo = slug.endsWith('-demo');
+
+  const cityArtists = await prisma.artist.findMany({
+    where: { cityId: { in: cityIds }, ...(!isDemo && { isPlaceholder: false }) },
+    orderBy: { name: 'asc' },
+    include: { placeRelations: { include: { place: true } } },
+  });
 
   const cityDisplayName =
     city.displayName ?? `${city.name}${city.state ? `, ${city.state}` : ''}`;
 
-  const artists: ArtistCardData[] = city.artists.map(artist => ({
+  const artists: ArtistCardData[] = cityArtists.map(artist => ({
     slug: artist.slug,
     name: artist.name,
     photoUrl: artist.bioPhotoUrl ?? artist.heroImageUrl ?? null,

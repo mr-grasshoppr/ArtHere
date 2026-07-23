@@ -12,7 +12,7 @@ function Gate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    if (!pathname.startsWith('/cities/portland')) return;
+    if (!pathname.startsWith('/cities/portland-demo')) return;
 
     const keyFromUrl = searchParams.get('key');
 

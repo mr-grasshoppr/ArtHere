@@ -16,7 +16,7 @@ export default async function AdminArtistEditPage({ params }: { params: Promise<
         intake: true,
       },
     }),
-    prisma.place.findMany({ orderBy: { name: "asc" } }),
+    prisma.place.findMany({ where: { inDirectory: true }, orderBy: { name: "asc" } }),
   ]);
 
   if (!artist) notFound();

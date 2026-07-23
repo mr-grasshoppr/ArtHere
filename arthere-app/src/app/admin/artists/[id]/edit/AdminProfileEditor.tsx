@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { updateArtistProfile } from "../actions";
 
 type Place = { id: string; name: string; neighborhood: string | null };
-type PlaceRelation = { placeId: string; relationship: string };
+type PlaceRelation = { placeId: string; relationship: string; relationshipLabel?: string };
 
 type Artist = {
   id: string;
@@ -25,6 +25,8 @@ const RELATIONSHIP_TYPES = [
   { value: "STUDENT", label: "Student" },
   { value: "EXHIBITING_ARTIST", label: "Exhibiting artist" },
   { value: "GRANTEE", label: "Grantee" },
+  { value: "IN_SHOP", label: "In shop" },
+  { value: "OTHER", label: "Other…" },
 ];
 
 const inputCls =
@@ -53,7 +55,7 @@ export default function AdminProfileEditor({
   const [website, setWebsite] = useState(artist.website ?? "");
   const [instagram, setInstagram] = useState(artist.instagram ?? "");
   const [placeRelations, setPlaceRelations] = useState<PlaceRelation[]>(
-    artist.placeRelations.map((r) => ({ placeId: r.placeId, relationship: r.relationship }))
+    artist.placeRelations.map((r) => ({ placeId: r.placeId, relationship: r.relationship, relationshipLabel: (r as { relationshipLabel?: string }).relationshipLabel ?? "" }))
   );
 
 
@@ -131,39 +133,50 @@ export default function AdminProfileEditor({
       <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
         <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide mb-1">Place Connections</h2>
         {placeRelations.map((rel, i) => (
-          <div key={i} className="flex items-center gap-2">
-            <select
-              value={rel.placeId}
-              onChange={(e) =>
-                setPlaceRelations((prev) => prev.map((r, idx) => idx === i ? { ...r, placeId: e.target.value } : r))
-              }
-              className={`flex-1 ${selectCls}`}
-            >
-              <option value="">Select a place…</option>
-              {places.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}{p.neighborhood ? ` · ${p.neighborhood}` : ""}
-                </option>
-              ))}
-            </select>
-            <select
-              value={rel.relationship}
-              onChange={(e) =>
-                setPlaceRelations((prev) => prev.map((r, idx) => idx === i ? { ...r, relationship: e.target.value } : r))
-              }
-              className={selectCls}
-            >
-              {RELATIONSHIP_TYPES.map((rt) => (
-                <option key={rt.value} value={rt.value}>{rt.label}</option>
-              ))}
-            </select>
-            <button
-              type="button"
-              onClick={() => setPlaceRelations((prev) => prev.filter((_, idx) => idx !== i))}
-              className="text-[#ccc] hover:text-red-400 text-lg leading-none transition-colors"
-            >
-              ×
-            </button>
+          <div key={i} className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-2">
+              <select
+                value={rel.placeId}
+                onChange={(e) =>
+                  setPlaceRelations((prev) => prev.map((r, idx) => idx === i ? { ...r, placeId: e.target.value } : r))
+                }
+                className={`flex-1 ${selectCls}`}
+              >
+                <option value="">Select a place…</option>
+                {places.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}{p.neighborhood ? ` · ${p.neighborhood}` : ""}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={rel.relationship}
+                onChange={(e) =>
+                  setPlaceRelations((prev) => prev.map((r, idx) => idx === i ? { ...r, relationship: e.target.value, relationshipLabel: "" } : r))
+                }
+                className={selectCls}
+              >
+                {RELATIONSHIP_TYPES.map((rt) => (
+                  <option key={rt.value} value={rt.value}>{rt.label}</option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => setPlaceRelations((prev) => prev.filter((_, idx) => idx !== i))}
+                className="text-[#ccc] hover:text-red-400 text-lg leading-none transition-colors"
+              >
+                ×
+              </button>
+            </div>
+            {rel.relationship === "OTHER" && (
+              <input
+                type="text"
+                value={rel.relationshipLabel ?? ""}
+                onChange={(e) => setPlaceRelations((prev) => prev.map((r, idx) => idx === i ? { ...r, relationshipLabel: e.target.value } : r))}
+                placeholder="Describe the connection…"
+                className={`${inputCls} text-sm`}
+              />
+            )}
           </div>
         ))}
         <button

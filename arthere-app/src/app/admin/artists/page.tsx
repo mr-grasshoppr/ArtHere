@@ -38,6 +38,7 @@ export default async function AdminArtistsPage({
       ? allArtists.filter((a) => {
           if (activeField === "medium") return a.medium === activeValue;
           if (activeField === "neighborhood") return a.neighborhood === activeValue;
+          if (activeField === "placeholder") return String(a.isPlaceholder) === activeValue;
           return true;
         })
       : allArtists;
@@ -49,23 +50,39 @@ export default async function AdminArtistsPage({
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <div className="flex items-baseline gap-3">
+        <div className="flex items-baseline gap-3 flex-wrap">
           <h1 className="text-2xl font-medium">Artist Profiles</h1>
           <span className="text-sm text-[#888]">{countLabel} profiles</span>
           {activeField && activeValue && (
             <span className="text-sm bg-[#f0f0f0] px-2 py-0.5 rounded-full text-[#555]">
-              {activeValue}
+              {activeField === "placeholder" ? (activeValue === "true" ? "Placeholder" : "Real") : activeValue}
               <a href="/admin/artists" className="ml-1.5 text-[#bbb] hover:text-[#555]">✕</a>
             </span>
           )}
         </div>
-        <a
-          href="/api/admin/export/artists"
-          download
-          className="text-sm px-4 py-2 border border-[#e5e5e5] rounded-full text-[#555] hover:border-[#999] transition-colors"
-        >
-          Export CSV
-        </a>
+        <div className="flex items-center gap-3">
+          <div className="flex gap-1 text-xs">
+            <a
+              href="/admin/artists?field=placeholder&value=true"
+              className={`px-3 py-1.5 rounded-full border transition-colors ${activeField === "placeholder" && activeValue === "true" ? "bg-amber-50 border-amber-300 text-amber-700" : "border-[#e5e5e5] text-[#888] hover:border-[#999]"}`}
+            >
+              Placeholder
+            </a>
+            <a
+              href="/admin/artists?field=placeholder&value=false"
+              className={`px-3 py-1.5 rounded-full border transition-colors ${activeField === "placeholder" && activeValue === "false" ? "bg-green-50 border-green-300 text-green-700" : "border-[#e5e5e5] text-[#888] hover:border-[#999]"}`}
+            >
+              Real
+            </a>
+          </div>
+          <a
+            href="/api/admin/export/artists"
+            download
+            className="text-sm px-4 py-2 border border-[#e5e5e5] rounded-full text-[#555] hover:border-[#999] transition-colors"
+          >
+            Export CSV
+          </a>
+        </div>
       </div>
 
       {allArtists.length > 0 && (

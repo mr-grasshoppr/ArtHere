@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { put } from "@vercel/blob";
-import { tagArtworkImage } from "@/lib/claude";
+import { tagArtworkImage, detectArtworkCrop } from "@/lib/claude";
 import { Prisma } from "@prisma/client";
+import sharp from "sharp";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -40,12 +41,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "File too large. Maximum size is 20 MB." }, { status: 400 });
   }
 
+  // For bio photos: smart-crop to a square centered on the face
+  let uploadBody: File | Buffer = file;
+  let uploadContentType = file.type;
+  if (isBioPhoto) {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    uploadBody = await sharp(buffer)
+      .resize(600, 600, { fit: "cover", position: "attention" })
+      .jpeg({ quality: 88 })
+      .toBuffer();
+    uploadContentType = "image/jpeg";
+  }
+
   // Upload to Vercel Blob
-  const filename = `artists/${artist.slug}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-  const blob = await put(filename, file, {
+  const ext = isBioPhoto ? "jpg" : file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const filename = `artists/${artist.slug}/${Date.now()}-${isBioPhoto ? "bio.jpg" : ext}`;
+  const blob = await put(filename, uploadBody, {
     access: "public",
     addRandomSuffix: false,
-    // Prevent hotlinking / external crawling via CDN tokens
+    contentType: uploadContentType,
     cacheControlMaxAge: 60 * 60 * 24 * 365,
   });
 
@@ -80,7 +94,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // Kick off AI tagging asynchronously (don't block the response)
+  // Kick off AI tagging + crop detection asynchronously (don't block the response)
   tagArtworkImage(blob.url)
     .then(async (tags) => {
       await prisma.artworkImage.update({
@@ -90,6 +104,18 @@ export async function POST(req: NextRequest) {
     })
     .catch((err) => {
       console.error("AI tagging failed for image", image.id, err);
+    });
+
+  detectArtworkCrop(blob.url)
+    .then(async (cropBox) => {
+      if (!cropBox) return;
+      await prisma.artworkImage.update({
+        where: { id: image.id },
+        data: { cropBox: cropBox as unknown as Prisma.InputJsonValue },
+      });
+    })
+    .catch((err) => {
+      console.error("Crop detection failed for image", image.id, err);
     });
 
   return NextResponse.json({

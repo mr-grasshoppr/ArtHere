@@ -29,39 +29,34 @@ export async function POST(req: NextRequest) {
 
   const response = await prisma.surveyResponse.create({
     data: {
+      zipCode: str(body.zipCode),
+      neighborhoods: str(body.neighborhoods),
+
+      occupation: strArray(body.occupation),
+      occupationOther: str(body.occupationOther),
+
+      artistStatus: str(body.artistStatus),
+      artistStatusOther: str(body.artistStatusOther),
+      artMedium: strArray(body.artMedium),
+      artMediumOther: str(body.artMediumOther),
+
       portlandFamiliarity: str(body.portlandFamiliarity),
-      portlandWords: strArray(body.portlandWords),
+      discoveryEase: str(body.discoveryEase),
+      discoveryChannel: strArray(body.discoveryChannel),
+      discoveryChannelOther: str(body.discoveryChannelOther),
+
       portlandHelpers: str(body.portlandHelpers),
       portlandSupport: strArray(body.portlandSupport),
       portlandSupportOther: str(body.portlandSupportOther),
 
-      occupation: strArray(body.occupation),
-      occupationOther: str(body.occupationOther),
-      artistStatus: str(body.artistStatus),
-      artistStatusOther: str(body.artistStatusOther),
       careerStage: str(body.careerStage),
-      ageRange: str(body.ageRange),
-
-      zipCode: str(body.zipCode),
-      neighborhoods: str(body.neighborhoods),
-
-      mvFamiliarity: str(body.mvFamiliarity),
-      mvWords: strArray(body.mvWords),
-      mvConnectionLevel: str(body.mvConnectionLevel),
-      mvHelpers: str(body.mvHelpers),
-      mvSupport: strArray(body.mvSupport),
-      mvSupportOther: str(body.mvSupportOther),
-
-      multnomahDaysInvolvement: strArray(body.multnomahDaysInvolvement),
+      careerStageOther: str(body.careerStageOther),
 
       practiceActivities: strArray(body.practiceActivities),
+      practiceActivitiesOther: str(body.practiceActivitiesOther),
       practiceGoals: strArray(body.practiceGoals),
       practiceGoalsOther: str(body.practiceGoalsOther),
       practiceSupport: str(body.practiceSupport),
-
-      featuredArtistInterest: str(body.featuredArtistInterest),
-
-      stayConnected: strArray(body.stayConnected),
 
       involvementInterests: strArray(body.involvementInterests),
       involvementInterestsOther: str(body.involvementInterestsOther),
@@ -69,13 +64,14 @@ export async function POST(req: NextRequest) {
       raffleOptIn: str(body.raffleOptIn),
       email: str(body.email),
       learnedAbout: strArray(body.learnedAbout),
+      openFeedback: str(body.openFeedback),
     },
   });
 
   // If the respondent wants to be a featured artist and left an email, provision
   // their account and send a magic link so they can set up their profile.
   const involvementList = Array.isArray(body.involvementInterests) ? body.involvementInterests : [];
-  const wantsToBeFeatures = involvementList.includes('Become a featured artist');
+  const wantsToBeFeatures = involvementList.includes('Showcase my work on the Art Here platform');
   const email = response.email;
 
   if (wantsToBeFeatures && email) {
@@ -86,11 +82,41 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Notify admin of every new submission.
+  const involvementSummary = involvementList.length
+    ? involvementList.join(', ')
+    : 'None selected';
+  resend.emails.send({
+    from: 'Art Here <hello@artishere.org>',
+    to: 'maryannamail@gmail.com',
+    subject: 'New PDX Community Survey Response',
+    text: `A new survey response was submitted.\n\nRespondent email: ${email ?? '(not provided)'}\n\nGet involved:\n${involvementList.length ? involvementList.map(i => `• ${i}`).join('\n') : 'None selected'}\n\nView all responses: https://artishere.org/admin/survey`,
+    html: `
+      <div style="font-family: Georgia, serif; max-width: 480px; margin: 0 auto; padding: 40px 24px; color: #1a1a1a;">
+        <h2 style="font-size: 1.2rem; font-weight: 500; margin: 0 0 20px;">New Survey Response</h2>
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+          <tr>
+            <td style="padding: 8px 12px 8px 0; color: #888; white-space: nowrap; vertical-align: top;">Respondent email</td>
+            <td style="padding: 8px 0; color: #1a1a1a;">${email ? `<a href="mailto:${email}" style="color: #1a1a1a;">${email}</a>` : '<em style="color:#aaa">not provided</em>'}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 12px 8px 0; color: #888; white-space: nowrap; vertical-align: top;">Get involved</td>
+            <td style="padding: 8px 0; color: #1a1a1a;">${involvementList.length ? involvementList.map(i => `• ${i}`).join('<br>') : '<em style="color:#aaa">None selected</em>'}</td>
+          </tr>
+        </table>
+        <p style="margin: 28px 0 0;">
+          <a href="https://artishere.org/admin/survey" style="color: #1a1a1a; font-size: 0.85rem;">View all responses →</a>
+        </p>
+      </div>
+    `,
+  }).catch(err => console.error('[survey] admin notification failed:', err));
+
   // Send a thank-you to anyone who left an email.
   if (email) {
     resend.emails.send({
       from: 'Art Here <hello@artishere.org>',
       to: email,
+      bcc: 'hello@artishere.org',
       subject: 'Thank you for completing the PDX Community Survey!',
       text: `Thank you for completing Art Here's PDX Community Survey! If you expressed interest in getting involved, we'll be in touch soon!\n\n— The Art Here Team\nartishere.org`,
       html: `
@@ -165,37 +191,42 @@ export async function PATCH(req: NextRequest) {
   await prisma.surveyResponse.update({
     where: { id },
     data: {
+      zipCode: str(body.zipCode),
+      neighborhoods: str(body.neighborhoods),
+
+      occupation: strArray(body.occupation),
+      occupationOther: str(body.occupationOther),
+
+      artistStatus: str(body.artistStatus),
+      artistStatusOther: str(body.artistStatusOther),
+      artMedium: strArray(body.artMedium),
+      artMediumOther: str(body.artMediumOther),
+
       portlandFamiliarity: str(body.portlandFamiliarity),
-      portlandWords: strArray(body.portlandWords),
+      discoveryEase: str(body.discoveryEase),
+      discoveryChannel: strArray(body.discoveryChannel),
+      discoveryChannelOther: str(body.discoveryChannelOther),
+
       portlandHelpers: str(body.portlandHelpers),
       portlandSupport: strArray(body.portlandSupport),
       portlandSupportOther: str(body.portlandSupportOther),
-      occupation: strArray(body.occupation),
-      occupationOther: str(body.occupationOther),
-      artistStatus: str(body.artistStatus),
-      artistStatusOther: str(body.artistStatusOther),
+
       careerStage: str(body.careerStage),
-      ageRange: str(body.ageRange),
-      zipCode: str(body.zipCode),
-      neighborhoods: str(body.neighborhoods),
-      mvFamiliarity: str(body.mvFamiliarity),
-      mvWords: strArray(body.mvWords),
-      mvConnectionLevel: str(body.mvConnectionLevel),
-      mvHelpers: str(body.mvHelpers),
-      mvSupport: strArray(body.mvSupport),
-      mvSupportOther: str(body.mvSupportOther),
-      multnomahDaysInvolvement: strArray(body.multnomahDaysInvolvement),
+      careerStageOther: str(body.careerStageOther),
+
       practiceActivities: strArray(body.practiceActivities),
+      practiceActivitiesOther: str(body.practiceActivitiesOther),
       practiceGoals: strArray(body.practiceGoals),
       practiceGoalsOther: str(body.practiceGoalsOther),
       practiceSupport: str(body.practiceSupport),
-      featuredArtistInterest: str(body.featuredArtistInterest),
-      stayConnected: strArray(body.stayConnected),
+
       involvementInterests: strArray(body.involvementInterests),
       involvementInterestsOther: str(body.involvementInterestsOther),
+
       raffleOptIn: str(body.raffleOptIn),
       email: str(body.email),
       learnedAbout: strArray(body.learnedAbout),
+      openFeedback: str(body.openFeedback),
     },
   });
 

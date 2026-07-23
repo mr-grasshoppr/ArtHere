@@ -72,6 +72,7 @@ model Artist {
   bioPhotoUrl      String?
   heroImageUrl     String?
   website          String?
+  websiteLabel     String?
   instagram        String?
   medium           String?
   neighborhood     String?
@@ -109,6 +110,7 @@ model ArtworkImage {
   id         String    @id @default(cuid())
   artistId   String
   url        String
+  cropBox    Json?     // {x,y,w,h} fractions — artwork bounds (excludes frame/wall)
   altText    String?
   sortOrder  Int       @default(0)
   isHero     Boolean   @default(false)
@@ -131,6 +133,7 @@ model Place {
   neighborhood String?
   description  String?       @db.Text
   website      String?
+  websiteLabel String?
   heroImageUrl String?
   // A few extra photos shown in a gallery on the place's page.
   galleryImages String[]     @default([])
@@ -148,13 +151,14 @@ model Place {
 }
 
 model ArtistPlace {
-  id           String            @id @default(cuid())
-  artistId     String
-  placeId      String
-  relationship PlaceRelationship
-  startedAt    DateTime?
-  endedAt      DateTime?
-  createdAt    DateTime          @default(now())
+  id                String            @id @default(cuid())
+  artistId          String
+  placeId           String
+  relationship      PlaceRelationship
+  relationshipLabel String?
+  startedAt         DateTime?
+  endedAt           DateTime?
+  createdAt         DateTime          @default(now())
 
   artist       Artist            @relation(fields: [artistId], references: [id], onDelete: Cascade)
   place        Place             @relation(fields: [placeId], references: [id], onDelete: Cascade)
@@ -169,6 +173,7 @@ enum PlaceRelationship {
   EXHIBITING_ARTIST
   MEMBER
   IN_SHOP
+  OTHER
 }
 
 // ─── Artist Intake (structured data for search) ───────────────────────────────
@@ -210,19 +215,25 @@ model SurveyResponse {
   createdAt DateTime @default(now())
 
   // About Portland
-  portlandFamiliarity  String? // Q1
-  portlandWords        String[] @default([]) // Q2 — three words
-  portlandHelpers      String?  @db.Text // Q3
-  portlandSupport      String[] @default([]) // How would you like to support the artist community in Portland?
-  portlandSupportOther String? // Write-in for "Other" in portlandSupport
-  portlandWish         String?  @db.Text // Q4 — "magic wand" change
+  portlandFamiliarity   String?
+  portlandWords         String[] @default([]) // kept for historical responses
+  portlandHelpers       String?  @db.Text
+  portlandSupport       String[] @default([])
+  portlandSupportOther  String?
+  portlandWish          String?  @db.Text // kept for historical responses
+  discoveryEase         String?
+  discoveryChannel      String[] @default([])
+  discoveryChannelOther String?
 
   // About You
   occupation        String[] @default([])
   occupationOther   String?
   artistStatus      String?
   artistStatusOther String?
+  artMedium         String[] @default([])
+  artMediumOther    String?
   careerStage       String?
+  careerStageOther  String?
   ageRange          String?
 
   // Where are you based
@@ -241,10 +252,11 @@ model SurveyResponse {
   multnomahDaysInvolvement String[] @default([])
 
   // About Your Practice
-  practiceActivities String[] @default([]) // Q12
-  practiceGoals      String[] @default([]) // Q13 — up to three
-  practiceGoalsOther String? // Q13 "Other" free text
-  practiceSupport    String?  @db.Text // Q14
+  practiceActivities      String[] @default([])
+  practiceActivitiesOther String?
+  practiceGoals           String[] @default([])
+  practiceGoalsOther      String?
+  practiceSupport         String?  @db.Text
 
   // Become a Featured Artist (deprecated — kept for old responses)
   featuredArtistInterest String?
@@ -262,6 +274,7 @@ model SurveyResponse {
 
   // Referral
   learnedAbout String[] @default([])
+  openFeedback String?  @db.Text
 }
 
 // ─── Magic Link Tokens ────────────────────────────────────────────────────────
@@ -280,6 +293,18 @@ model MagicLinkToken {
 
   artist Artist? @relation(fields: [artistId], references: [id], onDelete: Cascade)
   place  Place?  @relation(fields: [placeId], references: [id], onDelete: Cascade)
+}
+
+// ─── Contact Form Submissions ────────────────────────────────────────────────
+
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  name      String
+  email     String
+  social    String?
+  message   String?  @db.Text
+  intent    String?
 }
 
 // ─── Admin Notes ──────────────────────────────────────────────────────────────

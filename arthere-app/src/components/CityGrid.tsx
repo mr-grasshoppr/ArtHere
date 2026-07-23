@@ -3,10 +3,12 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import styles from './CityGrid.module.css';
 
+interface CropBox { x: number; y: number; w: number; h: number; }
+
 export interface ArtistGridData {
   url: string;   // e.g. /artists/kurtis-piltz
   name: string;
-  images: { src: string; isHero: boolean }[];
+  images: { src: string; cropBox?: CropBox | null; isHero: boolean }[];
 }
 
 interface Props {
@@ -28,13 +30,17 @@ function shuffle<T>(arr: T[]): T[] {
 
 interface SequenceItem {
   src: string;
+  cropBox?: CropBox | null;
   tall: boolean;
   url: string;
   name: string;
 }
 
 function buildSequence(artists: ArtistGridData[], spread: number): SequenceItem[] {
-  const repeats = artists.length < 10 ? 1 : 3;
+  // Repeat enough times to include every image from every artist at least once,
+  // and always at least 3 passes so the scrolling grid has enough content.
+  const maxPerArtist = Math.max(...artists.map(a => a.images.length), 1);
+  const repeats = Math.max(3, maxPerArtist);
   const seq: SequenceItem[] = [];
   const recent: string[] = [];
 
@@ -43,7 +49,7 @@ function buildSequence(artists: ArtistGridData[], spread: number): SequenceItem[
       const candidates = artist.images.filter(img => !recent.includes(img.src));
       const pool = candidates.length > 0 ? candidates : artist.images;
       const img = pool[Math.floor(Math.random() * pool.length)];
-      seq.push({ src: img.src, tall: img.isHero, url: artist.url, name: artist.name });
+      seq.push({ src: img.src, cropBox: img.cropBox, tall: img.isHero, url: artist.url, name: artist.name });
       recent.push(img.src);
       if (recent.length > spread) recent.shift();
     }
@@ -141,6 +147,26 @@ export function CityGrid({ artists, overlayImageUrl, maskImageUrl }: Props) {
       img.src = art.src;
       img.alt = '';
       img.loading = 'eager';
+
+      if (art.cropBox) {
+        const { x, y, w, h } = art.cropBox;
+        img.onload = function () {
+          const iw = img.naturalWidth, ih = img.naturalHeight;
+          const cw = cell.offsetWidth, ch = cell.offsetHeight;
+          const scale = Math.max(cw / (w * iw), ch / (h * ih));
+          img.style.cssText = [
+            'position:absolute',
+            `width:${iw * scale}px`,
+            `height:${ih * scale}px`,
+            `left:${-x * iw * scale}px`,
+            `top:${-y * ih * scale}px`,
+            'max-width:none',
+            'display:block',
+            'transition:transform 0.3s',
+          ].join(';');
+        };
+      }
+
       cell.appendChild(img);
       track.appendChild(cell);
     }

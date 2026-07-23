@@ -35,6 +35,7 @@
 /* Artwork cells */
 
 .cell {
+  position: relative;
   overflow: hidden;
   border-radius: 6px;
   background: #111;

@@ -28,19 +28,23 @@ export default async function CityNetworkPage({
 }) {
   const { slug } = await params;
 
-  const city = await prisma.city.findUnique({
-    where: { slug },
+  const city = await prisma.city.findUnique({ where: { slug } });
+  if (!city) notFound();
+
+  const linkedCity = slug.endsWith('-demo')
+    ? await prisma.city.findUnique({ where: { slug: slug.replace('-demo', '') }, select: { id: true } })
+    : null;
+  const cityIds = linkedCity ? [city.id, linkedCity.id] : [city.id];
+  const isDemo = slug.endsWith('-demo');
+
+  const cityArtists = await prisma.artist.findMany({
+    where: { cityId: { in: cityIds }, ...(!isDemo && { isPlaceholder: false }) },
+    orderBy: { name: 'asc' },
     include: {
-      artists: {
-        orderBy: { name: 'asc' },
-        include: {
-          placeRelations: { include: { place: true } },
-        },
-      },
+      placeRelations: { include: { place: true } },
+      artworkImages: { orderBy: { sortOrder: 'asc' }, take: 1 },
     },
   });
-
-  if (!city) notFound();
 
   const cityDisplayName =
     city.displayName ?? `${city.name}${city.state ? `, ${city.state}` : ''}`;
@@ -52,16 +56,16 @@ export default async function CityNetworkPage({
   const links: NetworkLink[] = [];
   const seenPlaces = new Set<string>();
 
-  for (const artist of city.artists) {
+  for (const artist of cityArtists) {
     const artistId = `artist-${artist.slug}`;
 
     nodes.push({
       id: artistId,
       label: artist.name,
       type: 'artist',
-      href: `/artists/${artist.slug}`,
+      href: `/cities/${slug}/artists/${artist.slug}`,
       external: false,
-      imageUrl: artist.bioPhotoUrl ?? artist.heroImageUrl ?? null,
+      imageUrl: artist.heroImageUrl ?? artist.artworkImages[0]?.url ?? null,
       neighborhood: artist.neighborhood,
       meta: [artist.medium, artist.neighborhood].filter(Boolean).join(' · '),
     });
@@ -76,8 +80,8 @@ export default async function CityNetworkPage({
           id: placeId,
           label: place.name,
           type: 'place',
-          href: place.website,
-          external: true,
+          href: place.inDirectory ? `/cities/${slug}/places/${place.slug}` : place.website,
+          external: !place.inDirectory,
           imageUrl: place.heroImageUrl,
           neighborhood: place.neighborhood,
           meta: place.neighborhood ?? '',

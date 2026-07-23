@@ -5,8 +5,7 @@ import { Nunito } from 'next/font/google';
 import { NavBar } from '@/components/NavBar';
 import { UsMap } from '@/components/UsMap';
 import { SiteFooter } from '@/components/SiteFooter';
-
-import styles from './page.module.css';
+import { AnimatedLogoMask } from '@/components/AnimatedLogoMask';
 
 const nunito = Nunito({
   subsets: ['latin'],
@@ -15,6 +14,8 @@ const nunito = Nunito({
   display: 'swap',
 });
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Art Here',
   description: 'Art Here puts local artists on the map.',
@@ -22,12 +23,6 @@ export const metadata: Metadata = {
 
 // Cities we're planning to bring Art Here to next, but that don't have a
 // directory in the app yet.
-
-// The photo that slides behind the logo on the hero — a plein-air painting
-// held up against the view that inspired it (wide enough for the panning
-// effect). This is a landing-page-only asset, separate from any artist's
-// profile photos.
-const HERO_ART_URL = '/images/hero-painting.jpg';
 
 // Short blurbs for the "2026 Pilot" section, keyed by city slug. Cities
 // with a live directory but no entry here just show the status line with
@@ -46,29 +41,19 @@ const COMING_SOON_CITY_DATA: { label: string; code: string }[] = [
 ];
 
 export default async function Home() {
-  const cities = await prisma.city.findMany({
+  const allCities = await prisma.city.findMany({
     select: { slug: true, name: true, state: true, displayName: true },
     orderBy: { name: 'asc' },
   });
+  const cities = allCities.filter(c => !c.slug.endsWith('-demo'));
 
   return (
     <div className={`${nunito.variable} min-h-full bg-white text-[#1a1a1a]`}>
       <NavBar theme="light" />
 
       {/* Hero: logo shape with artwork sliding behind it, plus cities list */}
-      <section className="min-h-screen flex flex-col items-center justify-center px-5 pt-24 pb-14">
-        <div className={styles.logoMask}>
-          <div className={styles.imageTrack}>
-            <div className={styles.slide}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={HERO_ART_URL} alt="" />
-            </div>
-            <div className={styles.slide}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={HERO_ART_URL} alt="" />
-            </div>
-          </div>
-        </div>
+      <section className="min-h-[80vh] sm:min-h-0 flex flex-col items-center justify-center px-5 pt-24 pb-16">
+        <AnimatedLogoMask width="min(60vw, 520px)" />
 
         <div className="mt-9 flex flex-col items-start gap-1">
           {cities.map(city => {
@@ -149,25 +134,23 @@ export default async function Home() {
             <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-10">
               What&rsquo;s coming
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-12">
-              <div>
-                <h3 className="font-heading text-[1.15rem] font-bold mb-3">Artist Directory</h3>
-                <p className="text-[0.88rem] text-[#666] font-light leading-[1.7]">
-                  Discover local artists, artwork that you love, and the galleries and organizations that support them.
-                </p>
-              </div>
-              <div>
-                <h3 className="font-heading text-[1.15rem] font-bold mb-3">Community Voices</h3>
-                <p className="text-[0.88rem] text-[#666] font-light leading-[1.7]">
-                  We&rsquo;re conducting surveys and interviews to help the community better understand how to support the arts. Stay tuned for stories and insights.
-                </p>
-              </div>
-              <div>
-                <h3 className="font-heading text-[1.15rem] font-bold mb-3">Art Here Network</h3>
-                <p className="text-[0.88rem] text-[#666] font-light leading-[1.7]">
-                  A visualization of galleries, studios, and organizations supporting artists in your area.
-                </p>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+              {[
+                { img: '/images/artist_directory.jpg',  alt: 'Artist Directory',  title: 'Artist Directory',  body: 'Discover local artists, artwork that you love, and the galleries and organizations that support them.' },
+                { img: '/images/Community_voices.png',  alt: 'Community Voices',  title: 'Community Voices',  body: 'With our partners, we’re conducting interviews and surveys to help the community better understand how to support the arts. Stay tuned for stories and insights.' },
+                { img: '/images/Art_Here_Network.png',  alt: 'Art Here Network',  title: 'Art Here Network', body: 'A visualization of galleries, studios, and organizations supporting artists in your area.' },
+              ].map(({ img, alt, title, body }) => (
+                <div key={title} className="rounded-2xl border border-[#dedad4] bg-white overflow-hidden">
+                  <div className="w-full aspect-[3/2] overflow-hidden bg-[#e8e8e4]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={img} alt={alt} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="px-5 py-5">
+                    <h3 className="font-heading text-[1.05rem] font-bold mb-2">{title}</h3>
+                    <p className="text-[0.85rem] text-[#666] font-light leading-[1.7]">{body}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>

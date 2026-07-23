@@ -245,7 +245,7 @@ export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOp
         )}
       </div>
 
-      <ArtistsGrid artists={shown} />
+      <ArtistsGrid artists={shown} citySlug={citySlug} />
     </>
   );
 }

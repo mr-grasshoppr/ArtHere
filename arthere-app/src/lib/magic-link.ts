@@ -6,6 +6,7 @@ import React from 'react';
 const TOKEN_TTL_HOURS = 72;
 const FROM_ADDRESS = 'Art Here <hello@artishere.org>';
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://artishere.org';
+const ADMIN_BCC = 'hello@artishere.org';
 
 // ─── Artist magic links ───────────────────────────────────────────────────────
 
@@ -31,6 +32,7 @@ export async function sendMagicLink({ email, artistId, artistName }: SendArtistL
   await resend.emails.send({
     from: FROM_ADDRESS,
     to: email,
+    bcc: ADMIN_BCC,
     subject: 'Set up your Art Here artist profile',
     react: React.createElement(MagicLinkEmail, { artistName, link }),
   });
@@ -62,6 +64,7 @@ export async function sendPlaceMagicLink({ email, placeId, placeName }: SendPlac
   await resend.emails.send({
     from: FROM_ADDRESS,
     to: email,
+    bcc: ADMIN_BCC,
     subject: `Manage your Art Here page — ${placeName}`,
     react: React.createElement(MagicLinkEmail, {
       artistName: placeName,

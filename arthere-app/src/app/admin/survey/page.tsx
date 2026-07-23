@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import Link from "next/link";
 import SurveyTable from "./SurveyTable";
 import SurveyCharts from "./SurveyCharts";
+import SurveyFunnel from "./SurveyFunnel";
 
 function tally(values: string[], total: number) {
   const counts: Record<string, number> = {};
@@ -21,6 +22,31 @@ export default async function AdminSurveyPage({
   const responses = await prisma.surveyResponse.findMany({
     orderBy: { createdAt: "desc" },
   });
+
+  // ── Drop-off funnel ────────────────────────────────────────────────────────
+  // Each step's count = how many responses have data for that step's sentinel field.
+  // Since the form saves a draft on every Next click, partial responses tell us
+  // exactly how far someone got.
+  const NOT_MAKING_ART = "No, I'm not making art";
+  const funnelSteps = [
+    { label: "Started", count: responses.length },
+    { label: "Location", count: responses.filter((r) => !!(r.zipCode || r.neighborhoods)).length },
+    { label: "About You", count: responses.filter((r) => !!r.artistStatus).length },
+    { label: "Portland Familiarity", count: responses.filter((r) => !!r.portlandFamiliarity).length },
+    { label: "Discovery", count: responses.filter((r) => !!(r.discoveryEase || r.discoveryChannel.length)).length },
+    { label: "Portland Support", count: responses.filter((r) => !!(r.portlandHelpers || r.portlandSupport.length)).length },
+    { label: "Involvement", count: responses.filter((r) => r.involvementInterests.length > 0).length },
+    { label: "Email / Raffle", count: responses.filter((r) => !!r.raffleOptIn).length },
+    { label: "Completed", count: responses.filter((r) => r.learnedAbout.length > 0 || !!r.openFeedback).length },
+  ];
+
+  const artistOnly = responses.filter((r) => r.artistStatus && r.artistStatus !== NOT_MAKING_ART);
+  const artistFunnelSteps = [
+    { label: "Are making art", count: artistOnly.length },
+    { label: "Career Stage", count: artistOnly.filter((r) => !!r.careerStage).length },
+    { label: "Practice Activities", count: artistOnly.filter((r) => r.practiceActivities.length > 0).length },
+    { label: "Practice Goals", count: artistOnly.filter((r) => r.practiceGoals.length > 0).length },
+  ];
 
   // Respondents who are practicing artists (saw the practice/goals questions)
   const artistResponses = responses.filter(
@@ -119,6 +145,12 @@ export default async function AdminSurveyPage({
           );
         })}
       </div>
+
+      <SurveyFunnel
+        steps={funnelSteps}
+        artistSteps={artistFunnelSteps}
+        total={responses.length}
+      />
 
       <SurveyCharts
         artistStatusData={artistStatusData}

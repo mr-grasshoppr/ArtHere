@@ -33,6 +33,7 @@ export interface CommunityPlaceData {
 interface Props {
   places: CommunityPlaceData[];
   neighborhoodOptions: string[];
+  citySlug?: string;
 }
 
 const PILL_BASE =
@@ -95,12 +96,10 @@ function FilterDropdown({ label, pluralLabel, options, value, onChange, isOpen, 
   );
 }
 
-function PlaceCard({ place }: { place: CommunityPlaceData }) {
-  const metaParts = [place.neighborhood, place.description].filter(Boolean) as string[];
-
+function PlaceCard({ place, citySlug }: { place: CommunityPlaceData; citySlug?: string }) {
   return (
     <Link
-      href={`/places/${place.slug}`}
+      href={citySlug ? `/cities/${citySlug}/places/${place.slug}` : `/places/${place.slug}`}
       className="group block border border-[#f0f0f0] rounded-lg overflow-hidden no-underline text-inherit transition-shadow hover:shadow-[0_6px_20px_rgba(0,0,0,0.06)]"
     >
       {/* Image / placeholder */}
@@ -111,7 +110,7 @@ function PlaceCard({ place }: { place: CommunityPlaceData }) {
             alt={place.name}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover"
+            className="object-cover object-[center_40%]"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center px-4">
@@ -125,23 +124,13 @@ function PlaceCard({ place }: { place: CommunityPlaceData }) {
         <div className="font-heading text-[1.05rem] font-bold text-[#1a1a1a] group-hover:underline">
           {place.name}
         </div>
-
-        {metaParts.length > 0 && (
-          <p className="text-[0.82rem] text-[#888] font-light mt-1">{metaParts.join(' · ')}</p>
+        {place.neighborhood && (
+          <p className="text-[0.78rem] text-[#bbb] font-light mt-0.5">{place.neighborhood}</p>
         )}
-
-        {place.artists.length > 0 && (
-          <div className="mt-3 flex flex-col gap-0.5">
-            {place.artists.map(a => {
-              const label = RELATIONSHIP_LABELS[a.relationship];
-              return (
-                <div key={a.slug} className="flex items-baseline gap-1.5 text-[0.8rem]">
-                  <span className="text-[#555]">{a.name}</span>
-                  {label && <span className="text-[#bbb] font-light">· {label}</span>}
-                </div>
-              );
-            })}
-          </div>
+        {place.description && (
+          <p className="text-[0.82rem] text-[#888] font-light mt-2 line-clamp-2 leading-[1.5]">
+            {place.description}
+          </p>
         )}
       </div>
     </Link>
@@ -152,7 +141,7 @@ function PlaceCard({ place }: { place: CommunityPlaceData }) {
  * "All" pill plus a Neighborhood filter dropdown for a city's community
  * directory, followed by a responsive grid of place cards.
  */
-export function CommunityBrowser({ places, neighborhoodOptions }: Props) {
+export function CommunityBrowser({ places, neighborhoodOptions, citySlug }: Props) {
   const [neighborhoodFilter, setNeighborhoodFilter] = useState('');
   const [openDropdown, setOpenDropdown] = useState(false);
 
@@ -197,7 +186,7 @@ export function CommunityBrowser({ places, neighborhoodOptions }: Props) {
 
       <div className="max-w-[1400px] mx-auto px-5 sm:px-10 py-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {shown.map(place => (
-          <PlaceCard key={place.slug} place={place} />
+          <PlaceCard key={place.slug} place={place} citySlug={citySlug} />
         ))}
       </div>
     </>

@@ -68,7 +68,7 @@ export function ProfileGallery({
 
   return (
     <section className="mt-10">
-      <h2 className="text-sm font-medium text-[#999] uppercase tracking-wider mb-4">Work</h2>
+      <h2 className="text-sm font-medium text-[#999] uppercase tracking-wider mb-4">Gallery</h2>
       <div className={`grid gap-3 ${images.length === 1 ? "grid-cols-1" : images.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
         {images.map((img) => (
           <div key={img.id} className="rounded-lg overflow-hidden bg-[#f0ede9] aspect-square relative group">

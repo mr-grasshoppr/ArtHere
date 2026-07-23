@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import ArtistNotes from "./ArtistNotes";
 import ArtistImages from "./ArtistImages";
+import { SendInviteButton } from "./SendInviteButton";
 
 export default async function AdminArtistDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -104,14 +105,15 @@ export default async function AdminArtistDetailPage({ params }: { params: Promis
               </div>
             )}
 
-            <div className="pt-2 border-t border-[#f0f0f0] flex gap-3 flex-wrap">
+            <div className="pt-3 border-t border-[#f0f0f0] flex flex-col gap-2">
               <Link
                 href={`/artists/${artist.slug}`}
                 target="_blank"
-                className="text-xs text-[#888] hover:text-[#1a1a1a] transition-colors"
+                className="inline-flex items-center justify-center px-4 py-2 rounded-full border border-[#e0e0e0] text-xs font-medium text-[#444] hover:border-[#1a1a1a] hover:text-[#1a1a1a] transition-colors"
               >
-                Public profile ↗
+                View public profile ↗
               </Link>
+              <SendInviteButton artistId={artist.id} email={artist.user.email} />
             </div>
           </div>
         </div>

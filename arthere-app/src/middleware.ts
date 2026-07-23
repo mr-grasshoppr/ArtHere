@@ -6,7 +6,7 @@ const COOKIE = 'portland_demo';
 export function middleware(req: NextRequest) {
   const { pathname, searchParams } = req.nextUrl;
 
-  if (pathname.startsWith('/cities/portland')) {
+  if (pathname.startsWith('/cities/portland-demo')) {
     const keyFromUrl = searchParams.get('key');
     const keyFromCookie = req.cookies.get(COOKIE)?.value;
 
@@ -29,5 +29,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/cities/portland', '/cities/portland/:path*'],
+  matcher: ['/cities/portland-demo', '/cities/portland-demo/:path*'],
 };

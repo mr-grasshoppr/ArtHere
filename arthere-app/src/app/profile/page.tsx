@@ -4,6 +4,41 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ProfileHero, ProfileGallery } from "@/components/ProfileImages";
 
+function hireForSentence(name: string, hireFor: string): string {
+  const firstName = name.split(' ')[0];
+  const items = hireFor.split(' · ').map(s => s.trim()).filter(Boolean);
+  const verbs = items.map(item => {
+    const l = item.toLowerCase();
+    if (l.includes('sell') || l.includes('buying existing')) return 'sells artwork';
+    if (l.includes('custom work')) return 'takes commissions';
+    if (l.includes('teach') || l.includes('classes') || l.includes('lessons') || l.includes('workshop')) return 'teaches';
+    if (l.includes('consultation')) return 'offers consultations';
+    return l;
+  });
+  const unique = [...new Set(verbs)];
+  if (unique.length === 0) return '';
+  if (unique.length === 1) return `${firstName} ${unique[0]}.`;
+  const last = unique[unique.length - 1];
+  return `${firstName} ${unique.slice(0, -1).join(', ')}, and ${last}.`;
+}
+
+function socialPlatformName(url: string): string {
+  if (!url.startsWith('http')) return 'Instagram';
+  try {
+    const host = new URL(url).hostname.replace('www.', '');
+    if (host.includes('instagram.com')) return 'Instagram';
+    if (host.includes('facebook.com') || host.includes('fb.com')) return 'Facebook';
+    if (host.includes('etsy.com')) return 'Etsy';
+    if (host.includes('twitter.com') || host.includes('x.com')) return 'X';
+    if (host.includes('tiktok.com')) return 'TikTok';
+    if (host.includes('linkedin.com')) return 'LinkedIn';
+    if (host.includes('pinterest.com')) return 'Pinterest';
+    if (host.includes('behance.net')) return 'Behance';
+    if (host.includes('youtube.com')) return 'YouTube';
+    return 'Social media';
+  } catch { return 'Social media'; }
+}
+
 export default async function ProfilePage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
@@ -70,7 +105,7 @@ export default async function ProfilePage() {
         </a>
         <Link
           href="/onboarding"
-          className="text-sm text-[#555] border border-[#e5e5e5] px-4 py-2 rounded-full hover:border-[#999] transition-colors"
+          className="text-sm font-medium bg-[#1a1a1a] text-white px-5 py-2 rounded-full hover:opacity-80 transition-opacity"
         >
           Edit profile
         </Link>
@@ -102,8 +137,9 @@ export default async function ProfilePage() {
 
       {/* Bio */}
       {artist.bio && (
-        <p className="text-[#444] leading-relaxed mb-10 whitespace-pre-wrap">{artist.bio}</p>
+        <p className="text-[#444] leading-relaxed mb-4 whitespace-pre-wrap">{artist.bio}</p>
       )}
+
 
       {/* Links */}
       {(artist.website || artist.instagram) && (
@@ -125,7 +161,7 @@ export default async function ProfilePage() {
               rel="noopener noreferrer"
               className="text-[#888] text-sm hover:text-[#1a1a1a] transition-colors"
             >
-              Social media ↗
+              {socialPlatformName(artist.instagram)} ↗
             </a>
           )}
         </section>
@@ -133,6 +169,12 @@ export default async function ProfilePage() {
 
       {/* Gallery — shown last */}
       <ProfileGallery initialImages={artist.artworkImages} />
+
+      {artist.hireFor && (
+        <p className="text-[#888] text-sm italic mt-6">
+          {hireForSentence(artist.name, artist.hireFor)}
+        </p>
+      )}
 
       <div className="mt-10 pt-8 border-t border-[#f0f0f0]">
         <a href="/artists" className="text-sm text-[#888] hover:text-[#1a1a1a] transition-colors">

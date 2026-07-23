@@ -19,12 +19,18 @@ const RELATIONSHIP_TYPES = [
   { value: "EXHIBITING_ARTIST", label: "Exhibiting artist" },
   { value: "GRANTEE", label: "Grantee" },
   { value: "IN_SHOP", label: "In shop" },
+  { value: "OTHER", label: "Other…" },
+];
+
+const MEDIUM_OPTIONS = [
+  'Painting', 'Drawing', 'Photography', 'Sculpture', 'Ceramics',
+  'Textiles', 'Woodworking', 'New Media', 'Illustration',
 ];
 
 const OFFERING_OPTIONS = [
-  { value: "sell_existing", label: "Sell existing artwork" },
-  { value: "custom_artwork", label: "Make custom artwork" },
-  { value: "classes", label: "Teach classes, lessons, or workshops" },
+  { value: "sell_existing", label: "Buying existing artwork" },
+  { value: "custom_artwork", label: "Custom work" },
+  { value: "classes", label: "Teaching classes, lessons, or workshops" },
   { value: "consultations", label: "Consultations" },
 ];
 
@@ -50,7 +56,21 @@ export default function OnboardingForm({ initialData }: { places: Place[]; userE
 
   // Profile fields
   const [name, setName] = useState(initialData?.name ?? "");
-  const [medium, setMedium] = useState(initialData?.medium ?? "");
+  const [mediumValues, setMediumValues] = useState<string[]>(() => {
+    if (!initialData?.medium) return [];
+    const parts = initialData.medium.split(',').map(s => s.trim());
+    return parts.filter(p => MEDIUM_OPTIONS.includes(p));
+  });
+  const [mediumOther, setMediumOther] = useState(() => {
+    if (!initialData?.medium) return '';
+    const parts = initialData.medium.split(',').map(s => s.trim());
+    return parts.filter(p => !MEDIUM_OPTIONS.includes(p)).join(', ');
+  });
+  const [showMediumOther, setShowMediumOther] = useState(() => {
+    if (!initialData?.medium) return false;
+    const parts = initialData.medium.split(',').map(s => s.trim());
+    return parts.some(p => !MEDIUM_OPTIONS.includes(p));
+  });
   const [neighborhood, setNeighborhood] = useState(initialData?.neighborhood ?? "");
   const [bio, setBio] = useState(initialData?.bio ?? "");
   const [website, setWebsite] = useState(initialData?.website ?? "");
@@ -59,15 +79,24 @@ export default function OnboardingForm({ initialData }: { places: Place[]; userE
   // Places: 3 fixed rows, pre-filled from existing data
   const [places, setPlaces] = useState(() => {
     const existing = initialData?.placeRelations ?? [];
-    const rows = existing.slice(0, 3).map((r) => ({ placeName: r.placeName, relationship: r.relationship }));
-    while (rows.length < 3) rows.push({ placeName: "", relationship: "MEMBER" });
+    const rows = existing.slice(0, 3).map((r) => ({ placeName: r.placeName, relationship: r.relationship, relationshipLabel: (r as { relationshipLabel?: string }).relationshipLabel ?? "" }));
+    while (rows.length < 3) rows.push({ placeName: "", relationship: "MEMBER", relationshipLabel: "" });
     return rows;
   });
 
   // Offerings checkboxes — reverse-map hireFor text back to option values
+  // Legacy label aliases for backward compat with previously saved data
+  const LEGACY_ALIASES: Record<string, string> = {
+    "sell_existing": "Sell existing artwork",
+    "custom_artwork": "Make custom artwork",
+    "classes": "Teach classes, lessons, or workshops",
+    "consultations": "Consultations",
+  };
   const [offerings, setOfferings] = useState<string[]>(() => {
     if (!initialData?.hireFor) return [];
-    return OFFERING_OPTIONS.filter((o) => initialData.hireFor.includes(o.label)).map((o) => o.value);
+    return OFFERING_OPTIONS.filter((o) =>
+      initialData.hireFor.includes(o.label) || initialData.hireFor.includes(LEGACY_ALIASES[o.value] ?? '')
+    ).map((o) => o.value);
   });
   const [offeringsOther, setOfferingsOther] = useState("");
 
@@ -90,6 +119,16 @@ export default function OnboardingForm({ initialData }: { places: Place[]; userE
 
   // ─── Save ────────────────────────────────────────────────────────────
 
+  function buildMediumText() {
+    const parts = [...mediumValues];
+    if (mediumOther.trim()) parts.push(mediumOther.trim());
+    return parts.join(', ');
+  }
+
+  function toggleMedium(value: string) {
+    setMediumValues(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
+  }
+
   function buildOfferingsText() {
     const selected = offerings.map((v) => OFFERING_OPTIONS.find((o) => o.value === v)?.label ?? v);
     if (offeringsOther.trim()) selected.push(offeringsOther.trim());
@@ -106,7 +145,7 @@ export default function OnboardingForm({ initialData }: { places: Place[]; userE
         body: JSON.stringify({
           name,
           bio,
-          medium,
+          medium: buildMediumText() || null,
           neighborhood,
           hireFor: buildOfferingsText() || null,
           website,
@@ -114,7 +153,7 @@ export default function OnboardingForm({ initialData }: { places: Place[]; userE
           commissionStatus: "UNSPECIFIED",
           placeRelations: places
             .filter((p) => p.placeName.trim())
-            .map((p) => ({ placeName: p.placeName.trim(), relationship: p.relationship })),
+            .map((p) => ({ placeName: p.placeName.trim(), relationship: p.relationship, relationshipLabel: p.relationshipLabel.trim() || null })),
         }),
       });
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? "Something went wrong.");
@@ -133,7 +172,7 @@ export default function OnboardingForm({ initialData }: { places: Place[]; userE
     saveTimer.current = setTimeout(persist, 900);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, bio, medium, neighborhood, website, instagram, JSON.stringify(offerings), offeringsOther, JSON.stringify(places)]);
+  }, [name, bio, JSON.stringify(mediumValues), mediumOther, neighborhood, website, instagram, JSON.stringify(offerings), offeringsOther, JSON.stringify(places)]);
 
   // ─── Images ──────────────────────────────────────────────────────────
 
@@ -200,6 +239,22 @@ export default function OnboardingForm({ initialData }: { places: Place[]; userE
     setImages((prev) => prev.map((img) => ({ ...img, isHero: img.id === id })));
   }
 
+  async function handleGalleryReplace(oldId: string, e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setUploadError("");
+    try {
+      await fetch(`/api/images?id=${oldId}`, { method: "DELETE" });
+      const res = await uploadFile(file, { isHero: "false" });
+      if (!res.ok) throw new Error((await res.json()).error ?? "Upload failed");
+      const data = await res.json();
+      setImages((prev) => prev.map((img) => img.id === oldId ? { id: data.id, url: data.url, isHero: false } : img));
+    } catch (err) { setUploadError(err instanceof Error ? err.message : "Upload failed."); }
+    setUploading(false);
+    e.target.value = "";
+  }
+
   function toggleOffering(value: string) {
     setOfferings((prev) => prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]);
   }
@@ -211,29 +266,27 @@ export default function OnboardingForm({ initialData }: { places: Place[]; userE
     router.push("/profile");
   }
 
-  const subtitle = [medium, neighborhood].filter(Boolean).join(" · ");
-
   return (
     <div>
-      {/* ── Hero + bio photo (full bleed) ────────────────────────────── */}
-      <div className="relative mb-16">
-        {/* Top bar floated over hero */}
-        <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3 bg-gradient-to-b from-black/30 to-transparent">
-          <p className="font-heading text-sm font-bold text-white/80">Build your profile</p>
-          <div className="flex items-center gap-3">
-            {saveStatus === "saving" && <span className="text-white/60 text-xs">Saving…</span>}
-            {saveStatus === "saved" && <span className="text-white/60 text-xs">Saved</span>}
-            {saveStatus === "error" && <span className="text-red-300 text-xs">{errorMsg}</span>}
-            <button type="button" onClick={handleFinish} disabled={finishing} className={BTN}>
-              {finishing ? "Saving…" : "Done"}
-            </button>
-          </div>
+      {/* ── Top bar ──────────────────────────────────────────────────── */}
+      <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-3 bg-white/90 backdrop-blur-sm border-b border-[#f0f0f0]">
+        <p className="font-heading text-sm font-bold text-[#1a1a1a]">Build your profile</p>
+        <div className="flex items-center gap-3">
+          {saveStatus === "saving" && <span className="text-[#999] text-xs">Saving…</span>}
+          {saveStatus === "saved" && <span className="text-[#999] text-xs">Saved</span>}
+          {saveStatus === "error" && <span className="text-red-500 text-xs">{errorMsg}</span>}
+          <button type="button" onClick={handleFinish} disabled={finishing} className={BTN}>
+            {finishing ? "Saving…" : "Done"}
+          </button>
         </div>
+      </div>
 
-        {/* Hero image — full bleed */}
-        <div className="w-full bg-[#f0ede9] overflow-hidden" style={{ aspectRatio: "2.5 / 1" }}>
+      {/* ── Hero + bio photo ─────────────────────────────────────────── */}
+      <div className="max-w-3xl mx-auto px-4 pt-8 mb-20 relative">
+        {/* Hero image */}
+        <div className="rounded-lg overflow-hidden bg-[#f0ede9] relative" style={{ aspectRatio: "2.5 / 1" }}>
           {heroImage ? (
-            <label className="block w-full h-full cursor-pointer group relative">
+            <label className="block w-full h-full cursor-pointer group absolute inset-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={heroImage.url} alt="" className="w-full h-full object-cover" />
               <span className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/25 transition-all opacity-0 group-hover:opacity-100">
@@ -244,25 +297,23 @@ export default function OnboardingForm({ initialData }: { places: Place[]; userE
               <input ref={heroInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleHeroSelect} className="hidden" />
             </label>
           ) : (
-            <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer gap-1">
+            <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer gap-1 absolute inset-0">
               <span className="text-[#bbb] text-sm">{uploading ? "Uploading…" : "+ Add header image"}</span>
               <input ref={heroInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleHeroSelect} className="hidden" />
             </label>
           )}
         </div>
 
-        {/* Bio photo circle — overlaps hero bottom-left */}
-        <label
-          className="absolute -bottom-12 left-4 cursor-pointer"
-        >
+        {/* Bio photo — overlaps hero bottom-left */}
+        <label className="absolute -bottom-14 left-8 cursor-pointer">
           {bioPhotoUrl ? (
-            <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-sm">
+            <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-sm">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={bioPhotoUrl} alt="" className="w-full h-full object-cover hover:opacity-80 transition-opacity" />
             </div>
           ) : (
-            <div className="w-24 h-24 rounded-full bg-[#e8e3dc] border-4 border-white shadow-sm flex flex-col items-center justify-center hover:bg-[#ddd8d0] transition-colors">
-              <span className="text-[#aaa] text-[11px] text-center leading-tight px-2">
+            <div className="w-32 h-32 rounded-full bg-[#e8e3dc] border-4 border-white shadow-sm flex flex-col items-center justify-center hover:bg-[#ddd8d0] transition-colors">
+              <span className="text-[#aaa] text-[12px] text-center leading-tight px-2">
                 {uploadingBio ? "…" : "+ Photo"}
               </span>
             </div>
@@ -272,7 +323,7 @@ export default function OnboardingForm({ initialData }: { places: Place[]; userE
       </div>
 
       {/* ── Constrained content ──────────────────────────────────────── */}
-      <div className="max-w-[980px] mx-auto px-4 sm:px-10 pb-16">
+      <div className="max-w-3xl mx-auto px-4 pb-16">
 
       {uploadError && <p className="text-red-500 text-xs mb-3">{uploadError}</p>}
 
@@ -287,14 +338,40 @@ export default function OnboardingForm({ initialData }: { places: Place[]; userE
           className={`${INLINE} text-3xl font-semibold mb-2`}
         />
         <div className="flex gap-3 flex-wrap mt-2">
-          <div className="flex-1 min-w-[140px]">
-            <input
-              value={medium}
-              onChange={(e) => setMedium(e.target.value)}
-              placeholder="e.g. Ceramicist"
-              className={FIELD}
-            />
-            <p className="text-[0.72rem] font-semibold text-[#1a1a1a] mt-1.5 ml-1">Type of artist</p>
+          <div className="flex-1 min-w-[220px]">
+            <p className="text-[0.72rem] font-semibold text-[#1a1a1a] mb-2 ml-1">Medium</p>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {MEDIUM_OPTIONS.map(opt => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => toggleMedium(opt)}
+                  className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${mediumValues.includes(opt) ? 'bg-[#1a1a1a] text-white border-[#1a1a1a]' : 'bg-white text-[#555] border-[#e0e0e0] hover:border-[#999]'}`}
+                >
+                  {opt}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => {
+                  setShowMediumOther(v => !v);
+                  if (!showMediumOther) setTimeout(() => document.getElementById('medium-other')?.focus(), 50);
+                }}
+                className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${showMediumOther ? 'bg-[#1a1a1a] text-white border-[#1a1a1a]' : 'bg-white text-[#555] border-[#e0e0e0] hover:border-[#999]'}`}
+              >
+                Other
+              </button>
+            </div>
+            {showMediumOther && (
+              <input
+                id="medium-other"
+                value={mediumOther}
+                onChange={e => setMediumOther(e.target.value)}
+                placeholder="Describe your medium…"
+                className={`${FIELD} text-sm mt-1`}
+                autoFocus
+              />
+            )}
           </div>
           <div className="flex-1 min-w-[160px]">
             <input
@@ -303,7 +380,7 @@ export default function OnboardingForm({ initialData }: { places: Place[]; userE
               placeholder="e.g. Multnomah Village"
               className={FIELD}
             />
-            <p className="text-[0.72rem] font-semibold text-[#1a1a1a] mt-1.5 ml-1">Neighborhood</p>
+            <p className="text-[0.72rem] font-semibold text-[#1a1a1a] mt-1.5 ml-1">Neighborhood (primary)</p>
           </div>
         </div>
       </div>
@@ -335,7 +412,7 @@ export default function OnboardingForm({ initialData }: { places: Place[]; userE
             placeholder="https://instagram.com/yourhandle"
             className={FIELD}
           />
-          <p className="text-[0.72rem] font-semibold text-[#1a1a1a] mt-1.5 ml-1">Social media page</p>
+          <p className="text-[0.72rem] font-semibold text-[#1a1a1a] mt-1.5 ml-1">Social media URL</p>
         </div>
       </div>
 
@@ -344,36 +421,46 @@ export default function OnboardingForm({ initialData }: { places: Place[]; userE
         <h2 className="text-[0.7rem] font-semibold text-[#aaa] uppercase tracking-widest mb-3">Community</h2>
         <div className="space-y-2">
           {places.map((rel, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <input
-                value={rel.placeName}
-                onChange={(e) => setPlaces((prev) => prev.map((p, idx) => idx === i ? { ...p, placeName: e.target.value } : p))}
-                placeholder="e.g. Multnomah Arts Center"
-                className={`${FIELD} flex-1`}
-              />
-              <select
-                value={rel.relationship}
-                onChange={(e) => setPlaces((prev) => prev.map((p, idx) => idx === i ? { ...p, relationship: e.target.value } : p))}
-                className="px-3 py-3 rounded-lg border border-[#e8e8e8] text-sm text-[#555] bg-white focus:outline-none focus:border-[#1a1a1a] transition-colors cursor-pointer"
-              >
-                {RELATIONSHIP_TYPES.map((rt) => (
-                  <option key={rt.value} value={rt.value}>{rt.label}</option>
-                ))}
-              </select>
-              {places.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => setPlaces((prev) => prev.filter((_, idx) => idx !== i))}
-                  className="text-[#ccc] hover:text-[#999] text-lg leading-none flex-shrink-0 px-1"
-                  title="Remove"
-                >×</button>
+            <div key={i} className="flex flex-col gap-1.5">
+              <div className="flex items-center gap-2">
+                <input
+                  value={rel.placeName}
+                  onChange={(e) => setPlaces((prev) => prev.map((p, idx) => idx === i ? { ...p, placeName: e.target.value } : p))}
+                  placeholder="e.g. Multnomah Arts Center"
+                  className={`${FIELD} flex-1`}
+                />
+                <select
+                  value={rel.relationship}
+                  onChange={(e) => setPlaces((prev) => prev.map((p, idx) => idx === i ? { ...p, relationship: e.target.value, relationshipLabel: "" } : p))}
+                  className="px-3 py-3 rounded-lg border border-[#e8e8e8] text-sm text-[#555] bg-white focus:outline-none focus:border-[#1a1a1a] transition-colors cursor-pointer"
+                >
+                  {RELATIONSHIP_TYPES.map((rt) => (
+                    <option key={rt.value} value={rt.value}>{rt.label}</option>
+                  ))}
+                </select>
+                {places.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => setPlaces((prev) => prev.filter((_, idx) => idx !== i))}
+                    className="text-[#ccc] hover:text-[#999] text-lg leading-none flex-shrink-0 px-1"
+                    title="Remove"
+                  >×</button>
+                )}
+              </div>
+              {rel.relationship === "OTHER" && (
+                <input
+                  value={rel.relationshipLabel}
+                  onChange={(e) => setPlaces((prev) => prev.map((p, idx) => idx === i ? { ...p, relationshipLabel: e.target.value } : p))}
+                  placeholder="Describe your connection…"
+                  className={`${FIELD} text-sm ml-0`}
+                />
               )}
             </div>
           ))}
         </div>
         <button
           type="button"
-          onClick={() => setPlaces((prev) => [...prev, { placeName: "", relationship: "MEMBER" }])}
+          onClick={() => setPlaces((prev) => [...prev, { placeName: "", relationship: "MEMBER", relationshipLabel: "" }])}
           className="mt-3 text-[0.82rem] text-[#999] hover:text-[#1a1a1a] transition-colors"
         >
           + Add another place
@@ -383,22 +470,26 @@ export default function OnboardingForm({ initialData }: { places: Place[]; userE
       {/* ── Work gallery (max 3) ──────────────────────────────────────── */}
       <div className="mb-8">
         <div className="flex items-baseline gap-2 mb-3">
-          <h2 className="text-[0.7rem] font-semibold text-[#aaa] uppercase tracking-widest">Work</h2>
+          <h2 className="text-[0.7rem] font-semibold text-[#aaa] uppercase tracking-widest">My Gallery</h2>
           <span className="text-[0.7rem] text-[#bbb]">up to 3 photos</span>
         </div>
         <div className="grid grid-cols-3 gap-3">
           {[0, 1, 2].map((slot) => {
             const img = galleryImages[slot];
             return img ? (
-              <div
+              <label
                 key={img.id}
-                onClick={() => setHero(img.id)}
-                title="Click to make this your header image"
-                className="rounded-lg overflow-hidden bg-[#f0ede9] aspect-square cursor-pointer hover:opacity-80 transition-opacity"
+                className="rounded-lg overflow-hidden bg-[#f0ede9] aspect-square cursor-pointer group relative block"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={img.url} alt="" className="w-full h-full object-cover" />
-              </div>
+                <span className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/25 transition-all opacity-0 group-hover:opacity-100">
+                  <span className="text-white text-sm font-medium px-4 py-2 bg-black/50 rounded-full">
+                    {uploading ? "Uploading…" : "Change photo"}
+                  </span>
+                </span>
+                <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => handleGalleryReplace(img.id, e)} className="hidden" />
+              </label>
             ) : (
               <label
                 key={slot}
@@ -418,7 +509,7 @@ export default function OnboardingForm({ initialData }: { places: Place[]; userE
       <div className="border-t border-[#f0f0f0] pt-8 mb-10">
         <h2 className="font-heading text-base font-bold text-[#1a1a1a] mb-1">Additional details</h2>
         <p className="text-[#666] text-sm mb-6">
-          How can people work with you or purchase your artwork?
+          Your selections appear on your profile as: <em>&ldquo;Ask me about buying existing artwork, custom work…&rdquo;</em>
         </p>
 
         <fieldset className="mb-4">
@@ -426,9 +517,7 @@ export default function OnboardingForm({ initialData }: { places: Place[]; userE
           <div className="space-y-2.5">
             {OFFERING_OPTIONS.map((opt) => (
               <label key={opt.value} className="flex items-center gap-3 cursor-pointer group">
-                <div className={`w-5 h-5 rounded flex-shrink-0 border-2 flex items-center justify-center transition-colors ${offerings.includes(opt.value) ? "bg-[#1a1a1a] border-[#1a1a1a]" : "border-[#ddd] group-hover:border-[#999]"}`}
-                  onClick={() => toggleOffering(opt.value)}
-                >
+                <div className={`w-5 h-5 rounded flex-shrink-0 border-2 flex items-center justify-center transition-colors pointer-events-none ${offerings.includes(opt.value) ? "bg-[#1a1a1a] border-[#1a1a1a]" : "border-[#ddd] group-hover:border-[#999]"}`}>
                   {offerings.includes(opt.value) && (
                     <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none">
                       <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -441,8 +530,7 @@ export default function OnboardingForm({ initialData }: { places: Place[]; userE
             ))}
             <label className="flex items-start gap-3 cursor-pointer group">
               <div
-                className={`w-5 h-5 rounded flex-shrink-0 border-2 flex items-center justify-center mt-0.5 transition-colors ${offeringsOther.trim() ? "bg-[#1a1a1a] border-[#1a1a1a]" : "border-[#ddd] group-hover:border-[#999]"}`}
-                onClick={() => !offeringsOther.trim() && document.getElementById("offerings-other")?.focus()}
+                className={`w-5 h-5 rounded flex-shrink-0 border-2 flex items-center justify-center mt-0.5 transition-colors pointer-events-none ${offeringsOther.trim() ? "bg-[#1a1a1a] border-[#1a1a1a]" : "border-[#ddd] group-hover:border-[#999]"}`}
               >
                 {offeringsOther.trim() && (
                   <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none">
