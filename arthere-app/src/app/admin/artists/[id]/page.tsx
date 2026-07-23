@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { requireAdminPage } from "@/lib/admin";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import ArtistNotes from "./ArtistNotes";
@@ -6,6 +7,8 @@ import ArtistImages from "./ArtistImages";
 import { SendInviteButton } from "./SendInviteButton";
 
 export default async function AdminArtistDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  await requireAdminPage();
+
   const { id } = await params;
 
   const artist = await prisma.artist.findUnique({

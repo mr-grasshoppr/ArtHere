@@ -214,6 +214,13 @@ model SurveyResponse {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 
+  // Secret returned only to the client that created this draft; required to
+  // PATCH the response afterward. Prevents anyone else from overwriting it.
+  draftToken  String?   @unique
+  // Set when the respondent reaches the final submit. Rows without it are
+  // abandoned drafts (the form autosaves on every step).
+  completedAt DateTime?
+
   // About Portland
   portlandFamiliarity   String?
   portlandWords         String[] @default([]) // kept for historical responses
@@ -283,7 +290,9 @@ model SurveyResponse {
 
 model MagicLinkToken {
   id        String   @id @default(cuid())
-  token     String   @unique @default(cuid())
+  // Set by the app with crypto.randomBytes — cuid() is not suitable for
+  // bearer tokens (partially predictable).
+  token     String   @unique
   email     String
   artistId  String?
   placeId   String?

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { requireAdminPage } from "@/lib/admin";
 
 const INTENTS: Record<string, string> = {
   featured: "Get Featured",
@@ -8,6 +9,8 @@ const INTENTS: Record<string, string> = {
 };
 
 export default async function AdminContactsPage() {
+  await requireAdminPage();
+
   const submissions = await prisma.contactSubmission.findMany({
     orderBy: { createdAt: "desc" },
   });

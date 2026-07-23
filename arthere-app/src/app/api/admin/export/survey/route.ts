@@ -1,25 +1,10 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-
-const ADMIN_EMAIL = "maryannamail@gmail.com";
-
-function esc(v: string | null | undefined): string {
-  if (v == null || v === "") return "";
-  const s = String(v);
-  if (s.includes(",") || s.includes('"') || s.includes("\n")) {
-    return `"${s.replace(/"/g, '""')}"`;
-  }
-  return s;
-}
-
-function row(values: (string | null | undefined)[]): string {
-  return values.map(esc).join(",");
-}
+import { getAdminSession } from "@/lib/admin";
+import { row, csvResponse } from "@/lib/csv";
 
 export async function GET() {
-  const session = await auth();
-  if (!session?.user?.email || session.user.email !== ADMIN_EMAIL) {
+  if (!(await getAdminSession())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -91,10 +76,5 @@ export async function GET() {
     ),
   ];
 
-  return new NextResponse(lines.join("\n"), {
-    headers: {
-      "Content-Type": "text/csv",
-      "Content-Disposition": `attachment; filename="survey-responses-${new Date().toISOString().slice(0, 10)}.csv"`,
-    },
-  });
+  return csvResponse(lines, "survey-responses");
 }

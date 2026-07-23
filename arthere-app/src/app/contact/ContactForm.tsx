@@ -40,6 +40,7 @@ export function ContactForm() {
   const [email, setEmail] = useState('');
   const [social, setSocial] = useState('');
   const [message, setMessage] = useState(intent.opening);
+  const [honeypot, setHoneypot] = useState(''); // hidden anti-bot field
   const [status, setStatus] = useState<'idle' | 'submitting' | 'sent' | 'error'>('idle');
 
   async function handleSubmit(e: React.FormEvent) {
@@ -49,7 +50,7 @@ export function ContactForm() {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, social, message, intent: intentKey }),
+        body: JSON.stringify({ name, email, social, message, intent: intentKey, website: honeypot }),
       });
       if (!res.ok) throw new Error();
       setStatus('sent');
@@ -94,6 +95,17 @@ export function ContactForm() {
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-4">
+          {/* Honeypot — invisible to humans, filled by bots. Server drops any submission with a value. */}
+          <input
+            type="text"
+            name="website"
+            value={honeypot}
+            onChange={e => setHoneypot(e.target.value)}
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            className="absolute -left-[9999px] h-0 w-0 opacity-0"
+          />
           <div className="flex gap-3 flex-wrap">
             <div className="flex-1 min-w-[180px]">
               <label className="block text-[0.72rem] font-semibold text-[#aaa] mb-1.5 uppercase tracking-widest">Your name</label>

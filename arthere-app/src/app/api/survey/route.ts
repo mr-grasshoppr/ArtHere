@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { randomBytes } from 'crypto';
 import { prisma } from '@/lib/db';
 import { sendMagicLink } from '@/lib/magic-link';
 import { resend } from '@/lib/resend';
+import { rateLimit } from '@/lib/rate-limit';
+import { escapeHtml } from '@/lib/email';
+import { INVOLVEMENT_FEATURED } from '@/lib/survey-constants';
 
 // Returns a trimmed string, or null if empty/not a string. Keeps the
 // SurveyResponse table free of empty-string noise for skipped questions.
@@ -17,64 +21,57 @@ function strArray(value: unknown): string[] {
   return value.filter((v): v is string => typeof v === 'string').map(v => v.trim()).filter(v => v !== '');
 }
 
-// POST — submit a Portland Community Survey response. Public (no auth) —
-// anyone visiting /survey can fill this out.
-export async function POST(req: NextRequest) {
-  let body: Record<string, unknown>;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-  }
+// Maps the request body onto SurveyResponse columns (shared by POST + PATCH).
+function responseData(body: Record<string, unknown>) {
+  return {
+    zipCode: str(body.zipCode),
+    neighborhoods: str(body.neighborhoods),
 
-  const response = await prisma.surveyResponse.create({
-    data: {
-      zipCode: str(body.zipCode),
-      neighborhoods: str(body.neighborhoods),
+    occupation: strArray(body.occupation),
+    occupationOther: str(body.occupationOther),
 
-      occupation: strArray(body.occupation),
-      occupationOther: str(body.occupationOther),
+    artistStatus: str(body.artistStatus),
+    artistStatusOther: str(body.artistStatusOther),
+    artMedium: strArray(body.artMedium),
+    artMediumOther: str(body.artMediumOther),
 
-      artistStatus: str(body.artistStatus),
-      artistStatusOther: str(body.artistStatusOther),
-      artMedium: strArray(body.artMedium),
-      artMediumOther: str(body.artMediumOther),
+    portlandFamiliarity: str(body.portlandFamiliarity),
+    discoveryEase: str(body.discoveryEase),
+    discoveryChannel: strArray(body.discoveryChannel),
+    discoveryChannelOther: str(body.discoveryChannelOther),
 
-      portlandFamiliarity: str(body.portlandFamiliarity),
-      discoveryEase: str(body.discoveryEase),
-      discoveryChannel: strArray(body.discoveryChannel),
-      discoveryChannelOther: str(body.discoveryChannelOther),
+    portlandHelpers: str(body.portlandHelpers),
+    portlandSupport: strArray(body.portlandSupport),
+    portlandSupportOther: str(body.portlandSupportOther),
 
-      portlandHelpers: str(body.portlandHelpers),
-      portlandSupport: strArray(body.portlandSupport),
-      portlandSupportOther: str(body.portlandSupportOther),
+    careerStage: str(body.careerStage),
+    careerStageOther: str(body.careerStageOther),
 
-      careerStage: str(body.careerStage),
-      careerStageOther: str(body.careerStageOther),
+    practiceActivities: strArray(body.practiceActivities),
+    practiceActivitiesOther: str(body.practiceActivitiesOther),
+    practiceGoals: strArray(body.practiceGoals),
+    practiceGoalsOther: str(body.practiceGoalsOther),
+    practiceSupport: str(body.practiceSupport),
 
-      practiceActivities: strArray(body.practiceActivities),
-      practiceActivitiesOther: str(body.practiceActivitiesOther),
-      practiceGoals: strArray(body.practiceGoals),
-      practiceGoalsOther: str(body.practiceGoalsOther),
-      practiceSupport: str(body.practiceSupport),
+    involvementInterests: strArray(body.involvementInterests),
+    involvementInterestsOther: str(body.involvementInterestsOther),
 
-      involvementInterests: strArray(body.involvementInterests),
-      involvementInterestsOther: str(body.involvementInterestsOther),
+    raffleOptIn: str(body.raffleOptIn),
+    email: str(body.email),
+    learnedAbout: strArray(body.learnedAbout),
+    openFeedback: str(body.openFeedback),
+  };
+}
 
-      raffleOptIn: str(body.raffleOptIn),
-      email: str(body.email),
-      learnedAbout: strArray(body.learnedAbout),
-      openFeedback: str(body.openFeedback),
-    },
-  });
-
-  // If the respondent wants to be a featured artist and left an email, provision
-  // their account and send a magic link so they can set up their profile.
-  const involvementList = Array.isArray(body.involvementInterests) ? body.involvementInterests : [];
-  const wantsToBeFeatures = involvementList.includes('Showcase my work on the Art Here platform');
+// Completion side effects: admin notification, respondent thank-you, and
+// featured-artist provisioning. Runs exactly once, when the respondent
+// reaches the final Submit (POST or PATCH with `completed: true`) — drafts
+// must never trigger email.
+async function onCompleted(response: { id: string; email: string | null; involvementInterests: string[] }) {
+  const involvementList = response.involvementInterests;
   const email = response.email;
 
-  if (wantsToBeFeatures && email) {
+  if (involvementList.includes(INVOLVEMENT_FEATURED) && email) {
     try {
       await provisionArtistAndSendLink(email);
     } catch (err) {
@@ -82,10 +79,6 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Notify admin of every new submission.
-  const involvementSummary = involvementList.length
-    ? involvementList.join(', ')
-    : 'None selected';
   resend.emails.send({
     from: 'Art Here <hello@artishere.org>',
     to: 'maryannamail@gmail.com',
@@ -97,11 +90,11 @@ export async function POST(req: NextRequest) {
         <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
           <tr>
             <td style="padding: 8px 12px 8px 0; color: #888; white-space: nowrap; vertical-align: top;">Respondent email</td>
-            <td style="padding: 8px 0; color: #1a1a1a;">${email ? `<a href="mailto:${email}" style="color: #1a1a1a;">${email}</a>` : '<em style="color:#aaa">not provided</em>'}</td>
+            <td style="padding: 8px 0; color: #1a1a1a;">${email ? `<a href="mailto:${escapeHtml(email)}" style="color: #1a1a1a;">${escapeHtml(email)}</a>` : '<em style="color:#aaa">not provided</em>'}</td>
           </tr>
           <tr>
             <td style="padding: 8px 12px 8px 0; color: #888; white-space: nowrap; vertical-align: top;">Get involved</td>
-            <td style="padding: 8px 0; color: #1a1a1a;">${involvementList.length ? involvementList.map(i => `• ${i}`).join('<br>') : '<em style="color:#aaa">None selected</em>'}</td>
+            <td style="padding: 8px 0; color: #1a1a1a;">${involvementList.length ? involvementList.map(i => `• ${escapeHtml(i)}`).join('<br>') : '<em style="color:#aaa">None selected</em>'}</td>
           </tr>
         </table>
         <p style="margin: 28px 0 0;">
@@ -111,7 +104,6 @@ export async function POST(req: NextRequest) {
     `,
   }).catch(err => console.error('[survey] admin notification failed:', err));
 
-  // Send a thank-you to anyone who left an email.
   if (email) {
     resend.emails.send({
       from: 'Art Here <hello@artishere.org>',
@@ -133,8 +125,38 @@ export async function POST(req: NextRequest) {
       `,
     }).catch(err => console.error('[survey] thank-you email failed:', err));
   }
+}
 
-  return NextResponse.json({ ok: true, id: response.id });
+// POST — create a survey response (draft or, with `completed: true`, a
+// finished submission). Public: anyone visiting /survey can fill this out.
+// Returns a draftToken the client must present to PATCH this response later.
+export async function POST(req: NextRequest) {
+  const limited = rateLimit(req, 'survey-post', { limit: 10, windowSeconds: 600 });
+  if (limited) return limited;
+
+  let body: Record<string, unknown>;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  }
+
+  const completed = body.completed === true;
+  const draftToken = randomBytes(24).toString('base64url');
+
+  const response = await prisma.surveyResponse.create({
+    data: {
+      ...responseData(body),
+      draftToken,
+      completedAt: completed ? new Date() : null,
+    },
+  });
+
+  if (completed) {
+    await onCompleted(response);
+  }
+
+  return NextResponse.json({ ok: true, id: response.id, draftToken });
 }
 
 async function provisionArtistAndSendLink(email: string) {
@@ -176,8 +198,12 @@ async function provisionArtistAndSendLink(email: string) {
   });
 }
 
-// PATCH — update an existing draft response by id.
+// PATCH — update an existing response. Requires the draftToken issued to the
+// client that created it; without it anyone could overwrite responses by id.
 export async function PATCH(req: NextRequest) {
+  const limited = rateLimit(req, 'survey-patch', { limit: 60, windowSeconds: 600 });
+  if (limited) return limited;
+
   const id = req.nextUrl.searchParams.get('id');
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
 
@@ -188,47 +214,31 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  await prisma.surveyResponse.update({
+  const draftToken = typeof body.draftToken === 'string' ? body.draftToken : null;
+  if (!draftToken) return NextResponse.json({ error: 'Missing draft token' }, { status: 401 });
+
+  const existing = await prisma.surveyResponse.findUnique({
+    where: { id },
+    select: { draftToken: true, completedAt: true },
+  });
+  if (!existing || !existing.draftToken || existing.draftToken !== draftToken) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
+  const completed = body.completed === true;
+  const firstCompletion = completed && !existing.completedAt;
+
+  const response = await prisma.surveyResponse.update({
     where: { id },
     data: {
-      zipCode: str(body.zipCode),
-      neighborhoods: str(body.neighborhoods),
-
-      occupation: strArray(body.occupation),
-      occupationOther: str(body.occupationOther),
-
-      artistStatus: str(body.artistStatus),
-      artistStatusOther: str(body.artistStatusOther),
-      artMedium: strArray(body.artMedium),
-      artMediumOther: str(body.artMediumOther),
-
-      portlandFamiliarity: str(body.portlandFamiliarity),
-      discoveryEase: str(body.discoveryEase),
-      discoveryChannel: strArray(body.discoveryChannel),
-      discoveryChannelOther: str(body.discoveryChannelOther),
-
-      portlandHelpers: str(body.portlandHelpers),
-      portlandSupport: strArray(body.portlandSupport),
-      portlandSupportOther: str(body.portlandSupportOther),
-
-      careerStage: str(body.careerStage),
-      careerStageOther: str(body.careerStageOther),
-
-      practiceActivities: strArray(body.practiceActivities),
-      practiceActivitiesOther: str(body.practiceActivitiesOther),
-      practiceGoals: strArray(body.practiceGoals),
-      practiceGoalsOther: str(body.practiceGoalsOther),
-      practiceSupport: str(body.practiceSupport),
-
-      involvementInterests: strArray(body.involvementInterests),
-      involvementInterestsOther: str(body.involvementInterestsOther),
-
-      raffleOptIn: str(body.raffleOptIn),
-      email: str(body.email),
-      learnedAbout: strArray(body.learnedAbout),
-      openFeedback: str(body.openFeedback),
+      ...responseData(body),
+      ...(firstCompletion ? { completedAt: new Date() } : {}),
     },
   });
+
+  if (firstCompletion) {
+    await onCompleted(response);
+  }
 
   return NextResponse.json({ ok: true });
 }

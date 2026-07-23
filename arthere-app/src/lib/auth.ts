@@ -12,8 +12,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // Magic links expire in 20 minutes
       maxAge: 60 * 20,
       sendVerificationRequest: async ({ identifier: email, url, provider }) => {
-        console.log("MAGIC_LINK:", url);
         if (process.env.NODE_ENV === "development") {
+          // Dev convenience only — sign-in URLs must never reach production logs.
+          console.log("MAGIC_LINK:", url);
           const { writeFileSync } = await import("fs");
           writeFileSync("/tmp/arthere-dev-link.txt", url);
         }

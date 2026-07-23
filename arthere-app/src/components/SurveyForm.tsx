@@ -2,6 +2,38 @@
 
 import { useState, useEffect } from 'react';
 
+import {
+  OTHER,
+  NONE_OF_THE_ABOVE,
+  OCCUPATION_OTHER,
+  OCCUPATION_PREFER_NOT,
+  OCCUPATION_OPTIONS,
+  NOT_MAKING_ART,
+  ARTIST_STATUS_OPTIONS,
+  ART_MEDIUM_OTHER,
+  ART_MEDIUM_PREFER_NOT,
+  ART_MEDIUM_OPTIONS,
+  PORTLAND_FAMILIARITY_OPTIONS,
+  DISCOVERY_EASE_OPTIONS,
+  DISCOVERY_CHANNEL_OTHER,
+  DISCOVERY_CHANNEL_OPTIONS,
+  PORTLAND_SUPPORT_OTHER,
+  PORTLAND_SUPPORT_NONE,
+  PORTLAND_SUPPORT_OPTIONS,
+  CAREER_STAGE_OTHER,
+  CAREER_STAGE_OPTIONS,
+  PRACTICE_ACTIVITY_OPTIONS,
+  PRACTICE_GOAL_OPTIONS,
+  INVOLVEMENT_OTHER,
+  INVOLVEMENT_NONE,
+  INVOLVEMENT_OPTIONS,
+  RAFFLE_YES,
+  RAFFLE_OPTIONS,
+  LEARNED_ABOUT_OTHER,
+  LEARNED_ABOUT_OPTIONS,
+} from '@/lib/survey-constants';
+
+
 // ─── Answer shape ───────────────────────────────────────────────────────────
 
 interface Answers {
@@ -89,166 +121,6 @@ const initialAnswers: Answers = {
   learnedAboutOther: '',
   openFeedback: '',
 };
-
-// ─── Option lists ────────────────────────────────────────────────────────────
-
-const OCCUPATION_OTHER = 'Other';
-const OCCUPATION_PREFER_NOT = 'Prefer not to say';
-const OCCUPATION_PINNED = ['Not currently working', 'Retired', OCCUPATION_OTHER, OCCUPATION_PREFER_NOT];
-const OCCUPATION_OPTIONS = [
-  'Arts (Visual Art, Dance, Music, Theater)',
-  'Business or Professional Services',
-  'Design or Creative Services',
-  'Education',
-  'Federal or State Government',
-  'Healthcare',
-  'Homemaker',
-  'Local Government (City or County)',
-  'Non-profit',
-  'Technology',
-  'Trades or Manufacturing',
-  'Not currently working',
-  'Retired',
-  OCCUPATION_OTHER,
-  OCCUPATION_PREFER_NOT,
-];
-
-const NOT_MAKING_ART = 'No';
-const OTHER = 'Other';
-const ARTIST_STATUS_OPTIONS = [
-  'Yes, it is my primary occupation',
-  'Yes, I have an active art practice alongside other work',
-  `Yes, I'm an art student`,
-  'Yes, for fun or as a hobby',
-  NOT_MAKING_ART,
-  OTHER,
-];
-
-const ART_MEDIUM_OTHER = 'Other';
-const ART_MEDIUM_PREFER_NOT = 'Prefer not to say';
-const ART_MEDIUM_OPTIONS = [
-  'Ceramics',
-  'Dance',
-  'Digital Art / New Media',
-  'Drawing',
-  'Film / Video',
-  'Illustration',
-  'Music',
-  'Painting',
-  'Photography',
-  'Sculpture',
-  'Textiles',
-  'Theater / Performance',
-  'Woodworking',
-  'Writing / Literary Arts',
-  ART_MEDIUM_OTHER,
-  ART_MEDIUM_PREFER_NOT,
-];
-
-const PORTLAND_FAMILIARITY_OPTIONS = [
-  'Not at all interested',
-  'Slightly interested',
-  'Moderately interested',
-  'Very interested',
-  'Extremely interested',
-];
-
-const DISCOVERY_EASE_OPTIONS = [
-  'Very difficult',
-  'Somewhat difficult',
-  'Neither easy nor difficult',
-  'Somewhat easy',
-  'Very easy',
-];
-
-const DISCOVERY_CHANNEL_OTHER = 'Other';
-const DISCOVERY_CHANNEL_OPTIONS = [
-  'Shops',
-  'Galleries',
-  'Social media',
-  'Art events',
-  'Flyers in public places',
-  'Friends, Family, or Word of Mouth',
-  DISCOVERY_CHANNEL_OTHER,
-];
-
-const PORTLAND_SUPPORT_OTHER = 'Other';
-const PORTLAND_SUPPORT_NONE = 'None of the above';
-const PORTLAND_SUPPORT_OPTIONS = [
-  'Purchase artwork',
-  'Hire or commission artwork',
-  'Collaborate with artists',
-  'Attend events',
-  'Visit galleries or shows',
-  "Share artists' work",
-  'Volunteer',
-  PORTLAND_SUPPORT_OTHER,
-  PORTLAND_SUPPORT_NONE,
-];
-
-const CAREER_STAGE_OTHER = 'Other (please specify)';
-const CAREER_STAGE_OPTIONS = [
-  'Less than 1 year',
-  '1–2 years',
-  '3–5 years',
-  '6–10 years',
-  '11–15 years',
-  '15+ years',
-  CAREER_STAGE_OTHER,
-];
-
-const NONE_OF_THE_ABOVE = 'None of the above';
-const PRACTICE_ACTIVITY_OPTIONS = [
-  'Sold original artwork',
-  'Completed commissions for my artwork',
-  'Shown my artwork in galleries, shows, or public events',
-  'Performed or presented art publicly',
-  'Applied for an artist grant or residency',
-  'Received an artist grant or residency',
-  'Collaborated with other artists or organizations',
-  'Taken a class or training to support my art practice',
-  OTHER,
-  NONE_OF_THE_ABOVE,
-];
-
-const PRACTICE_GOAL_OPTIONS = [
-  'Sell my artwork',
-  'Find more commissions',
-  'Share or promote my art',
-  'Connect with other local artists',
-  'Show my artwork in galleries, shows, or public events',
-  'Find studio space or places to make my work',
-  'Receive an artist grant or residency',
-  'Collaborate with other artists',
-  'Take classes or training to support my art practice',
-  OTHER,
-];
-
-const INVOLVEMENT_OTHER = 'Other';
-const INVOLVEMENT_NONE = 'None of the above';
-const INVOLVEMENT_FEATURED = 'Showcase my work on the Art Here platform';
-const INVOLVEMENT_OPTIONS = [
-  'Keep me posted on Art Here news',
-  INVOLVEMENT_FEATURED,
-  'Volunteer to help Art Here',
-  'Join the parade at Multnomah Days 2026 (August 15, Portland)',
-  'Partner or collaborate',
-  INVOLVEMENT_OTHER,
-  INVOLVEMENT_NONE,
-];
-
-const RAFFLE_YES = 'Yes';
-const RAFFLE_OPTIONS = [RAFFLE_YES, 'No'];
-
-const LEARNED_ABOUT_OTHER = 'Other';
-const LEARNED_ABOUT_OPTIONS = [
-  'Multnomah Arts Center',
-  'Local business',
-  'Local art gallery',
-  'Flyers in public places',
-  'Friends, Family, or Word of Mouth',
-  LEARNED_ABOUT_OTHER,
-];
 
 // ─── Option order randomization ─────────────────────────────────────────────
 
@@ -475,6 +347,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
   const [error, setError] = useState('');
   const [emailTouched, setEmailTouched] = useState(false);
   const [draftId, setDraftId] = useState<string | null>(null);
+  const [draftToken, setDraftToken] = useState<string | null>(null);
 
   const step = history[history.length - 1];
 
@@ -499,22 +372,22 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
   }
 
   async function saveDraft(currentAnswers: Answers) {
-    const payload = { ...currentAnswers };
-    if (draftId) {
+    if (draftId && draftToken) {
       fetch(`/api/survey?id=${draftId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-    } else {
+        body: JSON.stringify({ ...currentAnswers, draftToken }),
+      }).catch(() => {});
+    } else if (!draftId) {
       const res = await fetch('/api/survey', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(currentAnswers),
       });
       if (res.ok) {
         const data = await res.json();
         setDraftId(data.id);
+        setDraftToken(data.draftToken ?? null);
       }
     }
   }
@@ -589,12 +462,12 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
             : answers.learnedAbout.includes(LEARNED_ABOUT_OTHER) ? ['Other'] : []),
         ],
       };
-      const url = draftId ? `/api/survey?id=${draftId}` : '/api/survey';
-      const method = draftId ? 'PATCH' : 'POST';
+      const useDraft = !!(draftId && draftToken);
+      const url = useDraft ? `/api/survey?id=${draftId}` : '/api/survey';
       const res = await fetch(url, {
-        method,
+        method: useDraft ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...payload, completed: true, ...(useDraft ? { draftToken } : {}) }),
       });
       if (!res.ok) throw new Error('Request failed');
       setSubmitted(true);

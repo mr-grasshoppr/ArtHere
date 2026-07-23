@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { resend } from '@/lib/resend';
 import { prisma } from '@/lib/db';
+import { rateLimit } from '@/lib/rate-limit';
+import { escapeHtml, escapeHtmlWithBreaks, isValidEmail } from '@/lib/email';
 
 const INTENTS: Record<string, string> = {
   featured: 'Get Featured on Art Here',
@@ -9,26 +11,48 @@ const INTENTS: Record<string, string> = {
   invite: 'Request an Art Here Invite',
 };
 
+const MAX_NAME = 200;
+const MAX_SOCIAL = 300;
+const MAX_MESSAGE = 5000;
+
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { name, email, social, message, intent } = body;
+  const limited = rateLimit(req, 'contact', { limit: 5, windowSeconds: 600 });
+  if (limited) return limited;
+
+  let body: Record<string, unknown>;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  }
+
+  const { name, email, social, message, intent, website } = body as Record<string, string | undefined>;
+
+  // Honeypot: the visible form never fills this field — bots do.
+  if (website?.trim()) return NextResponse.json({ ok: true });
 
   if (!name?.trim() || !email?.trim()) {
     return NextResponse.json({ error: 'Name and email are required.' }, { status: 400 });
   }
+  if (!isValidEmail(email.trim())) {
+    return NextResponse.json({ error: 'Please enter a valid email address.' }, { status: 400 });
+  }
+  if (name.length > MAX_NAME || (social?.length ?? 0) > MAX_SOCIAL || (message?.length ?? 0) > MAX_MESSAGE) {
+    return NextResponse.json({ error: 'Message too long.' }, { status: 400 });
+  }
 
-  const subject = INTENTS[intent] ?? 'Message from Art Here website';
+  const subject = INTENTS[intent ?? ''] ?? 'Message from Art Here website';
 
   const submitterEmail = email.trim();
   const submitterName = name.trim();
 
   const notificationHtml = `
     <div style="font-family: Georgia, serif; max-width: 520px; margin: 0 auto; padding: 40px 24px; color: #1a1a1a;">
-      <h2 style="font-size: 1.2rem; font-weight: 500; margin: 0 0 24px;">${subject}</h2>
-      <p style="color: #555; margin: 0 0 8px;"><strong>Name:</strong> ${submitterName}</p>
-      <p style="color: #555; margin: 0 0 8px;"><strong>Email:</strong> ${submitterEmail}</p>
-      ${social?.trim() ? `<p style="color: #555; margin: 0 0 8px;"><strong>Website / Social:</strong> ${social.trim()}</p>` : ''}
-      ${message?.trim() ? `<p style="color: #555; margin: 24px 0 0;"><strong>Message:</strong><br>${message.trim().replace(/\n/g, '<br>')}</p>` : ''}
+      <h2 style="font-size: 1.2rem; font-weight: 500; margin: 0 0 24px;">${escapeHtml(subject)}</h2>
+      <p style="color: #555; margin: 0 0 8px;"><strong>Name:</strong> ${escapeHtml(submitterName)}</p>
+      <p style="color: #555; margin: 0 0 8px;"><strong>Email:</strong> ${escapeHtml(submitterEmail)}</p>
+      ${social?.trim() ? `<p style="color: #555; margin: 0 0 8px;"><strong>Website / Social:</strong> ${escapeHtml(social.trim())}</p>` : ''}
+      ${message?.trim() ? `<p style="color: #555; margin: 24px 0 0;"><strong>Message:</strong><br>${escapeHtmlWithBreaks(message.trim())}</p>` : ''}
     </div>
   `;
 
@@ -49,7 +73,7 @@ export async function POST(req: NextRequest) {
             </td>
           </tr>
         </table>
-        <h2 style="font-size:1.35rem;font-weight:700;letter-spacing:-0.01em;margin:0 0 16px;">Thanks for reaching out, ${firstName}.</h2>
+        <h2 style="font-size:1.35rem;font-weight:700;letter-spacing:-0.01em;margin:0 0 16px;">Thanks for reaching out, ${escapeHtml(firstName)}.</h2>
         <p style="color:#555;line-height:1.8;margin:0 0 16px;font-weight:400;">We received your message and will be in touch soon.</p>
         <p style="color:#999;font-size:0.88rem;margin:40px 0 0;font-weight:400;">— The Art Here Team</p>
       </div>

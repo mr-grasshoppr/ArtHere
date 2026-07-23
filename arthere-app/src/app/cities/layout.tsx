@@ -1,5 +1,4 @@
 import { Nunito } from 'next/font/google';
-import { PortlandGate } from '@/components/PortlandGate';
 
 const nunito = Nunito({
   subsets: ['latin'],
@@ -15,7 +14,7 @@ export default function CitiesLayout({ children }: { children: React.ReactNode }
   // own look.
   return (
     <div className={`${nunito.variable} h-full`}>
-      <PortlandGate>{children}</PortlandGate>
+      {children}
     </div>
   );
 }

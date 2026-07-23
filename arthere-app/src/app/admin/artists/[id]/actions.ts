@@ -1,18 +1,9 @@
 "use server";
 
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { PlaceRelationship } from "@prisma/client";
 import { sendMagicLink } from "@/lib/magic-link";
-
-const ADMIN_EMAIL = "maryannamail@gmail.com";
-
-async function requireAdmin() {
-  const session = await auth();
-  if (!session?.user?.email || session.user.email !== ADMIN_EMAIL) {
-    throw new Error("Unauthorized");
-  }
-}
+import { requireAdmin } from "@/lib/admin";
 
 export async function sendArtistInvite(artistId: string) {
   await requireAdmin();

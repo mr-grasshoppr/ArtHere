@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { sendMagicLink, sendPlaceMagicLink } from '@/lib/magic-link';
+import { rateLimit } from '@/lib/rate-limit';
 
 // Always returns 200 — we never confirm whether an email exists.
 export async function POST(req: NextRequest) {
+  const limited = rateLimit(req, 'magic-link', { limit: 5, windowSeconds: 600 });
+  if (limited) return limited;
+
   let body: { email?: string };
   try {
     body = await req.json();

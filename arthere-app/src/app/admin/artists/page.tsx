@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { requireAdminPage } from "@/lib/admin";
 import Link from "next/link";
 import ArtistCharts from "./ArtistCharts";
 
@@ -18,6 +19,8 @@ export default async function AdminArtistsPage({
 }: {
   searchParams: Promise<{ field?: string; value?: string }>;
 }) {
+  await requireAdminPage();
+
   const { field: activeField, value: activeValue } = await searchParams;
 
   const allArtists = await prisma.artist.findMany({

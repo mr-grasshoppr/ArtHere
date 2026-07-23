@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { requireAdminPage } from "@/lib/admin";
 import Link from "next/link";
 import SurveyTable from "./SurveyTable";
 import SurveyCharts from "./SurveyCharts";
@@ -17,6 +18,8 @@ export default async function AdminSurveyPage({
 }: {
   searchParams: Promise<{ filter?: string; field?: string; value?: string }>;
 }) {
+  await requireAdminPage();
+
   const { filter: activeFilter, field: activeField, value: activeValue } = await searchParams;
 
   const responses = await prisma.surveyResponse.findMany({

@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const DEMO_TOKEN = process.env.DEMO_TOKEN ?? 'J3xqN8vM';
+// Gate for the private portland-demo preview. The token lives only in the
+// DEMO_TOKEN env var — if it isn't configured, the gate fails closed.
+const DEMO_TOKEN = process.env.DEMO_TOKEN;
 const COOKIE = 'portland_demo';
 
 export function middleware(req: NextRequest) {
   const { pathname, searchParams } = req.nextUrl;
 
   if (pathname.startsWith('/cities/portland-demo')) {
+    if (!DEMO_TOKEN) {
+      return NextResponse.redirect(new URL('/', req.url));
+    }
+
     const keyFromUrl = searchParams.get('key');
     const keyFromCookie = req.cookies.get(COOKIE)?.value;
 

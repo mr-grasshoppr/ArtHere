@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { searchArtists, type ArtistSearchCandidate, type ArtistSearchResult } from "@/lib/claude";
+import { rateLimit } from "@/lib/rate-limit";
 
 // Natural-language search over an artist directory (optionally scoped to one
 // city). Returns matching artist slugs ranked by relevance, plus a short
@@ -8,6 +9,10 @@ import { searchArtists, type ArtistSearchCandidate, type ArtistSearchResult } fr
 //
 //   GET /api/artists/search?q=...&city=portland
 export async function GET(req: NextRequest) {
+  // Each search costs a Claude call — keep anonymous usage bounded.
+  const limited = rateLimit(req, "artists-search", { limit: 20, windowSeconds: 600 });
+  if (limited) return limited;
+
   const query = req.nextUrl.searchParams.get("q")?.trim() ?? "";
   const citySlug = req.nextUrl.searchParams.get("city") ?? undefined;
 

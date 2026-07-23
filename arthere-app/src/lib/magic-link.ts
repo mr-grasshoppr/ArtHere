@@ -1,9 +1,16 @@
+import { randomBytes } from 'crypto';
 import { prisma } from '@/lib/db';
 import { resend } from '@/lib/resend';
 import { MagicLinkEmail } from '@/emails/MagicLinkEmail';
 import React from 'react';
 
 const TOKEN_TTL_HOURS = 72;
+
+// Bearer tokens must be unguessable — cuid() (the old default) is partially
+// predictable, so we mint them from the CSPRNG instead.
+function newToken(): string {
+  return randomBytes(32).toString('base64url');
+}
 const FROM_ADDRESS = 'Art Here <hello@artishere.org>';
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://artishere.org';
 const ADMIN_BCC = 'hello@artishere.org';
@@ -24,7 +31,7 @@ export async function sendMagicLink({ email, artistId, artistName }: SendArtistL
 
   const expiresAt = new Date(Date.now() + TOKEN_TTL_HOURS * 60 * 60 * 1000);
   const { token } = await prisma.magicLinkToken.create({
-    data: { email, artistId, expiresAt },
+    data: { token: newToken(), email, artistId, expiresAt },
     select: { token: true },
   });
 
@@ -56,7 +63,7 @@ export async function sendPlaceMagicLink({ email, placeId, placeName }: SendPlac
 
   const expiresAt = new Date(Date.now() + TOKEN_TTL_HOURS * 60 * 60 * 1000);
   const { token } = await prisma.magicLinkToken.create({
-    data: { email, placeId, expiresAt },
+    data: { token: newToken(), email, placeId, expiresAt },
     select: { token: true },
   });
 
@@ -90,7 +97,15 @@ export async function verifyMagicLinkToken(token: string) {
   if (record.used) throw new Error('This link has already been used. Request a new one below.');
   if (record.expiresAt < new Date()) throw new Error('This link has expired. Request a new one below.');
 
-  await prisma.magicLinkToken.update({ where: { token }, data: { used: true } });
+  // Atomic consume: the guarded updateMany means that if two requests race
+  // on the same token, exactly one wins — the loser sees count === 0.
+  const consumed = await prisma.magicLinkToken.updateMany({
+    where: { token, used: false },
+    data: { used: true },
+  });
+  if (consumed.count === 0) {
+    throw new Error('This link has already been used. Request a new one below.');
+  }
 
   return { artist: record.artist, place: record.place };
 }

@@ -1,10 +1,13 @@
 import { prisma } from "@/lib/db";
+import { requireAdminPage } from "@/lib/admin";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import AdminProfileEditor from "./AdminProfileEditor";
 import AdminImageManager from "./AdminImageManager";
 
 export default async function AdminArtistEditPage({ params }: { params: Promise<{ id: string }> }) {
+  await requireAdminPage();
+
   const { id } = await params;
 
   const [artist, places] = await Promise.all([
