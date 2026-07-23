@@ -1,8 +1,22 @@
 import { randomBytes } from 'crypto';
+import { render } from '@react-email/components';
 import { prisma } from '@/lib/db';
 import { resend } from '@/lib/resend';
 import { MagicLinkEmail } from '@/emails/MagicLinkEmail';
 import React from 'react';
+
+// Render the email to HTML + plaintext ourselves rather than handing Resend the
+// `react` prop — Resend v6 dynamically imports `@react-email/render` at send
+// time, which isn't resolvable in our bundle and throws "Failed to render
+// React component". Rendering here with the installed `@react-email/components`
+// sidesteps that entirely.
+async function renderEmail(element: React.ReactElement) {
+  const [html, text] = await Promise.all([
+    render(element),
+    render(element, { plainText: true }),
+  ]);
+  return { html, text };
+}
 
 const TOKEN_TTL_HOURS = 72;
 
@@ -36,13 +50,18 @@ export async function sendMagicLink({ email, artistId, artistName }: SendArtistL
   });
 
   const link = `${BASE_URL}/profile/setup?token=${token}`;
-  await resend.emails.send({
+  const { html, text } = await renderEmail(
+    React.createElement(MagicLinkEmail, { artistName, link }),
+  );
+  const { error } = await resend.emails.send({
     from: FROM_ADDRESS,
     to: email,
     bcc: ADMIN_BCC,
     subject: 'Set up your Art Here artist profile',
-    react: React.createElement(MagicLinkEmail, { artistName, link }),
+    html,
+    text,
   });
+  if (error) throw new Error(`Resend: ${error.message ?? error.name}`);
 
   return token;
 }
@@ -68,16 +87,18 @@ export async function sendPlaceMagicLink({ email, placeId, placeName }: SendPlac
   });
 
   const link = `${BASE_URL}/place/setup?token=${token}`;
-  await resend.emails.send({
+  const { html, text } = await renderEmail(
+    React.createElement(MagicLinkEmail, { artistName: placeName, link }),
+  );
+  const { error } = await resend.emails.send({
     from: FROM_ADDRESS,
     to: email,
     bcc: ADMIN_BCC,
     subject: `Manage your Art Here page — ${placeName}`,
-    react: React.createElement(MagicLinkEmail, {
-      artistName: placeName,
-      link,
-    }),
+    html,
+    text,
   });
+  if (error) throw new Error(`Resend: ${error.message ?? error.name}`);
 
   return token;
 }
