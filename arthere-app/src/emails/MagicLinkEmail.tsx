@@ -18,8 +18,13 @@ const LOGO_URL =
   'https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/brand/arthere-logo-email.png';
 
 interface MagicLinkEmailProps {
-  /** Name used in the greeting — an artist's first name, or a place's full name. */
-  artistName: string;
+  /**
+   * Name used in the greeting — an artist's first name, or a place's full
+   * name. Blank/absent for profiles we hold no real name for (the survey
+   * never asks for one), in which case the greeting falls back to "Hi there".
+   * Never pass a name derived from an email address.
+   */
+  artistName?: string | null;
   link: string;
 }
 
@@ -49,14 +54,14 @@ export function MagicLinkEmail({ artistName, link }: MagicLinkEmailProps) {
 
           <Heading style={heading}>You&rsquo;re in.</Heading>
 
-          <Text style={paragraph}>Hi {artistName},</Text>
+          <Text style={paragraph}>Hi {artistName?.trim() || 'there'},</Text>
           <Text style={paragraph}>
-            Thanks for completing the Art Here community survey and expressing interest in being
-            a featured artist. We&rsquo;re excited to have you.
+            Thanks for expressing interest in joining Art Here as a featured artist! We&rsquo;re
+            excited to have you.
           </Text>
           <Text style={paragraph}>
-            Click the button below to set up your artist profile. Once it&rsquo;s live, you&rsquo;ll
-            appear in the Art Here directory for Portland.
+            Click the button below to set up your artist profile. After we launch, your profile
+            and artwork will appear alongside other Portland-area artists.
           </Text>
 
           <Section style={buttonSection}>
