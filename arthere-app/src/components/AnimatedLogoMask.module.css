@@ -2,8 +2,9 @@
   position: relative;
   aspect-ratio: 1668 / 1457;
   overflow: hidden;
-  animation: maskFadeIn 0.8s ease-out both;
-  animation-delay: 0.2s;
+  /* Painted immediately so the logo reads as a solid black mark on first
+     paint; the artwork fades in on top once loaded. */
+  background-color: #1a1a1a;
   -webkit-mask-image: url('/images/arthere-mask.png');
   mask-image: url('/images/arthere-mask.png');
   -webkit-mask-repeat: no-repeat;
@@ -21,6 +22,12 @@
   height: 100%;
   display: flex;
   animation: slide 28s linear infinite;
+  opacity: 0;
+  transition: opacity 0.7s ease-out;
+}
+
+.trackVisible {
+  opacity: 1;
 }
 
 .slide {
@@ -30,10 +37,11 @@
   width: min(60vw, 520px);
 }
 
+/* background-image is set inline from AnimatedLogoMask.tsx so the URLs have a
+   single source of truth shared with the preloader. */
 .kurtisBg {
   height: 100%;
   width: 100%;
-  background-image: url('https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kurtis-piltz/Kurtis_Piltz1.jpeg');
   background-size: 200%;
   background-position: 50% 50%;
   background-repeat: no-repeat;
@@ -42,7 +50,6 @@
 .yongBg {
   height: 100%;
   width: 100%;
-  background-image: url('https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/yong-hong-zhong/yong-hero.png');
   background-size: cover;
   background-position: 50% 50%;
   background-repeat: no-repeat;
@@ -67,11 +74,9 @@
   100% { transform: translateX(-50%); }
 }
 
-@keyframes maskFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .track { animation: none; }
+  .track {
+    animation: none;
+    transition: none;
+  }
 }

@@ -1,5 +1,5 @@
-import Image from 'next/image';
 import Link from 'next/link';
+import { FadeImage } from '@/components/FadeImage';
 
 export interface ArtistCardData {
   slug: string;
@@ -40,7 +40,7 @@ export function ArtistsGrid({ artists, citySlug }: Props) {
         >
           <div className="w-full aspect-square rounded-full overflow-hidden bg-[#f4f4f0] mb-3.5">
             {artist.photoUrl && (
-              <Image
+              <FadeImage
                 src={artist.photoUrl}
                 alt={artist.name}
                 width={400}

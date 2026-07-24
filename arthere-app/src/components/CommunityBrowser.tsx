@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
+import { FadeImage } from '@/components/FadeImage';
 import type { PlaceRelationship } from '@prisma/client';
 import { FilterDropdown, pillClass } from './FilterDropdown';
 
@@ -46,7 +46,7 @@ function PlaceCard({ place, citySlug }: { place: CommunityPlaceData; citySlug?: 
       {/* Image / placeholder */}
       <div className="relative w-full aspect-[16/9] bg-[#f0ede8]">
         {place.heroImageUrl ? (
-          <Image
+          <FadeImage
             src={place.heroImageUrl}
             alt={place.name}
             fill

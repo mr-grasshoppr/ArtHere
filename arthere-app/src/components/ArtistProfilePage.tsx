@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import type { Artist, ArtworkImage, ArtistPlace, Place, City } from '@prisma/client';
 import { NavBar } from '@/components/NavBar';
@@ -221,12 +220,12 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName }: Props) 
               key={img.id}
               className="relative aspect-[4/3] sm:aspect-square overflow-hidden rounded-md bg-[#f4f4f0] group"
             >
-              <Image
+              <FadeImage
                 src={img.url}
                 alt={img.altText ?? ''}
                 fill
                 sizes="(max-width: 640px) 100vw, 33vw"
-                className="object-cover transition-transform duration-[400ms] group-hover:scale-[1.03]"
+                className="object-cover group-hover:scale-[1.03]"
               />
             </div>
           ))}
