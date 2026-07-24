@@ -52,7 +52,7 @@ export function MagicLinkEmail({ artistName, link }: MagicLinkEmailProps) {
             <Img src={LOGO_URL} width="80" alt="Art Here" style={logoImg} />
           </Section>
 
-          <Heading style={heading}>You&rsquo;re in.</Heading>
+          <Heading style={heading}>Welcome to Art Here</Heading>
 
           <Text style={paragraph}>Hi {artistName?.trim() || 'there'},</Text>
           <Text style={paragraph}>
