@@ -26,17 +26,22 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  // Self-service requests come from people who already have a profile and want
+  // to get back in — send the plain "here's your edit link" email, not the
+  // first-time onboarding invite.
   if (user?.artist) {
     await sendMagicLink({
       email,
       artistId: user.artist.id,
       artistName: user.artist.name,
+      variant: 'returning',
     });
   } else if (user?.place) {
     await sendPlaceMagicLink({
       email,
       placeId: user.place.id,
       placeName: user.place.name,
+      variant: 'returning',
     });
   }
 

@@ -3,7 +3,13 @@ import { render } from '@react-email/components';
 import { prisma } from '@/lib/db';
 import { resend } from '@/lib/resend';
 import { MagicLinkEmail } from '@/emails/MagicLinkEmail';
+import { ProfileLinkEmail } from '@/emails/ProfileLinkEmail';
 import React from 'react';
+
+// 'welcome' — first-time onboarding invite (admin-triggered), warm framing.
+// 'returning' — an existing artist/place asked for a fresh sign-in link
+// (self-service via /my-art-here), plain "here's your edit link" framing.
+export type LinkVariant = 'welcome' | 'returning';
 
 // Render the email to HTML + plaintext ourselves rather than handing Resend the
 // `react` prop — Resend v6 dynamically imports `@react-email/render` at send
@@ -31,8 +37,12 @@ const ADMIN_BCC = 'hello@artishere.org';
 
 // Emails greet artists by first name only. Falls back to the full string for
 // single-word names. Place emails deliberately keep the full venue name.
-function firstName(fullName: string): string {
-  return fullName.trim().split(/\s+/)[0] || fullName;
+// Returns null when we have no real name — the email then greets "Hi there"
+// rather than addressing someone by a name invented from their email address.
+function firstName(fullName: string | null | undefined): string | null {
+  const trimmed = fullName?.trim();
+  if (!trimmed) return null;
+  return trimmed.split(/\s+/)[0] || trimmed;
 }
 
 // ─── Artist magic links ───────────────────────────────────────────────────────
@@ -40,10 +50,18 @@ function firstName(fullName: string): string {
 interface SendArtistLinkParams {
   email: string;
   artistId: string;
-  artistName: string;
+  /** Blank for placeholder profiles we hold no real name for. */
+  artistName?: string | null;
+  /** Which email to send. Defaults to the first-time onboarding invite. */
+  variant?: LinkVariant;
 }
 
-export async function sendMagicLink({ email, artistId, artistName }: SendArtistLinkParams) {
+export async function sendMagicLink({
+  email,
+  artistId,
+  artistName,
+  variant = 'welcome',
+}: SendArtistLinkParams) {
   await prisma.magicLinkToken.updateMany({
     where: { artistId, used: false },
     data: { used: true },
@@ -56,14 +74,24 @@ export async function sendMagicLink({ email, artistId, artistName }: SendArtistL
   });
 
   const link = `${BASE_URL}/profile/setup?token=${token}`;
-  const { html, text } = await renderEmail(
-    React.createElement(MagicLinkEmail, { artistName: firstName(artistName), link }),
-  );
+  const name = firstName(artistName);
+  const { element, subject } =
+    variant === 'returning'
+      ? {
+          element: React.createElement(ProfileLinkEmail, { name, link, noun: 'profile' as const }),
+          subject: 'View and edit your Art Here profile',
+        }
+      : {
+          element: React.createElement(MagicLinkEmail, { artistName: name, link }),
+          subject: 'Set up your Art Here artist profile',
+        };
+
+  const { html, text } = await renderEmail(element);
   const { error } = await resend.emails.send({
     from: FROM_ADDRESS,
     to: email,
     bcc: ADMIN_BCC,
-    subject: 'Set up your Art Here artist profile',
+    subject,
     html,
     text,
   });
@@ -78,9 +106,16 @@ interface SendPlaceLinkParams {
   email: string;
   placeId: string;
   placeName: string;
+  /** Which email to send. Defaults to the first-time onboarding invite. */
+  variant?: LinkVariant;
 }
 
-export async function sendPlaceMagicLink({ email, placeId, placeName }: SendPlaceLinkParams) {
+export async function sendPlaceMagicLink({
+  email,
+  placeId,
+  placeName,
+  variant = 'welcome',
+}: SendPlaceLinkParams) {
   await prisma.magicLinkToken.updateMany({
     where: { placeId, used: false },
     data: { used: true },
@@ -93,14 +128,23 @@ export async function sendPlaceMagicLink({ email, placeId, placeName }: SendPlac
   });
 
   const link = `${BASE_URL}/place/setup?token=${token}`;
-  const { html, text } = await renderEmail(
-    React.createElement(MagicLinkEmail, { artistName: placeName, link }),
-  );
+  const { element, subject } =
+    variant === 'returning'
+      ? {
+          element: React.createElement(ProfileLinkEmail, { name: placeName, link, noun: 'page' as const }),
+          subject: 'View and edit your Art Here page',
+        }
+      : {
+          element: React.createElement(MagicLinkEmail, { artistName: placeName, link }),
+          subject: `Manage your Art Here page — ${placeName}`,
+        };
+
+  const { html, text } = await renderEmail(element);
   const { error } = await resend.emails.send({
     from: FROM_ADDRESS,
     to: email,
     bcc: ADMIN_BCC,
-    subject: `Manage your Art Here page — ${placeName}`,
+    subject,
     html,
     text,
   });
