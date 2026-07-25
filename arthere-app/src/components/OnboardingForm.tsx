@@ -84,8 +84,11 @@ export default function OnboardingForm({ initialData }: { initialData: InitialDa
   const [website, setWebsite] = useState(initialData?.website ?? "");
   const [instagram, setInstagram] = useState(initialData?.instagram ?? "");
 
-  // Places: 3 fixed rows, pre-filled from existing data
-  const [places, setPlaces] = useState(() => {
+  // Places: 3 fixed rows, pre-filled from existing data. `placeId` is set only
+  // when a venue is picked from the typeahead (links to that page); otherwise
+  // the name is saved as plain text. Pre-filled rows re-link by exact name on
+  // save, so they don't need a stored id.
+  const [places, setPlaces] = useState<{ placeName: string; placeId?: string; relationship: string; relationshipLabel: string }[]>(() => {
     const existing = initialData?.placeRelations ?? [];
     const rows = existing.slice(0, 3).map((r) => ({ placeName: r.placeName, relationship: r.relationship, relationshipLabel: (r as { relationshipLabel?: string }).relationshipLabel ?? "" }));
     while (rows.length < 3) rows.push({ placeName: "", relationship: "MEMBER", relationshipLabel: "" });
@@ -172,7 +175,7 @@ export default function OnboardingForm({ initialData }: { initialData: InitialDa
           sizeRangeMax: sizeMax || null,
           placeRelations: places
             .filter((p) => p.placeName.trim())
-            .map((p) => ({ placeName: p.placeName.trim(), relationship: p.relationship, relationshipLabel: p.relationshipLabel.trim() || null })),
+            .map((p) => ({ placeId: p.placeId, placeName: p.placeName.trim(), relationship: p.relationship, relationshipLabel: p.relationshipLabel.trim() || null })),
         }),
       });
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? "Something went wrong.");
@@ -438,11 +441,16 @@ export default function OnboardingForm({ initialData }: { initialData: InitialDa
           {places.map((rel, i) => (
             <div key={i} className="flex flex-col gap-1.5">
               <div className="flex items-center gap-2">
-                <input
+                <VenueNameField
                   value={rel.placeName}
-                  onChange={(e) => setPlaces((prev) => prev.map((p, idx) => idx === i ? { ...p, placeName: e.target.value } : p))}
-                  placeholder="e.g. Multnomah Arts Center"
-                  className={`${FIELD} flex-1`}
+                  onChangeText={(text) =>
+                    setPlaces((prev) => prev.map((p, idx) => idx === i ? { ...p, placeName: text, placeId: undefined } : p))
+                  }
+                  onPick={(place) =>
+                    setPlaces((prev) => prev.map((p, idx) => idx === i ? { ...p, placeName: place.name, placeId: place.id } : p))
+                  }
+                  linked={!!rel.placeId}
+                  fieldClass={`${FIELD} flex-1`}
                 />
                 <select
                   value={rel.relationship}
@@ -611,6 +619,106 @@ export default function OnboardingForm({ initialData }: { initialData: InitialDa
       </div>
 
       </div>{/* end constrained content */}
+    </div>
+  );
+}
+
+type VenueSuggestion = { id: string; name: string; slug: string };
+
+// Venue name input with a "did you mean…" typeahead. As the artist types, it
+// searches existing venue PAGES; picking one links to that page (sets placeId),
+// while free-typed names that match nothing are saved as plain text. This is
+// what keeps near-duplicate venues from being created.
+function VenueNameField({
+  value,
+  onChangeText,
+  onPick,
+  linked,
+  fieldClass,
+}: {
+  value: string;
+  onChangeText: (text: string) => void;
+  onPick: (place: VenueSuggestion) => void;
+  linked: boolean;
+  fieldClass: string;
+}) {
+  const [suggestions, setSuggestions] = useState<VenueSuggestion[]>([]);
+  const [open, setOpen] = useState(false);
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const q = value.trim();
+    if (linked || q.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/places/search?q=${encodeURIComponent(q)}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        setSuggestions(data.places ?? []);
+      } catch {
+        /* ignore — typeahead is best-effort */
+      }
+    }, 250);
+    return () => clearTimeout(t);
+  }, [value, linked]);
+
+  useEffect(() => {
+    function onDoc(e: MouseEvent) {
+      if (boxRef.current && !boxRef.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, []);
+
+  // Only prompt when there's no exact match — an exact typed name links by name
+  // on save, so there's nothing to disambiguate.
+  const exact = suggestions.some((s) => s.name.toLowerCase() === value.trim().toLowerCase());
+  const showList = open && !linked && suggestions.length > 0 && !exact;
+
+  return (
+    <div ref={boxRef} className="relative flex-1">
+      <input
+        value={value}
+        onChange={(e) => {
+          onChangeText(e.target.value);
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+        placeholder="e.g. Multnomah Arts Center"
+        className={fieldClass}
+        autoComplete="off"
+      />
+      {linked && (
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[0.7rem] text-green-600 pointer-events-none">
+          ✓ linked
+        </span>
+      )}
+      {showList && (
+        <div className="absolute z-20 left-0 right-0 mt-1 bg-white border border-[#e5e5e5] rounded-lg shadow-lg overflow-hidden">
+          <div className="px-3 py-1.5 text-[0.68rem] text-[#aaa] uppercase tracking-wide border-b border-[#f0f0f0]">
+            Did you mean…
+          </div>
+          {suggestions.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => {
+                onPick(s);
+                setOpen(false);
+              }}
+              className="block w-full text-left px-3 py-2 text-sm text-[#1a1a1a] hover:bg-[#f7f6f3] transition-colors"
+            >
+              {s.name}
+            </button>
+          ))}
+          <div className="px-3 py-1.5 text-[0.72rem] text-[#bbb] border-t border-[#f0f0f0]">
+            Not listed? Keep typing — it&rsquo;ll be saved as text.
+          </div>
+        </div>
+      )}
     </div>
   );
 }

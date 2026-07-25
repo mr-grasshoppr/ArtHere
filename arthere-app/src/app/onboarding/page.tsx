@@ -37,7 +37,7 @@ export default async function OnboardingPage() {
     sizeRangeMin: a.sizeRangeMin,
     sizeRangeMax: a.sizeRangeMax,
     images: a.artworkImages.map((img) => ({ id: img.id, url: img.url, isHero: img.isHero })),
-    placeRelations: a.placeRelations.map((r) => ({ placeName: r.place.name, relationship: r.relationship })),
+    placeRelations: a.placeRelations.map((r) => ({ placeName: r.place?.name ?? r.venueName ?? '', relationship: r.relationship })),
   } : null;
 
   return (

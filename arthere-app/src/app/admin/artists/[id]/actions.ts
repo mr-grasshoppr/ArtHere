@@ -53,8 +53,10 @@ export async function updateArtistProfile(artistId: string, data: ProfileInput) 
     },
   });
 
-  // Replace place relations
-  await prisma.artistPlace.deleteMany({ where: { artistId } });
+  // Replace place relations. Only real-place (placeId) rows are managed here —
+  // leave the artist's own name-only venue mentions (placeId null) untouched so
+  // an admin edit never silently drops them.
+  await prisma.artistPlace.deleteMany({ where: { artistId, placeId: { not: null } } });
   const validRelations = data.placeRelations.filter((r) => r.placeId && r.relationship);
   const seen = new Set<string>();
   const deduped = validRelations.filter((r) => {

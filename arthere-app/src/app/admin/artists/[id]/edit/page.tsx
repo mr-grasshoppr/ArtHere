@@ -24,6 +24,17 @@ export default async function AdminArtistEditPage({ params }: { params: Promise<
 
   if (!artist) notFound();
 
+  // The admin editor manages links to real pages only; narrow away the
+  // artist's name-only venue mentions (placeId null) so the types line up.
+  // Those rows are preserved on save — see updateArtistProfile.
+  const artistForEditor = {
+    ...artist,
+    placeRelations: artist.placeRelations.filter(
+      (r): r is typeof r & { placeId: string; place: NonNullable<(typeof r)['place']> } =>
+        r.place != null && r.placeId != null,
+    ),
+  };
+
   return (
     <div className="max-w-2xl">
       <Link
@@ -44,7 +55,7 @@ export default async function AdminArtistEditPage({ params }: { params: Promise<
         />
       </div>
 
-      <AdminProfileEditor artist={artist} places={places} />
+      <AdminProfileEditor artist={artistForEditor} places={places} />
     </div>
   );
 }

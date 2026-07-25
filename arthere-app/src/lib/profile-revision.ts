@@ -49,8 +49,8 @@ export async function snapshotArtist(artistId: string, editedBy: Editor, editorE
             altText: img.altText,
           })),
           placeRelations: artist.placeRelations.map(r => ({
-            placeId: r.place.id,
-            placeName: r.place.name,
+            placeId: r.place?.id ?? null,
+            placeName: r.place?.name ?? r.venueName,
             relationship: r.relationship,
             relationshipLabel: r.relationshipLabel,
           })),

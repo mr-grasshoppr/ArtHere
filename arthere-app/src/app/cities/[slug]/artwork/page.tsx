@@ -52,7 +52,7 @@ export default async function CityArtworkPage({
       name: artist.name,
       medium: artist.medium,
       neighborhood: artist.neighborhood,
-      communities: artist.placeRelations.map(r => r.place.name),
+      communities: artist.placeRelations.map(r => r.place?.name ?? r.venueName).filter((n): n is string => !!n),
       images: artist.artworkImages
         .filter(img => !img.isHero && img.url !== artist.heroImageUrl)
         .slice(0, 3)

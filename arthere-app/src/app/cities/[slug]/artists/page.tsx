@@ -49,7 +49,7 @@ export default async function CityArtistsPage({
     photoUrl: artist.bioPhotoUrl ?? artist.heroImageUrl ?? null,
     medium: artist.medium,
     neighborhood: artist.neighborhood,
-    communities: artist.placeRelations.map(r => r.place.name),
+    communities: artist.placeRelations.map(r => r.place?.name ?? r.venueName).filter((n): n is string => !!n),
   }));
 
   // Distinct, sorted option lists for the filter dropdowns.

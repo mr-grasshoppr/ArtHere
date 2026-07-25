@@ -8,7 +8,7 @@ import { FadeImage } from '@/components/FadeImage';
 
 export type ArtistWithProfile = Artist & {
   artworkImages: ArtworkImage[];
-  placeRelations: (ArtistPlace & { place: Place })[];
+  placeRelations: (ArtistPlace & { place: Place | null })[];
   city: City | null;
 };
 
@@ -178,33 +178,25 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName }: Props) 
           <div className="text-[0.75rem] uppercase tracking-[0.18em] text-[#999] mb-3">Community</div>
           <div className="flex flex-wrap gap-x-6 gap-y-2 items-baseline">
             {artist.placeRelations.map(rel => {
-              if (rel.place.inDirectory) {
+              // A relation is either a real page (rel.place) or a free-text
+              // venue with no page (rel.venueName). Only venues with a live
+              // directory page link; everything else is plain text.
+              const name = rel.place?.name ?? rel.venueName;
+              if (!name) return null;
+              if (rel.place?.inDirectory) {
                 return (
                   <Link
                     key={rel.id}
                     href={placeHref(rel.place.slug)}
                     className="text-[0.85rem] text-[#666] underline underline-offset-4 decoration-[#ccc] hover:decoration-[#1a1a1a] transition-colors"
                   >
-                    {rel.place.name}
+                    {name}
                   </Link>
-                );
-              }
-              if (rel.place.website) {
-                return (
-                  <a
-                    key={rel.id}
-                    href={rel.place.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[0.85rem] text-[#666] underline underline-offset-4 decoration-[#ccc] hover:decoration-[#1a1a1a] transition-colors"
-                  >
-                    {rel.place.name}
-                  </a>
                 );
               }
               return (
                 <span key={rel.id} className="text-[0.85rem] text-[#aaa] font-light">
-                  {rel.place.name}
+                  {name}
                 </span>
               );
             })}

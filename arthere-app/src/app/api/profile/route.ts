@@ -131,47 +131,54 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Update place relations
+  // Update place relations. Artists never create Place records here: a venue
+  // links internally only if it already has a page (matched by id or exact
+  // name); otherwise it's stored as free-text venueName and rendered without a
+  // link. Near-but-inexact name matches are disambiguated on the client (the
+  // venue field offers existing venues as you type) before we ever get here.
   if (Array.isArray(placeRelations)) {
     await prisma.artistPlace.deleteMany({ where: { artistId: artist.id } });
 
-    const resolved: { placeId: string; relationship: PlaceRelationship; relationshipLabel: string | null }[] = [];
+    type Resolved = {
+      placeId: string | null;
+      venueName: string | null;
+      relationship: PlaceRelationship;
+      relationshipLabel: string | null;
+    };
+    const resolved: Resolved[] = [];
     for (const r of placeRelations as { placeId?: string; placeName?: string; relationship: string; relationshipLabel?: string | null }[]) {
       if (!r.relationship) continue;
+      const relationship = r.relationship as PlaceRelationship;
+      const relationshipLabel = r.relationshipLabel ?? null;
 
-      let placeId = r.placeId;
-      if (!placeId) {
-        const name = r.placeName?.trim();
-        if (!name) continue;
-
-        const existingPlace = await prisma.place.findFirst({
-          where: { name: { equals: name, mode: "insensitive" } },
-        });
-
-        if (existingPlace) {
-          placeId = existingPlace.id;
-        } else {
-          const baseSlug = slugify(name);
-          let placeSlug = baseSlug;
-          let j = 1;
-          while (await prisma.place.findUnique({ where: { slug: placeSlug } })) {
-            placeSlug = `${baseSlug}-${j++}`;
-          }
-          const newPlace = await prisma.place.create({
-            data: { name, slug: placeSlug, inDirectory: false },
-          });
-          placeId = newPlace.id;
-        }
+      // Explicit pick from the venue typeahead — link to that page.
+      if (r.placeId) {
+        resolved.push({ placeId: r.placeId, venueName: null, relationship, relationshipLabel });
+        continue;
       }
 
-      resolved.push({ placeId, relationship: r.relationship as PlaceRelationship, relationshipLabel: r.relationshipLabel ?? null });
+      const name = r.placeName?.trim();
+      if (!name) continue;
+
+      // Exact (case-insensitive) match to an existing page links internally;
+      // anything else is kept as a plain name, never a new Place.
+      const existingPlace = await prisma.place.findFirst({
+        where: { name: { equals: name, mode: "insensitive" } },
+        select: { id: true },
+      });
+
+      resolved.push(
+        existingPlace
+          ? { placeId: existingPlace.id, venueName: null, relationship, relationshipLabel }
+          : { placeId: null, venueName: name, relationship, relationshipLabel },
+      );
     }
 
-    // Drop duplicate (placeId, relationship) pairs — the table has a unique
-    // constraint on that combination.
+    // Drop duplicates. Real places are unique-constrained on
+    // (artist, place, relationship); name-only rows dedupe on the name.
     const seen = new Set<string>();
     const deduped = resolved.filter((r) => {
-      const key = `${r.placeId}:${r.relationship}`;
+      const key = `${r.placeId ?? r.venueName?.toLowerCase()}:${r.relationship}`;
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
@@ -182,8 +189,9 @@ export async function POST(req: NextRequest) {
         data: deduped.map((r) => ({
           artistId: artist.id,
           placeId: r.placeId,
+          venueName: r.venueName,
           relationship: r.relationship,
-          relationshipLabel: r.relationshipLabel ?? null,
+          relationshipLabel: r.relationshipLabel,
         })),
       });
     }

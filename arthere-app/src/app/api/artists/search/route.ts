@@ -37,7 +37,9 @@ export async function GET(req: NextRequest) {
     hireFor: a.hireFor,
     hireTags: a.hireTags,
     commissionStatus: a.commissionStatus,
-    places: a.placeRelations.map((r) => ({ name: r.place.name, neighborhood: r.place.neighborhood })),
+    places: a.placeRelations
+      .map((r) => ({ name: r.place?.name ?? r.venueName, neighborhood: r.place?.neighborhood ?? null }))
+      .filter((p): p is { name: string; neighborhood: string | null } => !!p.name),
     artworkTags: a.artworkImages.map((img) => img.aiTags).filter((t) => t != null),
   }));
 

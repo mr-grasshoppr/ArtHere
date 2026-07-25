@@ -95,7 +95,7 @@ export default async function ProfilePage() {
           )}
           {artist.placeRelations.length > 0 && (
             <p className="text-[#888] mt-0.5">
-              {artist.placeRelations.map((r) => r.place.name).join(" · ")}
+              {artist.placeRelations.map((r) => r.place?.name ?? r.venueName).filter(Boolean).join(" · ")}
             </p>
           )}
         </div>

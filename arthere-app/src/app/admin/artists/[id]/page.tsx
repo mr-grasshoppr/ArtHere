@@ -93,7 +93,8 @@ export default async function AdminArtistDetailPage({ params }: { params: Promis
                 <div className="space-y-1">
                   {artist.placeRelations.map((r) => (
                     <div key={r.id} className="text-sm">
-                      <span className="font-medium">{r.place.name}</span>
+                      <span className="font-medium">{r.place?.name ?? r.venueName}</span>
+                      {!r.place && <span className="text-[#ccc] ml-1 text-xs">(no page)</span>}
                       <span className="text-[#999] ml-1">({r.relationship.toLowerCase()})</span>
                     </div>
                   ))}

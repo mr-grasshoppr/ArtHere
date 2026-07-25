@@ -157,7 +157,12 @@ model Place {
 model ArtistPlace {
   id                String            @id @default(cuid())
   artistId          String
-  placeId           String
+  // A relation points at EITHER an internal Place (placeId, rendered as a link)
+  // OR a free-text venue that has no page yet (venueName, rendered as plain
+  // text with no link). Artists never create Place records — venues without a
+  // page are stored as venueName only. Exactly one of these is set.
+  placeId           String?
+  venueName         String?
   relationship      PlaceRelationship
   relationshipLabel String?
   startedAt         DateTime?
@@ -165,7 +170,7 @@ model ArtistPlace {
   createdAt         DateTime          @default(now())
 
   artist       Artist            @relation(fields: [artistId], references: [id], onDelete: Cascade)
-  place        Place             @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  place        Place?            @relation(fields: [placeId], references: [id], onDelete: Cascade)
 
   @@unique([artistId, placeId, relationship])
   @@index([placeId])
@@ -287,6 +292,9 @@ model SurveyResponse {
   // Referral
   learnedAbout String[] @default([])
   openFeedback String?  @db.Text
+
+  // Admin
+  isTest Boolean @default(false) // flagged by admin to exclude from reporting
 
   @@index([createdAt])
 }

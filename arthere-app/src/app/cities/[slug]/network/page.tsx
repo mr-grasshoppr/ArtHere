@@ -67,20 +67,25 @@ export default async function CityNetworkPage({
     });
 
     for (const rel of artist.placeRelations) {
-      const { place } = rel;
-      const placeId = `place-${place.slug}`;
+      // A relation is either a real page (rel.place) or a free-text venue with
+      // no page (rel.venueName). Name-only venues appear as plain, unlinked
+      // nodes; only live directory pages are clickable.
+      const { place, venueName } = rel;
+      const name = place?.name ?? venueName;
+      if (!name) continue;
+      const placeId = place ? `place-${place.slug}` : `venue-${name.toLowerCase()}`;
 
       if (!seenPlaces.has(placeId)) {
         seenPlaces.add(placeId);
         nodes.push({
           id: placeId,
-          label: place.name,
+          label: name,
           type: 'place',
-          href: place.inDirectory ? `/cities/${slug}/places/${place.slug}` : place.website,
-          external: !place.inDirectory,
-          imageUrl: place.heroImageUrl,
-          neighborhood: place.neighborhood,
-          meta: place.neighborhood ?? '',
+          href: place?.inDirectory ? `/cities/${slug}/places/${place.slug}` : null,
+          external: false,
+          imageUrl: place?.heroImageUrl ?? null,
+          neighborhood: place?.neighborhood ?? null,
+          meta: place?.neighborhood ?? '',
         });
       }
 
