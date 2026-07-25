@@ -5,15 +5,17 @@ import Link from "next/link";
 export default async function AdminOverviewPage() {
   await requireAdminPage();
 
-  const [surveyCount, artistCount, userCount, noteCount, contactCount] = await Promise.all([
-    prisma.surveyResponse.count(),
+  // Admin-flagged test responses are excluded everywhere they'd distort a count.
+  const [surveyCount, artistCount, orgCount, noteCount, contactCount] = await Promise.all([
+    prisma.surveyResponse.count({ where: { isTest: false } }),
     prisma.artist.count(),
-    prisma.user.count(),
+    prisma.place.count(),
     prisma.adminNote.count(),
     prisma.contactSubmission.count(),
   ]);
 
   const recentSurveys = await prisma.surveyResponse.findMany({
+    where: { isTest: false },
     orderBy: { createdAt: "desc" },
     take: 5,
     select: { id: true, createdAt: true, email: true, artistStatus: true, zipCode: true },
@@ -34,7 +36,7 @@ export default async function AdminOverviewPage() {
         {[
           { label: "Survey Responses", value: surveyCount, href: "/admin/survey" },
           { label: "Artist Profiles", value: artistCount, href: "/admin/artists" },
-          { label: "Registered Users", value: userCount, href: "/admin/artists" },
+          { label: "Organizations", value: orgCount, href: "/admin/organizations" },
           { label: "Admin Notes", value: noteCount, href: "/admin/artists" },
           { label: "Contact Submissions", value: contactCount, href: "/admin/contacts" },
         ].map((stat) => (

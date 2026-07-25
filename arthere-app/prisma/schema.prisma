@@ -152,6 +152,7 @@ model Place {
   user         User?         @relation(fields: [userId], references: [id])
   artists      ArtistPlace[]
   magicLinkTokens MagicLinkToken[]
+  adminNotes   AdminNote[]
 }
 
 model ArtistPlace {
@@ -338,14 +339,19 @@ model ContactSubmission {
 
 model AdminNote {
   id        String   @id @default(cuid())
-  artistId  String
+  // Polymorphic: a note belongs to EITHER an artist or a place. Exactly one of
+  // artistId / placeId is set.
+  artistId  String?
+  placeId   String?
   body      String   @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  artist    Artist   @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  artist    Artist?  @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  place     Place?   @relation(fields: [placeId], references: [id], onDelete: Cascade)
 
   @@index([artistId])
+  @@index([placeId])
 }
 
 // ─── Profile Revision History ─────────────────────────────────────────────────
