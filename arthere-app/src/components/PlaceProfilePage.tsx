@@ -50,7 +50,7 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName }: Props) {
             alt={place.name}
             fill
             sizes="100vw"
-            className="object-cover object-[center_100px]"
+            className="object-cover object-[center_38%]"
             priority
           />
         </section>
