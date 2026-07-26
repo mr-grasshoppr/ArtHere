@@ -1,6 +1,6 @@
 'use client';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ImageProps } from 'next/image';
 
 /**
@@ -13,9 +13,21 @@ import type { ImageProps } from 'next/image';
  */
 export function FadeImage({ className = '', style, onLoad, ...props }: ImageProps) {
   const [loaded, setLoaded] = useState(false);
+  const ref = useRef<HTMLImageElement>(null);
+
+  // A cached image can already be complete before hydration attaches the
+  // onLoad handler — in that case onLoad never fires and the image would be
+  // stuck at opacity 0. Detect it on mount so it still reveals.
+  useEffect(() => {
+    if (ref.current?.complete && ref.current.naturalWidth > 0) {
+      setLoaded(true);
+    }
+  }, []);
+
   return (
     <Image
       {...props}
+      ref={ref}
       className={className}
       style={{
         ...style,
