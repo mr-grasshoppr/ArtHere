@@ -112,51 +112,13 @@
             -webkit-mask-size: 100% 100%;
             mask-size: 100% 100%;
         }
-        .image-track {
-            position: absolute;
-            top: 0; left: 0;
-            height: 100%;
-            display: flex;
-            animation: slide 28s linear infinite;
-        }
-        .image-track .slide {
-            position: relative;
-            height: 100%;
-            flex-shrink: 0;
-            min-width: min(60vw, 520px);
-        }
-        .kurtis-bg {
-            height: 100%;
-            width: 100%;
-            background-image: url('https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kurtis-piltz/Kurtis_Piltz1.jpeg');
-            background-size: 200%;
-            background-position: 50% 50%;
-            background-repeat: no-repeat;
-        }
         .yong-bg {
-            height: 100%;
-            width: 100%;
+            position: absolute;
+            inset: 0;
             background-image: url('images/bg-art1.png');
             background-size: cover;
             background-position: 50% 50%;
             background-repeat: no-repeat;
-        }
-        .artist-credit {
-            position: absolute;
-            bottom: 6px;
-            right: 8px;
-            font-family: system-ui, -apple-system, Helvetica, Arial, sans-serif;
-            font-size: 11px;
-            font-weight: 400;
-            color: rgba(255,255,255,0.92);
-            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-            letter-spacing: 0.02em;
-            pointer-events: none;
-            z-index: 2;
-        }
-        @keyframes slide {
-            0%   { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
         }
 
         /* ---- CITIES LIST ---- */
@@ -442,12 +404,7 @@
     <!-- LOGO + CITIES -->
     <div class="logo-window">
         <div class="logo-mask">
-            <div class="image-track">
-                <div class="slide"><div class="kurtis-bg"></div><span class="artist-credit">Kurtis Piltz</span></div>
-                <div class="slide"><div class="yong-bg"></div></div>
-                <div class="slide"><div class="kurtis-bg"></div><span class="artist-credit">Kurtis Piltz</span></div>
-                <div class="slide"><div class="yong-bg"></div></div>
-            </div>
+            <div class="yong-bg"></div>
         </div>
 
         <div class="cities-list">
