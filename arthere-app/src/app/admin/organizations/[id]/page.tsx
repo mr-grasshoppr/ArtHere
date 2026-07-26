@@ -43,6 +43,23 @@ export default async function AdminOrgDetailPage({ params }: { params: Promise<{
             <img src={place.heroImageUrl} alt={place.name} className="w-full aspect-video object-cover rounded-xl bg-[#f0f0f0]" />
           )}
 
+          {place.galleryImages.length > 0 && (
+            <div>
+              <p className="text-xs text-[#999] mb-2 uppercase tracking-wide">Photos ({place.galleryImages.length})</p>
+              <div className="grid grid-cols-3 gap-2">
+                {place.galleryImages.map((url, i) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    key={i}
+                    src={url}
+                    alt={`${place.name} photo ${i + 1}`}
+                    className="w-full aspect-square object-cover rounded-md bg-[#f0f0f0]"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
             <div>
               <h1 className="text-xl font-medium">{place.name}</h1>
