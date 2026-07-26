@@ -5,6 +5,9 @@ import type { Metadata } from 'next';
 import { PlaceProfilePage } from '@/components/PlaceProfilePage';
 import { cityLabel } from '@/components/ArtistProfilePage';
 
+// ISR: content is edited via admin + self-service; regenerate at most every 30s
+export const revalidate = 30;
+
 export async function generateStaticParams() {
   return safeStaticParams(async () => {
     const places = await prisma.place.findMany({ where: { inDirectory: true }, select: { slug: true } });

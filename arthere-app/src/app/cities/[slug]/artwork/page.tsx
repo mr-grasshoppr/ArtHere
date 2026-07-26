@@ -7,6 +7,9 @@ import { NavBar } from '@/components/NavBar';
 import { ArtworkBrowser, type ArtworkArtistData } from '@/components/ArtworkBrowser';
 import { CityBottomBar } from '@/components/CityBottomBar';
 
+// ISR: content is edited via admin + self-service; regenerate at most every 30s
+export const revalidate = 30;
+
 export async function generateStaticParams() {
   return safeStaticParams(async () => {
     const cities = await prisma.city.findMany({ select: { slug: true } });
