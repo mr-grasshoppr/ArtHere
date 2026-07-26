@@ -12,6 +12,7 @@ type Org = {
   website: string;
   email: string;
   heroImageUrl: string | null;
+  thumbnailImageUrl: string | null;
   galleryImages: string[];
 };
 
@@ -41,7 +42,11 @@ export default function OrgEditor({ place }: { place: Org }) {
   const [website, setWebsite] = useState(place.website);
   const [email, setEmail] = useState(place.email);
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(place.heroImageUrl);
+  const [thumbnailImageUrl, setThumbnailImageUrl] = useState<string | null>(place.thumbnailImageUrl);
   const [galleryImages, setGalleryImages] = useState<string[]>(place.galleryImages);
+
+  // Images the thumbnail can be chosen from: the hero plus every gallery photo.
+  const thumbnailChoices = [heroImageUrl, ...galleryImages].filter((u): u is string => !!u);
 
   async function handleHero(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -49,6 +54,19 @@ export default function OrgEditor({ place }: { place: Org }) {
     setUploading(true);
     try {
       setHeroImageUrl(await uploadBlob(file));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed");
+    }
+    setUploading(false);
+    e.target.value = "";
+  }
+
+  async function handleThumbnail(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      setThumbnailImageUrl(await uploadBlob(file));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
     }
@@ -87,6 +105,7 @@ export default function OrgEditor({ place }: { place: Org }) {
           website,
           email,
           heroImageUrl,
+          thumbnailImageUrl,
           galleryImages,
         });
         setSaved(true);
@@ -112,6 +131,37 @@ export default function OrgEditor({ place }: { place: Org }) {
           {uploading ? "Uploading…" : heroImageUrl ? "Replace hero image" : "Upload hero image"}
           <input type="file" accept="image/*" onChange={handleHero} className="hidden" />
         </label>
+      </section>
+
+      {/* Community thumbnail */}
+      <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
+        <div>
+          <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Community thumbnail</h2>
+          <p className="text-xs text-[#aaa] mt-1">The card shown in the Community directory. Defaults to the hero image if none is chosen.</p>
+        </div>
+        <div className="flex flex-wrap gap-3 items-start">
+          {thumbnailChoices.map((url) => {
+            const selected = (thumbnailImageUrl ?? heroImageUrl) === url;
+            return (
+              <button
+                key={url}
+                type="button"
+                onClick={() => setThumbnailImageUrl(url)}
+                className={`relative w-32 aspect-video rounded-md overflow-hidden bg-[#f0f0f0] border-2 transition-colors ${selected ? "border-[#1a1a1a]" : "border-transparent hover:border-[#ccc]"}`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt="" className="w-full h-full object-cover" />
+                {selected && (
+                  <span className="absolute bottom-1 right-1 bg-[#1a1a1a] text-white text-[0.6rem] px-1.5 py-0.5 rounded-full">Thumbnail</span>
+                )}
+              </button>
+            );
+          })}
+          <label className="w-32 aspect-video rounded-md border-2 border-dashed border-[#e5e5e5] flex items-center justify-center cursor-pointer hover:border-[#bbb] transition-colors text-[#ccc] text-xs text-center px-2">
+            {uploading ? "Uploading…" : "+ Upload thumbnail"}
+            <input type="file" accept="image/*" onChange={handleThumbnail} className="hidden" />
+          </label>
+        </div>
       </section>
 
       {/* Basic info */}

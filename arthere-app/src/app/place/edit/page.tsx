@@ -28,6 +28,7 @@ export default async function PlaceEditPage() {
           description: place.description ?? '',
           website: place.website ?? '',
           heroImageUrl: place.heroImageUrl ?? null,
+          thumbnailImageUrl: place.thumbnailImageUrl ?? null,
           galleryImages: place.galleryImages,
           artists: place.artists.map(rel => ({ slug: rel.artist.slug, name: rel.artist.name })),
         }}

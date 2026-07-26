@@ -70,7 +70,9 @@ export default async function CityCommunityPage({
           neighborhood: place.neighborhood,
           description: place.description,
           website: place.website,
-          heroImageUrl: place.heroImageUrl,
+          // The directory card uses the dedicated thumbnail, falling back to
+          // the hero when none is set.
+          heroImageUrl: place.thumbnailImageUrl ?? place.heroImageUrl,
           artists: [],
         });
       }

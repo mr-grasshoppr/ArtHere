@@ -89,6 +89,7 @@ export async function snapshotPlace(placeId: string, editedBy: Editor, editorEma
           website: place.website,
           websiteLabel: place.websiteLabel,
           heroImageUrl: place.heroImageUrl,
+          thumbnailImageUrl: place.thumbnailImageUrl,
           galleryImages: place.galleryImages,
           inDirectory: place.inDirectory,
         },

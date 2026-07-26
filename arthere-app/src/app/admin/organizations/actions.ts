@@ -48,6 +48,7 @@ type OrgInput = {
   website: string;
   email: string;
   heroImageUrl: string | null;
+  thumbnailImageUrl: string | null;
   galleryImages: string[];
 };
 
@@ -62,6 +63,7 @@ export async function updateOrganization(placeId: string, data: OrgInput) {
       description: data.description.trim() || null,
       website: data.website.trim() || null,
       heroImageUrl: data.heroImageUrl,
+      thumbnailImageUrl: data.thumbnailImageUrl,
       galleryImages: data.galleryImages,
     },
   });

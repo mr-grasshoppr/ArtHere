@@ -15,6 +15,7 @@ interface InitialData {
   description: string;
   website: string;
   heroImageUrl: string | null;
+  thumbnailImageUrl: string | null;
   galleryImages: string[];
   artists: Artist[];
 }
@@ -36,6 +37,7 @@ export default function PlaceEditForm({ initialData, placeSlug }: { initialData:
   const [description, setDescription] = useState(initialData.description);
   const [website, setWebsite] = useState(initialData.website);
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(initialData.heroImageUrl);
+  const [thumbnailImageUrl, setThumbnailImageUrl] = useState<string | null>(initialData.thumbnailImageUrl);
   const [galleryImages, setGalleryImages] = useState<string[]>(initialData.galleryImages);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -50,7 +52,7 @@ export default function PlaceEditForm({ initialData, placeSlug }: { initialData:
     return (await res.json()).url as string;
   }
 
-  async function persistAll(overrides: Partial<{ heroImageUrl: string | null; galleryImages: string[] }> = {}) {
+  async function persistAll(overrides: Partial<{ heroImageUrl: string | null; thumbnailImageUrl: string | null; galleryImages: string[] }> = {}) {
     setSaveStatus('saving');
     try {
       const res = await fetch('/api/place/profile', {
@@ -62,6 +64,7 @@ export default function PlaceEditForm({ initialData, placeSlug }: { initialData:
           description,
           website,
           heroImageUrl: 'heroImageUrl' in overrides ? overrides.heroImageUrl : heroImageUrl,
+          thumbnailImageUrl: 'thumbnailImageUrl' in overrides ? overrides.thumbnailImageUrl : thumbnailImageUrl,
           galleryImages: 'galleryImages' in overrides ? overrides.galleryImages : galleryImages,
         }),
       });
@@ -237,6 +240,32 @@ export default function PlaceEditForm({ initialData, placeSlug }: { initialData:
           )}
         </div>
       </div>
+
+      {/* Community thumbnail — which image represents this page in the directory */}
+      {(heroImageUrl || galleryImages.length > 0) && (
+        <div className="max-w-[1200px] mx-auto px-5 pb-10">
+          <div className={`${LABEL} mb-1`}>Community thumbnail</div>
+          <p className="text-[0.72rem] text-[#bbb] mb-4">The image shown on the Community directory. Defaults to your hero image.</p>
+          <div className="flex flex-wrap gap-2.5">
+            {[heroImageUrl, ...galleryImages].filter((u): u is string => !!u).map((url) => {
+              const selected = (thumbnailImageUrl ?? heroImageUrl) === url;
+              return (
+                <button
+                  key={url}
+                  type="button"
+                  onClick={() => { setThumbnailImageUrl(url); persistAll({ thumbnailImageUrl: url }); }}
+                  className={`relative w-28 aspect-video rounded-md overflow-hidden bg-[#f4f4f0] border-2 transition-colors ${selected ? 'border-[#1a1a1a]' : 'border-transparent hover:border-[#ccc]'}`}
+                >
+                  <Image src={url} alt="" fill sizes="112px" className="object-cover" />
+                  {selected && (
+                    <span className="absolute bottom-1 right-1 bg-[#1a1a1a] text-white text-[0.55rem] px-1.5 py-0.5 rounded-full">Thumbnail</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Bottom nav */}
       <div className="max-w-[980px] mx-auto px-5 sm:px-10 py-8 border-t border-[#f0f0f0] flex justify-between items-center">

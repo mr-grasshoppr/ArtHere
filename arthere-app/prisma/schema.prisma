@@ -138,7 +138,10 @@ model Place {
   description  String?       @db.Text
   website      String?
   websiteLabel String?
+  // heroImageUrl heads the org's own page; thumbnailImageUrl is the card shown
+  // in the Community directory. When no thumbnail is set the hero is used.
   heroImageUrl String?
+  thumbnailImageUrl String?
   // A few extra photos shown in a gallery on the place's page.
   galleryImages String[]     @default([])
   // Whether this place appears in the city Community directory page.
