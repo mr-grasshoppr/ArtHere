@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { FramingButton } from '@/components/FramingButton';
 
 interface Artist {
   slug: string;
@@ -160,6 +161,11 @@ export default function PlaceEditForm({ initialData, placeSlug }: { initialData:
               <input ref={heroInputRef} type="file" accept="image/*" onChange={handleHeroSelect} className="hidden" />
             </label>
           )}
+          {heroImageUrl && (
+            <div className="absolute bottom-3 right-3 z-10">
+              <FramingButton imageUrl={heroImageUrl} endpoint="/api/image-focus" aspect="21 / 9" />
+            </div>
+          )}
         </section>
       </div>
 
@@ -230,6 +236,9 @@ export default function PlaceEditForm({ initialData, placeSlug }: { initialData:
               >
                 ×
               </button>
+              <div className="absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <FramingButton imageUrl={url} endpoint="/api/image-focus" aspect="1 / 1" />
+              </div>
             </div>
           ))}
           {galleryImages.length < 6 && (

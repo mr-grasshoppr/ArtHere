@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import Link from 'next/link';
 import { FadeImage } from '@/components/FadeImage';
 import type { PlaceRelationship } from '@prisma/client';
@@ -28,8 +28,8 @@ export interface CommunityPlaceData {
   description: string | null;
   website: string | null;
   heroImageUrl: string | null;
-  /** Auto-detected object-position for the card image; falls back to a default. */
-  focus?: string;
+  /** Auto-detected/manual framing style for the card image; falls back to a default. */
+  focus?: CSSProperties;
   artists: CommunityArtistData[];
 }
 
@@ -54,7 +54,7 @@ function PlaceCard({ place, citySlug }: { place: CommunityPlaceData; citySlug?: 
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover"
-            style={{ objectPosition: place.focus ?? '50% 40%' }}
+            style={place.focus ?? { objectPosition: '50% 40%' }}
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center px-4">

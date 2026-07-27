@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { CSSProperties } from 'react';
 import type { Place, ArtistPlace, Artist, PlaceRelationship } from '@prisma/client';
 import { NavBar } from '@/components/NavBar';
 import { CityBottomBar } from '@/components/CityBottomBar';
@@ -26,7 +27,7 @@ interface Props {
   citySlug?: string;
   cityDisplayName: string;
   /** url → object-position string, from auto-detected image focal points. */
-  focals?: Map<string, string>;
+  focals?: Map<string, CSSProperties>;
 }
 
 /**
@@ -36,7 +37,8 @@ interface Props {
 export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals }: Props) {
   const metaParts = [place.neighborhood].filter(Boolean) as string[];
   // Auto-detected focal point per image, falling back to center.
-  const posOf = (url: string, fallback = '50% 50%') => focals?.get(url) ?? fallback;
+  const styleOf = (url: string, fallback: CSSProperties = { objectPosition: '50% 50%' }) =>
+    focals?.get(url) ?? fallback;
 
   const artistHref = (slug: string) =>
     citySlug ? `/cities/${citySlug}/artists/${slug}` : `/artists/${slug}`;
@@ -55,7 +57,7 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals }: P
             fill
             sizes="100vw"
             className="object-cover"
-            style={{ objectPosition: posOf(place.heroImageUrl, '50% 38%') }}
+            style={styleOf(place.heroImageUrl, { objectPosition: '50% 38%' })}
             priority
           />
         </section>
@@ -130,7 +132,7 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals }: P
                 fill
                 sizes="(max-width: 640px) 100vw, 33vw"
                 className="object-cover group-hover:scale-[1.03]"
-                style={{ objectPosition: posOf(url) }}
+                style={styleOf(url)}
               />
             </div>
           ))}

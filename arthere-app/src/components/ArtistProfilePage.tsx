@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { CSSProperties } from 'react';
 import type { Artist, ArtworkImage, ArtistPlace, Place, City } from '@prisma/client';
 import { NavBar } from '@/components/NavBar';
 import { CityBottomBar } from '@/components/CityBottomBar';
@@ -23,7 +24,7 @@ interface Props {
   citySlug?: string;
   cityDisplayName: string;
   /** url → object-position string, from auto-detected image focal points. */
-  focals?: Map<string, string>;
+  focals?: Map<string, CSSProperties>;
 }
 
 /**
@@ -31,7 +32,8 @@ interface Props {
  * /cities/[slug]/artists/[artistSlug] so the two routes can't drift apart.
  */
 export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals }: Props) {
-  const posOf = (url: string, fallback = '50% 50%') => focals?.get(url) ?? fallback;
+  const styleOf = (url: string, fallback: CSSProperties = { objectPosition: '50% 50%' }) =>
+    focals?.get(url) ?? fallback;
   const heroUrl =
     artist.heroImageUrl ??
     artist.artworkImages.find(img => img.isHero)?.url ??
@@ -79,7 +81,7 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals }:
             fill
             sizes="100vw"
             className="object-cover"
-            style={{ objectPosition: posOf(heroUrl) }}
+            style={styleOf(heroUrl)}
             priority
           />
         </section>
@@ -99,7 +101,8 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals }:
                 alt={artist.name}
                 fill
                 sizes="140px"
-                className="object-cover object-top"
+                className="object-cover"
+                style={styleOf(artist.bioPhotoUrl, { objectPosition: '50% 20%' })}
               />
             </div>
           )}
@@ -222,7 +225,7 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals }:
                 fill
                 sizes="(max-width: 640px) 100vw, 33vw"
                 className="object-cover group-hover:scale-[1.03]"
-                style={{ objectPosition: posOf(img.url) }}
+                style={styleOf(img.url)}
               />
             </div>
           ))}

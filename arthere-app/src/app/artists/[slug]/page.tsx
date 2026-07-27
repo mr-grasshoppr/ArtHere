@@ -3,7 +3,7 @@ import { safeStaticParams } from '@/lib/static-params';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { ArtistProfilePage, cityLabel } from '@/components/ArtistProfilePage';
-import { getFocalPositions } from '@/lib/image-focus';
+import { getFocalStyles } from '@/lib/image-focus';
 
 // ISR: content is edited via admin + self-service; regenerate at most every 30s
 export const revalidate = 30;
@@ -48,8 +48,9 @@ export default async function ArtistPage({
 
   if (!artist) notFound();
 
-  const focals = await getFocalPositions([
+  const focals = await getFocalStyles([
     artist.heroImageUrl,
+    artist.bioPhotoUrl,
     ...artist.artworkImages.map(i => i.url),
   ]);
 

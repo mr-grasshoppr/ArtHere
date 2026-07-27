@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { FramingButton } from "@/components/FramingButton";
 
 type InitialData = {
   name: string; medium: string; neighborhood: string; bio: string;
@@ -304,16 +305,21 @@ export default function OnboardingForm({ initialData }: { initialData: InitialDa
         {/* Hero image */}
         <div className="rounded-lg overflow-hidden bg-[#f0ede9] relative" style={{ aspectRatio: "2.5 / 1" }}>
           {heroImage ? (
-            <label className="block w-full h-full cursor-pointer group absolute inset-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={heroImage.url} alt="" className="w-full h-full object-cover" />
-              <span className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/25 transition-all opacity-0 group-hover:opacity-100">
-                <span className="text-white text-sm font-medium px-4 py-2 bg-black/50 rounded-full">
-                  {uploading ? "Uploading…" : "Change header image"}
+            <>
+              <label className="block w-full h-full cursor-pointer group absolute inset-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={heroImage.url} alt="" className="w-full h-full object-cover" />
+                <span className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/25 transition-all opacity-0 group-hover:opacity-100">
+                  <span className="text-white text-sm font-medium px-4 py-2 bg-black/50 rounded-full">
+                    {uploading ? "Uploading…" : "Change header image"}
+                  </span>
                 </span>
-              </span>
-              <input ref={heroInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleHeroSelect} className="hidden" />
-            </label>
+                <input ref={heroInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleHeroSelect} className="hidden" />
+              </label>
+              <div className="absolute bottom-2 right-2 z-10">
+                <FramingButton imageUrl={heroImage.url} endpoint="/api/image-focus" aspect="2.5 / 1" />
+              </div>
+            </>
           ) : (
             <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer gap-1 absolute inset-0">
               <span className="text-[#bbb] text-sm">{uploading ? "Uploading…" : "+ Add header image"}</span>
@@ -323,21 +329,28 @@ export default function OnboardingForm({ initialData }: { initialData: InitialDa
         </div>
 
         {/* Bio photo — overlaps hero bottom-left */}
-        <label className="absolute -bottom-14 left-8 cursor-pointer">
-          {bioPhotoUrl ? (
-            <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-sm">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={bioPhotoUrl} alt="" className="w-full h-full object-cover hover:opacity-80 transition-opacity" />
-            </div>
-          ) : (
-            <div className="w-32 h-32 rounded-full bg-[#e8e3dc] border-4 border-white shadow-sm flex flex-col items-center justify-center hover:bg-[#ddd8d0] transition-colors">
-              <span className="text-[#aaa] text-[12px] text-center leading-tight px-2">
-                {uploadingBio ? "…" : "+ Photo"}
-              </span>
+        <div className="absolute -bottom-14 left-8">
+          <label className="block cursor-pointer">
+            {bioPhotoUrl ? (
+              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-sm">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={bioPhotoUrl} alt="" className="w-full h-full object-cover hover:opacity-80 transition-opacity" />
+              </div>
+            ) : (
+              <div className="w-32 h-32 rounded-full bg-[#e8e3dc] border-4 border-white shadow-sm flex flex-col items-center justify-center hover:bg-[#ddd8d0] transition-colors">
+                <span className="text-[#aaa] text-[12px] text-center leading-tight px-2">
+                  {uploadingBio ? "…" : "+ Photo"}
+                </span>
+              </div>
+            )}
+            <input ref={bioPhotoInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleBioPhotoSelect} className="hidden" />
+          </label>
+          {bioPhotoUrl && (
+            <div className="absolute bottom-1 right-1">
+              <FramingButton imageUrl={bioPhotoUrl} endpoint="/api/image-focus" aspect="1 / 1" label="Adjust" />
             </div>
           )}
-          <input ref={bioPhotoInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleBioPhotoSelect} className="hidden" />
-        </label>
+        </div>
       </div>
 
       {/* ── Constrained content ──────────────────────────────────────── */}
@@ -500,19 +513,21 @@ export default function OnboardingForm({ initialData }: { initialData: InitialDa
           {[0, 1, 2].map((slot) => {
             const img = galleryImages[slot];
             return img ? (
-              <label
-                key={img.id}
-                className="rounded-lg overflow-hidden bg-[#f0ede9] aspect-square cursor-pointer group relative block"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={img.url} alt="" className="w-full h-full object-cover" />
-                <span className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/25 transition-all opacity-0 group-hover:opacity-100">
-                  <span className="text-white text-sm font-medium px-4 py-2 bg-black/50 rounded-full">
-                    {uploading ? "Uploading…" : "Change photo"}
+              <div key={img.id} className="rounded-lg overflow-hidden bg-[#f0ede9] aspect-square relative group">
+                <label className="absolute inset-0 cursor-pointer block">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={img.url} alt="" className="w-full h-full object-cover" />
+                  <span className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/25 transition-all opacity-0 group-hover:opacity-100">
+                    <span className="text-white text-sm font-medium px-4 py-2 bg-black/50 rounded-full">
+                      {uploading ? "Uploading…" : "Change photo"}
+                    </span>
                   </span>
-                </span>
-                <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => handleGalleryReplace(img.id, e)} className="hidden" />
-              </label>
+                  <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => handleGalleryReplace(img.id, e)} className="hidden" />
+                </label>
+                <div className="absolute bottom-1.5 right-1.5 z-10">
+                  <FramingButton imageUrl={img.url} endpoint="/api/image-focus" aspect="1 / 1" />
+                </div>
+              </div>
             ) : (
               <label
                 key={slot}

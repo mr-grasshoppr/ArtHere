@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { PlaceProfilePage } from '@/components/PlaceProfilePage';
 import { cityLabel } from '@/components/ArtistProfilePage';
-import { getFocalPositions } from '@/lib/image-focus';
+import { getFocalStyles } from '@/lib/image-focus';
 
 // ISR: content is edited via admin + self-service; regenerate at most every 30s
 export const revalidate = 30;
@@ -52,7 +52,7 @@ export default async function PlacePage({
   // one — places themselves aren't tied to a city directly.
   const cityForPlace = place.artists.find(rel => rel.artist.city)?.artist.city ?? null;
 
-  const focals = await getFocalPositions([place.heroImageUrl, ...place.galleryImages]);
+  const focals = await getFocalStyles([place.heroImageUrl, ...place.galleryImages]);
 
   return (
     <PlaceProfilePage

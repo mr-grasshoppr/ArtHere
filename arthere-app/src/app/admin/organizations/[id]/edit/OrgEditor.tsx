@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { updateOrganization } from "../../actions";
+import { FramingButton } from "@/components/FramingButton";
 
 type Org = {
   id: string;
@@ -127,10 +128,20 @@ export default function OrgEditor({ place }: { place: Org }) {
             <img src={heroImageUrl} alt="" className="w-full h-full object-cover" />
           )}
         </div>
-        <label className="inline-block text-sm text-[#555] border border-[#e5e5e5] rounded-full px-4 py-2 cursor-pointer hover:border-[#999] transition-colors">
-          {uploading ? "Uploading…" : heroImageUrl ? "Replace hero image" : "Upload hero image"}
-          <input type="file" accept="image/*" onChange={handleHero} className="hidden" />
-        </label>
+        <div className="flex items-center gap-3">
+          <label className="inline-block text-sm text-[#555] border border-[#e5e5e5] rounded-full px-4 py-2 cursor-pointer hover:border-[#999] transition-colors">
+            {uploading ? "Uploading…" : heroImageUrl ? "Replace hero image" : "Upload hero image"}
+            <input type="file" accept="image/*" onChange={handleHero} className="hidden" />
+          </label>
+          {heroImageUrl && (
+            <FramingButton
+              imageUrl={heroImageUrl}
+              endpoint="/api/admin/image-focus"
+              aspect="21 / 9"
+              className="text-sm text-[#555] hover:text-[#1a1a1a] transition-colors underline underline-offset-2"
+            />
+          )}
+        </div>
       </section>
 
       {/* Community thumbnail */}
@@ -199,13 +210,21 @@ export default function OrgEditor({ place }: { place: Org }) {
             <div key={i} className="relative aspect-square rounded-md overflow-hidden bg-[#f0f0f0] group">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={url} alt="" className="w-full h-full object-cover" />
-              <button
-                type="button"
-                onClick={() => setGalleryImages((prev) => prev.filter((_, idx) => idx !== i))}
-                className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/50 text-white text-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                ×
-              </button>
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1.5 p-2">
+                <FramingButton
+                  imageUrl={url}
+                  endpoint="/api/admin/image-focus"
+                  aspect="1 / 1"
+                  className="w-full text-[11px] bg-white text-[#1a1a1a] rounded px-2 py-1 hover:bg-[#f0f0f0] transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => setGalleryImages((prev) => prev.filter((_, idx) => idx !== i))}
+                  className="w-full text-[11px] bg-red-500 text-white rounded px-2 py-1 hover:bg-red-600 transition-colors"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           ))}
           <label className="aspect-square rounded-md border-2 border-dashed border-[#e5e5e5] flex items-center justify-center cursor-pointer hover:border-[#bbb] transition-colors text-[#ccc] text-sm">

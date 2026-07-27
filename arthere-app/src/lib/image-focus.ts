@@ -1,11 +1,13 @@
 import { prisma } from "@/lib/db";
 import { detectFocalPoint } from "@/lib/claude";
+import type { CSSProperties } from "react";
 
-export type Focal = { x: number; y: number };
+export type Focal = { x: number; y: number; scale: number };
 
 // Compute an image's focal point via the vision model and store it, keyed by
 // URL. Best-effort — a failure is logged and swallowed so it never breaks the
-// upload it's attached to. Skips URLs we've already analyzed.
+// upload it's attached to. Skips URLs we've already analyzed (including ones a
+// human has manually framed — auto-detection never overwrites a manual edit).
 export async function computeAndStoreFocus(url: string): Promise<void> {
   try {
     const existing = await prisma.imageFocus.findUnique({ where: { url }, select: { url: true } });
@@ -29,22 +31,29 @@ export async function getFocals(urls: (string | null | undefined)[]): Promise<Ma
   if (clean.length === 0) return new Map();
   const rows = await prisma.imageFocus.findMany({
     where: { url: { in: clean } },
-    select: { url: true, x: true, y: true },
+    select: { url: true, x: true, y: true, scale: true },
   });
-  return new Map(rows.map((r) => [r.url, { x: r.x, y: r.y }]));
+  return new Map(rows.map((r) => [r.url, { x: r.x, y: r.y, scale: r.scale }]));
 }
 
-// CSS object-position string for a focal point, or a fallback when none exists.
-export function objectPosition(focal: Focal | undefined, fallback = "50% 50%"): string {
-  return focal ? `${focal.x}% ${focal.y}%` : fallback;
+// The CSS for a focal point: object-position places the point within the
+// cover-fit box; when scale > 1, a matching transform-origin zooms in on that
+// exact point without shifting the framing. scale === 1 is identical to plain
+// object-position (so untouched images render exactly as before this existed).
+export function focalStyle(focal: Focal | undefined, fallback = "50% 50%"): CSSProperties {
+  if (!focal) return { objectPosition: fallback };
+  const position = `${focal.x}% ${focal.y}%`;
+  return focal.scale > 1
+    ? { objectPosition: position, transform: `scale(${focal.scale})`, transformOrigin: position }
+    : { objectPosition: position };
 }
 
-// Convenience: fetch focals for a set of URLs and return a url→object-position
-// string map, ready to hand to a display component. URLs without a stored
-// focus are absent (the component falls back to center).
-export async function getFocalPositions(
+// Convenience: fetch focals for a set of URLs and return a url→style map ready
+// to spread onto an <img>/<Image>'s style prop. URLs without a stored focus are
+// absent (the component falls back to center).
+export async function getFocalStyles(
   urls: (string | null | undefined)[],
-): Promise<Map<string, string>> {
+): Promise<Map<string, CSSProperties>> {
   const focals = await getFocals(urls);
-  return new Map([...focals].map(([url, f]) => [url, objectPosition(f)]));
+  return new Map([...focals].map(([url, f]) => [url, focalStyle(f)]));
 }

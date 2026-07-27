@@ -2,6 +2,7 @@
 
 import { useState, useRef, useTransition } from "react";
 import { setHeroImage, deleteImage, setBioPhoto } from "../actions";
+import { FramingButton } from "@/components/FramingButton";
 
 type Image = {
   id: string;
@@ -141,6 +142,15 @@ export default function AdminImageManager({
             >
               {uploadingBio ? "Uploading…" : bioPhotoUrl ? "Replace bio photo" : "Upload bio photo"}
             </label>
+            {bioPhotoUrl && (
+              <FramingButton
+                imageUrl={bioPhotoUrl}
+                endpoint="/api/admin/image-focus"
+                aspect="1 / 1"
+                className="ml-2 inline-block text-sm text-[#555] hover:text-[#1a1a1a] transition-colors underline underline-offset-2"
+                label="Adjust framing"
+              />
+            )}
             <p className="text-xs text-[#bbb] mt-1">Shown on the artist&apos;s profile page</p>
           </div>
         </div>
@@ -176,6 +186,13 @@ export default function AdminImageManager({
                       Set as hero
                     </button>
                   )}
+                  <FramingButton
+                    imageUrl={img.url}
+                    endpoint="/api/admin/image-focus"
+                    aspect={img.isHero ? "21 / 9" : "4 / 3"}
+                    className="w-full text-[11px] bg-white text-[#1a1a1a] rounded px-2 py-1 hover:bg-[#f0f0f0] transition-colors text-center"
+                    label="Adjust framing"
+                  />
                   <button
                     onClick={() => handleDelete(img.id)}
                     disabled={isPending}
