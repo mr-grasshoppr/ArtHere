@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { waitUntil } from '@vercel/functions';
 import { randomBytes } from 'crypto';
+import React from 'react';
+import { render } from '@react-email/components';
+import { SurveyThankYouEmail } from '@/emails/SurveyThankYouEmail';
 import { prisma } from '@/lib/db';
-import { sendMagicLink } from '@/lib/magic-link';
 import { resend } from '@/lib/resend';
 import { rateLimit } from '@/lib/rate-limit';
 import { escapeHtml } from '@/lib/email';
@@ -62,6 +64,9 @@ function responseData(body: Record<string, unknown>) {
     email: str(body.email),
     learnedAbout: strArray(body.learnedAbout),
     openFeedback: str(body.openFeedback),
+
+    // Attribution — which link/channel brought the respondent here.
+    source: str(body.source) ?? 'website',
   };
 }
 
@@ -73,11 +78,16 @@ async function onCompleted(response: { id: string; email: string | null; involve
   const involvementList = response.involvementInterests;
   const email = response.email;
 
+  // Featured-artist interest reserves a placeholder profile so the respondent
+  // shows up in /admin/artists — but we deliberately do NOT email them a
+  // profile-setup link here. Expressing interest is not acceptance; the invite
+  // goes out by hand from the admin dashboard after review. The only mail a
+  // respondent gets is the thank-you below.
   if (involvementList.includes(INVOLVEMENT_FEATURED) && email) {
     try {
-      await provisionArtistAndSendLink(email);
+      await provisionArtistPlaceholder(email);
     } catch (err) {
-      console.error('[survey] magic-link provisioning failed:', err);
+      console.error('[survey] placeholder provisioning failed:', err);
     }
   }
 
@@ -109,26 +119,28 @@ async function onCompleted(response: { id: string; email: string | null; involve
   }).catch(err => console.error('[survey] admin notification failed:', err)));
 
   if (email) {
-    waitUntil(resend.emails.send({
-      from: 'Art Here <hello@artishere.org>',
-      to: email,
-      bcc: 'hello@artishere.org',
-      subject: 'Thank you for completing the PDX Community Survey!',
-      text: `Thank you for completing Art Here's PDX Community Survey! If you expressed interest in getting involved, we'll be in touch soon!\n\n— The Art Here Team\nartishere.org`,
-      html: `
-        <div style="font-family: Georgia, serif; max-width: 480px; margin: 0 auto; padding: 40px 24px; color: #1a1a1a;">
-          <h2 style="font-size: 1.3rem; font-weight: 500; margin: 0 0 20px;">Thank you!</h2>
-          <p style="color: #555; line-height: 1.75; margin: 0 0 16px;">
-            Thank you for completing Art Here's PDX Community Survey! If you expressed interest in getting involved, we'll be in touch soon!
-          </p>
-          <p style="color: #999; font-size: 0.85rem; margin: 32px 0 0;">
-            — The Art Here Team<br>
-            <a href="https://artishere.org" style="color: #999;">artishere.org</a>
-          </p>
-        </div>
-      `,
-    }).catch(err => console.error('[survey] thank-you email failed:', err)));
+    waitUntil(sendThankYou(email).catch(
+      err => console.error('[survey] thank-you email failed:', err),
+    ));
   }
+}
+
+// Rendered here rather than via Resend's `react` prop — see the note in
+// lib/magic-link.ts for why that path throws in our bundle.
+async function sendThankYou(email: string) {
+  const element = React.createElement(SurveyThankYouEmail);
+  const [html, text] = await Promise.all([
+    render(element),
+    render(element, { plainText: true }),
+  ]);
+  await resend.emails.send({
+    from: 'Art Here <hello@artishere.org>',
+    to: email,
+    bcc: 'hello@artishere.org',
+    subject: 'Thank you for completing the PDX Community Survey!',
+    html,
+    text,
+  });
 }
 
 // POST — create a survey response (draft or, with `completed: true`, a
@@ -160,11 +172,13 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ ok: true, id: response.id, draftToken });
 }
 
-async function provisionArtistAndSendLink(email: string) {
-  // Derive a placeholder name and slug from the email local-part.
-  // The artist will set their real name when they complete their profile.
-  const localPart = email.split('@')[0].replace(/[^a-z0-9]/gi, ' ').trim();
-  const placeholderName = localPart.charAt(0).toUpperCase() + localPart.slice(1);
+// Reserves a User + placeholder Artist for a respondent who asked to be a
+// featured artist, so an admin can review and invite them later. Sends nothing.
+async function provisionArtistPlaceholder(email: string) {
+  // The survey never asks for a name, so we don't have one. Leave it blank
+  // rather than inventing one from the email local-part — a derived name like
+  // "Maryannamail" would end up greeting them in the invite email and showing
+  // as their name in the admin list.
 
   // Upsert User.
   const user = await prisma.user.upsert({
@@ -181,21 +195,19 @@ async function provisionArtistAndSendLink(email: string) {
   const slug = `${baseSlug}-${user.id.slice(-6)}`;
 
   // Upsert Artist — if the user submitted the survey twice we reuse their record.
-  const artist = await prisma.artist.upsert({
+  // isPlaceholder keeps this stub out of the public directory (see
+  // lib/city-scope.ts) until an admin reviews it. Without it the record would
+  // default to false and publish an empty profile to the Portland directory.
+  await prisma.artist.upsert({
     where: { userId: user.id },
     create: {
       userId: user.id,
       slug,
-      name: placeholderName,
+      name: '',
+      isPlaceholder: true,
       cityId: portland?.id ?? null,
     },
     update: {},
-  });
-
-  await sendMagicLink({
-    email,
-    artistId: artist.id,
-    artistName: placeholderName,
   });
 }
 

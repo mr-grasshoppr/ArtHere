@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { INVOLVEMENT_FEATURED, INVOLVEMENT_VOLUNTEER, RAFFLE_YES } from "@/lib/survey-constants";
+import { setResponseIsTest } from "./actions";
 
 type SurveyResponse = {
   id: string;
@@ -30,6 +31,8 @@ type SurveyResponse = {
   completedAt: Date | null;
   openFeedback: string | null;
   learnedAbout: string[];
+  source: string | null;
+  isTest: boolean;
 };
 
 // Legacy-aware accessors: pre-redesign responses stored involvement answers
@@ -55,14 +58,23 @@ function Field({ label, value }: { label: string; value: string | string[] | nul
   );
 }
 
-function Row({ r }: { r: SurveyResponse }) {
+function Row({ r, onTestToggle }: { r: SurveyResponse; onTestToggle: (id: string, isTest: boolean) => void }) {
   const [open, setOpen] = useState(false);
+  const [pending, startTransition] = useTransition();
+
+  function handleMarkTest(e: React.MouseEvent) {
+    e.stopPropagation();
+    startTransition(async () => {
+      await setResponseIsTest(r.id, !r.isTest);
+      onTestToggle(r.id, !r.isTest);
+    });
+  }
 
   return (
     <>
       <tr
         id={r.id}
-        className="border-b border-[#f0f0f0] hover:bg-[#fafafa] cursor-pointer"
+        className={`border-b border-[#f0f0f0] hover:bg-[#fafafa] cursor-pointer ${r.isTest ? "opacity-50" : ""}`}
         onClick={() => setOpen((o) => !o)}
       >
         <td className="px-4 py-3 text-sm text-[#999]">
@@ -73,6 +85,9 @@ function Row({ r }: { r: SurveyResponse }) {
           })}
           {!isCompleted(r) && (
             <span className="ml-2 text-[10px] uppercase tracking-wide bg-[#f0f0f0] text-[#999] px-1.5 py-0.5 rounded">draft</span>
+          )}
+          {r.isTest && (
+            <span className="ml-2 text-[10px] uppercase tracking-wide bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded">test</span>
           )}
         </td>
         <td className="px-4 py-3 text-sm font-medium">{r.email ?? <span className="text-[#bbb]">Anonymous</span>}</td>
@@ -114,6 +129,7 @@ function Row({ r }: { r: SurveyResponse }) {
                 <Field label="Status (other)" value={r.artistStatusOther} />
                 <Field label="Zip" value={r.zipCode} />
                 <Field label="Neighborhoods" value={r.neighborhoods} />
+                <Field label="Source" value={r.source} />
               </div>
               <div>
                 <p className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-2">Your Practice</p>
@@ -132,6 +148,19 @@ function Row({ r }: { r: SurveyResponse }) {
                 <Field label="Raffle" value={r.raffleOptIn} />
                 <Field label="Feedback" value={r.openFeedback} />
               </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-[#e5e5e5]">
+              <button
+                onClick={handleMarkTest}
+                disabled={pending}
+                className={`text-xs px-3 py-1.5 rounded border transition-colors ${
+                  r.isTest
+                    ? "border-orange-300 bg-orange-50 text-orange-700 hover:bg-orange-100"
+                    : "border-[#e5e5e5] text-[#888] hover:border-orange-300 hover:text-orange-700"
+                }`}
+              >
+                {pending ? "Saving…" : r.isTest ? "Unmark as test" : "Mark as test"}
+              </button>
             </div>
           </td>
         </tr>
@@ -183,8 +212,23 @@ export default function SurveyTable({
   fieldFilter?: { field: string; value: string };
 }) {
   const [textFilter, setTextFilter] = useState("");
+  const [showTests, setShowTests] = useState(false);
+  const [localIsTest, setLocalIsTest] = useState<Record<string, boolean>>({});
 
-  const categoryFiltered = applyCategoryFilter(responses, initialFilter);
+  function handleTestToggle(id: string, isTest: boolean) {
+    setLocalIsTest((prev) => ({ ...prev, [id]: isTest }));
+  }
+
+  const responsesWithLocal = responses.map((r) => ({
+    ...r,
+    isTest: r.id in localIsTest ? localIsTest[r.id] : r.isTest,
+  }));
+
+  const visibleResponses = showTests
+    ? responsesWithLocal
+    : responsesWithLocal.filter((r) => !r.isTest);
+
+  const categoryFiltered = applyCategoryFilter(visibleResponses, initialFilter);
   const fieldFiltered = applyFieldFilter(categoryFiltered, fieldFilter?.field, fieldFilter?.value);
   const filtered = textFilter
     ? fieldFiltered.filter(
@@ -196,9 +240,11 @@ export default function SurveyTable({
       )
     : fieldFiltered;
 
+  const testCount = responsesWithLocal.filter((r) => r.isTest).length;
+
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
         <input
           type="text"
           placeholder="Filter by email, status, zip…"
@@ -206,7 +252,21 @@ export default function SurveyTable({
           onChange={(e) => setTextFilter(e.target.value)}
           className="w-full max-w-sm px-4 py-2 border border-[#e5e5e5] rounded-lg text-sm bg-white focus:outline-none focus:border-[#999]"
         />
-        <span className="text-sm text-[#888] ml-4 flex-shrink-0">{filtered.length} shown</span>
+        <div className="flex items-center gap-3 flex-shrink-0">
+          {testCount > 0 && (
+            <button
+              onClick={() => setShowTests((s) => !s)}
+              className={`text-xs px-3 py-1.5 rounded border transition-colors ${
+                showTests
+                  ? "border-orange-300 bg-orange-50 text-orange-700"
+                  : "border-[#e5e5e5] text-[#999] hover:border-[#ccc]"
+              }`}
+            >
+              {showTests ? `Hide ${testCount} test${testCount !== 1 ? "s" : ""}` : `Show ${testCount} test${testCount !== 1 ? "s" : ""}`}
+            </button>
+          )}
+          <span className="text-sm text-[#888]">{filtered.length} shown</span>
+        </div>
       </div>
       <div className="bg-white border border-[#e5e5e5] rounded-lg overflow-hidden">
         <table className="w-full">
@@ -231,7 +291,7 @@ export default function SurveyTable({
               </tr>
             )}
             {filtered.map((r) => (
-              <Row key={r.id} r={r} />
+              <Row key={r.id} r={r} onTestToggle={handleTestToggle} />
             ))}
           </tbody>
         </table>

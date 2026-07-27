@@ -78,6 +78,9 @@ interface Answers {
   learnedAbout: string[];
   learnedAboutOther: string;
   openFeedback: string;
+
+  /** Attribution: the ?src= URL param the respondent arrived with, or 'website'. */
+  source: string;
 }
 
 const initialAnswers: Answers = {
@@ -121,6 +124,8 @@ const initialAnswers: Answers = {
   learnedAbout: [],
   learnedAboutOther: '',
   openFeedback: '',
+
+  source: 'website',
 };
 
 // ─── Option order randomization ─────────────────────────────────────────────
@@ -276,8 +281,19 @@ function ProgressBar({ value }: { value: number }) {
 
 // ─── Main component ─────────────────────────────────────────────────────────
 
+// Reads the ?src= URL param (e.g. ?src=flyer, ?src=instagram,
+// ?src=homepage_button) so the survey response records where the respondent
+// came from. Defaults to 'website' when the param is absent. Read once, at
+// form-mount time, so it's stable for the whole session even if the user
+// navigates within the app afterward.
+function readSourceParam(): string {
+  if (typeof window === 'undefined') return 'website';
+  const src = new URLSearchParams(window.location.search).get('src');
+  return src?.trim() || 'website';
+}
+
 export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
-  const [answers, setAnswers] = useState<Answers>(initialAnswers);
+  const [answers, setAnswers] = useState<Answers>(() => ({ ...initialAnswers, source: readSourceParam() }));
   const [history, setHistory] = useState<StepId[]>(['location']);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -445,7 +461,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
           </Question>
           <Question
             text="What is the name of your neighborhood?"
-            hint="Whether you live, work, or spend time there."
+            hint="If you're part of more than one neighborhood, what's your primary neighborhood?"
           >
             <input
               value={answers.neighborhoods}
@@ -460,7 +476,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
       {step === 'about-you' && (
         <div className="flex flex-col gap-10">
           <Eyebrow>About You</Eyebrow>
-          <Question text="What field do you work in?" hint="If not currently working, what field did you most recently work in? Select all that apply.">
+          <Question text="What field do you currently work in?" hint="If not currently working, what field did you most recently work in? Select all that apply.">
             <div className="flex flex-col gap-2">
               {occupationOptions.map(opt => {
                 const selected = answers.occupation.includes(opt);
@@ -589,7 +605,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
         <div className="flex flex-col gap-10">
           <Eyebrow>About Portland</Eyebrow>
           {!isMakingArt(answers) && (
-            <Question text="In your opinion, what local people, places, or organizations most support artists in Portland?" hint="Name one to three.">
+            <Question text="In your opinion, what local organizations, groups, or places most support artists in Portland?" hint="Name one to three.">
               <textarea
                 value={answers.portlandHelpers}
                 onChange={e => update('portlandHelpers', e.target.value)}
@@ -681,7 +697,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
               />
             )}
           </Question>
-          <Question text="What local people, places, or organizations have most supported your art practice?" hint="Name one to three.">
+          <Question text="What local organizations, groups, or places have most supported your art practice?" hint="Name one to three.">
             <textarea
               value={answers.practiceSupport}
               onChange={e => update('practiceSupport', e.target.value)}

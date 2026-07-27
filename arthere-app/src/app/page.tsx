@@ -83,7 +83,7 @@ export default async function Home() {
               </p>
             </div>
             <a
-              href="/survey"
+              href="/survey?src=homepage_button"
               className="shrink-0 inline-block px-7 py-3.5 rounded-full border border-white text-[0.9rem] font-medium text-white hover:bg-white hover:text-[#1a1a1a] transition-colors whitespace-nowrap"
             >
               Take the survey →

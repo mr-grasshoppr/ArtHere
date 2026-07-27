@@ -12,19 +12,25 @@ import {
   INVOLVEMENT_NONE,
 } from "@/lib/survey-constants";
 
-export async function GET() {
+export async function GET(request: Request) {
   if (!(await getAdminSession())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // Admin-flagged test responses are excluded to match what the dashboard
+  // reports. ?includeTests=1 exports everything, with an isTest column so the
+  // test rows stay identifiable in the spreadsheet.
+  const includeTests = new URL(request.url).searchParams.get("includeTests") === "1";
+
   const responses = await prisma.surveyResponse.findMany({
+    where: includeTests ? undefined : { isTest: false },
     orderBy: { createdAt: "desc" },
   });
 
   const flag = (arr: string[], value: string) => arr.includes(value) ? "Yes" : "";
 
   const headers = [
-    "id", "createdAt", "completedAt", "email", "raffleOptIn",
+    "id", "createdAt", "completedAt", "source", "email", "raffleOptIn",
     "zipCode", "neighborhoods",
     "occupation", "occupationOther",
     "artistStatus", "artistStatusOther",
@@ -39,6 +45,7 @@ export async function GET() {
     "involvement_joinParade", "involvement_partner", "involvement_other", "involvement_otherText",
     "involvement_none",
     "learnedAbout", "openFeedback",
+    ...(includeTests ? ["isTest"] : []),
   ];
 
   const lines = [
@@ -48,6 +55,7 @@ export async function GET() {
         r.id,
         r.createdAt.toISOString(),
         r.completedAt?.toISOString() ?? "",
+        r.source,
         r.email,
         r.raffleOptIn,
         r.zipCode,
@@ -82,6 +90,7 @@ export async function GET() {
         flag(r.involvementInterests, INVOLVEMENT_NONE),
         r.learnedAbout.join("; "),
         r.openFeedback,
+        ...(includeTests ? [r.isTest ? "Yes" : ""] : []),
       ])
     ),
   ];

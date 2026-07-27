@@ -297,6 +297,11 @@ model SurveyResponse {
   learnedAbout String[] @default([])
   openFeedback String?  @db.Text
 
+  // Where the respondent came from — the ?src= URL param captured on load
+  // (e.g. "flyer", "instagram", "org_alpha", "homepage_button", "nav_menu"),
+  // or "website" when no param is present.
+  source String? @default("website")
+
   // Admin
   isTest Boolean @default(false) // flagged by admin to exclude from reporting
 
@@ -367,6 +372,8 @@ model ImageFocus {
   url       String   @id
   x         Float // 0–100, horizontal focal point as a percentage
   y         Float // 0–100, vertical focal point as a percentage
+  scale     Float    @default(1) // zoom factor (1 = fit/cover, >1 zooms in)
+  manual    Boolean  @default(false) // set by a human; auto-detection won't overwrite
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
