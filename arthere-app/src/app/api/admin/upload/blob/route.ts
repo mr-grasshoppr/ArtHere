@@ -3,6 +3,7 @@ import { waitUntil } from "@vercel/functions";
 import { put } from "@vercel/blob";
 import { getAdminSession } from "@/lib/admin";
 import { archiveOriginal } from "@/lib/originals";
+import { computeAndStoreFocus } from "@/lib/image-focus";
 
 // Admin-only bare blob upload — returns a public URL without any DB writes.
 // Used by the organization editor, whose images live as plain URLs on the Place
@@ -33,6 +34,9 @@ export async function POST(req: NextRequest) {
 
   const filename = `${safePrefix}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
   const blob = await put(filename, file, { access: "public", addRandomSuffix: false });
+
+  // Detect the focal point for smart framing.
+  waitUntil(computeAndStoreFocus(blob.url));
 
   return NextResponse.json({ url: blob.url });
 }

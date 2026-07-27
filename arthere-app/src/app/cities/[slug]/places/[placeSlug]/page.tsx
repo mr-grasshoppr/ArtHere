@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { PlaceProfilePage } from '@/components/PlaceProfilePage';
 import { cityLabel } from '@/components/ArtistProfilePage';
+import { getFocalPositions } from '@/lib/image-focus';
 
 // ISR: content is edited via admin + self-service; regenerate at most every 30s
 export const revalidate = 30;
@@ -71,11 +72,14 @@ export default async function CityPlacePage({
 
   if (!place || !place.inDirectory || !city) notFound();
 
+  const focals = await getFocalPositions([place.heroImageUrl, ...place.galleryImages]);
+
   return (
     <PlaceProfilePage
       place={place}
       citySlug={citySlug}
       cityDisplayName={cityLabel(city)}
+      focals={focals}
     />
   );
 }

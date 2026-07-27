@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { put } from "@vercel/blob";
 import { tagArtworkImage } from "@/lib/claude";
 import { archiveOriginal } from "@/lib/originals";
+import { computeAndStoreFocus } from "@/lib/image-focus";
 import { Prisma } from "@prisma/client";
 import { getAdminSession } from "@/lib/admin";
 
@@ -38,6 +39,9 @@ export async function POST(req: NextRequest) {
 
   const filename = `artists/${artist.slug}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
   const blob = await put(filename, file, { access: "public", addRandomSuffix: false });
+
+  // Detect the focal point for smart framing.
+  waitUntil(computeAndStoreFocus(blob.url));
 
   if (isBioPhoto) {
     await prisma.artist.update({ where: { id: artistId }, data: { bioPhotoUrl: blob.url } });

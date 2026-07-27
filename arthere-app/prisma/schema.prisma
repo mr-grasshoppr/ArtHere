@@ -357,6 +357,20 @@ model AdminNote {
   @@index([placeId])
 }
 
+// ─── Image Focal Points ───────────────────────────────────────────────────────
+// Auto-detected focus for framing an image: the point (as %) that should stay
+// centered when the image is cropped to fit a hero/thumbnail/tile, chosen to
+// keep faces and the main subject in frame. Keyed by image URL so it works
+// uniformly for artist records and places' plain-URL images. Computed by Claude
+// vision on upload (and backfillable). Absent = fall back to center.
+model ImageFocus {
+  url       String   @id
+  x         Float // 0–100, horizontal focal point as a percentage
+  y         Float // 0–100, vertical focal point as a percentage
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 // ─── Profile Revision History ─────────────────────────────────────────────────
 // An append-only audit trail: one row is written on every profile save (artist
 // or place), capturing the full post-save state as JSON. Never updated or

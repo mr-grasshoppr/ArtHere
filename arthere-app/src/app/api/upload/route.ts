@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { put } from "@vercel/blob";
 import { tagArtworkImage, detectArtworkCrop } from "@/lib/claude";
 import { archiveOriginal } from "@/lib/originals";
+import { computeAndStoreFocus } from "@/lib/image-focus";
 import { Prisma } from "@prisma/client";
 import sharp from "sharp";
 
@@ -67,6 +68,9 @@ export async function POST(req: NextRequest) {
     contentType: uploadContentType,
     cacheControlMaxAge: 60 * 60 * 24 * 365,
   });
+
+  // Detect the focal point for smart framing (hero/thumbnail/tile crops).
+  waitUntil(computeAndStoreFocus(blob.url));
 
   // Bio photo: update artist record only, no ArtworkImage row
   if (isBioPhoto) {

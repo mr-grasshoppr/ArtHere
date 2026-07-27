@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { requireAdminPage } from "@/lib/admin";
 import Link from "next/link";
+import ComputeFocalsButton from "./ComputeFocalsButton";
 
 export default async function AdminOverviewPage() {
   await requireAdminPage();
@@ -29,7 +30,10 @@ export default async function AdminOverviewPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-medium mb-8">Overview</h1>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-2xl font-medium">Overview</h1>
+        <ComputeFocalsButton />
+      </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-12">

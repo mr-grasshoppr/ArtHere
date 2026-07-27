@@ -181,6 +181,55 @@ Respond with ONLY the JSON object or null, nothing else.`,
   }
 }
 
+// ─── Image Focal Point ────────────────────────────────────────────────────────
+
+export interface FocalPoint {
+  x: number; // 0–100, horizontal focal point as a percentage of image width
+  y: number; // 0–100, vertical focal point as a percentage of image height
+}
+
+// Ask the vision model where an image should be "anchored" when it gets cropped
+// to fill a hero banner, a square thumbnail, or a tile. Returns the point that
+// should stay visible — centered on the main subject/artwork, and never through
+// someone's face. Falls back to null (caller uses center) on any problem.
+export async function detectFocalPoint(imageUrl: string): Promise<FocalPoint | null> {
+  try {
+    const response = await client.messages.create({
+      model: "claude-haiku-4-5",
+      max_tokens: 100,
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "image", source: { type: "url", url: imageUrl } },
+            {
+              type: "text",
+              text: `This image will be cropped to fit banners, square thumbnails, and tiles of varying shapes. Pick the single point that should always stay centered in frame.
+
+Rules, in priority order:
+1. If there are people, the point must keep their faces/heads visible — never choose a point that would crop through a head.
+2. Otherwise center on the main subject or artwork (e.g. a mural, sign, painting), not empty sky, ground, or background.
+
+Respond with ONLY a JSON object of the point as percentages of the image's width and height, top-left origin:
+{"x": 50, "y": 40}`,
+            },
+          ],
+        },
+      ],
+    });
+
+    const text = (response.content[0].type === "text" ? response.content[0].text : "").trim();
+    if (!text) return null;
+    const parsed = parseModelJson<FocalPoint>(text);
+    const clamp = (n: number) => Math.max(0, Math.min(100, Math.round(n)));
+    if (typeof parsed.x !== "number" || typeof parsed.y !== "number") return null;
+    return { x: clamp(parsed.x), y: clamp(parsed.y) };
+  } catch (err) {
+    console.error("[focal] detection failed for", imageUrl, err);
+    return null;
+  }
+}
+
 // ─── Hire Text Parsing ────────────────────────────────────────────────────────
 
 export interface HireTags {

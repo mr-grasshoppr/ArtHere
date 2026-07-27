@@ -22,13 +22,16 @@ interface Props {
   /** When set, in-app links stay inside the /cities/<slug>/… tree. */
   citySlug?: string;
   cityDisplayName: string;
+  /** url → object-position string, from auto-detected image focal points. */
+  focals?: Map<string, string>;
 }
 
 /**
  * Full artist profile page body — shared by /artists/[slug] and
  * /cities/[slug]/artists/[artistSlug] so the two routes can't drift apart.
  */
-export function ArtistProfilePage({ artist, citySlug, cityDisplayName }: Props) {
+export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals }: Props) {
+  const posOf = (url: string, fallback = '50% 50%') => focals?.get(url) ?? fallback;
   const heroUrl =
     artist.heroImageUrl ??
     artist.artworkImages.find(img => img.isHero)?.url ??
@@ -76,6 +79,7 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName }: Props) 
             fill
             sizes="100vw"
             className="object-cover"
+            style={{ objectPosition: posOf(heroUrl) }}
             priority
           />
         </section>
@@ -218,6 +222,7 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName }: Props) 
                 fill
                 sizes="(max-width: 640px) 100vw, 33vw"
                 className="object-cover group-hover:scale-[1.03]"
+                style={{ objectPosition: posOf(img.url) }}
               />
             </div>
           ))}

@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { NavBar } from '@/components/NavBar';
 import { CityBottomBar } from '@/components/CityBottomBar';
 import { CommunityBrowser, type CommunityPlaceData } from '@/components/CommunityBrowser';
+import { getFocalPositions } from '@/lib/image-focus';
 import { SiteFooter } from '@/components/SiteFooter';
 import { TechSupportLink } from '@/components/TechSupportLink';
 
@@ -102,6 +103,12 @@ export default async function CityCommunityPage({
     if (bi === -1) return -1;
     return ai - bi;
   });
+
+  // Apply auto-detected focal points to each card's thumbnail.
+  const focals = await getFocalPositions(places.map(p => p.heroImageUrl));
+  for (const p of places) {
+    if (p.heroImageUrl) p.focus = focals.get(p.heroImageUrl);
+  }
 
   const isCityLevel = (v: string) => /^(Portland(,?\s*(OR|Oregon))?|Vancouver(,?\s*WA)?)$/i.test(v);
   const neighborhoodOptions = [
