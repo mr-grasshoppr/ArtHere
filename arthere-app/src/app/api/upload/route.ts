@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { put } from "@vercel/blob";
 import { tagArtworkImage, detectArtworkCrop } from "@/lib/claude";
+import { archiveOriginal } from "@/lib/originals";
 import { Prisma } from "@prisma/client";
 import sharp from "sharp";
 
@@ -42,12 +43,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "File too large. Maximum size is 20 MB." }, { status: 400 });
   }
 
+  // Preserve the raw upload immutably before any processing (see lib/originals).
+  const rawBuffer = Buffer.from(await file.arrayBuffer());
+  waitUntil(archiveOriginal(rawBuffer, file.name, `artists/${artist.slug}`, file.type));
+
   // For bio photos: smart-crop to a square centered on the face
   let uploadBody: File | Buffer = file;
   let uploadContentType = file.type;
   if (isBioPhoto) {
-    const buffer = Buffer.from(await file.arrayBuffer());
-    uploadBody = await sharp(buffer)
+    uploadBody = await sharp(rawBuffer)
       .resize(600, 600, { fit: "cover", position: "attention" })
       .jpeg({ quality: 88 })
       .toBuffer();

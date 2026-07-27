@@ -3,6 +3,7 @@ import { waitUntil } from "@vercel/functions";
 import { prisma } from "@/lib/db";
 import { put } from "@vercel/blob";
 import { tagArtworkImage } from "@/lib/claude";
+import { archiveOriginal } from "@/lib/originals";
 import { Prisma } from "@prisma/client";
 import { getAdminSession } from "@/lib/admin";
 
@@ -31,6 +32,9 @@ export async function POST(req: NextRequest) {
 
   const artist = await prisma.artist.findUnique({ where: { id: artistId } });
   if (!artist) return NextResponse.json({ error: "Artist not found" }, { status: 404 });
+
+  // Preserve the raw upload immutably before storing the display copy.
+  waitUntil(archiveOriginal(Buffer.from(await file.arrayBuffer()), file.name, `artists/${artist.slug}`, file.type));
 
   const filename = `artists/${artist.slug}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
   const blob = await put(filename, file, { access: "public", addRandomSuffix: false });

@@ -1,3 +1,11 @@
+// SAFETY GUARD — one-off scripts here mutate production data/images and have
+// caused data loss before (overwritten image originals, reverted DB content).
+// They will NOT run without an explicit opt-in. See README.md in this folder.
+if (process.env.RUN_ONE_OFF !== "1") {
+  console.error("Refusing to run one-off script. Set RUN_ONE_OFF=1 to run intentionally, and make sure you understand what it overwrites.");
+  process.exit(1);
+}
+
 // Crop Kevin_Tudball4.webp: remove the brown kraft paper border so only the
 // white illustration area remains.
 import sharp from 'sharp';

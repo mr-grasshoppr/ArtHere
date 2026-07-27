@@ -1,3 +1,11 @@
+// SAFETY GUARD — one-off scripts here mutate production data/images and have
+// caused data loss before (overwritten image originals, reverted DB content).
+// They will NOT run without an explicit opt-in. See README.md in this folder.
+if (process.env.RUN_ONE_OFF !== "1") {
+  console.error("Refusing to run one-off script. Set RUN_ONE_OFF=1 to run intentionally, and make sure you understand what it overwrites.");
+  process.exit(1);
+}
+
 // Uploads hero photos for the Community places that have one available in
 // the static prototype's /images/places folder, and sets Place.heroImageUrl
 // so they show up as photos (not just colored squares) on the Network page

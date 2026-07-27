@@ -1,0 +1,1569 @@
+{
+  "generatedAt": "2026-07-27T04:55:01.318Z",
+  "store": "vercel-blob (arthere-app)",
+  "count": 260,
+  "totalBytes": 204354662,
+  "note": "Index of every image in Blob storage. Full-file backups live outside the repo (see docs). Regenerate with scripts/one-off — or the snippet in the docs.",
+  "files": [
+    {
+      "pathname": "artists/andrew-moran/artwork/andrew-moran-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/andrew-moran/artwork/andrew-moran-1.jpg",
+      "size": 74555,
+      "uploadedAt": "2026-07-07T18:30:11.000Z"
+    },
+    {
+      "pathname": "artists/andrew-moran/artwork/andrew-moran-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/andrew-moran/artwork/andrew-moran-2.jpg",
+      "size": 74555,
+      "uploadedAt": "2026-07-07T18:30:11.000Z"
+    },
+    {
+      "pathname": "artists/andrew-moran/artwork/andrew-moran-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/andrew-moran/artwork/andrew-moran-3.jpg",
+      "size": 74555,
+      "uploadedAt": "2026-07-07T18:30:11.000Z"
+    },
+    {
+      "pathname": "artists/andrew-moran/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/andrew-moran/artwork/hero.jpg",
+      "size": 74555,
+      "uploadedAt": "2026-07-02T19:41:46.000Z"
+    },
+    {
+      "pathname": "artists/andrew-moran/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/andrew-moran/bio.jpg",
+      "size": 64028,
+      "uploadedAt": "2026-07-02T19:41:45.000Z"
+    },
+    {
+      "pathname": "artists/andrew-moran/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/andrew-moran/hero.jpg",
+      "size": 74555,
+      "uploadedAt": "2026-07-02T19:41:45.000Z"
+    },
+    {
+      "pathname": "artists/angel-morrow/artwork/angel-morrow-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/angel-morrow/artwork/angel-morrow-1.jpg",
+      "size": 413390,
+      "uploadedAt": "2026-07-07T18:30:12.000Z"
+    },
+    {
+      "pathname": "artists/angel-morrow/artwork/angel-morrow-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/angel-morrow/artwork/angel-morrow-2.jpg",
+      "size": 312436,
+      "uploadedAt": "2026-07-07T18:30:12.000Z"
+    },
+    {
+      "pathname": "artists/angel-morrow/artwork/angel-morrow-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/angel-morrow/artwork/angel-morrow-3.jpg",
+      "size": 237719,
+      "uploadedAt": "2026-07-07T18:30:13.000Z"
+    },
+    {
+      "pathname": "artists/angel-morrow/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/angel-morrow/artwork/hero.jpg",
+      "size": 237719,
+      "uploadedAt": "2026-07-02T19:41:47.000Z"
+    },
+    {
+      "pathname": "artists/angel-morrow/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/angel-morrow/bio.jpg",
+      "size": 140884,
+      "uploadedAt": "2026-07-02T19:41:46.000Z"
+    },
+    {
+      "pathname": "artists/angel-morrow/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/angel-morrow/hero.jpg",
+      "size": 237719,
+      "uploadedAt": "2026-07-02T19:41:46.000Z"
+    },
+    {
+      "pathname": "artists/archer-mayo/artwork/archer-mayo-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/archer-mayo/artwork/archer-mayo-1.jpg",
+      "size": 953345,
+      "uploadedAt": "2026-07-07T18:30:13.000Z"
+    },
+    {
+      "pathname": "artists/archer-mayo/artwork/archer-mayo-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/archer-mayo/artwork/archer-mayo-2.jpg",
+      "size": 953345,
+      "uploadedAt": "2026-07-07T18:30:14.000Z"
+    },
+    {
+      "pathname": "artists/archer-mayo/artwork/archer-mayo-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/archer-mayo/artwork/archer-mayo-3.jpg",
+      "size": 953345,
+      "uploadedAt": "2026-07-07T18:30:14.000Z"
+    },
+    {
+      "pathname": "artists/archer-mayo/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/archer-mayo/artwork/hero.jpg",
+      "size": 953345,
+      "uploadedAt": "2026-07-02T19:41:49.000Z"
+    },
+    {
+      "pathname": "artists/archer-mayo/bio.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/archer-mayo/bio.png",
+      "size": 430966,
+      "uploadedAt": "2026-07-02T19:41:48.000Z"
+    },
+    {
+      "pathname": "artists/archer-mayo/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/archer-mayo/hero.jpg",
+      "size": 953345,
+      "uploadedAt": "2026-07-02T19:41:47.000Z"
+    },
+    {
+      "pathname": "artists/benjamin-posin/artwork/benjamin-posin-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/benjamin-posin/artwork/benjamin-posin-1.jpg",
+      "size": 79320,
+      "uploadedAt": "2026-07-07T18:30:15.000Z"
+    },
+    {
+      "pathname": "artists/benjamin-posin/artwork/benjamin-posin-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/benjamin-posin/artwork/benjamin-posin-2.jpg",
+      "size": 219151,
+      "uploadedAt": "2026-07-07T18:30:15.000Z"
+    },
+    {
+      "pathname": "artists/benjamin-posin/artwork/benjamin-posin-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/benjamin-posin/artwork/benjamin-posin-3.jpg",
+      "size": 78697,
+      "uploadedAt": "2026-07-07T18:30:15.000Z"
+    },
+    {
+      "pathname": "artists/benjamin-posin/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/benjamin-posin/artwork/hero.jpg",
+      "size": 826412,
+      "uploadedAt": "2026-07-02T19:41:51.000Z"
+    },
+    {
+      "pathname": "artists/benjamin-posin/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/benjamin-posin/bio.jpg",
+      "size": 620118,
+      "uploadedAt": "2026-07-02T19:41:50.000Z"
+    },
+    {
+      "pathname": "artists/benjamin-posin/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/benjamin-posin/hero.jpg",
+      "size": 826412,
+      "uploadedAt": "2026-07-02T19:41:50.000Z"
+    },
+    {
+      "pathname": "artists/beth-bundy/beth-bundy-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/beth-bundy/beth-bundy-1.jpg",
+      "size": 278687,
+      "uploadedAt": "2026-06-08T05:27:08.000Z"
+    },
+    {
+      "pathname": "artists/beth-bundy/beth-bundy-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/beth-bundy/beth-bundy-2.jpg",
+      "size": 191645,
+      "uploadedAt": "2026-06-08T05:27:09.000Z"
+    },
+    {
+      "pathname": "artists/beth-bundy/beth-bundy-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/beth-bundy/beth-bundy-3.jpg",
+      "size": 217743,
+      "uploadedAt": "2026-06-08T05:27:09.000Z"
+    },
+    {
+      "pathname": "artists/beth-bundy/beth-bundy-bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/beth-bundy/beth-bundy-bio.jpg",
+      "size": 39302,
+      "uploadedAt": "2026-06-08T05:27:07.000Z"
+    },
+    {
+      "pathname": "artists/beth-bundy/beth-bundy-hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/beth-bundy/beth-bundy-hero.jpg",
+      "size": 114851,
+      "uploadedAt": "2026-06-08T05:27:08.000Z"
+    },
+    {
+      "pathname": "artists/carol-crump-bryner/artwork/carol-crump-bryner-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/carol-crump-bryner/artwork/carol-crump-bryner-1.jpg",
+      "size": 798348,
+      "uploadedAt": "2026-07-07T18:30:16.000Z"
+    },
+    {
+      "pathname": "artists/carol-crump-bryner/artwork/carol-crump-bryner-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/carol-crump-bryner/artwork/carol-crump-bryner-2.jpg",
+      "size": 798348,
+      "uploadedAt": "2026-07-07T18:30:16.000Z"
+    },
+    {
+      "pathname": "artists/carol-crump-bryner/artwork/carol-crump-bryner-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/carol-crump-bryner/artwork/carol-crump-bryner-3.jpg",
+      "size": 798348,
+      "uploadedAt": "2026-07-07T18:30:17.000Z"
+    },
+    {
+      "pathname": "artists/carol-crump-bryner/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/carol-crump-bryner/artwork/hero.jpg",
+      "size": 798348,
+      "uploadedAt": "2026-07-02T19:41:53.000Z"
+    },
+    {
+      "pathname": "artists/carol-crump-bryner/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/carol-crump-bryner/bio.jpg",
+      "size": 509762,
+      "uploadedAt": "2026-07-02T19:41:52.000Z"
+    },
+    {
+      "pathname": "artists/carol-crump-bryner/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/carol-crump-bryner/hero.jpg",
+      "size": 798348,
+      "uploadedAt": "2026-07-02T19:41:52.000Z"
+    },
+    {
+      "pathname": "artists/claudia-cosgrove/artwork/claudia-cosgrove-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/claudia-cosgrove/artwork/claudia-cosgrove-1.jpg",
+      "size": 201460,
+      "uploadedAt": "2026-07-07T18:30:17.000Z"
+    },
+    {
+      "pathname": "artists/claudia-cosgrove/artwork/claudia-cosgrove-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/claudia-cosgrove/artwork/claudia-cosgrove-2.jpg",
+      "size": 306317,
+      "uploadedAt": "2026-07-07T18:30:18.000Z"
+    },
+    {
+      "pathname": "artists/claudia-cosgrove/artwork/claudia-cosgrove-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/claudia-cosgrove/artwork/claudia-cosgrove-3.jpg",
+      "size": 2673709,
+      "uploadedAt": "2026-07-07T18:30:18.000Z"
+    },
+    {
+      "pathname": "artists/claudia-cosgrove/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/claudia-cosgrove/artwork/hero.jpg",
+      "size": 156349,
+      "uploadedAt": "2026-07-02T19:41:54.000Z"
+    },
+    {
+      "pathname": "artists/claudia-cosgrove/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/claudia-cosgrove/bio.jpg",
+      "size": 46438,
+      "uploadedAt": "2026-07-02T19:41:53.000Z"
+    },
+    {
+      "pathname": "artists/claudia-cosgrove/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/claudia-cosgrove/hero.jpg",
+      "size": 156349,
+      "uploadedAt": "2026-07-02T19:41:53.000Z"
+    },
+    {
+      "pathname": "artists/clement-lee/artwork/clement-lee-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/clement-lee/artwork/clement-lee-1.jpg",
+      "size": 1123862,
+      "uploadedAt": "2026-07-07T18:30:19.000Z"
+    },
+    {
+      "pathname": "artists/clement-lee/artwork/clement-lee-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/clement-lee/artwork/clement-lee-2.jpg",
+      "size": 342596,
+      "uploadedAt": "2026-07-07T18:30:19.000Z"
+    },
+    {
+      "pathname": "artists/clement-lee/artwork/clement-lee-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/clement-lee/artwork/clement-lee-3.jpg",
+      "size": 1123862,
+      "uploadedAt": "2026-07-07T18:30:20.000Z"
+    },
+    {
+      "pathname": "artists/clement-lee/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/clement-lee/artwork/hero.jpg",
+      "size": 342596,
+      "uploadedAt": "2026-07-02T19:41:55.000Z"
+    },
+    {
+      "pathname": "artists/clement-lee/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/clement-lee/bio.jpg",
+      "size": 842044,
+      "uploadedAt": "2026-07-02T19:41:55.000Z"
+    },
+    {
+      "pathname": "artists/clement-lee/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/clement-lee/hero.jpg",
+      "size": 342596,
+      "uploadedAt": "2026-07-02T19:41:54.000Z"
+    },
+    {
+      "pathname": "artists/daniel-duford/artwork/daniel-duford-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/daniel-duford/artwork/daniel-duford-1.jpg",
+      "size": 3289890,
+      "uploadedAt": "2026-07-07T18:30:21.000Z"
+    },
+    {
+      "pathname": "artists/daniel-duford/artwork/daniel-duford-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/daniel-duford/artwork/daniel-duford-2.jpg",
+      "size": 3289890,
+      "uploadedAt": "2026-07-07T18:30:21.000Z"
+    },
+    {
+      "pathname": "artists/daniel-duford/artwork/daniel-duford-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/daniel-duford/artwork/daniel-duford-3.jpg",
+      "size": 3289890,
+      "uploadedAt": "2026-07-07T18:30:22.000Z"
+    },
+    {
+      "pathname": "artists/daniel-duford/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/daniel-duford/artwork/hero.jpg",
+      "size": 3289890,
+      "uploadedAt": "2026-07-02T19:41:58.000Z"
+    },
+    {
+      "pathname": "artists/daniel-duford/bio.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/daniel-duford/bio.png",
+      "size": 1400744,
+      "uploadedAt": "2026-07-02T19:41:57.000Z"
+    },
+    {
+      "pathname": "artists/daniel-duford/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/daniel-duford/hero.jpg",
+      "size": 3289890,
+      "uploadedAt": "2026-07-02T19:41:56.000Z"
+    },
+    {
+      "pathname": "artists/david-brandt/artwork/david-brandt-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/david-brandt/artwork/david-brandt-1.jpg",
+      "size": 333317,
+      "uploadedAt": "2026-07-07T18:30:23.000Z"
+    },
+    {
+      "pathname": "artists/david-brandt/artwork/david-brandt-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/david-brandt/artwork/david-brandt-2.jpg",
+      "size": 454977,
+      "uploadedAt": "2026-07-07T18:30:24.000Z"
+    },
+    {
+      "pathname": "artists/david-brandt/artwork/david-brandt-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/david-brandt/artwork/david-brandt-3.jpg",
+      "size": 201077,
+      "uploadedAt": "2026-07-07T18:30:24.000Z"
+    },
+    {
+      "pathname": "artists/david-brandt/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/david-brandt/artwork/hero.jpg",
+      "size": 490465,
+      "uploadedAt": "2026-07-02T19:42:00.000Z"
+    },
+    {
+      "pathname": "artists/david-brandt/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/david-brandt/bio.jpg",
+      "size": 439892,
+      "uploadedAt": "2026-07-02T19:41:59.000Z"
+    },
+    {
+      "pathname": "artists/david-brandt/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/david-brandt/hero.jpg",
+      "size": 490465,
+      "uploadedAt": "2026-07-02T19:41:59.000Z"
+    },
+    {
+      "pathname": "artists/deanna-schuerbeke/artwork/deanna-schuerbeke-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/deanna-schuerbeke/artwork/deanna-schuerbeke-1.jpg",
+      "size": 508678,
+      "uploadedAt": "2026-07-07T18:30:24.000Z"
+    },
+    {
+      "pathname": "artists/deanna-schuerbeke/artwork/deanna-schuerbeke-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/deanna-schuerbeke/artwork/deanna-schuerbeke-2.jpg",
+      "size": 507334,
+      "uploadedAt": "2026-07-07T18:30:25.000Z"
+    },
+    {
+      "pathname": "artists/deanna-schuerbeke/artwork/deanna-schuerbeke-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/deanna-schuerbeke/artwork/deanna-schuerbeke-3.jpg",
+      "size": 541376,
+      "uploadedAt": "2026-07-07T18:30:25.000Z"
+    },
+    {
+      "pathname": "artists/deanna-schuerbeke/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/deanna-schuerbeke/artwork/hero.jpg",
+      "size": 548943,
+      "uploadedAt": "2026-07-02T19:42:01.000Z"
+    },
+    {
+      "pathname": "artists/deanna-schuerbeke/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/deanna-schuerbeke/bio.jpg",
+      "size": 534346,
+      "uploadedAt": "2026-07-02T19:42:01.000Z"
+    },
+    {
+      "pathname": "artists/deanna-schuerbeke/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/deanna-schuerbeke/hero.jpg",
+      "size": 548943,
+      "uploadedAt": "2026-07-02T19:42:00.000Z"
+    },
+    {
+      "pathname": "artists/drew-laughery/artwork/drew-laughery-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/drew-laughery/artwork/drew-laughery-1.jpg",
+      "size": 406922,
+      "uploadedAt": "2026-07-07T18:30:25.000Z"
+    },
+    {
+      "pathname": "artists/drew-laughery/artwork/drew-laughery-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/drew-laughery/artwork/drew-laughery-2.jpg",
+      "size": 389780,
+      "uploadedAt": "2026-07-07T18:30:26.000Z"
+    },
+    {
+      "pathname": "artists/drew-laughery/artwork/drew-laughery-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/drew-laughery/artwork/drew-laughery-3.jpg",
+      "size": 380622,
+      "uploadedAt": "2026-07-07T18:30:26.000Z"
+    },
+    {
+      "pathname": "artists/drew-laughery/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/drew-laughery/artwork/hero.jpg",
+      "size": 606993,
+      "uploadedAt": "2026-07-02T19:42:03.000Z"
+    },
+    {
+      "pathname": "artists/drew-laughery/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/drew-laughery/bio.jpg",
+      "size": 315020,
+      "uploadedAt": "2026-07-02T19:42:02.000Z"
+    },
+    {
+      "pathname": "artists/drew-laughery/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/drew-laughery/hero.jpg",
+      "size": 606993,
+      "uploadedAt": "2026-07-02T19:42:02.000Z"
+    },
+    {
+      "pathname": "artists/elizabeth-williams/artwork/elizabeth-williams-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/elizabeth-williams/artwork/elizabeth-williams-1.jpg",
+      "size": 1054386,
+      "uploadedAt": "2026-07-07T18:30:27.000Z"
+    },
+    {
+      "pathname": "artists/elizabeth-williams/artwork/elizabeth-williams-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/elizabeth-williams/artwork/elizabeth-williams-2.jpg",
+      "size": 1054386,
+      "uploadedAt": "2026-07-07T18:30:28.000Z"
+    },
+    {
+      "pathname": "artists/elizabeth-williams/artwork/elizabeth-williams-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/elizabeth-williams/artwork/elizabeth-williams-3.jpg",
+      "size": 1054386,
+      "uploadedAt": "2026-07-07T18:30:29.000Z"
+    },
+    {
+      "pathname": "artists/elizabeth-williams/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/elizabeth-williams/artwork/hero.jpg",
+      "size": 1054386,
+      "uploadedAt": "2026-07-02T19:42:04.000Z"
+    },
+    {
+      "pathname": "artists/elizabeth-williams/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/elizabeth-williams/bio.jpg",
+      "size": 971360,
+      "uploadedAt": "2026-07-02T19:42:04.000Z"
+    },
+    {
+      "pathname": "artists/elizabeth-williams/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/elizabeth-williams/hero.jpg",
+      "size": 1054386,
+      "uploadedAt": "2026-07-02T19:42:03.000Z"
+    },
+    {
+      "pathname": "artists/ellen-goldschmidt/artwork/ellen-goldschmidt-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/ellen-goldschmidt/artwork/ellen-goldschmidt-1.jpg",
+      "size": 119756,
+      "uploadedAt": "2026-07-07T18:30:29.000Z"
+    },
+    {
+      "pathname": "artists/ellen-goldschmidt/artwork/ellen-goldschmidt-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/ellen-goldschmidt/artwork/ellen-goldschmidt-2.jpg",
+      "size": 125075,
+      "uploadedAt": "2026-07-07T18:30:29.000Z"
+    },
+    {
+      "pathname": "artists/ellen-goldschmidt/artwork/ellen-goldschmidt-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/ellen-goldschmidt/artwork/ellen-goldschmidt-3.jpg",
+      "size": 157071,
+      "uploadedAt": "2026-07-07T18:30:30.000Z"
+    },
+    {
+      "pathname": "artists/ellen-goldschmidt/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/ellen-goldschmidt/artwork/hero.jpg",
+      "size": 100107,
+      "uploadedAt": "2026-07-02T19:42:05.000Z"
+    },
+    {
+      "pathname": "artists/ellen-goldschmidt/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/ellen-goldschmidt/bio.jpg",
+      "size": 75276,
+      "uploadedAt": "2026-07-02T19:42:05.000Z"
+    },
+    {
+      "pathname": "artists/ellen-goldschmidt/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/ellen-goldschmidt/hero.jpg",
+      "size": 100107,
+      "uploadedAt": "2026-07-02T19:42:05.000Z"
+    },
+    {
+      "pathname": "artists/eric-rue/artwork/eric-rue-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/eric-rue/artwork/eric-rue-1.jpg",
+      "size": 3031164,
+      "uploadedAt": "2026-07-07T18:30:30.000Z"
+    },
+    {
+      "pathname": "artists/eric-rue/artwork/eric-rue-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/eric-rue/artwork/eric-rue-2.jpg",
+      "size": 3031164,
+      "uploadedAt": "2026-07-07T18:30:31.000Z"
+    },
+    {
+      "pathname": "artists/eric-rue/artwork/eric-rue-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/eric-rue/artwork/eric-rue-3.jpg",
+      "size": 3031164,
+      "uploadedAt": "2026-07-07T18:30:32.000Z"
+    },
+    {
+      "pathname": "artists/eric-rue/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/eric-rue/artwork/hero.jpg",
+      "size": 3031164,
+      "uploadedAt": "2026-07-02T19:42:08.000Z"
+    },
+    {
+      "pathname": "artists/eric-rue/bio.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/eric-rue/bio.png",
+      "size": 1425274,
+      "uploadedAt": "2026-07-02T19:42:07.000Z"
+    },
+    {
+      "pathname": "artists/eric-rue/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/eric-rue/hero.jpg",
+      "size": 3031164,
+      "uploadedAt": "2026-07-02T19:42:06.000Z"
+    },
+    {
+      "pathname": "artists/erin-dengerink/artwork/erin-dengerink-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/erin-dengerink/artwork/erin-dengerink-1.jpg",
+      "size": 30700,
+      "uploadedAt": "2026-07-07T18:30:33.000Z"
+    },
+    {
+      "pathname": "artists/erin-dengerink/artwork/erin-dengerink-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/erin-dengerink/artwork/erin-dengerink-2.jpg",
+      "size": 529438,
+      "uploadedAt": "2026-07-07T18:30:33.000Z"
+    },
+    {
+      "pathname": "artists/erin-dengerink/artwork/erin-dengerink-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/erin-dengerink/artwork/erin-dengerink-3.jpg",
+      "size": 30700,
+      "uploadedAt": "2026-07-07T18:30:33.000Z"
+    },
+    {
+      "pathname": "artists/erin-dengerink/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/erin-dengerink/artwork/hero.jpg",
+      "size": 529438,
+      "uploadedAt": "2026-07-02T19:42:10.000Z"
+    },
+    {
+      "pathname": "artists/erin-dengerink/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/erin-dengerink/bio.jpg",
+      "size": 17236,
+      "uploadedAt": "2026-07-02T19:42:09.000Z"
+    },
+    {
+      "pathname": "artists/erin-dengerink/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/erin-dengerink/hero.jpg",
+      "size": 529438,
+      "uploadedAt": "2026-07-02T19:42:09.000Z"
+    },
+    {
+      "pathname": "artists/eva-morris/artwork/eva-morris-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/eva-morris/artwork/eva-morris-1.jpg",
+      "size": 507892,
+      "uploadedAt": "2026-07-07T18:30:34.000Z"
+    },
+    {
+      "pathname": "artists/eva-morris/artwork/eva-morris-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/eva-morris/artwork/eva-morris-2.jpg",
+      "size": 507892,
+      "uploadedAt": "2026-07-07T18:30:35.000Z"
+    },
+    {
+      "pathname": "artists/eva-morris/artwork/eva-morris-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/eva-morris/artwork/eva-morris-3.jpg",
+      "size": 507892,
+      "uploadedAt": "2026-07-07T18:30:35.000Z"
+    },
+    {
+      "pathname": "artists/eva-morris/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/eva-morris/artwork/hero.jpg",
+      "size": 507892,
+      "uploadedAt": "2026-07-02T19:42:12.000Z"
+    },
+    {
+      "pathname": "artists/eva-morris/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/eva-morris/bio.jpg",
+      "size": 413060,
+      "uploadedAt": "2026-07-02T19:42:11.000Z"
+    },
+    {
+      "pathname": "artists/eva-morris/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/eva-morris/hero.jpg",
+      "size": 507892,
+      "uploadedAt": "2026-07-02T19:42:11.000Z"
+    },
+    {
+      "pathname": "artists/f-lauren-carrera/artwork/f-lauren-carrera-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/f-lauren-carrera/artwork/f-lauren-carrera-1.jpg",
+      "size": 189763,
+      "uploadedAt": "2026-07-07T18:30:36.000Z"
+    },
+    {
+      "pathname": "artists/f-lauren-carrera/artwork/f-lauren-carrera-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/f-lauren-carrera/artwork/f-lauren-carrera-2.jpg",
+      "size": 374923,
+      "uploadedAt": "2026-07-07T18:30:36.000Z"
+    },
+    {
+      "pathname": "artists/f-lauren-carrera/artwork/f-lauren-carrera-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/f-lauren-carrera/artwork/f-lauren-carrera-3.jpg",
+      "size": 344871,
+      "uploadedAt": "2026-07-07T18:30:37.000Z"
+    },
+    {
+      "pathname": "artists/f-lauren-carrera/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/f-lauren-carrera/artwork/hero.jpg",
+      "size": 162152,
+      "uploadedAt": "2026-07-02T19:42:13.000Z"
+    },
+    {
+      "pathname": "artists/f-lauren-carrera/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/f-lauren-carrera/bio.jpg",
+      "size": 430056,
+      "uploadedAt": "2026-07-02T19:42:13.000Z"
+    },
+    {
+      "pathname": "artists/f-lauren-carrera/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/f-lauren-carrera/hero.jpg",
+      "size": 162152,
+      "uploadedAt": "2026-07-02T19:42:12.000Z"
+    },
+    {
+      "pathname": "artists/felicia-murray/artwork/felicia-murray-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/felicia-murray/artwork/felicia-murray-1.jpg",
+      "size": 1068098,
+      "uploadedAt": "2026-07-07T18:30:38.000Z"
+    },
+    {
+      "pathname": "artists/felicia-murray/artwork/felicia-murray-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/felicia-murray/artwork/felicia-murray-2.jpg",
+      "size": 1068098,
+      "uploadedAt": "2026-07-07T18:30:39.000Z"
+    },
+    {
+      "pathname": "artists/felicia-murray/artwork/felicia-murray-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/felicia-murray/artwork/felicia-murray-3.jpg",
+      "size": 1068098,
+      "uploadedAt": "2026-07-07T18:30:39.000Z"
+    },
+    {
+      "pathname": "artists/felicia-murray/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/felicia-murray/artwork/hero.jpg",
+      "size": 1068098,
+      "uploadedAt": "2026-07-02T19:42:14.000Z"
+    },
+    {
+      "pathname": "artists/felicia-murray/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/felicia-murray/bio.jpg",
+      "size": 763660,
+      "uploadedAt": "2026-07-02T19:42:14.000Z"
+    },
+    {
+      "pathname": "artists/felicia-murray/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/felicia-murray/hero.jpg",
+      "size": 1068098,
+      "uploadedAt": "2026-07-02T19:42:14.000Z"
+    },
+    {
+      "pathname": "artists/gloria-baker-feinstein/artwork/gloria-baker-feinstein-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/gloria-baker-feinstein/artwork/gloria-baker-feinstein-1.jpg",
+      "size": 281904,
+      "uploadedAt": "2026-07-07T18:30:40.000Z"
+    },
+    {
+      "pathname": "artists/gloria-baker-feinstein/artwork/gloria-baker-feinstein-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/gloria-baker-feinstein/artwork/gloria-baker-feinstein-2.jpg",
+      "size": 326889,
+      "uploadedAt": "2026-07-07T18:30:40.000Z"
+    },
+    {
+      "pathname": "artists/gloria-baker-feinstein/artwork/gloria-baker-feinstein-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/gloria-baker-feinstein/artwork/gloria-baker-feinstein-3.jpg",
+      "size": 329888,
+      "uploadedAt": "2026-07-07T18:30:40.000Z"
+    },
+    {
+      "pathname": "artists/gloria-baker-feinstein/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/gloria-baker-feinstein/artwork/hero.jpg",
+      "size": 1493319,
+      "uploadedAt": "2026-07-02T19:42:17.000Z"
+    },
+    {
+      "pathname": "artists/gloria-baker-feinstein/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/gloria-baker-feinstein/bio.jpg",
+      "size": 995496,
+      "uploadedAt": "2026-07-02T19:42:16.000Z"
+    },
+    {
+      "pathname": "artists/gloria-baker-feinstein/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/gloria-baker-feinstein/hero.jpg",
+      "size": 1493319,
+      "uploadedAt": "2026-07-02T19:42:15.000Z"
+    },
+    {
+      "pathname": "artists/hi/1781581765704-Screenshot_2026-06-15_at_8.27.52_PM.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/hi/1781581765704-Screenshot_2026-06-15_at_8.27.52_PM.png",
+      "size": 6305,
+      "uploadedAt": "2026-06-16T03:49:26.000Z"
+    },
+    {
+      "pathname": "artists/hi/1781581769507-Screenshot_2026-06-15_at_8.28.11_PM.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/hi/1781581769507-Screenshot_2026-06-15_at_8.28.11_PM.png",
+      "size": 5358,
+      "uploadedAt": "2026-06-16T03:49:30.000Z"
+    },
+    {
+      "pathname": "artists/hi/1781582084264-Screenshot_2026-06-15_at_8.27.57_PM.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/hi/1781582084264-Screenshot_2026-06-15_at_8.27.57_PM.png",
+      "size": 5761,
+      "uploadedAt": "2026-06-16T03:54:45.000Z"
+    },
+    {
+      "pathname": "artists/hi/1781582088060-Screenshot_2026-06-15_at_8.27.55_PM.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/hi/1781582088060-Screenshot_2026-06-15_at_8.27.55_PM.png",
+      "size": 4629,
+      "uploadedAt": "2026-06-16T03:54:49.000Z"
+    },
+    {
+      "pathname": "artists/hi/1781582092408-Screenshot_2026-06-15_at_8.28.01_PM.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/hi/1781582092408-Screenshot_2026-06-15_at_8.28.01_PM.png",
+      "size": 4535,
+      "uploadedAt": "2026-06-16T03:54:53.000Z"
+    },
+    {
+      "pathname": "artists/hsin-yi-huang/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/hsin-yi-huang/artwork/hero.jpg",
+      "size": 304149,
+      "uploadedAt": "2026-07-02T19:42:18.000Z"
+    },
+    {
+      "pathname": "artists/hsin-yi-huang/artwork/hsin-yi-huang-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/hsin-yi-huang/artwork/hsin-yi-huang-1.jpg",
+      "size": 304149,
+      "uploadedAt": "2026-07-07T18:30:41.000Z"
+    },
+    {
+      "pathname": "artists/hsin-yi-huang/artwork/hsin-yi-huang-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/hsin-yi-huang/artwork/hsin-yi-huang-2.jpg",
+      "size": 304149,
+      "uploadedAt": "2026-07-07T18:30:41.000Z"
+    },
+    {
+      "pathname": "artists/hsin-yi-huang/artwork/hsin-yi-huang-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/hsin-yi-huang/artwork/hsin-yi-huang-3.jpg",
+      "size": 304149,
+      "uploadedAt": "2026-07-07T18:30:42.000Z"
+    },
+    {
+      "pathname": "artists/hsin-yi-huang/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/hsin-yi-huang/bio.jpg",
+      "size": 135500,
+      "uploadedAt": "2026-07-02T19:42:17.000Z"
+    },
+    {
+      "pathname": "artists/hsin-yi-huang/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/hsin-yi-huang/hero.jpg",
+      "size": 304149,
+      "uploadedAt": "2026-07-02T19:42:17.000Z"
+    },
+    {
+      "pathname": "artists/isabella-cassini/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/isabella-cassini/artwork/hero.jpg",
+      "size": 352327,
+      "uploadedAt": "2026-07-02T19:42:19.000Z"
+    },
+    {
+      "pathname": "artists/isabella-cassini/artwork/isabella-cassini-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/isabella-cassini/artwork/isabella-cassini-1.jpg",
+      "size": 329698,
+      "uploadedAt": "2026-07-07T18:30:42.000Z"
+    },
+    {
+      "pathname": "artists/isabella-cassini/artwork/isabella-cassini-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/isabella-cassini/artwork/isabella-cassini-2.jpg",
+      "size": 255512,
+      "uploadedAt": "2026-07-07T18:30:42.000Z"
+    },
+    {
+      "pathname": "artists/isabella-cassini/artwork/isabella-cassini-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/isabella-cassini/artwork/isabella-cassini-3.jpg",
+      "size": 121100,
+      "uploadedAt": "2026-07-07T18:30:43.000Z"
+    },
+    {
+      "pathname": "artists/isabella-cassini/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/isabella-cassini/bio.jpg",
+      "size": 197274,
+      "uploadedAt": "2026-07-02T19:42:19.000Z"
+    },
+    {
+      "pathname": "artists/isabella-cassini/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/isabella-cassini/hero.jpg",
+      "size": 352327,
+      "uploadedAt": "2026-07-02T19:42:18.000Z"
+    },
+    {
+      "pathname": "artists/jb/1782706506762-1000010749.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/jb/1782706506762-1000010749.jpg",
+      "size": 5379739,
+      "uploadedAt": "2026-06-29T04:15:07.000Z"
+    },
+    {
+      "pathname": "artists/jb/1782706512703-1000010746.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/jb/1782706512703-1000010746.jpg",
+      "size": 6240125,
+      "uploadedAt": "2026-06-29T04:15:13.000Z"
+    },
+    {
+      "pathname": "artists/jb/1782706517651-1000010746.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/jb/1782706517651-1000010746.jpg",
+      "size": 6240125,
+      "uploadedAt": "2026-06-29T04:15:18.000Z"
+    },
+    {
+      "pathname": "artists/jb/1782706526871-1000010717.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/jb/1782706526871-1000010717.jpg",
+      "size": 4449456,
+      "uploadedAt": "2026-06-29T04:15:27.000Z"
+    },
+    {
+      "pathname": "artists/jb/1782706541388-1000010715.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/jb/1782706541388-1000010715.jpg",
+      "size": 3732832,
+      "uploadedAt": "2026-06-29T04:15:42.000Z"
+    },
+    {
+      "pathname": "artists/jb/1782706553123-1000010695.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/jb/1782706553123-1000010695.jpg",
+      "size": 5153653,
+      "uploadedAt": "2026-06-29T04:15:54.000Z"
+    },
+    {
+      "pathname": "artists/jennifer-eaton-white/jennifer-eaton-white-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/jennifer-eaton-white/jennifer-eaton-white-1.jpg",
+      "size": 680106,
+      "uploadedAt": "2026-06-08T05:27:14.000Z"
+    },
+    {
+      "pathname": "artists/jennifer-eaton-white/jennifer-eaton-white-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/jennifer-eaton-white/jennifer-eaton-white-2.jpg",
+      "size": 124371,
+      "uploadedAt": "2026-06-08T05:27:15.000Z"
+    },
+    {
+      "pathname": "artists/jennifer-eaton-white/jennifer-eaton-white-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/jennifer-eaton-white/jennifer-eaton-white-3.jpg",
+      "size": 189125,
+      "uploadedAt": "2026-06-08T05:27:15.000Z"
+    },
+    {
+      "pathname": "artists/jennifer-eaton-white/jennifer-eaton-white-bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/jennifer-eaton-white/jennifer-eaton-white-bio.jpg",
+      "size": 28170,
+      "uploadedAt": "2026-06-08T05:27:13.000Z"
+    },
+    {
+      "pathname": "artists/jennifer-eaton-white/jennifer-eaton-white-hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/jennifer-eaton-white/jennifer-eaton-white-hero.jpg",
+      "size": 93623,
+      "uploadedAt": "2026-06-08T05:27:14.000Z"
+    },
+    {
+      "pathname": "artists/jessalyn-haggenjos/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/jessalyn-haggenjos/artwork/hero.jpg",
+      "size": 366813,
+      "uploadedAt": "2026-07-02T19:42:20.000Z"
+    },
+    {
+      "pathname": "artists/jessalyn-haggenjos/artwork/jessalyn-haggenjos-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/jessalyn-haggenjos/artwork/jessalyn-haggenjos-1.jpg",
+      "size": 366813,
+      "uploadedAt": "2026-07-07T18:30:43.000Z"
+    },
+    {
+      "pathname": "artists/jessalyn-haggenjos/artwork/jessalyn-haggenjos-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/jessalyn-haggenjos/artwork/jessalyn-haggenjos-2.jpg",
+      "size": 366813,
+      "uploadedAt": "2026-07-07T18:30:44.000Z"
+    },
+    {
+      "pathname": "artists/jessalyn-haggenjos/artwork/jessalyn-haggenjos-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/jessalyn-haggenjos/artwork/jessalyn-haggenjos-3.jpg",
+      "size": 366813,
+      "uploadedAt": "2026-07-07T18:30:44.000Z"
+    },
+    {
+      "pathname": "artists/jessalyn-haggenjos/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/jessalyn-haggenjos/bio.jpg",
+      "size": 150564,
+      "uploadedAt": "2026-07-02T19:42:19.000Z"
+    },
+    {
+      "pathname": "artists/jessalyn-haggenjos/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/jessalyn-haggenjos/hero.jpg",
+      "size": 366813,
+      "uploadedAt": "2026-07-02T19:42:19.000Z"
+    },
+    {
+      "pathname": "artists/julie-rall/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/julie-rall/artwork/hero.jpg",
+      "size": 227464,
+      "uploadedAt": "2026-07-02T19:42:21.000Z"
+    },
+    {
+      "pathname": "artists/julie-rall/artwork/julie-rall-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/julie-rall/artwork/julie-rall-1.jpg",
+      "size": 227464,
+      "uploadedAt": "2026-07-07T18:30:44.000Z"
+    },
+    {
+      "pathname": "artists/julie-rall/artwork/julie-rall-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/julie-rall/artwork/julie-rall-2.jpg",
+      "size": 227464,
+      "uploadedAt": "2026-07-07T18:30:45.000Z"
+    },
+    {
+      "pathname": "artists/julie-rall/artwork/julie-rall-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/julie-rall/artwork/julie-rall-3.jpg",
+      "size": 227464,
+      "uploadedAt": "2026-07-07T18:30:45.000Z"
+    },
+    {
+      "pathname": "artists/julie-rall/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/julie-rall/bio.jpg",
+      "size": 167794,
+      "uploadedAt": "2026-07-02T19:42:21.000Z"
+    },
+    {
+      "pathname": "artists/julie-rall/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/julie-rall/hero.jpg",
+      "size": 227464,
+      "uploadedAt": "2026-07-02T19:42:20.000Z"
+    },
+    {
+      "pathname": "artists/kevin-tudball/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kevin-tudball/bio.jpg",
+      "size": 66568,
+      "uploadedAt": "2026-07-22T20:19:19.000Z"
+    },
+    {
+      "pathname": "artists/kevin-tudball/bio.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kevin-tudball/bio.png",
+      "size": 398252,
+      "uploadedAt": "2026-07-23T16:42:14.000Z"
+    },
+    {
+      "pathname": "artists/kevin-tudball/Kevin_Tudball_header.webp",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kevin-tudball/Kevin_Tudball_header.webp",
+      "size": 365556,
+      "uploadedAt": "2026-07-22T20:30:16.000Z"
+    },
+    {
+      "pathname": "artists/kevin-tudball/Kevin_Tudball1.webp",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kevin-tudball/Kevin_Tudball1.webp",
+      "size": 1179534,
+      "uploadedAt": "2026-07-22T17:22:21.000Z"
+    },
+    {
+      "pathname": "artists/kevin-tudball/Kevin_Tudball2.webp",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kevin-tudball/Kevin_Tudball2.webp",
+      "size": 927986,
+      "uploadedAt": "2026-07-22T17:22:21.000Z"
+    },
+    {
+      "pathname": "artists/kevin-tudball/Kevin_Tudball3.webp",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kevin-tudball/Kevin_Tudball3.webp",
+      "size": 66490,
+      "uploadedAt": "2026-07-22T17:22:22.000Z"
+    },
+    {
+      "pathname": "artists/kevin-tudball/Kevin_Tudball4.webp",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kevin-tudball/Kevin_Tudball4.webp",
+      "size": 232500,
+      "uploadedAt": "2026-07-22T18:06:45.000Z"
+    },
+    {
+      "pathname": "artists/kim-donnet/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-donnet/artwork/hero.jpg",
+      "size": 2163332,
+      "uploadedAt": "2026-07-02T19:42:22.000Z"
+    },
+    {
+      "pathname": "artists/kim-donnet/artwork/kim-donnet-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-donnet/artwork/kim-donnet-1.jpg",
+      "size": 624342,
+      "uploadedAt": "2026-07-07T18:30:46.000Z"
+    },
+    {
+      "pathname": "artists/kim-donnet/artwork/kim-donnet-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-donnet/artwork/kim-donnet-2.jpg",
+      "size": 196372,
+      "uploadedAt": "2026-07-07T18:30:46.000Z"
+    },
+    {
+      "pathname": "artists/kim-donnet/artwork/kim-donnet-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-donnet/artwork/kim-donnet-3.jpg",
+      "size": 219846,
+      "uploadedAt": "2026-07-07T18:30:47.000Z"
+    },
+    {
+      "pathname": "artists/kim-donnet/bio.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-donnet/bio.png",
+      "size": 972144,
+      "uploadedAt": "2026-07-02T19:42:22.000Z"
+    },
+    {
+      "pathname": "artists/kim-donnet/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-donnet/hero.jpg",
+      "size": 2163332,
+      "uploadedAt": "2026-07-02T19:42:21.000Z"
+    },
+    {
+      "pathname": "artists/kim-lakin/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-lakin/artwork/hero.jpg",
+      "size": 357420,
+      "uploadedAt": "2026-07-02T19:42:23.000Z"
+    },
+    {
+      "pathname": "artists/kim-lakin/artwork/kim-lakin-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-lakin/artwork/kim-lakin-1.jpg",
+      "size": 455688,
+      "uploadedAt": "2026-07-07T18:30:47.000Z"
+    },
+    {
+      "pathname": "artists/kim-lakin/artwork/kim-lakin-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-lakin/artwork/kim-lakin-2.jpg",
+      "size": 357420,
+      "uploadedAt": "2026-07-07T18:30:48.000Z"
+    },
+    {
+      "pathname": "artists/kim-lakin/artwork/kim-lakin-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-lakin/artwork/kim-lakin-3.jpg",
+      "size": 357420,
+      "uploadedAt": "2026-07-07T18:30:48.000Z"
+    },
+    {
+      "pathname": "artists/kim-lakin/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-lakin/bio.jpg",
+      "size": 250098,
+      "uploadedAt": "2026-07-02T19:42:23.000Z"
+    },
+    {
+      "pathname": "artists/kim-lakin/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-lakin/hero.jpg",
+      "size": 357420,
+      "uploadedAt": "2026-07-02T19:42:23.000Z"
+    },
+    {
+      "pathname": "artists/kim-marcucci/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-marcucci/artwork/hero.jpg",
+      "size": 2203578,
+      "uploadedAt": "2026-07-02T19:42:26.000Z"
+    },
+    {
+      "pathname": "artists/kim-marcucci/artwork/kim-marcucci-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-marcucci/artwork/kim-marcucci-1.jpg",
+      "size": 2203578,
+      "uploadedAt": "2026-07-07T18:30:49.000Z"
+    },
+    {
+      "pathname": "artists/kim-marcucci/artwork/kim-marcucci-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-marcucci/artwork/kim-marcucci-2.jpg",
+      "size": 2203578,
+      "uploadedAt": "2026-07-07T18:30:49.000Z"
+    },
+    {
+      "pathname": "artists/kim-marcucci/artwork/kim-marcucci-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-marcucci/artwork/kim-marcucci-3.jpg",
+      "size": 2203578,
+      "uploadedAt": "2026-07-07T18:30:50.000Z"
+    },
+    {
+      "pathname": "artists/kim-marcucci/bio.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-marcucci/bio.png",
+      "size": 976672,
+      "uploadedAt": "2026-07-02T19:42:25.000Z"
+    },
+    {
+      "pathname": "artists/kim-marcucci/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-marcucci/hero.jpg",
+      "size": 2203578,
+      "uploadedAt": "2026-07-02T19:42:24.000Z"
+    },
+    {
+      "pathname": "artists/kim-stafford/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-stafford/artwork/hero.jpg",
+      "size": 99137,
+      "uploadedAt": "2026-07-02T19:42:26.000Z"
+    },
+    {
+      "pathname": "artists/kim-stafford/artwork/kim-stafford-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-stafford/artwork/kim-stafford-1.jpg",
+      "size": 278874,
+      "uploadedAt": "2026-07-07T18:30:50.000Z"
+    },
+    {
+      "pathname": "artists/kim-stafford/artwork/kim-stafford-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-stafford/artwork/kim-stafford-2.jpg",
+      "size": 117744,
+      "uploadedAt": "2026-07-07T18:30:51.000Z"
+    },
+    {
+      "pathname": "artists/kim-stafford/artwork/kim-stafford-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-stafford/artwork/kim-stafford-3.jpg",
+      "size": 78697,
+      "uploadedAt": "2026-07-07T18:30:51.000Z"
+    },
+    {
+      "pathname": "artists/kim-stafford/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-stafford/bio.jpg",
+      "size": 31458,
+      "uploadedAt": "2026-07-02T19:42:26.000Z"
+    },
+    {
+      "pathname": "artists/kim-stafford/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kim-stafford/hero.jpg",
+      "size": 99137,
+      "uploadedAt": "2026-07-02T19:42:26.000Z"
+    },
+    {
+      "pathname": "artists/kirsten-rian/artwork/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kirsten-rian/artwork/hero.jpg",
+      "size": 773628,
+      "uploadedAt": "2026-07-02T19:42:28.000Z"
+    },
+    {
+      "pathname": "artists/kirsten-rian/artwork/kirsten-rian-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kirsten-rian/artwork/kirsten-rian-1.jpg",
+      "size": 773628,
+      "uploadedAt": "2026-07-07T18:30:52.000Z"
+    },
+    {
+      "pathname": "artists/kirsten-rian/artwork/kirsten-rian-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kirsten-rian/artwork/kirsten-rian-2.jpg",
+      "size": 773628,
+      "uploadedAt": "2026-07-07T18:30:52.000Z"
+    },
+    {
+      "pathname": "artists/kirsten-rian/artwork/kirsten-rian-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kirsten-rian/artwork/kirsten-rian-3.jpg",
+      "size": 773628,
+      "uploadedAt": "2026-07-07T18:30:53.000Z"
+    },
+    {
+      "pathname": "artists/kirsten-rian/bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kirsten-rian/bio.jpg",
+      "size": 807700,
+      "uploadedAt": "2026-07-02T19:42:27.000Z"
+    },
+    {
+      "pathname": "artists/kirsten-rian/hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kirsten-rian/hero.jpg",
+      "size": 773628,
+      "uploadedAt": "2026-07-02T19:42:27.000Z"
+    },
+    {
+      "pathname": "artists/kristin-casaletto/1784851371536-bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kristin-casaletto/1784851371536-bio.jpg",
+      "size": 58235,
+      "uploadedAt": "2026-07-24T00:02:52.000Z"
+    },
+    {
+      "pathname": "artists/kristin-casaletto/Kristin_Casaletto_bio.webp",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kristin-casaletto/Kristin_Casaletto_bio.webp",
+      "size": 351174,
+      "uploadedAt": "2026-07-20T17:41:22.000Z"
+    },
+    {
+      "pathname": "artists/kristin-casaletto/Kristin_Casaletto1.webp",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kristin-casaletto/Kristin_Casaletto1.webp",
+      "size": 567716,
+      "uploadedAt": "2026-07-20T17:41:22.000Z"
+    },
+    {
+      "pathname": "artists/kristin-casaletto/Kristin_Casaletto2.webp",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kristin-casaletto/Kristin_Casaletto2.webp",
+      "size": 650564,
+      "uploadedAt": "2026-07-20T17:41:23.000Z"
+    },
+    {
+      "pathname": "artists/kristin-casaletto/Kristin_Casaletto3.webp",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kristin-casaletto/Kristin_Casaletto3.webp",
+      "size": 4367032,
+      "uploadedAt": "2026-07-20T17:41:24.000Z"
+    },
+    {
+      "pathname": "artists/kristin-casaletto/Kristin_Casaletto4.webp",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kristin-casaletto/Kristin_Casaletto4.webp",
+      "size": 294638,
+      "uploadedAt": "2026-07-20T17:41:24.000Z"
+    },
+    {
+      "pathname": "artists/kurtis-piltz/Kurtis_Piltz_bio.jpeg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kurtis-piltz/Kurtis_Piltz_bio.jpeg",
+      "size": 2385772,
+      "uploadedAt": "2026-07-20T17:31:35.000Z"
+    },
+    {
+      "pathname": "artists/kurtis-piltz/Kurtis_Piltz1.jpeg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kurtis-piltz/Kurtis_Piltz1.jpeg",
+      "size": 14706101,
+      "uploadedAt": "2026-07-20T17:31:36.000Z"
+    },
+    {
+      "pathname": "artists/kurtis-piltz/Kurtis_Piltz2.jpeg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kurtis-piltz/Kurtis_Piltz2.jpeg",
+      "size": 8981601,
+      "uploadedAt": "2026-07-20T17:31:37.000Z"
+    },
+    {
+      "pathname": "artists/kurtis-piltz/Kurtis_Piltz3.jpeg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kurtis-piltz/Kurtis_Piltz3.jpeg",
+      "size": 455008,
+      "uploadedAt": "2026-07-20T17:31:37.000Z"
+    },
+    {
+      "pathname": "artists/kurtis-piltz/Kurtis_Piltz4.jpeg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kurtis-piltz/Kurtis_Piltz4.jpeg",
+      "size": 332072,
+      "uploadedAt": "2026-07-20T17:31:38.000Z"
+    },
+    {
+      "pathname": "artists/kurtis-piltz/kurtis-piltz-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kurtis-piltz/kurtis-piltz-1.jpg",
+      "size": 227388,
+      "uploadedAt": "2026-06-08T05:27:06.000Z"
+    },
+    {
+      "pathname": "artists/kurtis-piltz/kurtis-piltz-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kurtis-piltz/kurtis-piltz-2.jpg",
+      "size": 335488,
+      "uploadedAt": "2026-06-08T05:27:07.000Z"
+    },
+    {
+      "pathname": "artists/kurtis-piltz/kurtis-piltz-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kurtis-piltz/kurtis-piltz-3.jpg",
+      "size": 197228,
+      "uploadedAt": "2026-06-08T05:27:06.000Z"
+    },
+    {
+      "pathname": "artists/kurtis-piltz/kurtis-piltz-bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kurtis-piltz/kurtis-piltz-bio.jpg",
+      "size": 20509,
+      "uploadedAt": "2026-06-08T05:27:05.000Z"
+    },
+    {
+      "pathname": "artists/kurtis-piltz/kurtis-piltz-hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/kurtis-piltz/kurtis-piltz-hero.jpg",
+      "size": 155347,
+      "uploadedAt": "2026-06-08T05:27:05.000Z"
+    },
+    {
+      "pathname": "artists/lindsey-fox/lindsey-fox-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/lindsey-fox/lindsey-fox-1.jpg",
+      "size": 73796,
+      "uploadedAt": "2026-06-08T05:27:12.000Z"
+    },
+    {
+      "pathname": "artists/lindsey-fox/lindsey-fox-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/lindsey-fox/lindsey-fox-2.jpg",
+      "size": 354116,
+      "uploadedAt": "2026-06-08T05:27:12.000Z"
+    },
+    {
+      "pathname": "artists/lindsey-fox/lindsey-fox-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/lindsey-fox/lindsey-fox-3.jpg",
+      "size": 168759,
+      "uploadedAt": "2026-06-08T05:27:13.000Z"
+    },
+    {
+      "pathname": "artists/lindsey-fox/lindsey-fox-bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/lindsey-fox/lindsey-fox-bio.jpg",
+      "size": 42074,
+      "uploadedAt": "2026-06-08T05:27:11.000Z"
+    },
+    {
+      "pathname": "artists/lindsey-fox/lindsey-fox-hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/lindsey-fox/lindsey-fox-hero.jpg",
+      "size": 195151,
+      "uploadedAt": "2026-06-08T05:27:12.000Z"
+    },
+    {
+      "pathname": "artists/sfdsdf/1781580864647-Screenshot_2026-06-15_at_8.28.11_PM.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/sfdsdf/1781580864647-Screenshot_2026-06-15_at_8.28.11_PM.png",
+      "size": 5358,
+      "uploadedAt": "2026-06-16T03:34:25.000Z"
+    },
+    {
+      "pathname": "artists/sfdsdf/1781580867555-Screenshot_2026-06-15_at_8.27.52_PM.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/sfdsdf/1781580867555-Screenshot_2026-06-15_at_8.27.52_PM.png",
+      "size": 6305,
+      "uploadedAt": "2026-06-16T03:34:28.000Z"
+    },
+    {
+      "pathname": "artists/sfdsdf/1781580876022-Screenshot_2026-06-15_at_8.28.01_PM.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/sfdsdf/1781580876022-Screenshot_2026-06-15_at_8.28.01_PM.png",
+      "size": 4535,
+      "uploadedAt": "2026-06-16T03:34:37.000Z"
+    },
+    {
+      "pathname": "artists/sfdsdf/1781580881057-Screenshot_2026-06-15_at_8.27.57_PM.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/sfdsdf/1781580881057-Screenshot_2026-06-15_at_8.27.57_PM.png",
+      "size": 5761,
+      "uploadedAt": "2026-06-16T03:34:42.000Z"
+    },
+    {
+      "pathname": "artists/sfdsdf/1781580884332-Screenshot_2026-06-15_at_8.27.55_PM.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/sfdsdf/1781580884332-Screenshot_2026-06-15_at_8.27.55_PM.png",
+      "size": 4629,
+      "uploadedAt": "2026-06-16T03:34:45.000Z"
+    },
+    {
+      "pathname": "artists/sfdsdf/1781580890137-Screenshot_2026-06-15_at_8.27.55_PM.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/sfdsdf/1781580890137-Screenshot_2026-06-15_at_8.27.55_PM.png",
+      "size": 4629,
+      "uploadedAt": "2026-06-16T03:34:51.000Z"
+    },
+    {
+      "pathname": "artists/sfdsdf/1781580894163-Screenshot_2026-06-15_at_8.28.01_PM.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/sfdsdf/1781580894163-Screenshot_2026-06-15_at_8.28.01_PM.png",
+      "size": 4535,
+      "uploadedAt": "2026-06-16T03:34:55.000Z"
+    },
+    {
+      "pathname": "artists/sfdsdf/1781580897332-Screenshot_2026-06-15_at_8.28.01_PM.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/sfdsdf/1781580897332-Screenshot_2026-06-15_at_8.28.01_PM.png",
+      "size": 4535,
+      "uploadedAt": "2026-06-16T03:34:58.000Z"
+    },
+    {
+      "pathname": "artists/sfdsdf/1781841119875-Screenshot_2026-06-18_at_4.21.11_PM.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/sfdsdf/1781841119875-Screenshot_2026-06-18_at_4.21.11_PM.png",
+      "size": 2154857,
+      "uploadedAt": "2026-06-19T03:52:01.000Z"
+    },
+    {
+      "pathname": "artists/sfdsdf/1781841126019-Screenshot_2026-06-18_at_1.42.51_PM.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/sfdsdf/1781841126019-Screenshot_2026-06-18_at_1.42.51_PM.png",
+      "size": 260128,
+      "uploadedAt": "2026-06-19T03:52:07.000Z"
+    },
+    {
+      "pathname": "artists/test/1781556659000-987c2e1ae79953a75ca0b786f89a255a1ac2c596.webp",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/test/1781556659000-987c2e1ae79953a75ca0b786f89a255a1ac2c596.webp",
+      "size": 44880,
+      "uploadedAt": "2026-06-15T20:51:00.000Z"
+    },
+    {
+      "pathname": "artists/tester-mctestface/1781580499007-Screenshot_2026-06-15_at_8.28.11_PM.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/tester-mctestface/1781580499007-Screenshot_2026-06-15_at_8.28.11_PM.png",
+      "size": 5358,
+      "uploadedAt": "2026-06-16T03:28:20.000Z"
+    },
+    {
+      "pathname": "artists/tester-mctestface/1781580502313-Screenshot_2026-06-15_at_8.27.52_PM.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/tester-mctestface/1781580502313-Screenshot_2026-06-15_at_8.27.52_PM.png",
+      "size": 6305,
+      "uploadedAt": "2026-06-16T03:28:23.000Z"
+    },
+    {
+      "pathname": "artists/yong-hong-zhong/yong-hero.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/yong-hong-zhong/yong-hero.png",
+      "size": 347184,
+      "uploadedAt": "2026-07-22T20:55:12.000Z"
+    },
+    {
+      "pathname": "artists/yong-hong-zhong/yong-hong-zhong-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/yong-hong-zhong/yong-hong-zhong-1.jpg",
+      "size": 247104,
+      "uploadedAt": "2026-06-08T05:27:10.000Z"
+    },
+    {
+      "pathname": "artists/yong-hong-zhong/yong-hong-zhong-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/yong-hong-zhong/yong-hong-zhong-2.jpg",
+      "size": 114073,
+      "uploadedAt": "2026-06-08T05:27:10.000Z"
+    },
+    {
+      "pathname": "artists/yong-hong-zhong/yong-hong-zhong-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/yong-hong-zhong/yong-hong-zhong-3.jpg",
+      "size": 106113,
+      "uploadedAt": "2026-06-08T05:27:11.000Z"
+    },
+    {
+      "pathname": "artists/yong-hong-zhong/yong-hong-zhong-4.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/yong-hong-zhong/yong-hong-zhong-4.jpg",
+      "size": 120372,
+      "uploadedAt": "2026-06-08T05:27:11.000Z"
+    },
+    {
+      "pathname": "artists/yong-hong-zhong/yong-hong-zhong-bio.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/artists/yong-hong-zhong/yong-hong-zhong-bio.jpg",
+      "size": 17056,
+      "uploadedAt": "2026-06-08T05:27:10.000Z"
+    },
+    {
+      "pathname": "blob-smoke-test/1780895437799-andrew-moran-1-G7zWMfmfQ6bCn9Wu3hVx2wRCwYmzT7.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/blob-smoke-test/1780895437799-andrew-moran-1-G7zWMfmfQ6bCn9Wu3hVx2wRCwYmzT7.jpg",
+      "size": 74555,
+      "uploadedAt": "2026-06-08T05:10:39.000Z"
+    },
+    {
+      "pathname": "brand/arthere-logo-email.png",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/brand/arthere-logo-email.png",
+      "size": 1756,
+      "uploadedAt": "2026-07-23T23:06:46.000Z"
+    },
+    {
+      "pathname": "places/alberta-street-gallery/alberta-street-gallery-hero.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/places/alberta-street-gallery/alberta-street-gallery-hero.jpg",
+      "size": 626981,
+      "uploadedAt": "2026-06-11T03:25:19.000Z"
+    },
+    {
+      "pathname": "places/alberta-street-gallery/gallery-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/places/alberta-street-gallery/gallery-1.jpg",
+      "size": 1299680,
+      "uploadedAt": "2026-06-11T04:21:25.000Z"
+    },
+    {
+      "pathname": "places/alberta-street-gallery/gallery-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/places/alberta-street-gallery/gallery-2.jpg",
+      "size": 904272,
+      "uploadedAt": "2026-06-11T04:21:25.000Z"
+    },
+    {
+      "pathname": "places/alberta-street-gallery/gallery-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/places/alberta-street-gallery/gallery-3.jpg",
+      "size": 562208,
+      "uploadedAt": "2026-06-11T04:21:26.000Z"
+    },
+    {
+      "pathname": "places/art-in-the-village/header.webp",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/places/art-in-the-village/header.webp",
+      "size": 218726,
+      "uploadedAt": "2026-07-22T20:22:05.000Z"
+    },
+    {
+      "pathname": "places/art-in-the-village/hero.webp",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/places/art-in-the-village/hero.webp",
+      "size": 321232,
+      "uploadedAt": "2026-07-26T22:23:50.000Z"
+    },
+    {
+      "pathname": "places/art-in-the-village/mural1.webp",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/places/art-in-the-village/mural1.webp",
+      "size": 1203524,
+      "uploadedAt": "2026-07-22T18:09:22.000Z"
+    },
+    {
+      "pathname": "places/art-in-the-village/mural3.webp",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/places/art-in-the-village/mural3.webp",
+      "size": 133392,
+      "uploadedAt": "2026-07-22T20:12:58.000Z"
+    },
+    {
+      "pathname": "places/art-in-the-village/sign.webp",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/places/art-in-the-village/sign.webp",
+      "size": 995720,
+      "uploadedAt": "2026-07-22T18:09:22.000Z"
+    },
+    {
+      "pathname": "places/art-in-the-village/thumbnail.webp",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/places/art-in-the-village/thumbnail.webp",
+      "size": 221056,
+      "uploadedAt": "2026-07-26T22:38:35.000Z"
+    },
+    {
+      "pathname": "places/comeunity-pdx/communitypdx.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/places/comeunity-pdx/communitypdx.jpg",
+      "size": 60065,
+      "uploadedAt": "2026-06-11T03:25:19.000Z"
+    },
+    {
+      "pathname": "places/comeunity-pdx/gallery-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/places/comeunity-pdx/gallery-1.jpg",
+      "size": 54321,
+      "uploadedAt": "2026-06-11T04:21:27.000Z"
+    },
+    {
+      "pathname": "places/comeunity-pdx/gallery-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/places/comeunity-pdx/gallery-2.jpg",
+      "size": 74978,
+      "uploadedAt": "2026-06-11T04:21:28.000Z"
+    },
+    {
+      "pathname": "places/comeunity-pdx/gallery-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/places/comeunity-pdx/gallery-3.jpg",
+      "size": 156107,
+      "uploadedAt": "2026-06-11T04:21:28.000Z"
+    },
+    {
+      "pathname": "places/multnomah-arts-center/gallery-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/places/multnomah-arts-center/gallery-1.jpg",
+      "size": 124701,
+      "uploadedAt": "2026-06-11T04:21:29.000Z"
+    },
+    {
+      "pathname": "places/multnomah-arts-center/gallery-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/places/multnomah-arts-center/gallery-2.jpg",
+      "size": 81431,
+      "uploadedAt": "2026-06-11T04:21:29.000Z"
+    },
+    {
+      "pathname": "places/multnomah-arts-center/gallery-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/places/multnomah-arts-center/gallery-3.jpg",
+      "size": 133352,
+      "uploadedAt": "2026-06-11T04:21:29.000Z"
+    },
+    {
+      "pathname": "places/multnomah-arts-center/multnomah.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/places/multnomah-arts-center/multnomah.jpg",
+      "size": 113819,
+      "uploadedAt": "2026-06-11T03:25:18.000Z"
+    },
+    {
+      "pathname": "places/nw-marine-art-works/gallery-1.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/places/nw-marine-art-works/gallery-1.jpg",
+      "size": 184560,
+      "uploadedAt": "2026-06-11T04:21:26.000Z"
+    },
+    {
+      "pathname": "places/nw-marine-art-works/gallery-2.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/places/nw-marine-art-works/gallery-2.jpg",
+      "size": 206064,
+      "uploadedAt": "2026-06-11T04:21:27.000Z"
+    },
+    {
+      "pathname": "places/nw-marine-art-works/gallery-3.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/places/nw-marine-art-works/gallery-3.jpg",
+      "size": 203262,
+      "uploadedAt": "2026-06-11T04:21:27.000Z"
+    },
+    {
+      "pathname": "places/nw-marine-art-works/nwmarine-header.jpg",
+      "url": "https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/places/nw-marine-art-works/nwmarine-header.jpg",
+      "size": 203262,
+      "uploadedAt": "2026-06-11T03:25:18.000Z"
+    }
+  ]
+}
