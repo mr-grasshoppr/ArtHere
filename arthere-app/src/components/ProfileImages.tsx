@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import Image from "next/image";
 
 type ArtworkImage = { id: string; url: string; altText: string | null; isHero: boolean };
+type Focals = Map<string, CSSProperties>;
+
+const DEFAULT_STYLE: CSSProperties = { objectPosition: "50% 50%" };
 
 async function deleteImage(id: string) {
   await fetch(`/api/images?id=${id}`, { method: "DELETE" });
@@ -19,10 +22,13 @@ export function ProfileHero({
   initialImages,
   artistName,
   bioPhotoUrl,
+  focals,
 }: {
   initialImages: ArtworkImage[];
   artistName: string;
   bioPhotoUrl?: string | null;
+  /** url → framing style, from stored/auto-detected image focal points. */
+  focals?: Focals;
 }) {
   const [images, setImages] = useState(initialImages);
   const heroImage = images.find((img) => img.isHero) ?? images[0] ?? null;
@@ -37,7 +43,14 @@ export function ProfileHero({
     <div className="mb-16 relative">
       {heroImage ? (
         <div className="rounded-lg overflow-hidden bg-[#f0ede9] relative group" style={{ aspectRatio: "2.5 / 1" }}>
-          <Image src={heroImage.url} alt={heroImage.altText ?? artistName} fill className="object-cover" priority />
+          <Image
+            src={heroImage.url}
+            alt={heroImage.altText ?? artistName}
+            fill
+            className="object-cover"
+            style={focals?.get(heroImage.url) ?? DEFAULT_STYLE}
+            priority
+          />
           <button
             onClick={() => remove(heroImage.id)}
             className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/50 text-white text-lg leading-none flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
@@ -49,7 +62,13 @@ export function ProfileHero({
       )}
       {bioPhotoUrl && (
         <div className="absolute -bottom-12 left-4 w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-sm">
-          <Image src={bioPhotoUrl} alt={artistName} fill className="object-cover" />
+          <Image
+            src={bioPhotoUrl}
+            alt={artistName}
+            fill
+            className="object-cover"
+            style={focals?.get(bioPhotoUrl) ?? DEFAULT_STYLE}
+          />
         </div>
       )}
     </div>
@@ -58,8 +77,11 @@ export function ProfileHero({
 
 export function ProfileGallery({
   initialImages,
+  focals,
 }: {
   initialImages: ArtworkImage[];
+  /** url → framing style, from stored/auto-detected image focal points. */
+  focals?: Focals;
 }) {
   // Keep the full list in state and derive the visible gallery from it, so
   // a delete reveals the next image instead of leaving a stale 3-item slice.
@@ -81,7 +103,7 @@ export function ProfileGallery({
       <div className={`grid gap-3 ${images.length === 1 ? "grid-cols-1" : images.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
         {images.map((img) => (
           <div key={img.id} className="rounded-lg overflow-hidden bg-[#f0ede9] aspect-square relative group">
-            <Image src={img.url} alt={img.altText ?? ""} fill className="object-cover" />
+            <Image src={img.url} alt={img.altText ?? ""} fill className="object-cover" style={focals?.get(img.url) ?? DEFAULT_STYLE} />
             <button
               onClick={() => remove(img.id)}
               className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/50 text-white text-base leading-none flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"

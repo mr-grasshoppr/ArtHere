@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ProfileHero, ProfileGallery } from "@/components/ProfileImages";
 import { hireForSentence, socialPlatformName } from "@/lib/profile-display";
+import { getFocalStyles } from "@/lib/image-focus";
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -55,6 +56,12 @@ export default async function ProfilePage() {
     (img) => !img.isHero && img.id !== heroImage?.id
   );
 
+  const focals = await getFocalStyles([
+    heroImage?.url,
+    bioPhoto,
+    ...artist.artworkImages.map((img) => img.url),
+  ]);
+
   const commissionLabel: Record<string, string> = {
     OPEN: "Open for commissions",
     CLOSED: "Not taking commissions",
@@ -82,6 +89,7 @@ export default async function ProfilePage() {
         initialImages={artist.artworkImages}
         artistName={artist.name}
         bioPhotoUrl={bioPhoto}
+        focals={focals}
       />
 
       {/* Artist identity */}
@@ -134,7 +142,7 @@ export default async function ProfilePage() {
       )}
 
       {/* Gallery — shown last */}
-      <ProfileGallery initialImages={artist.artworkImages} />
+      <ProfileGallery initialImages={artist.artworkImages} focals={focals} />
 
       {artist.hireFor && (
         <p className="text-[#888] text-sm italic mt-6">
