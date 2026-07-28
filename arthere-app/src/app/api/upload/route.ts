@@ -84,6 +84,14 @@ export async function POST(req: NextRequest) {
   // Determine sort order
   const existingCount = await prisma.artworkImage.count({ where: { artistId: artist.id } });
 
+  // A new hero replaces the old one — clear isHero on every other image first,
+  // or multiple rows end up flagged and consumers that pick "the" hero via
+  // .find(img => img.isHero) return whichever comes first in sort order
+  // (i.e. the stale one), not the image just uploaded.
+  if (isHero) {
+    await prisma.artworkImage.updateMany({ where: { artistId: artist.id }, data: { isHero: false } });
+  }
+
   // Save image record
   const image = await prisma.artworkImage.create({
     data: {
