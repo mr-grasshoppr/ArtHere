@@ -99,7 +99,7 @@ async function onCompleted(response: { id: string; email: string | null; involve
     subject: 'New PDX Community Survey Response',
     text: `A new survey response was submitted.\n\nRespondent email: ${email ?? '(not provided)'}\n\nGet involved:\n${involvementList.length ? involvementList.map(i => `• ${i}`).join('\n') : 'None selected'}\n\nView all responses: https://artishere.org/admin/survey`,
     html: `
-      <div style="font-family: Georgia, serif; max-width: 480px; margin: 0 auto; padding: 40px 24px; color: #1a1a1a;">
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 24px; color: #1a1a1a;">
         <h2 style="font-size: 1.2rem; font-weight: 500; margin: 0 0 20px;">New Survey Response</h2>
         <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
           <tr>

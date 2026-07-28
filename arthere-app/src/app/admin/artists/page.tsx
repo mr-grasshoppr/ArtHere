@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { requireAdminPage } from "@/lib/admin";
 import Link from "next/link";
 import ArtistCharts from "./ArtistCharts";
+import VisibilityToggle from "./VisibilityToggle";
 
 function tally(values: (string | null)[], total: number) {
   const counts: Record<string, number> = {};
@@ -46,6 +47,7 @@ export default async function AdminArtistsPage({
         })
       : allArtists;
 
+  const liveCount = allArtists.filter((a) => !a.isPlaceholder).length;
   const countLabel = activeField && activeValue
     ? `${artists.length} of ${allArtists.length}`
     : `${allArtists.length}`;
@@ -56,6 +58,7 @@ export default async function AdminArtistsPage({
         <div className="flex items-baseline gap-3 flex-wrap">
           <h1 className="text-2xl font-medium">Artist Profiles</h1>
           <span className="text-sm text-[#888]">{countLabel} profiles</span>
+          <span className="text-sm text-green-700">{liveCount} live</span>
           {activeField && activeValue && (
             <span className="text-sm bg-[#f0f0f0] px-2 py-0.5 rounded-full text-[#555]">
               {activeField === "placeholder" ? (activeValue === "true" ? "Placeholder" : "Real") : activeValue}
@@ -122,10 +125,7 @@ export default async function AdminArtistsPage({
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium truncate">{a.name}</span>
-                  {a.isPlaceholder && (
-                    <span className="text-xs bg-amber-50 text-amber-600 border border-amber-200 px-1.5 py-0.5 rounded">placeholder</span>
-                  )}
+                  <span className="font-medium truncate">{a.name || <span className="text-[#bbb] italic">(no name)</span>}</span>
                   {a.user.emailVerified && (
                     <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">verified</span>
                   )}
@@ -139,6 +139,7 @@ export default async function AdminArtistsPage({
                 <span>{a.artworkImages.length} images</span>
                 <span>{a._count.adminNotes} notes</span>
                 <span>{new Date(a.createdAt).toLocaleDateString()}</span>
+                <VisibilityToggle artistId={a.id} isPlaceholder={a.isPlaceholder} />
               </div>
             </Link>
           );

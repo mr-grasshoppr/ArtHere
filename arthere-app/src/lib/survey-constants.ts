@@ -128,14 +128,14 @@ export const PRACTICE_ACTIVITY_OPTIONS = [
   'Applied for an artist grant or residency',
   'Received an artist grant or residency',
   'Collaborated with other artists or organizations',
-  'Taken a class or training to support my art practice',
+  'Taken a class or training',
   OTHER,
   NONE_OF_THE_ABOVE,
 ];
 
 export const PRACTICE_GOAL_OPTIONS = [
   'Sell my artwork',
-  'Find more commissions',
+  'Receive more commissions',
   'Share or promote my art',
   'Connect with other local artists',
   'Show my artwork in galleries, shows, or public events',
@@ -174,8 +174,10 @@ export const RAFFLE_OPTIONS = [RAFFLE_YES, 'No'];
 export const LEARNED_ABOUT_OTHER = OTHER;
 export const LEARNED_ABOUT_OPTIONS = [
   'Multnomah Arts Center',
+  'Community art center',
   'Local business',
   'Local art gallery',
+  'Social media',
   'Flyers in public places',
   'Friends, Family, or Word of Mouth',
   LEARNED_ABOUT_OTHER,

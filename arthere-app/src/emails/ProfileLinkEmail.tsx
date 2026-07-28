@@ -108,8 +108,10 @@ const logoImg: React.CSSProperties = {
   border: '0',
 };
 
+// Nunito is the intended web font; the fallback is plain system sans-serif
+// (same stack as the body text) rather than a rounded mimic.
 const heading: React.CSSProperties = {
-  fontFamily: 'Nunito, "Arial Rounded MT Bold", "Helvetica Rounded", Arial, sans-serif',
+  fontFamily: 'Nunito, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
   fontSize: '2rem',
   fontWeight: '700',
   letterSpacing: '-0.02em',

@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
   const submitterName = name.trim();
 
   const notificationHtml = `
-    <div style="font-family: Georgia, serif; max-width: 520px; margin: 0 auto; padding: 40px 24px; color: #1a1a1a;">
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 40px 24px; color: #1a1a1a;">
       <h2 style="font-size: 1.2rem; font-weight: 500; margin: 0 0 24px;">${escapeHtml(subject)}</h2>
       <p style="color: #555; margin: 0 0 8px;"><strong>Name:</strong> ${escapeHtml(submitterName)}</p>
       <p style="color: #555; margin: 0 0 8px;"><strong>Email:</strong> ${escapeHtml(submitterEmail)}</p>

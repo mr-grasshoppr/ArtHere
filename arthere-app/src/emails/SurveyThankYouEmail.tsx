@@ -1,6 +1,5 @@
 import {
   Body,
-  Button,
   Container,
   Font,
   Head,
@@ -17,18 +16,7 @@ import * as React from 'react';
 const LOGO_URL =
   'https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/brand/arthere-logo-email.png';
 
-interface MagicLinkEmailProps {
-  /**
-   * Name used in the greeting — an artist's first name, or a place's full
-   * name. Blank/absent for profiles we hold no real name for (the survey
-   * never asks for one), in which case the greeting falls back to "Hi there".
-   * Never pass a name derived from an email address.
-   */
-  artistName?: string | null;
-  link: string;
-}
-
-export function MagicLinkEmail({ artistName, link }: MagicLinkEmailProps) {
+export function SurveyThankYouEmail() {
   return (
     <Html>
       <Head>
@@ -45,42 +33,32 @@ export function MagicLinkEmail({ artistName, link }: MagicLinkEmailProps) {
           fontStyle="normal"
         />
       </Head>
-      <Preview>Set up your Art Here artist profile</Preview>
+      <Preview>Thank you for completing the PDX Community Survey</Preview>
       <Body style={body}>
         <Container style={container}>
           <Section style={logoSection}>
             <Img src={LOGO_URL} width="80" alt="Art Here" style={logoImg} />
           </Section>
 
-          <Heading style={heading}>Welcome to Art Here</Heading>
+          <Heading style={heading}>Thank you!</Heading>
 
-          <Text style={paragraph}>Hi {artistName?.trim() || 'there'},</Text>
           <Text style={paragraph}>
-            Thanks for expressing interest in joining Art Here as a featured artist! We&rsquo;re
-            excited to have you.
+            Thank you for completing Art Here&rsquo;s PDX Community Survey! If you expressed
+            interest in getting involved, we&rsquo;ll be in touch soon.
           </Text>
           <Text style={paragraph}>
-            Click the button below to set up your artist profile. After we launch, your profile
-            and artwork will appear alongside other Portland-area artists.
+            Your answers help us understand what Portland&rsquo;s arts community needs — and how
+            to better connect local artists with the neighbors, businesses, and organizations
+            around them.
           </Text>
-
-          <Section style={buttonSection}>
-            <Button style={button} href={link}>
-              Set up your profile
-            </Button>
-          </Section>
 
           <Hr style={hr} />
 
           <Text style={footnote}>
-            This link works once and expires in 48 hours. If you need a new one, visit{' '}
-            <a href="https://artishere.org/my-art-here" style={footerLink}>
-              artishere.org/my-art-here
-            </a>{' '}
-            and we&rsquo;ll send you a fresh sign-in link.
-          </Text>
-          <Text style={footnote}>
-            If you didn&rsquo;t fill out the Art Here survey, you can safely ignore this email.
+            &mdash; The Art Here Team<br />
+            <a href="https://artishere.org" style={footerLink}>
+              artishere.org
+            </a>
           </Text>
         </Container>
       </Body>
@@ -103,20 +81,19 @@ const container: React.CSSProperties = {
 };
 
 const logoSection: React.CSSProperties = {
-  marginBottom: '40px',
+  marginBottom: '32px',
+  textAlign: 'center',
 };
 
 const logoImg: React.CSSProperties = {
-  display: 'block',
+  display: 'inline-block',
   width: '80px',
   height: 'auto',
   border: '0',
 };
 
 // Nunito is the intended web font; the fallback is plain system sans-serif
-// (same stack as the body text) rather than a rounded mimic — clients that
-// strip web fonts (Outlook desktop, some older mail apps) should degrade to
-// a clean, unremarkable sans, not a font that only exists on macOS.
+// (same stack as the body text) rather than a rounded mimic.
 const headingFont =
   'Nunito, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif';
 
@@ -126,7 +103,8 @@ const heading: React.CSSProperties = {
   fontWeight: '700',
   letterSpacing: '-0.02em',
   color: '#1a1a1a',
-  margin: '0 0 24px',
+  textAlign: 'center',
+  margin: '0 0 28px',
 };
 
 const paragraph: React.CSSProperties = {
@@ -134,21 +112,6 @@ const paragraph: React.CSSProperties = {
   lineHeight: '1.75',
   color: '#444',
   margin: '0 0 16px',
-};
-
-const buttonSection: React.CSSProperties = {
-  margin: '36px 0',
-};
-
-const button: React.CSSProperties = {
-  display: 'inline-block',
-  backgroundColor: '#1a1a1a',
-  color: '#ffffff',
-  fontSize: '0.95rem',
-  fontWeight: '500',
-  textDecoration: 'none',
-  padding: '14px 32px',
-  borderRadius: '9999px',
 };
 
 const hr: React.CSSProperties = {
@@ -161,7 +124,7 @@ const footnote: React.CSSProperties = {
   fontSize: '0.82rem',
   lineHeight: '1.65',
   color: '#999',
-  margin: '0 0 10px',
+  margin: '0',
 };
 
 const footerLink: React.CSSProperties = {

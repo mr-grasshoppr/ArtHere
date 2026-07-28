@@ -50,28 +50,31 @@ export default async function AdminSurveyPage({
     orderBy: { createdAt: "desc" },
   });
 
+  // Exclude test responses from stats, funnel, and charts; the table handles show/hide itself.
+  const realResponses = responses.filter((r) => !r.isTest);
+
   // ── Drop-off funnel ────────────────────────────────────────────────────────
   // Each step's count = how many responses have data for that step's sentinel field.
   // Since the form saves a draft on every Next click, partial responses tell us
   // exactly how far someone got.
   const funnelSteps = [
-    { label: "Started", count: responses.length },
-    { label: "Location", count: responses.filter((r) => !!(r.zipCode || r.neighborhoods)).length },
-    { label: "About You", count: responses.filter((r) => !!r.artistStatus).length },
-    { label: "Portland Familiarity", count: responses.filter((r) => !!r.portlandFamiliarity).length },
-    { label: "Discovery", count: responses.filter((r) => !!(r.discoveryEase || r.discoveryChannel.length)).length },
-    { label: "Portland Support", count: responses.filter((r) => !!(r.portlandHelpers || r.portlandSupport.length)).length },
-    { label: "Involvement", count: responses.filter((r) => r.involvementInterests.length > 0).length },
-    { label: "Email / Raffle", count: responses.filter((r) => !!r.raffleOptIn).length },
+    { label: "Started", count: realResponses.length },
+    { label: "Location", count: realResponses.filter((r) => !!(r.zipCode || r.neighborhoods)).length },
+    { label: "About You", count: realResponses.filter((r) => !!r.artistStatus).length },
+    { label: "Portland Familiarity", count: realResponses.filter((r) => !!r.portlandFamiliarity).length },
+    { label: "Discovery", count: realResponses.filter((r) => !!(r.discoveryEase || r.discoveryChannel.length)).length },
+    { label: "Portland Support", count: realResponses.filter((r) => !!(r.portlandHelpers || r.portlandSupport.length)).length },
+    { label: "Involvement", count: realResponses.filter((r) => r.involvementInterests.length > 0).length },
+    { label: "Email / Raffle", count: realResponses.filter((r) => !!r.raffleOptIn).length },
     {
       label: "Completed",
       // completedAt is authoritative for new responses; the learnedAbout /
       // openFeedback heuristic covers rows submitted before it existed.
-      count: responses.filter((r) => r.completedAt != null || r.learnedAbout.length > 0 || !!r.openFeedback).length,
+      count: realResponses.filter((r) => r.completedAt != null || r.learnedAbout.length > 0 || !!r.openFeedback).length,
     },
   ];
 
-  const artistOnly = responses.filter((r) => r.artistStatus && r.artistStatus !== NOT_MAKING_ART);
+  const artistOnly = realResponses.filter((r) => r.artistStatus && r.artistStatus !== NOT_MAKING_ART);
   const artistFunnelSteps = [
     { label: "Are making art", count: artistOnly.length },
     { label: "Career Stage", count: artistOnly.filter((r) => !!r.careerStage).length },
@@ -79,12 +82,11 @@ export default async function AdminSurveyPage({
     { label: "Practice Goals", count: artistOnly.filter((r) => r.practiceGoals.length > 0).length },
   ];
 
-  // Respondents who are practicing artists (saw the practice/goals questions)
   const artistResponses = artistOnly;
 
   const artistStatusData = tally(
-    responses.map((r) => r.artistStatus).filter(Boolean) as string[],
-    responses.length
+    realResponses.map((r) => r.artistStatus).filter(Boolean) as string[],
+    realResponses.length
   );
   const goalsData = tally(
     artistResponses.flatMap((r) => r.practiceGoals),
@@ -95,22 +97,22 @@ export default async function AdminSurveyPage({
     artistResponses.length
   );
   const participateData = tally(
-    responses
+    realResponses
       .flatMap((r) => [...r.involvementInterests, ...r.stayConnected, ...r.multnomahDaysInvolvement])
       .filter(Boolean),
-    responses.length
+    realResponses.length
   );
 
-  const completedResponses = responses.filter(
+  const completedResponses = realResponses.filter(
     (r) => r.completedAt != null || r.learnedAbout.length > 0 || !!r.openFeedback
   );
 
   const stats = {
     total: completedResponses.length,
-    drafts: responses.length - completedResponses.length,
-    volunteer: responses.filter(wantsToVolunteer).length,
-    featured: responses.filter(wantsToBeFeatured).length,
-    raffle: responses.filter((r) => r.raffleOptIn === RAFFLE_YES).length,
+    drafts: realResponses.length - completedResponses.length,
+    volunteer: realResponses.filter(wantsToVolunteer).length,
+    featured: realResponses.filter(wantsToBeFeatured).length,
+    raffle: realResponses.filter((r) => r.raffleOptIn === RAFFLE_YES).length,
   };
 
   const cards = [
@@ -185,7 +187,7 @@ export default async function AdminSurveyPage({
       <SurveyFunnel
         steps={funnelSteps}
         artistSteps={artistFunnelSteps}
-        total={responses.length}
+        total={realResponses.length}
       />
 
       <SurveyCharts
@@ -193,7 +195,7 @@ export default async function AdminSurveyPage({
         goalsData={goalsData}
         activitiesData={activitiesData}
         participateData={participateData}
-        totalResponses={responses.length}
+        totalResponses={realResponses.length}
         artistCount={artistResponses.length}
         activeField={activeField}
         activeValue={activeValue}
