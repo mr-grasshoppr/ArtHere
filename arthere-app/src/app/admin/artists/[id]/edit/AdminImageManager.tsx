@@ -3,6 +3,8 @@
 import { useState, useRef, useTransition } from "react";
 import { setHeroImage, deleteImage, setBioPhoto } from "../actions";
 import { FramingButton } from "@/components/FramingButton";
+import { focalStyle, type Focal } from "@/lib/focal-style";
+import type { FramingValue } from "@/components/FramingEditor";
 
 type Image = {
   id: string;
@@ -16,13 +18,21 @@ export default function AdminImageManager({
   artistId,
   initialImages,
   initialBioPhotoUrl,
+  initialFocals,
 }: {
   artistId: string;
   initialImages: Image[];
   initialBioPhotoUrl: string | null;
+  /** url → stored framing, keyed by image url; absent = default centered framing. */
+  initialFocals?: Record<string, Focal>;
 }) {
   const [images, setImages] = useState<Image[]>(initialImages);
   const [bioPhotoUrl, setBioPhotoUrl] = useState<string | null>(initialBioPhotoUrl);
+  const [focals, setFocals] = useState<Record<string, Focal>>(initialFocals ?? {});
+  const styleFor = (url?: string | null) => focalStyle(url ? focals[url] : undefined);
+  function rememberFocal(url: string, value: FramingValue) {
+    setFocals((prev) => ({ ...prev, [url]: value }));
+  }
   const [uploading, setUploading] = useState(false);
   const [uploadingBio, setUploadingBio] = useState(false);
   const [error, setError] = useState("");
@@ -120,7 +130,7 @@ export default function AdminImageManager({
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-full overflow-hidden bg-[#f0f0f0] flex-shrink-0">
             {bioPhotoUrl ? (
-              <img src={bioPhotoUrl} alt="Bio photo" className="w-full h-full object-cover" />
+              <img src={bioPhotoUrl} alt="Bio photo" className="w-full h-full object-cover" style={styleFor(bioPhotoUrl)} />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-[#ccc] text-lg">?</div>
             )}
@@ -149,6 +159,7 @@ export default function AdminImageManager({
                 aspect="1 / 1"
                 className="ml-2 inline-block text-sm text-[#555] hover:text-[#1a1a1a] transition-colors underline underline-offset-2"
                 label="Adjust framing"
+                onSaved={(v) => rememberFocal(bioPhotoUrl, v)}
               />
             )}
             <p className="text-xs text-[#bbb] mt-1">Shown on the artist&apos;s profile page</p>
@@ -166,7 +177,7 @@ export default function AdminImageManager({
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-3">
             {images.map((img) => (
               <div key={img.id} className="relative group aspect-square rounded-lg overflow-hidden bg-[#f0f0f0]">
-                <img src={img.url} alt={img.altText ?? ""} className="w-full h-full object-cover" />
+                <img src={img.url} alt={img.altText ?? ""} className="w-full h-full object-cover" style={styleFor(img.url)} />
 
                 {/* Hero badge */}
                 {img.isHero && (
@@ -192,6 +203,7 @@ export default function AdminImageManager({
                     aspect={img.isHero ? "21 / 9" : "4 / 3"}
                     className="w-full text-[11px] bg-white text-[#1a1a1a] rounded px-2 py-1 hover:bg-[#f0f0f0] transition-colors text-center"
                     label="Adjust framing"
+                    onSaved={(v) => rememberFocal(img.url, v)}
                   />
                   <button
                     onClick={() => handleDelete(img.id)}

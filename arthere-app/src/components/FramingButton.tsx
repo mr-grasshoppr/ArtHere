@@ -14,6 +14,7 @@ export function FramingButton({
   aspect = "16 / 9",
   className = "",
   label = "Adjust framing",
+  onSaved,
 }: {
   imageUrl: string;
   /** Which API route owns this image: admin-only or self-service (ownership-checked). */
@@ -21,6 +22,10 @@ export function FramingButton({
   aspect?: string;
   className?: string;
   label?: string;
+  /** Called with the new value right after a successful save, so the caller's
+   *  own preview (outside this modal) can update immediately instead of only
+   *  reflecting the change on next full page load. */
+  onSaved?: (value: FramingValue) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -57,6 +62,7 @@ export function FramingButton({
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error ?? "Save failed");
       }
+      onSaved?.(value);
       setOpen(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");

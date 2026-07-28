@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import OnboardingForm from "@/components/OnboardingForm";
+import { getFocals } from "@/lib/image-focus";
 
 export default async function OnboardingPage() {
   const session = await auth();
@@ -22,6 +23,16 @@ export default async function OnboardingPage() {
   if (!user) redirect("/login");
 
   const a = user.artist;
+
+  // Plain object (not a Map) — Maps aren't guaranteed to survive the
+  // server→client boundary cleanly, and this needs to hydrate into client
+  // component props.
+  const initialFocals = a
+    ? Object.fromEntries(
+        await getFocals([a.heroImageUrl, a.bioPhotoUrl, ...a.artworkImages.map((img) => img.url)])
+      )
+    : {};
+
   const initialData = a ? {
     name: a.name ?? "",
     medium: a.medium ?? "",
@@ -42,7 +53,7 @@ export default async function OnboardingPage() {
 
   return (
     <main className="min-h-screen bg-white text-[#1a1a1a]" style={{ colorScheme: "light" }}>
-      <OnboardingForm initialData={initialData} />
+      <OnboardingForm initialData={initialData} initialFocals={initialFocals} />
       <div className="max-w-[980px] mx-auto px-4 sm:px-10 pb-10 text-center">
         <p className="text-[0.82rem] text-[#aaa] font-light">
           Experiencing tech issues?{' '}

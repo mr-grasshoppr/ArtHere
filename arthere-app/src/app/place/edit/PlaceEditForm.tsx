@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { FramingButton } from '@/components/FramingButton';
+import { focalStyle, type Focal } from '@/lib/focal-style';
+import type { FramingValue } from '@/components/FramingEditor';
 
 interface Artist {
   slug: string;
@@ -21,6 +23,8 @@ interface InitialData {
   artists: Artist[];
 }
 
+type InitialFocals = Record<string, Focal>;
+
 const LABEL = 'block text-[0.7rem] font-semibold text-[#aaa] mb-2 uppercase tracking-widest';
 const BTN = 'px-6 py-2.5 rounded-full bg-[#1a1a1a] text-white text-[0.88rem] font-medium transition-opacity hover:opacity-80 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer';
 const INLINE_H1 = 'bg-transparent border-0 border-b border-[#e8e8e8] focus:border-[#aaa] focus:outline-none transition-colors placeholder-[#d0d0d0] text-[#1a1a1a] font-heading text-[1.35rem] sm:text-[1.6rem] font-bold tracking-[-0.01em] leading-tight w-full pb-1';
@@ -28,10 +32,23 @@ const INLINE_META = 'bg-transparent border-0 border-b border-[#e8e8e8] focus:bor
 const INLINE_BODY = 'bg-transparent border border-transparent hover:border-[#e8e8e8] focus:border-[#ccc] focus:outline-none rounded-md transition-colors placeholder-[#ccc] text-[1.05rem] text-[#444] font-light leading-[1.8] w-full px-2 -mx-2 py-1 resize-none';
 const FIELD = 'w-full px-4 py-3 rounded-lg border border-[#e8e8e8] text-[0.95rem] text-[#1a1a1a] placeholder-[#ccc] focus:outline-none focus:border-[#1a1a1a] transition-colors bg-white';
 
-export default function PlaceEditForm({ initialData, placeSlug }: { initialData: InitialData; placeSlug: string }) {
+export default function PlaceEditForm({
+  initialData,
+  placeSlug,
+  initialFocals,
+}: {
+  initialData: InitialData;
+  placeSlug: string;
+  initialFocals?: InitialFocals;
+}) {
   const router = useRouter();
   const heroInputRef = useRef<HTMLInputElement>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [focals, setFocals] = useState<InitialFocals>(initialFocals ?? {});
+  const styleFor = (url?: string | null) => focalStyle(url ? focals[url] : undefined);
+  function rememberFocal(url: string, value: FramingValue) {
+    setFocals((prev) => ({ ...prev, [url]: value }));
+  }
 
   const [name, setName] = useState(initialData.name);
   const [neighborhood, setNeighborhood] = useState(initialData.neighborhood);
@@ -146,7 +163,7 @@ export default function PlaceEditForm({ initialData, placeSlug }: { initialData:
         <section className="relative w-full h-[38vh] min-h-[260px] overflow-hidden bg-[#f4f4f0]">
           {heroImageUrl ? (
             <label className="block w-full h-full cursor-pointer group">
-              <Image src={heroImageUrl} alt="" fill sizes="100vw" className="object-cover" priority />
+              <Image src={heroImageUrl} alt="" fill sizes="100vw" className="object-cover" style={styleFor(heroImageUrl)} priority />
               <span className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/25 transition-all opacity-0 group-hover:opacity-100">
                 <span className="text-white text-sm font-medium px-4 py-2 bg-black/50 rounded-full">
                   {uploading ? 'Uploading…' : 'Change hero image'}
@@ -163,7 +180,12 @@ export default function PlaceEditForm({ initialData, placeSlug }: { initialData:
           )}
           {heroImageUrl && (
             <div className="absolute bottom-3 right-3 z-10">
-              <FramingButton imageUrl={heroImageUrl} endpoint="/api/image-focus" aspect="21 / 9" />
+              <FramingButton
+                imageUrl={heroImageUrl}
+                endpoint="/api/image-focus"
+                aspect="21 / 9"
+                onSaved={(v) => rememberFocal(heroImageUrl, v)}
+              />
             </div>
           )}
         </section>
@@ -228,7 +250,7 @@ export default function PlaceEditForm({ initialData, placeSlug }: { initialData:
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-2.5">
           {galleryImages.slice(0, 6).map((url, i) => (
             <div key={i} className="relative aspect-square overflow-hidden rounded-md bg-[#f4f4f0] group">
-              <Image src={url} alt="" fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover" />
+              <Image src={url} alt="" fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover" style={styleFor(url)} />
               <button
                 type="button"
                 onClick={() => removeGalleryImage(i)}
@@ -237,7 +259,7 @@ export default function PlaceEditForm({ initialData, placeSlug }: { initialData:
                 ×
               </button>
               <div className="absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <FramingButton imageUrl={url} endpoint="/api/image-focus" aspect="1 / 1" />
+                <FramingButton imageUrl={url} endpoint="/api/image-focus" aspect="1 / 1" onSaved={(v) => rememberFocal(url, v)} />
               </div>
             </div>
           ))}
@@ -265,7 +287,7 @@ export default function PlaceEditForm({ initialData, placeSlug }: { initialData:
                   onClick={() => { setThumbnailImageUrl(url); persistAll({ thumbnailImageUrl: url }); }}
                   className={`relative w-28 aspect-video rounded-md overflow-hidden bg-[#f4f4f0] border-2 transition-colors ${selected ? 'border-[#1a1a1a]' : 'border-transparent hover:border-[#ccc]'}`}
                 >
-                  <Image src={url} alt="" fill sizes="112px" className="object-cover" />
+                  <Image src={url} alt="" fill sizes="112px" className="object-cover" style={styleFor(url)} />
                   {selected && (
                     <span className="absolute bottom-1 right-1 bg-[#1a1a1a] text-white text-[0.55rem] px-1.5 py-0.5 rounded-full">Thumbnail</span>
                   )}

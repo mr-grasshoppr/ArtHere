@@ -3,6 +3,7 @@ import { requireAdminPage } from "@/lib/admin";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import OrgEditor from "./OrgEditor";
+import { getFocals } from "@/lib/image-focus";
 
 export default async function AdminOrgEditPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdminPage();
@@ -15,6 +16,10 @@ export default async function AdminOrgEditPage({ params }: { params: Promise<{ i
   });
 
   if (!place) notFound();
+
+  const initialFocals = Object.fromEntries(
+    await getFocals([place.heroImageUrl, place.thumbnailImageUrl, ...place.galleryImages])
+  );
 
   return (
     <div className="max-w-2xl">
@@ -38,6 +43,7 @@ export default async function AdminOrgEditPage({ params }: { params: Promise<{ i
           thumbnailImageUrl: place.thumbnailImageUrl,
           galleryImages: place.galleryImages,
         }}
+        initialFocals={initialFocals}
       />
     </div>
   );

@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FramingButton } from "@/components/FramingButton";
+import { focalStyle, type Focal } from "@/lib/focal-style";
+import type { FramingValue } from "@/components/FramingEditor";
 
 type InitialData = {
   name: string; medium: string; neighborhood: string; bio: string;
@@ -56,7 +58,19 @@ const LABEL = "block text-[0.7rem] font-semibold text-[#aaa] mb-2 uppercase trac
 const BTN =
   "px-6 py-2.5 rounded-full bg-[#1a1a1a] text-white text-[0.88rem] font-medium transition-opacity hover:opacity-80 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer";
 
-export default function OnboardingForm({ initialData }: { initialData: InitialData }) {
+export default function OnboardingForm({
+  initialData,
+  initialFocals,
+}: {
+  initialData: InitialData;
+  /** url → stored framing, keyed by image url; absent = default centered framing. */
+  initialFocals?: Record<string, Focal>;
+}) {
+  const [focals, setFocals] = useState<Record<string, Focal>>(initialFocals ?? {});
+  const styleFor = (url?: string | null) => focalStyle(url ? focals[url] : undefined);
+  function rememberFocal(url: string, value: FramingValue) {
+    setFocals((prev) => ({ ...prev, [url]: value }));
+  }
   const router = useRouter();
   const heroInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
@@ -308,7 +322,7 @@ export default function OnboardingForm({ initialData }: { initialData: InitialDa
             <>
               <label className="block w-full h-full cursor-pointer group absolute inset-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={heroImage.url} alt="" className="w-full h-full object-cover" />
+                <img src={heroImage.url} alt="" className="w-full h-full object-cover" style={styleFor(heroImage.url)} />
                 <span className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/25 transition-all opacity-0 group-hover:opacity-100">
                   <span className="text-white text-sm font-medium px-4 py-2 bg-black/50 rounded-full">
                     {uploading ? "Uploading…" : "Change header image"}
@@ -317,7 +331,12 @@ export default function OnboardingForm({ initialData }: { initialData: InitialDa
                 <input ref={heroInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleHeroSelect} className="hidden" />
               </label>
               <div className="absolute bottom-2 right-2 z-10">
-                <FramingButton imageUrl={heroImage.url} endpoint="/api/image-focus" aspect="2.5 / 1" />
+                <FramingButton
+                  imageUrl={heroImage.url}
+                  endpoint="/api/image-focus"
+                  aspect="2.5 / 1"
+                  onSaved={(v) => rememberFocal(heroImage.url, v)}
+                />
               </div>
             </>
           ) : (
@@ -334,7 +353,7 @@ export default function OnboardingForm({ initialData }: { initialData: InitialDa
             {bioPhotoUrl ? (
               <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-sm">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={bioPhotoUrl} alt="" className="w-full h-full object-cover hover:opacity-80 transition-opacity" />
+                <img src={bioPhotoUrl} alt="" className="w-full h-full object-cover hover:opacity-80 transition-opacity" style={styleFor(bioPhotoUrl)} />
               </div>
             ) : (
               <div className="w-32 h-32 rounded-full bg-[#e8e3dc] border-4 border-white shadow-sm flex flex-col items-center justify-center hover:bg-[#ddd8d0] transition-colors">
@@ -347,7 +366,13 @@ export default function OnboardingForm({ initialData }: { initialData: InitialDa
           </label>
           {bioPhotoUrl && (
             <div className="absolute bottom-1 right-1">
-              <FramingButton imageUrl={bioPhotoUrl} endpoint="/api/image-focus" aspect="1 / 1" label="Adjust" />
+              <FramingButton
+                imageUrl={bioPhotoUrl}
+                endpoint="/api/image-focus"
+                aspect="1 / 1"
+                label="Adjust"
+                onSaved={(v) => rememberFocal(bioPhotoUrl, v)}
+              />
             </div>
           )}
         </div>
@@ -516,7 +541,7 @@ export default function OnboardingForm({ initialData }: { initialData: InitialDa
               <div key={img.id} className="rounded-lg overflow-hidden bg-[#f0ede9] aspect-square relative group">
                 <label className="absolute inset-0 cursor-pointer block">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img.url} alt="" className="w-full h-full object-cover" />
+                  <img src={img.url} alt="" className="w-full h-full object-cover" style={styleFor(img.url)} />
                   <span className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/25 transition-all opacity-0 group-hover:opacity-100">
                     <span className="text-white text-sm font-medium px-4 py-2 bg-black/50 rounded-full">
                       {uploading ? "Uploading…" : "Change photo"}
@@ -525,7 +550,12 @@ export default function OnboardingForm({ initialData }: { initialData: InitialDa
                   <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => handleGalleryReplace(img.id, e)} className="hidden" />
                 </label>
                 <div className="absolute bottom-1.5 right-1.5 z-10">
-                  <FramingButton imageUrl={img.url} endpoint="/api/image-focus" aspect="1 / 1" />
+                  <FramingButton
+                    imageUrl={img.url}
+                    endpoint="/api/image-focus"
+                    aspect="1 / 1"
+                    onSaved={(v) => rememberFocal(img.url, v)}
+                  />
                 </div>
               </div>
             ) : (

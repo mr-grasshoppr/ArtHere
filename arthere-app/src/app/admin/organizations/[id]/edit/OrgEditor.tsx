@@ -4,6 +4,8 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { updateOrganization } from "../../actions";
 import { FramingButton } from "@/components/FramingButton";
+import { focalStyle, type Focal } from "@/lib/focal-style";
+import type { FramingValue } from "@/components/FramingEditor";
 
 type Org = {
   id: string;
@@ -30,12 +32,17 @@ async function uploadBlob(file: File): Promise<string> {
   return (await res.json()).url as string;
 }
 
-export default function OrgEditor({ place }: { place: Org }) {
+export default function OrgEditor({ place, initialFocals }: { place: Org; initialFocals?: Record<string, Focal> }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [focals, setFocals] = useState<Record<string, Focal>>(initialFocals ?? {});
+  const styleFor = (url?: string | null) => focalStyle(url ? focals[url] : undefined);
+  function rememberFocal(url: string, value: FramingValue) {
+    setFocals((prev) => ({ ...prev, [url]: value }));
+  }
 
   const [name, setName] = useState(place.name);
   const [neighborhood, setNeighborhood] = useState(place.neighborhood);
@@ -125,7 +132,7 @@ export default function OrgEditor({ place }: { place: Org }) {
         <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-[#f0f0f0]">
           {heroImageUrl && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={heroImageUrl} alt="" className="w-full h-full object-cover" />
+            <img src={heroImageUrl} alt="" className="w-full h-full object-cover" style={styleFor(heroImageUrl)} />
           )}
         </div>
         <div className="flex items-center gap-3">
@@ -139,6 +146,7 @@ export default function OrgEditor({ place }: { place: Org }) {
               endpoint="/api/admin/image-focus"
               aspect="21 / 9"
               className="text-sm text-[#555] hover:text-[#1a1a1a] transition-colors underline underline-offset-2"
+              onSaved={(v) => rememberFocal(heroImageUrl, v)}
             />
           )}
         </div>
@@ -161,7 +169,7 @@ export default function OrgEditor({ place }: { place: Org }) {
                 className={`relative w-32 aspect-video rounded-md overflow-hidden bg-[#f0f0f0] border-2 transition-colors ${selected ? "border-[#1a1a1a]" : "border-transparent hover:border-[#ccc]"}`}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={url} alt="" className="w-full h-full object-cover" />
+                <img src={url} alt="" className="w-full h-full object-cover" style={styleFor(url)} />
                 {selected && (
                   <span className="absolute bottom-1 right-1 bg-[#1a1a1a] text-white text-[0.6rem] px-1.5 py-0.5 rounded-full">Thumbnail</span>
                 )}
@@ -209,13 +217,14 @@ export default function OrgEditor({ place }: { place: Org }) {
           {galleryImages.map((url, i) => (
             <div key={i} className="relative aspect-square rounded-md overflow-hidden bg-[#f0f0f0] group">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt="" className="w-full h-full object-cover" />
+              <img src={url} alt="" className="w-full h-full object-cover" style={styleFor(url)} />
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1.5 p-2">
                 <FramingButton
                   imageUrl={url}
                   endpoint="/api/admin/image-focus"
                   aspect="1 / 1"
                   className="w-full text-[11px] bg-white text-[#1a1a1a] rounded px-2 py-1 hover:bg-[#f0f0f0] transition-colors"
+                  onSaved={(v) => rememberFocal(url, v)}
                 />
                 <button
                   type="button"

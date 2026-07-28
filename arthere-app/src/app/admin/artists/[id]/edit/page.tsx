@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import AdminProfileEditor from "./AdminProfileEditor";
 import AdminImageManager from "./AdminImageManager";
+import { getFocals } from "@/lib/image-focus";
 
 export default async function AdminArtistEditPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdminPage();
@@ -23,6 +24,10 @@ export default async function AdminArtistEditPage({ params }: { params: Promise<
   ]);
 
   if (!artist) notFound();
+
+  const initialFocals = Object.fromEntries(
+    await getFocals([artist.bioPhotoUrl, ...artist.artworkImages.map((img) => img.url)])
+  );
 
   // The admin editor manages links to real pages only; narrow away the
   // artist's name-only venue mentions (placeId null) so the types line up.
@@ -52,6 +57,7 @@ export default async function AdminArtistEditPage({ params }: { params: Promise<
           artistId={artist.id}
           initialImages={artist.artworkImages}
           initialBioPhotoUrl={artist.bioPhotoUrl}
+          initialFocals={initialFocals}
         />
       </div>
 

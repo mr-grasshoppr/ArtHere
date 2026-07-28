@@ -22,9 +22,10 @@ function clamp(n: number, min: number, max: number) {
  * lib/image-focus.ts#focalStyle) so what you see here is exactly what ships —
  * no separate preview math to keep in sync.
  *
- * Click or drag anywhere on the preview to move the focal point there; the
- * zoom slider scales in/out around that same point. Opens as an inline panel
- * (caller decides whether to wrap it in a modal).
+ * Drag the preview to pan the image — content follows your finger/cursor,
+ * same convention as any photo cropper. The zoom slider scales in/out around
+ * the current focal point. Opens as an inline panel (caller decides whether
+ * to wrap it in a modal).
  */
 export function FramingEditor({
   imageUrl,
@@ -43,28 +44,54 @@ export function FramingEditor({
   saving?: boolean;
 }) {
   const [value, setValue] = useState<FramingValue>(initial ?? DEFAULT_FRAMING);
-  const [dragging, setDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  function setFromPointer(e: { clientX: number; clientY: number }) {
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const x = clamp(((e.clientX - rect.left) / rect.width) * 100, 0, 100);
-    const y = clamp(((e.clientY - rect.top) / rect.height) * 100, 0, 100);
-    setValue((v) => ({ ...v, x, y }));
-  }
+  // Refs, not state, for the drag-in-progress bookkeeping — a drag is a fast,
+  // high-frequency gesture and must never depend on a React re-render landing
+  // between one pointer event and the next.
+  const draggingRef = useRef(false);
+  const lastPointRef = useRef({ x: 0, y: 0 });
 
   function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
-    e.currentTarget.setPointerCapture(e.pointerId);
-    setDragging(true);
-    setFromPointer(e);
+    // setPointerCapture can throw (NotFoundError) in some browser/input
+    // combinations — a real risk here (Safari's Pointer Events support is
+    // notoriously inconsistent) and one that must never block the drag
+    // itself: capture is a nice-to-have (keeps tracking if the cursor leaves
+    // the box), not a requirement for the drag logic below.
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // ignore — dragging still works without capture
+    }
+    draggingRef.current = true;
+    lastPointRef.current = { x: e.clientX, y: e.clientY };
   }
+
   function handlePointerMove(e: React.PointerEvent<HTMLDivElement>) {
-    if (!dragging) return;
-    setFromPointer(e);
+    if (!draggingRef.current) return;
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect || rect.width === 0 || rect.height === 0) return;
+
+    // Delta since the last event, as a percentage of the preview box — the
+    // same convention every photo cropper uses: the image content follows
+    // your finger/cursor 1:1, rather than the pointer's raw position becoming
+    // the new focal point. Moving the finger left should reveal more of the
+    // image's right side, exactly like dragging a photo left with your
+    // finger on it — which is why the delta is SUBTRACTED from the current
+    // object-position (increasing object-position% shows more of the image's
+    // right/bottom edge).
+    const dxPercent = ((e.clientX - lastPointRef.current.x) / rect.width) * 100;
+    const dyPercent = ((e.clientY - lastPointRef.current.y) / rect.height) * 100;
+    lastPointRef.current = { x: e.clientX, y: e.clientY };
+
+    setValue((v) => ({
+      ...v,
+      x: clamp(v.x - dxPercent, 0, 100),
+      y: clamp(v.y - dyPercent, 0, 100),
+    }));
   }
+
   function handlePointerUp() {
-    setDragging(false);
+    draggingRef.current = false;
   }
 
   const position = `${value.x}% ${value.y}%`;
@@ -98,7 +125,7 @@ export function FramingEditor({
         />
       </div>
 
-      <p className="text-xs text-[#999]">Click or drag on the image to set the focus point.</p>
+      <p className="text-xs text-[#999]">Drag the image to reposition it.</p>
 
       <div className="flex items-center gap-3">
         <label className="text-xs text-[#888] uppercase tracking-wide w-12 flex-shrink-0">Zoom</label>

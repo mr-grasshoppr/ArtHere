@@ -2,6 +2,7 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { redirect } from 'next/navigation';
 import PlaceEditForm from './PlaceEditForm';
+import { getFocals } from '@/lib/image-focus';
 
 export default async function PlaceEditPage() {
   const session = await auth();
@@ -19,6 +20,10 @@ export default async function PlaceEditPage() {
 
   if (!place) redirect('/my-art-here');
 
+  const initialFocals = Object.fromEntries(
+    await getFocals([place.heroImageUrl, place.thumbnailImageUrl, ...place.galleryImages])
+  );
+
   return (
     <div className="min-h-full bg-white text-[#1a1a1a]">
       <PlaceEditForm
@@ -33,6 +38,7 @@ export default async function PlaceEditPage() {
           artists: place.artists.map(rel => ({ slug: rel.artist.slug, name: rel.artist.name })),
         }}
         placeSlug={place.slug}
+        initialFocals={initialFocals}
       />
     </div>
   );

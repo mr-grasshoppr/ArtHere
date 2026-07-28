@@ -1,8 +1,10 @@
 import { prisma } from "@/lib/db";
 import { detectFocalPoint } from "@/lib/claude";
 import type { CSSProperties } from "react";
+import { focalStyle, type Focal } from "@/lib/focal-style";
 
-export type Focal = { x: number; y: number; scale: number };
+export type { Focal };
+export { focalStyle };
 
 // Compute an image's focal point via the vision model and store it, keyed by
 // URL. Best-effort — a failure is logged and swallowed so it never breaks the
@@ -34,18 +36,6 @@ export async function getFocals(urls: (string | null | undefined)[]): Promise<Ma
     select: { url: true, x: true, y: true, scale: true },
   });
   return new Map(rows.map((r) => [r.url, { x: r.x, y: r.y, scale: r.scale }]));
-}
-
-// The CSS for a focal point: object-position places the point within the
-// cover-fit box; when scale > 1, a matching transform-origin zooms in on that
-// exact point without shifting the framing. scale === 1 is identical to plain
-// object-position (so untouched images render exactly as before this existed).
-export function focalStyle(focal: Focal | undefined, fallback = "50% 50%"): CSSProperties {
-  if (!focal) return { objectPosition: fallback };
-  const position = `${focal.x}% ${focal.y}%`;
-  return focal.scale > 1
-    ? { objectPosition: position, transform: `scale(${focal.scale})`, transformOrigin: position }
-    : { objectPosition: position };
 }
 
 // Convenience: fetch focals for a set of URLs and return a url→style map ready
