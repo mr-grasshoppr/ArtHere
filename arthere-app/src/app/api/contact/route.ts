@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:48px;">
           <tr>
             <td align="center">
-              <img src="https://artishere.org/images/arthere-logo-dark.png" alt="Art Here" style="height:96px;width:auto;display:block;">
+              <img src="https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/brand/arthere-logo-email-color.png" alt="Art Here" style="height:96px;width:auto;display:block;">
             </td>
           </tr>
         </table>

@@ -14,8 +14,10 @@ import {
 } from '@react-email/components';
 import * as React from 'react';
 
+// Colored (pink/green gradient) version — the plain black mark doesn't read
+// against a dark background in clients rendered with dark mode.
 const LOGO_URL =
-  'https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/brand/arthere-logo-email.png';
+  'https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/brand/arthere-logo-email-color.png';
 
 interface ProfileLinkEmailProps {
   /** Recipient's first name (artist) or venue name (place). "there" fallback. */
