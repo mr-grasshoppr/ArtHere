@@ -25,6 +25,12 @@ interface ProfileLinkEmailProps {
   link: string;
   /** "profile" for artists, "page" for places — keeps the copy accurate. */
   noun?: 'profile' | 'page';
+  /**
+   * Overrides the default intro copy below the greeting — paragraphs
+   * separated by a blank line. Lets an admin preview/edit the message before
+   * it's sent without touching the surrounding template.
+   */
+  bodyText?: string;
 }
 
 /**
@@ -33,7 +39,14 @@ interface ProfileLinkEmailProps {
  * to edit, not a first-time invitation, so it carries none of the onboarding /
  * "welcome, you're accepted" framing of MagicLinkEmail.
  */
-export function ProfileLinkEmail({ name, link, noun = 'profile' }: ProfileLinkEmailProps) {
+// Exported so lib/magic-link.ts can prefill the same copy into the
+// admin invite-preview modal, without the two drifting apart.
+export function profileLinkDefaultBodyText(noun: 'profile' | 'page' = 'profile'): string {
+  return `You can view and edit your Art Here ${noun} any time using the button below.`;
+}
+
+export function ProfileLinkEmail({ name, link, noun = 'profile', bodyText }: ProfileLinkEmailProps) {
+  const paragraphs = (bodyText?.trim() || profileLinkDefaultBodyText(noun)).split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
   return (
     <Html>
       <Head>
@@ -58,9 +71,9 @@ export function ProfileLinkEmail({ name, link, noun = 'profile' }: ProfileLinkEm
           <Heading style={heading}>Your Art Here {noun}</Heading>
 
           <Text style={paragraph}>Hi {name?.trim() || 'there'},</Text>
-          <Text style={paragraph}>
-            You can view and edit your Art Here {noun} any time using the button below.
-          </Text>
+          {paragraphs.map((p, i) => (
+            <Text key={i} style={paragraph}>{p}</Text>
+          ))}
 
           <Section style={buttonSection}>
             <Button style={button} href={link}>

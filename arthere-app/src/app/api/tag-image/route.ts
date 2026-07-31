@@ -3,7 +3,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { tagArtworkImage } from "@/lib/claude";
+import { tagArtworkImage, normalizeMediumTags } from "@/lib/claude";
 import { Prisma } from "@prisma/client";
 
 export async function POST(req: NextRequest) {
@@ -34,7 +34,11 @@ export async function POST(req: NextRequest) {
   const tags = await tagArtworkImage(image.url);
   await prisma.artworkImage.update({
     where: { id: imageId },
-    data: { aiTags: tags as unknown as Prisma.InputJsonValue, aiTaggedAt: new Date() },
+    data: {
+      aiTags: tags as unknown as Prisma.InputJsonValue,
+      aiTaggedAt: new Date(),
+      medium: normalizeMediumTags(tags.medium),
+    },
   });
 
   return NextResponse.json({ tags });

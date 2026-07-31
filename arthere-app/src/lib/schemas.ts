@@ -88,6 +88,7 @@ export const surveySchema = z
     raffleOptIn: shortText.nullish(),
     email: z.string().max(254).nullish(),
     learnedAbout: stringList.nullish(),
+    connectionSuggestions: longText.nullish(),
     openFeedback: longText.nullish(),
     completed: z.boolean().nullish(),
     draftToken: z.string().max(100).nullish(),
@@ -99,10 +100,12 @@ export const placeProfileSchema = z
     name: shortText.nullish(),
     neighborhood: shortText.nullish(),
     description: longText.nullish(),
+    quote: longText.nullish(),
+    quoteAttribution: shortText.nullish(),
     website: z.string().max(500).nullish(),
     heroImageUrl: z.string().max(1000).nullish(),
     thumbnailImageUrl: z.string().max(1000).nullish(),
-    galleryImages: z.array(z.string().max(1000)).max(12).nullish(),
+    galleryImages: z.array(z.string().max(1000)).max(3).nullish(),
   })
   .loose();
 

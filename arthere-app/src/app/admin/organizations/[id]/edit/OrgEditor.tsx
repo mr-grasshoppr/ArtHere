@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { updateOrganization } from "../../actions";
 import { FramingButton } from "@/components/FramingButton";
+import { PhotoGrid } from "@/components/PhotoGrid";
 import { focalStyle, type Focal } from "@/lib/focal-style";
 import type { FramingValue } from "@/components/FramingEditor";
 
@@ -12,12 +13,16 @@ type Org = {
   name: string;
   neighborhood: string;
   description: string;
+  quote: string;
+  quoteAttribution: string;
   website: string;
   email: string;
   heroImageUrl: string | null;
   thumbnailImageUrl: string | null;
   galleryImages: string[];
 };
+
+const GALLERY_MAX = 3;
 
 const inputCls =
   "w-full px-3 py-2 border border-[#e5e5e5] rounded-lg bg-white text-[#1a1a1a] placeholder-[#bbb] focus:outline-none focus:border-[#999] text-sm";
@@ -40,6 +45,7 @@ export default function OrgEditor({ place, initialFocals }: { place: Org; initia
   const [uploading, setUploading] = useState(false);
   const [focals, setFocals] = useState<Record<string, Focal>>(initialFocals ?? {});
   const styleFor = (url?: string | null) => focalStyle(url ? focals[url] : undefined);
+  const focalStyles = new Map(Object.entries(focals).map(([url, f]) => [url, focalStyle(f)]));
   function rememberFocal(url: string, value: FramingValue) {
     setFocals((prev) => ({ ...prev, [url]: value }));
   }
@@ -47,6 +53,8 @@ export default function OrgEditor({ place, initialFocals }: { place: Org; initia
   const [name, setName] = useState(place.name);
   const [neighborhood, setNeighborhood] = useState(place.neighborhood);
   const [description, setDescription] = useState(place.description);
+  const [quote, setQuote] = useState(place.quote);
+  const [quoteAttribution, setQuoteAttribution] = useState(place.quoteAttribution);
   const [website, setWebsite] = useState(place.website);
   const [email, setEmail] = useState(place.email);
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(place.heroImageUrl);
@@ -82,12 +90,10 @@ export default function OrgEditor({ place, initialFocals }: { place: Org; initia
     e.target.value = "";
   }
 
-  async function handleGallery(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []);
-    if (!files.length) return;
+  async function handleGalleryAdd(files: File[]) {
     setUploading(true);
     const urls: string[] = [];
-    for (const f of files) {
+    for (const f of files.slice(0, GALLERY_MAX - galleryImages.length)) {
       try {
         urls.push(await uploadBlob(f));
       } catch {
@@ -96,7 +102,6 @@ export default function OrgEditor({ place, initialFocals }: { place: Org; initia
     }
     setGalleryImages((prev) => [...prev, ...urls]);
     setUploading(false);
-    e.target.value = "";
   }
 
   function handleSave(e: React.FormEvent) {
@@ -110,6 +115,8 @@ export default function OrgEditor({ place, initialFocals }: { place: Org; initia
           name,
           neighborhood,
           description,
+          quote,
+          quoteAttribution,
           website,
           email,
           heroImageUrl,
@@ -128,8 +135,11 @@ export default function OrgEditor({ place, initialFocals }: { place: Org; initia
     <form onSubmit={handleSave} className="space-y-8">
       {/* Hero image */}
       <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
-        <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Hero image</h2>
-        <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-[#f0f0f0]">
+        <div>
+          <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Hero image</h2>
+          <p className="text-xs text-[#aaa] mt-1">Heads the org&rsquo;s own page. Shown at a 21:9 aspect — the framing preview below matches exactly.</p>
+        </div>
+        <div className="relative w-full aspect-[21/9] rounded-lg overflow-hidden bg-[#f0f0f0]">
           {heroImageUrl && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={heroImageUrl} alt="" className="w-full h-full object-cover" style={styleFor(heroImageUrl)} />
@@ -152,11 +162,11 @@ export default function OrgEditor({ place, initialFocals }: { place: Org; initia
         </div>
       </section>
 
-      {/* Community thumbnail */}
+      {/* Community thumbnail — a separate image, doesn't count against the gallery */}
       <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
         <div>
           <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Community thumbnail</h2>
-          <p className="text-xs text-[#aaa] mt-1">The card shown in the Community directory. Defaults to the hero image if none is chosen.</p>
+          <p className="text-xs text-[#aaa] mt-1">The card shown in the Community directory. Defaults to the hero image if none is chosen. Doesn&rsquo;t count against the gallery below.</p>
         </div>
         <div className="flex flex-wrap gap-3 items-start">
           {thumbnailChoices.map((url) => {
@@ -210,37 +220,45 @@ export default function OrgEditor({ place, initialFocals }: { place: Org; initia
         </div>
       </section>
 
-      {/* Gallery */}
-      <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
-        <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Photos</h2>
-        <div className="grid grid-cols-3 gap-2">
-          {galleryImages.map((url, i) => (
-            <div key={i} className="relative aspect-square rounded-md overflow-hidden bg-[#f0f0f0] group">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt="" className="w-full h-full object-cover" style={styleFor(url)} />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1.5 p-2">
-                <FramingButton
-                  imageUrl={url}
-                  endpoint="/api/admin/image-focus"
-                  aspect="1 / 1"
-                  className="w-full text-[11px] bg-white text-[#1a1a1a] rounded px-2 py-1 hover:bg-[#f0f0f0] transition-colors"
-                  onSaved={(v) => rememberFocal(url, v)}
-                />
-                <button
-                  type="button"
-                  onClick={() => setGalleryImages((prev) => prev.filter((_, idx) => idx !== i))}
-                  className="w-full text-[11px] bg-red-500 text-white rounded px-2 py-1 hover:bg-red-600 transition-colors"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
-          <label className="aspect-square rounded-md border-2 border-dashed border-[#e5e5e5] flex items-center justify-center cursor-pointer hover:border-[#bbb] transition-colors text-[#ccc] text-sm">
-            {uploading ? "Uploading…" : "+ Add"}
-            <input type="file" accept="image/*" multiple onChange={handleGallery} className="hidden" />
-          </label>
+      {/* Quote — optional pull quote, e.g. a testimonial */}
+      <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-4">
+        <div>
+          <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Quote</h2>
+          <p className="text-xs text-[#aaa] mt-1">Optional. Shown as a pull quote below the About text, e.g. a testimonial.</p>
         </div>
+        <div>
+          <label className={labelCls}>Quote</label>
+          <textarea
+            value={quote}
+            onChange={(e) => setQuote(e.target.value)}
+            rows={2}
+            placeholder="Alone we can do so little; together we can do so much."
+            className={`${inputCls} resize-y`}
+          />
+        </div>
+        <div>
+          <label className={labelCls}>Attribution</label>
+          <input type="text" value={quoteAttribution} onChange={(e) => setQuoteAttribution(e.target.value)} placeholder="Helen Keller" className={inputCls} />
+        </div>
+      </section>
+
+      {/* Gallery — capped at 3; tap a photo to adjust its framing, drag to reorder */}
+      <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
+        <div>
+          <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Photos ({galleryImages.length}/{GALLERY_MAX})</h2>
+          <p className="text-xs text-[#aaa] mt-1">Tap a photo to adjust its framing, or drag to reorder.</p>
+        </div>
+        <PhotoGrid
+          images={galleryImages}
+          max={GALLERY_MAX}
+          framingEndpoint="/api/admin/image-focus"
+          framingAspect="1 / 1"
+          focals={focalStyles}
+          onReorder={setGalleryImages}
+          onRemove={(url) => setGalleryImages((prev) => prev.filter((u) => u !== url))}
+          onAddFiles={handleGalleryAdd}
+          uploading={uploading}
+        />
       </section>
 
       {error && <p className="text-red-500 text-sm">{error}</p>}

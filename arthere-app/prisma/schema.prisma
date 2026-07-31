@@ -81,6 +81,11 @@ model Artist {
   priceRangeMax    Int?
   sizeRangeMin     Int?
   sizeRangeMax     Int?
+  // Structured "what to hire this artist for" — checkbox selections plus any
+  // custom entries the artist/admin added. hireFor stays in sync (a joined
+  // sentence built from this array) so the existing AI search parsing that
+  // reads hireFor keeps working unchanged.
+  offerings        String[]         @default([])
   hireFor          String?          @db.Text
   hireTags         Json?
   isPlaceholder    Boolean          @default(false)
@@ -95,8 +100,38 @@ model Artist {
   intake           ArtistIntake?
   adminNotes       AdminNote[]
   magicLinkTokens  MagicLinkToken[]
+  links            ArtistLink[]
 
   @@index([cityId])
+}
+
+// A social/portfolio/shop link, one of several per artist. Superseded the old
+// single website/instagram fields (still present on Artist, no longer written
+// to — kept only so historical values aren't lost).
+model ArtistLink {
+  id        String   @id @default(cuid())
+  artistId  String
+  type      LinkType
+  url       String
+  // Custom label — mainly for type OTHER, where "Website"/"Instagram" etc.
+  // wouldn't mean anything.
+  label     String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@index([artistId])
+}
+
+enum LinkType {
+  WEBSITE
+  PORTFOLIO
+  SHOP
+  PATREON
+  INSTAGRAM
+  FACEBOOK
+  OTHER
 }
 
 enum CommissionStatus {
@@ -122,6 +157,12 @@ model ArtworkImage {
   // Shape: { medium, colors, scale, style, subjects, indoor_outdoor, mood }
   aiTags     Json?
   aiTaggedAt DateTime?
+  // Structured, per-artwork medium — a normalized subset of aiTags.medium
+  // (values restricted to MEDIUM_OPTIONS, see lib/artist-options.ts) so this
+  // specific piece can be filtered/grouped by medium independently of the
+  // artist's overall list of mediums. An admin can hand-correct this if the
+  // AI mistags a piece.
+  medium     String[]  @default([])
 
   artist     Artist    @relation(fields: [artistId], references: [id], onDelete: Cascade)
 
@@ -136,6 +177,10 @@ model Place {
   name         String
   neighborhood String?
   description  String?       @db.Text
+  // Optional pull quote shown on the page (e.g. a customer or community
+  // testimonial), with its speaker credited separately.
+  quote            String?   @db.Text
+  quoteAttribution String?
   website      String?
   websiteLabel String?
   // heroImageUrl heads the org's own page; thumbnailImageUrl is the card shown
@@ -294,8 +339,9 @@ model SurveyResponse {
   email       String?
 
   // Referral
-  learnedAbout String[] @default([])
-  openFeedback String?  @db.Text
+  learnedAbout          String[] @default([])
+  connectionSuggestions String?  @db.Text
+  openFeedback          String?  @db.Text
 
   // Where the respondent came from — the ?src= URL param captured on load
   // (e.g. "flyer", "instagram", "org_alpha", "homepage_button", "nav_menu"),

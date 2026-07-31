@@ -63,6 +63,7 @@ function responseData(body: Record<string, unknown>) {
     raffleOptIn: str(body.raffleOptIn),
     email: str(body.email),
     learnedAbout: strArray(body.learnedAbout),
+    connectionSuggestions: str(body.connectionSuggestions),
     openFeedback: str(body.openFeedback),
 
     // Attribution — which link/channel brought the respondent here.

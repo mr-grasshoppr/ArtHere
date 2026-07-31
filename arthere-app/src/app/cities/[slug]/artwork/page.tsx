@@ -6,6 +6,7 @@ import type { Metadata } from 'next';
 import { NavBar } from '@/components/NavBar';
 import { ArtworkBrowser, type ArtworkArtistData } from '@/components/ArtworkBrowser';
 import { CityBottomBar } from '@/components/CityBottomBar';
+import { parseMediumList } from '@/lib/artist-options';
 
 // ISR: content is edited via admin + self-service; regenerate at most every 30s
 export const revalidate = 30;
@@ -64,12 +65,17 @@ export default async function CityArtworkPage({
           cropBox: img.cropBox as { x: number; y: number; w: number; h: number } | null,
           alt: img.altText ?? `Artwork by ${artist.name}`,
           isHero: img.isHero,
+          // Per-artwork medium, from AI tagging — falls back to the artist's
+          // overall mediums if this image hasn't been tagged yet.
+          medium: img.medium.length > 0 ? img.medium : parseMediumList(artist.medium),
         })),
     }))
     .filter(artist => artist.images.length > 0);
 
-  // Distinct, sorted option lists for the filter dropdowns.
-  const mediumOptions = [...new Set(artists.map(a => a.medium).filter((v): v is string => !!v))].sort();
+  // Distinct, sorted option lists for the filter dropdowns. medium is stored
+  // as a comma-joined list per artist (they can work in more than one), so
+  // split before deduping — otherwise each combination becomes its own pill.
+  const mediumOptions = [...new Set(artists.flatMap(a => parseMediumList(a.medium)))].sort();
   const isCityLevel = (v: string) => /^(Portland(,?\s*(OR|Oregon))?|Vancouver(,?\s*WA)?)$/i.test(v);
   const neighborhoodOptions = [...new Set(artists.map(a => a.neighborhood).filter((v): v is string => !!v && !isCityLevel(v)))].sort();
   const communityOptions = [...new Set(artists.flatMap(a => a.communities))].sort();

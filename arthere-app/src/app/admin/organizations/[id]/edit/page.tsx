@@ -37,6 +37,8 @@ export default async function AdminOrgEditPage({ params }: { params: Promise<{ i
           name: place.name,
           neighborhood: place.neighborhood ?? "",
           description: place.description ?? "",
+          quote: place.quote ?? "",
+          quoteAttribution: place.quoteAttribution ?? "",
           website: place.website ?? "",
           email: place.user?.email ?? "",
           heroImageUrl: place.heroImageUrl,

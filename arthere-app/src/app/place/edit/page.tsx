@@ -31,6 +31,8 @@ export default async function PlaceEditPage() {
           name: place.name,
           neighborhood: place.neighborhood ?? '',
           description: place.description ?? '',
+          quote: place.quote ?? '',
+          quoteAttribution: place.quoteAttribution ?? '',
           website: place.website ?? '',
           heroImageUrl: place.heroImageUrl ?? null,
           thumbnailImageUrl: place.thumbnailImageUrl ?? null,

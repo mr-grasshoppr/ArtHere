@@ -1,15 +1,18 @@
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
-import type { Artist, ArtworkImage, ArtistPlace, Place, City } from '@prisma/client';
+import type { Artist, ArtworkImage, ArtistPlace, ArtistLink, Place, City } from '@prisma/client';
 import { NavBar } from '@/components/NavBar';
 import { CityBottomBar } from '@/components/CityBottomBar';
 import { SiteFooter } from '@/components/SiteFooter';
 import { TechSupportLink } from '@/components/TechSupportLink';
 import { FadeImage } from '@/components/FadeImage';
+import { Lightbox } from '@/components/Lightbox';
+import { linkTypeLabel } from '@/lib/artist-options';
 
 export type ArtistWithProfile = Artist & {
   artworkImages: ArtworkImage[];
   placeRelations: (ArtistPlace & { place: Place | null })[];
+  links: ArtistLink[];
   city: City | null;
 };
 
@@ -72,18 +75,22 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals }:
         </div>
       )}
 
-      {/* Hero image */}
+      {/* Hero image — fixed 21:9 aspect (not viewport-relative height) so the
+          crop framed in the admin editor, which previews the same 21:9
+          ratio, actually matches what renders here. */}
       {heroUrl && (
-        <section className="relative w-full h-[38vh] min-h-[260px] overflow-hidden bg-[#f4f4f0]">
-          <FadeImage
-            src={heroUrl}
-            alt={`${artist.name} artwork`}
-            fill
-            sizes="100vw"
-            className="object-cover"
-            style={styleOf(heroUrl)}
-            priority
-          />
+        <section className="relative w-full aspect-[21/9] max-h-[420px] min-h-[200px] overflow-hidden bg-[#f4f4f0]">
+          <Lightbox src={heroUrl} alt={`${artist.name} artwork`}>
+            <FadeImage
+              src={heroUrl}
+              alt={`${artist.name} artwork`}
+              fill
+              sizes="100vw"
+              className="object-cover"
+              style={styleOf(heroUrl)}
+              priority
+            />
+          </Lightbox>
         </section>
       )}
 
@@ -120,7 +127,7 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals }:
       </div>
 
       {/* Bio */}
-      {(bioParagraphs.length > 0 || artist.instagram || artist.website) && (
+      {(bioParagraphs.length > 0 || artist.links.length > 0) && (
         <section className="max-w-[980px] mx-auto px-5 sm:px-10 pt-7 pb-10">
           <div className="max-w-[680px] text-[1.05rem] text-[#444] font-light leading-[1.8]">
             {bioParagraphs.map((p, i) => {
@@ -137,42 +144,16 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals }:
               }
               return <p key={i} className="mb-[18px]">{p}</p>;
             })}
-            {(artist.website || artist.instagram) && (
+            {artist.links.length > 0 && (
               <p className="text-[#999] text-[0.9rem]">
-                {artist.website && (() => {
-                  // websiteLabel may embed the link text in brackets:
-                  // "Find my work at [my studio site] and in shops." — only
-                  // the bracketed part becomes the link.
-                  const label = artist.websiteLabel;
-                  const match = label?.match(/^(.*?)\[(.+?)\](.*)$/);
-                  if (match) {
-                    return (
-                      <span>
-                        {match[1]}
-                        <a href={artist.website} target="_blank" rel="noopener noreferrer" className={linkCls}>
-                          {match[2]}
-                        </a>
-                        {match[3]}.
-                      </span>
-                    );
-                  }
-                  return (
-                    <a href={artist.website} target="_blank" rel="noopener noreferrer" className={linkCls}>
-                      {label ?? artist.website.replace(/^https?:\/\//, '')}
+                {artist.links.map((link, i) => (
+                  <span key={link.id}>
+                    {i > 0 && ' · '}
+                    <a href={link.url} target="_blank" rel="noopener noreferrer" className={linkCls}>
+                      {link.label ?? linkTypeLabel(link.type)}
                     </a>
-                  );
-                })()}
-                {artist.website && artist.instagram && ' · '}
-                {artist.instagram && (
-                  <a
-                    href={`https://www.instagram.com/${artist.instagram}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={linkCls}
-                  >
-                    @{artist.instagram}
-                  </a>
-                )}
+                  </span>
+                ))}
               </p>
             )}
           </div>
@@ -219,14 +200,16 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals }:
               key={img.id}
               className="relative aspect-[4/3] sm:aspect-square overflow-hidden rounded-md bg-[#f4f4f0] group"
             >
-              <FadeImage
-                src={img.url}
-                alt={img.altText ?? ''}
-                fill
-                sizes="(max-width: 640px) 100vw, 33vw"
-                className="object-cover group-hover:scale-[1.03]"
-                style={styleOf(img.url)}
-              />
+              <Lightbox src={img.url} alt={img.altText ?? ''}>
+                <FadeImage
+                  src={img.url}
+                  alt={img.altText ?? ''}
+                  fill
+                  sizes="(max-width: 640px) 100vw, 33vw"
+                  className="object-cover group-hover:scale-[1.03]"
+                  style={styleOf(img.url)}
+                />
+              </Lightbox>
             </div>
           ))}
         </div>

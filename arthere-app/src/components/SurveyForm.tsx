@@ -77,6 +77,7 @@ interface Answers {
   email: string;
   learnedAbout: string[];
   learnedAboutOther: string;
+  connectionSuggestions: string;
   openFeedback: string;
 
   /** Attribution: the ?src= URL param the respondent arrived with, or 'website'. */
@@ -123,6 +124,7 @@ const initialAnswers: Answers = {
   email: '',
   learnedAbout: [],
   learnedAboutOther: '',
+  connectionSuggestions: '',
   openFeedback: '',
 
   source: 'website',
@@ -783,6 +785,14 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
                 autoFocus
               />
             )}
+          </Question>
+          <Question text="Are there any groups, artists, or organizations we should connect with?">
+            <textarea
+              value={answers.connectionSuggestions}
+              onChange={e => update('connectionSuggestions', e.target.value)}
+              className={TEXTAREA_CLASS}
+              placeholder="Optional"
+            />
           </Question>
           <Question text="Is there anything else you would like to share about the arts in Portland, Art Here, or this survey?">
             <textarea

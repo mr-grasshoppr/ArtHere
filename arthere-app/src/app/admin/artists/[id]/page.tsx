@@ -5,6 +5,7 @@ import Link from "next/link";
 import ArtistNotes from "./ArtistNotes";
 import ArtistImages from "./ArtistImages";
 import { SendInviteButton } from "./SendInviteButton";
+import { linkTypeLabel } from "@/lib/artist-options";
 
 export default async function AdminArtistDetailPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdminPage();
@@ -17,6 +18,7 @@ export default async function AdminArtistDetailPage({ params }: { params: Promis
       user: true,
       artworkImages: { orderBy: { sortOrder: "asc" } },
       placeRelations: { include: { place: true } },
+      links: { orderBy: { sortOrder: "asc" } },
       intake: true,
       adminNotes: { orderBy: { createdAt: "desc" } },
     },
@@ -76,8 +78,6 @@ export default async function AdminArtistDetailPage({ params }: { params: Promis
               {artist.sizeRangeMin != null && (
                 <Row label="Size range" value={`${artist.sizeRangeMin}–${artist.sizeRangeMax ?? "?"} in`} />
               )}
-              <Row label="Website" value={artist.website} link />
-              <Row label="Instagram" value={artist.instagram} />
             </div>
 
             {artist.bio && (
@@ -96,6 +96,22 @@ export default async function AdminArtistDetailPage({ params }: { params: Promis
                       <span className="font-medium">{r.place?.name ?? r.venueName}</span>
                       {!r.place && <span className="text-[#ccc] ml-1 text-xs">(no page)</span>}
                       <span className="text-[#999] ml-1">({r.relationship.toLowerCase()})</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {artist.links.length > 0 && (
+              <div className="pt-2 border-t border-[#f0f0f0]">
+                <p className="text-xs text-[#999] mb-2 uppercase tracking-wide">Links</p>
+                <div className="space-y-1">
+                  {artist.links.map((l) => (
+                    <div key={l.id} className="text-sm">
+                      <span className="text-[#999] mr-1">{l.label ?? linkTypeLabel(l.type)}:</span>
+                      <a href={l.url} target="_blank" rel="noopener noreferrer" className="text-[#1a1a1a] hover:underline truncate">
+                        {l.url}
+                      </a>
                     </div>
                   ))}
                 </div>

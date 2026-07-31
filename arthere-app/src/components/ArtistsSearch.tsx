@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ArtistsGrid, type ArtistCardData } from './ArtistsGrid';
 import { FilterDropdown, pillClass } from './FilterDropdown';
+import { mediumMatches } from '@/lib/artist-options';
 
 interface Props {
   citySlug: string;
@@ -94,7 +95,7 @@ export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOp
   const hasFilter = !!(mediumFilter || neighborhoodFilter || communityFilter);
 
   const shown = (results ?? artists).filter(a =>
-    (!mediumFilter || a.medium === mediumFilter) &&
+    mediumMatches(a.medium, mediumFilter) &&
     (!neighborhoodFilter || a.neighborhood === neighborhoodFilter) &&
     (!communityFilter || a.communities.includes(communityFilter))
   );

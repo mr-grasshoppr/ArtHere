@@ -17,6 +17,7 @@ export default async function AdminArtistEditPage({ params }: { params: Promise<
       include: {
         artworkImages: { orderBy: { sortOrder: "asc" } },
         placeRelations: { include: { place: true } },
+        links: { orderBy: { sortOrder: "asc" } },
         intake: true,
       },
     }),
@@ -28,17 +29,6 @@ export default async function AdminArtistEditPage({ params }: { params: Promise<
   const initialFocals = Object.fromEntries(
     await getFocals([artist.bioPhotoUrl, ...artist.artworkImages.map((img) => img.url)])
   );
-
-  // The admin editor manages links to real pages only; narrow away the
-  // artist's name-only venue mentions (placeId null) so the types line up.
-  // Those rows are preserved on save — see updateArtistProfile.
-  const artistForEditor = {
-    ...artist,
-    placeRelations: artist.placeRelations.filter(
-      (r): r is typeof r & { placeId: string; place: NonNullable<(typeof r)['place']> } =>
-        r.place != null && r.placeId != null,
-    ),
-  };
 
   return (
     <div className="max-w-2xl">
@@ -61,7 +51,7 @@ export default async function AdminArtistEditPage({ params }: { params: Promise<
         />
       </div>
 
-      <AdminProfileEditor artist={artistForEditor} places={places} />
+      <AdminProfileEditor artist={artist} places={places} />
     </div>
   );
 }

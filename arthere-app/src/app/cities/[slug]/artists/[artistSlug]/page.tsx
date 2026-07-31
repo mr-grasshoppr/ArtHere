@@ -47,6 +47,7 @@ export default async function CityArtistPage({
       include: {
         artworkImages: { orderBy: { sortOrder: 'asc' } },
         placeRelations: { orderBy: { createdAt: 'asc' }, include: { place: true } },
+        links: { orderBy: { sortOrder: 'asc' } },
         city: true,
       },
     }),

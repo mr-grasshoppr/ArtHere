@@ -6,6 +6,7 @@ import { CityBottomBar } from '@/components/CityBottomBar';
 import { SiteFooter } from '@/components/SiteFooter';
 import { TechSupportLink } from '@/components/TechSupportLink';
 import { FadeImage } from '@/components/FadeImage';
+import { Lightbox } from '@/components/Lightbox';
 
 const RELATIONSHIP_LABELS: Record<PlaceRelationship, string> = {
   INSTRUCTOR: 'Instructor',
@@ -48,18 +49,22 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals }: P
     <div className="min-h-full bg-white text-[#1a1a1a] pt-14 pb-14">
       <NavBar activeCitySlug={citySlug} theme="light" />
 
-      {/* Hero image */}
+      {/* Hero image — fixed 21:9 aspect (not viewport-relative height) so the
+          crop framed in the admin/self-service editor, which previews the
+          same 21:9 ratio, actually matches what renders here. */}
       {place.heroImageUrl && (
-        <section className="relative w-full h-[38vh] min-h-[260px] overflow-hidden bg-[#f4f4f0]">
-          <FadeImage
-            src={place.heroImageUrl}
-            alt={place.name}
-            fill
-            sizes="100vw"
-            className="object-cover"
-            style={styleOf(place.heroImageUrl, { objectPosition: '50% 38%' })}
-            priority
-          />
+        <section className="relative w-full aspect-[21/9] max-h-[420px] min-h-[200px] overflow-hidden bg-[#f4f4f0]">
+          <Lightbox src={place.heroImageUrl} alt={place.name}>
+            <FadeImage
+              src={place.heroImageUrl}
+              alt={place.name}
+              fill
+              sizes="100vw"
+              className="object-cover"
+              style={styleOf(place.heroImageUrl, { objectPosition: '50% 38%' })}
+              priority
+            />
+          </Lightbox>
         </section>
       )}
 
@@ -73,11 +78,19 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals }: P
         )}
       </div>
 
-      {/* Description + website */}
-      {(place.description || place.website) && (
+      {/* Description + quote + website */}
+      {(place.description || place.quote || place.website) && (
         <section className="max-w-[980px] mx-auto px-5 sm:px-10 pt-7 pb-10">
           <div className="max-w-[680px] text-[1.05rem] text-[#444] font-light leading-[1.8]">
             {place.description && <p className="mb-[18px]">{place.description}</p>}
+            {place.quote && (
+              <blockquote className="italic border-l-2 border-[#ccc] pl-5 mb-[18px] text-[#888] text-[0.92rem]">
+                &ldquo;{place.quote}&rdquo;
+                {place.quoteAttribution && (
+                  <footer className="not-italic mt-1.5 text-[#aaa]">— {place.quoteAttribution}</footer>
+                )}
+              </blockquote>
+            )}
             {place.website && (
               <p className="text-[#999] text-[0.9rem]">
                 <a
@@ -126,14 +139,16 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals }: P
               key={url}
               className="relative aspect-[4/3] sm:aspect-square overflow-hidden rounded-md bg-[#f4f4f0] group"
             >
-              <FadeImage
-                src={url}
-                alt={`${place.name} photo ${i + 1}`}
-                fill
-                sizes="(max-width: 640px) 100vw, 33vw"
-                className="object-cover group-hover:scale-[1.03]"
-                style={styleOf(url)}
-              />
+              <Lightbox src={url} alt={`${place.name} photo ${i + 1}`}>
+                <FadeImage
+                  src={url}
+                  alt={`${place.name} photo ${i + 1}`}
+                  fill
+                  sizes="(max-width: 640px) 100vw, 33vw"
+                  className="object-cover group-hover:scale-[1.03]"
+                  style={styleOf(url)}
+                />
+              </Lightbox>
             </div>
           ))}
         </div>

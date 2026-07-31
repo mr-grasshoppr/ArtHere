@@ -9,12 +9,43 @@
 - This app lives in `arthere-app/` inside the `ArtHere` repo. The retired
   static-site prototype is archived in `legacy-static/` (tag
   `static-site-final`); it is not deployed anywhere.
-- **All work happens on `main`.** (Historical note: early app work lived on
-  the `prototype` branch; that branch is superseded.)
+- **Routine feature work happens on `dev` (or a feature branch off it), not
+  directly on `main`.** (Historical note: early app work lived on the
+  `prototype` branch, later abandoned in favor of pushing straight to `main`
+  — that's why deploys went straight to production for a long stretch. `dev`
+  as of 2026-07-29 replaces that.) See "Dev/preview workflow" below.
 - Vercel project: `arthere-app` (org `mr-grasshopprs-projects`). Linked via
   `.vercel/project.json`. Postgres is a **Neon** database, connected to the
   Vercel project through the Neon integration (Storage tab).
   artishere.org serves this app.
+
+## Dev/preview workflow (set up 2026-07-29)
+
+- Push feature work to `dev` (or a branch off `dev`) instead of `main`.
+  Vercel's GitHub integration auto-builds every push as a **Preview
+  Deployment** at its own throwaway URL — nothing touches artishere.org.
+- **Merging `dev` → `main` is the deploy trigger**, and merging is the
+  user's call, not something Claude does automatically after a change looks
+  right in conversation. Once merged, deploy `main` to production the usual
+  way: `cd` to the repo root (not `arthere-app/`) and `vercel deploy --prod`.
+- ⚠️ **Database isolation is not yet wired up.** Preview deployments
+  currently point at the SAME Neon database as production (confirmed by
+  diffing the `DATABASE_URL` Vercel has registered for Preview vs
+  Production — identical host). Until the one-time dashboard step below is
+  done, treat preview testing as touching real data, same as local
+  `npm run dev` already does.
+  - **To fix:** open
+    https://vercel.com/mr-grasshopprs-projects/~/stores/integration/store_94WBvlsBMg0YiTIo
+    (the `arthere-db` Neon integration) → its branching/preview settings →
+    enable "create a database branch per preview deployment" (Neon's native
+    Vercel integration feature). This is a dashboard-only toggle; no CLI or
+    API path was available to do it from here.
+- Pushing a **new** branch that includes `.github/workflows/ci.yml` requires
+  a GitHub credential with the `workflow` OAuth scope — a plain PAT without
+  it gets rejected by GitHub on the first push of a new branch (existing
+  branches update fine after that). If a push is rejected for this reason,
+  either add the `workflow` scope to the PAT, or push that one branch from a
+  client that already has it (GitHub Desktop, VS Code, `gh auth login`).
 - Admin access is controlled by the `ADMIN_EMAILS` env var (comma-separated;
   defaults to the founding admin). The `/cities/portland-demo` preview is
   gated by `DEMO_TOKEN` (middleware fails closed if unset).

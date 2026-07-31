@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useRef, useTransition } from "react";
-import { setHeroImage, deleteImage, setBioPhoto } from "../actions";
+import { setHeroImage, deleteImage, setBioPhoto, setArtworkMedium } from "../actions";
 import { FramingButton } from "@/components/FramingButton";
 import { focalStyle, type Focal } from "@/lib/focal-style";
 import type { FramingValue } from "@/components/FramingEditor";
+import { MEDIUM_OPTIONS } from "@/lib/artist-options";
 
 type Image = {
   id: string;
@@ -12,6 +13,7 @@ type Image = {
   altText: string | null;
   isHero: boolean;
   sortOrder: number;
+  medium: string[];
 };
 
 export default function AdminImageManager({
@@ -37,8 +39,20 @@ export default function AdminImageManager({
   const [uploadingBio, setUploadingBio] = useState(false);
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [editingMediumFor, setEditingMediumFor] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const bioFileRef = useRef<HTMLInputElement>(null);
+
+  function toggleMedium(imageId: string, option: string) {
+    setImages((prev) =>
+      prev.map((img) => {
+        if (img.id !== imageId) return img;
+        const next = img.medium.includes(option) ? img.medium.filter((m) => m !== option) : [...img.medium, option];
+        setArtworkMedium(artistId, imageId, next);
+        return { ...img, medium: next };
+      })
+    );
+  }
 
   async function handleArtworkUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
@@ -60,7 +74,7 @@ export default function AdminImageManager({
           const data = await res.json();
           setImages((prev) => [
             ...prev,
-            { id: data.id, url: data.url, altText: null, isHero: data.isHero, sortOrder: prev.length },
+            { id: data.id, url: data.url, altText: null, isHero: data.isHero, sortOrder: prev.length, medium: [] },
           ]);
         }
       } catch {
@@ -176,7 +190,8 @@ export default function AdminImageManager({
         {images.length > 0 && (
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-3">
             {images.map((img) => (
-              <div key={img.id} className="relative group aspect-square rounded-lg overflow-hidden bg-[#f0f0f0]">
+              <div key={img.id} className="space-y-1">
+              <div className="relative group aspect-square rounded-lg overflow-hidden bg-[#f0f0f0]">
                 <img src={img.url} alt={img.altText ?? ""} className="w-full h-full object-cover" style={styleFor(img.url)} />
 
                 {/* Hero badge */}
@@ -221,6 +236,43 @@ export default function AdminImageManager({
                     View full
                   </a>
                 </div>
+              </div>
+
+              {/* Per-artwork medium — AI-tagged, hand-correctable. Used to
+                  filter this specific piece on the artwork page. */}
+              {editingMediumFor === img.id ? (
+                <div className="flex flex-wrap gap-1">
+                  {MEDIUM_OPTIONS.map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => toggleMedium(img.id, option)}
+                      className={`px-1.5 py-0.5 rounded-full text-[10px] border transition-colors ${
+                        img.medium.includes(option)
+                          ? "bg-[#1a1a1a] text-white border-[#1a1a1a]"
+                          : "bg-white text-[#666] border-[#e5e5e5] hover:border-[#999]"
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setEditingMediumFor(null)}
+                    className="px-1.5 py-0.5 rounded-full text-[10px] text-[#999] underline"
+                  >
+                    Done
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setEditingMediumFor(img.id)}
+                  className="text-[10px] text-[#999] hover:text-[#1a1a1a] transition-colors truncate block w-full text-left"
+                >
+                  {img.medium.length > 0 ? img.medium.join(", ") : "Untagged"} ✎
+                </button>
+              )}
               </div>
             ))}
           </div>

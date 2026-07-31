@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin";
-import { sendPlaceMagicLink } from "@/lib/magic-link";
+import { createPlaceInvitePreview, sendPlaceInviteEmail, type InvitePreview } from "@/lib/magic-link";
 import { snapshotPlace } from "@/lib/profile-revision";
 import { slugify } from "@/lib/slug";
 
@@ -45,6 +45,8 @@ type OrgInput = {
   name: string;
   neighborhood: string;
   description: string;
+  quote: string;
+  quoteAttribution: string;
   website: string;
   email: string;
   heroImageUrl: string | null;
@@ -61,10 +63,13 @@ export async function updateOrganization(placeId: string, data: OrgInput) {
       name: data.name.trim(),
       neighborhood: data.neighborhood.trim() || null,
       description: data.description.trim() || null,
+      quote: data.quote.trim() || null,
+      quoteAttribution: data.quoteAttribution.trim() || null,
       website: data.website.trim() || null,
       heroImageUrl: data.heroImageUrl,
       thumbnailImageUrl: data.thumbnailImageUrl,
-      galleryImages: data.galleryImages,
+      // Gallery is capped at 3 — enforced here too in case a caller sends more.
+      galleryImages: data.galleryImages.slice(0, 3),
     },
   });
 
@@ -91,14 +96,25 @@ export async function deletePlaceNote(noteId: string) {
   await prisma.adminNote.delete({ where: { id: noteId } });
 }
 
-// Provision the owner account (if needed) and send the first-time onboarding
-// invite (the 'welcome' variant → /place/setup).
-export async function sendPlaceInvite(placeId: string, email: string) {
+// Provision the owner account (if needed) and mint the first-time onboarding
+// link (the 'welcome' variant → /place/setup) — nothing is emailed yet, the
+// admin previews/edits the message first (see InvitePreviewModal).
+export async function previewPlaceInvite(placeId: string, email: string): Promise<InvitePreview> {
   await requireAdmin();
   const clean = email.trim().toLowerCase();
   if (!clean) throw new Error("An email is required to send an invite");
   const place = await prisma.place.findUnique({ where: { id: placeId } });
   if (!place) throw new Error("Organization not found");
   await attachPlaceUser(placeId, clean);
-  await sendPlaceMagicLink({ email: clean, placeId, placeName: place.name });
+  return createPlaceInvitePreview({ email: clean, placeId, placeName: place.name });
+}
+
+export async function sendPlaceInvite(
+  placeId: string,
+  preview: { email: string; link: string; subject: string; bodyText: string }
+) {
+  await requireAdmin();
+  const place = await prisma.place.findUnique({ where: { id: placeId } });
+  if (!place) throw new Error("Organization not found");
+  await sendPlaceInviteEmail({ placeId, placeName: place.name, ...preview });
 }

@@ -1,17 +1,22 @@
 'use client';
 
 import { useState } from 'react';
-import { sendArtistInvite } from './actions';
+import { previewArtistInvite, sendArtistInvite } from './actions';
+import { InvitePreviewModal } from '@/components/admin/InvitePreviewModal';
+import type { InvitePreview } from '@/lib/magic-link';
 
 export function SendInviteButton({ artistId, email }: { artistId: string; email: string }) {
-  const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [state, setState] = useState<'idle' | 'loading' | 'error' | 'sent'>('idle');
   const [errorMsg, setErrorMsg] = useState<string>('');
+  const [preview, setPreview] = useState<InvitePreview | null>(null);
+  const [wasSent, setWasSent] = useState(false);
 
   async function handleClick() {
-    setState('sending');
+    setState('loading');
+    setErrorMsg('');
     try {
-      await sendArtistInvite(artistId);
-      setState('sent');
+      setPreview(await previewArtistInvite(artistId));
+      setState('idle');
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : String(err));
       setState('error');
@@ -36,12 +41,31 @@ export function SendInviteButton({ artistId, email }: { artistId: string; email:
   }
 
   return (
-    <button
-      onClick={handleClick}
-      disabled={state === 'sending'}
-      className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-[#1a1a1a] text-white text-xs font-medium hover:opacity-80 transition-opacity disabled:opacity-40"
-    >
-      {state === 'sending' ? 'Sending…' : 'Send profile invite ↗'}
-    </button>
+    <>
+      <button
+        onClick={handleClick}
+        disabled={state === 'loading'}
+        className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-[#1a1a1a] text-white text-xs font-medium hover:opacity-80 transition-opacity disabled:opacity-40"
+      >
+        {state === 'loading' ? 'Preparing…' : 'Send profile invite ↗'}
+      </button>
+
+      {preview && (
+        <InvitePreviewModal
+          email={preview.email}
+          link={preview.link}
+          initialSubject={preview.subject}
+          initialBodyText={preview.bodyText}
+          onClose={() => {
+            setPreview(null);
+            if (wasSent) setState('sent');
+          }}
+          onSend={async (subject, bodyText) => {
+            await sendArtistInvite(artistId, { email: preview.email, link: preview.link, subject, bodyText });
+            setWasSent(true);
+          }}
+        />
+      )}
+    </>
   );
 }

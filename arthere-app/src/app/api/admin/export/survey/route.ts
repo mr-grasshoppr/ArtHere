@@ -44,7 +44,7 @@ export async function GET(request: Request) {
     "involvement_newsUpdates", "involvement_featuredArtist", "involvement_volunteer",
     "involvement_joinParade", "involvement_partner", "involvement_other", "involvement_otherText",
     "involvement_none",
-    "learnedAbout", "openFeedback",
+    "learnedAbout", "connectionSuggestions", "openFeedback",
     ...(includeTests ? ["isTest"] : []),
   ];
 
@@ -89,6 +89,7 @@ export async function GET(request: Request) {
         r.involvementInterestsOther,
         flag(r.involvementInterests, INVOLVEMENT_NONE),
         r.learnedAbout.join("; "),
+        r.connectionSuggestions,
         r.openFeedback,
         ...(includeTests ? [r.isTest ? "Yes" : ""] : []),
       ])

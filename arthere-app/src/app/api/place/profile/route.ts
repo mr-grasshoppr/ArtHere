@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   const raw = await req.json().catch(() => null);
   const body = parseBody(placeProfileSchema, raw);
   if (!body) return NextResponse.json({ error: 'Invalid request.' }, { status: 400 });
-  const { name, neighborhood, description, website, heroImageUrl, thumbnailImageUrl, galleryImages } = body;
+  const { name, neighborhood, description, quote, quoteAttribution, website, heroImageUrl, thumbnailImageUrl, galleryImages } = body;
 
   const updated = await prisma.place.update({
     where: { id: place.id },
@@ -22,10 +22,13 @@ export async function POST(req: NextRequest) {
       name: typeof name === 'string' && name.trim() ? name.trim() : place.name,
       neighborhood: typeof neighborhood === 'string' ? neighborhood.trim() || null : undefined,
       description: typeof description === 'string' ? description.trim() || null : undefined,
+      quote: typeof quote === 'string' ? quote.trim() || null : undefined,
+      quoteAttribution: typeof quoteAttribution === 'string' ? quoteAttribution.trim() || null : undefined,
       website: typeof website === 'string' ? website.trim() || null : undefined,
       heroImageUrl: typeof heroImageUrl === 'string' ? heroImageUrl || null : undefined,
       thumbnailImageUrl: typeof thumbnailImageUrl === 'string' ? thumbnailImageUrl || null : undefined,
-      galleryImages: Array.isArray(galleryImages) ? galleryImages : undefined,
+      // Gallery is capped at 3 — enforced here too in case a client sends more.
+      galleryImages: Array.isArray(galleryImages) ? galleryImages.slice(0, 3) : undefined,
     },
   });
 

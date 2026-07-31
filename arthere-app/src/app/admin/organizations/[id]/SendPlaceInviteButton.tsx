@@ -1,22 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import { sendPlaceInvite } from "../actions";
+import { previewPlaceInvite, sendPlaceInvite } from "../actions";
+import { InvitePreviewModal } from "@/components/admin/InvitePreviewModal";
+import type { InvitePreview } from "@/lib/magic-link";
 
 // Sends the first-time onboarding invite to an organization. Needs an email —
 // prefilled from the org's owner account when one exists, otherwise the admin
 // types one and it's provisioned on send.
 export function SendPlaceInviteButton({ placeId, initialEmail }: { placeId: string; initialEmail: string }) {
   const [email, setEmail] = useState(initialEmail);
-  const [state, setState] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [state, setState] = useState<"idle" | "loading" | "sent" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [preview, setPreview] = useState<InvitePreview | null>(null);
+  const [wasSent, setWasSent] = useState(false);
 
-  async function handleSend() {
+  async function handlePreview() {
     if (!email.trim()) return;
-    setState("sending");
+    setState("loading");
+    setErrorMsg("");
     try {
-      await sendPlaceInvite(placeId, email.trim());
-      setState("sent");
+      setPreview(await previewPlaceInvite(placeId, email.trim()));
+      setState("idle");
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : String(err));
       setState("error");
@@ -37,13 +42,30 @@ export function SendPlaceInviteButton({ placeId, initialEmail }: { placeId: stri
         className="w-full px-3 py-2 border border-[#e5e5e5] rounded-lg text-xs focus:outline-none focus:border-[#999]"
       />
       <button
-        onClick={handleSend}
-        disabled={state === "sending" || !email.trim()}
+        onClick={handlePreview}
+        disabled={state === "loading" || !email.trim()}
         className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-[#1a1a1a] text-white text-xs font-medium hover:opacity-80 transition-opacity disabled:opacity-40"
       >
-        {state === "sending" ? "Sending…" : "Send onboarding invite ↗"}
+        {state === "loading" ? "Preparing…" : "Send onboarding invite ↗"}
       </button>
       {state === "error" && <p className="text-xs text-red-500">Failed: {errorMsg || "unknown error"}</p>}
+
+      {preview && (
+        <InvitePreviewModal
+          email={preview.email}
+          link={preview.link}
+          initialSubject={preview.subject}
+          initialBodyText={preview.bodyText}
+          onClose={() => {
+            setPreview(null);
+            if (wasSent) setState("sent");
+          }}
+          onSend={async (subject, bodyText) => {
+            await sendPlaceInvite(placeId, { email: preview.email, link: preview.link, subject, bodyText });
+            setWasSent(true);
+          }}
+        />
+      )}
     </div>
   );
 }

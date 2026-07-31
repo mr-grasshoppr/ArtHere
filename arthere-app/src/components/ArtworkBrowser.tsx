@@ -12,6 +12,8 @@ export interface ArtworkImageData {
   cropBox?: CropBox | null;
   alt: string;
   isHero: boolean;
+  /** This specific piece's medium(s) — may differ from the artist's other work. */
+  medium: string[];
 }
 
 export interface ArtworkArtistData {
@@ -128,11 +130,16 @@ export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, co
 
   const hasFilter = !!(mediumFilter || neighborhoodFilter || communityFilter);
 
-  let filtered = artists.filter(a =>
-    (!mediumFilter || a.medium === mediumFilter) &&
-    (!neighborhoodFilter || a.neighborhood === neighborhoodFilter) &&
-    (!communityFilter || a.communities.includes(communityFilter))
-  );
+  // Medium filters per artwork, not per artist — an artist who does both
+  // painting and sculpture shouldn't show sculpture photos when someone's
+  // filtering for painting. Neighborhood/community stay artist-level.
+  let filtered = artists
+    .filter(a =>
+      (!neighborhoodFilter || a.neighborhood === neighborhoodFilter) &&
+      (!communityFilter || a.communities.includes(communityFilter))
+    )
+    .map(a => (mediumFilter ? { ...a, images: a.images.filter(img => img.medium.includes(mediumFilter)) } : a))
+    .filter(a => a.images.length > 0);
   if (filtered.length === 0) filtered = artists;
 
   // Re-shuffle the grid whenever the filters change. Built on the client

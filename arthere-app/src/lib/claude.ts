@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { parseModelJson } from "./model-json";
+import { MEDIUM_OPTIONS } from "./artist-options";
 
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -8,7 +9,7 @@ const client = new Anthropic({
 // ─── Image Tagging ────────────────────────────────────────────────────────────
 
 export interface ArtworkTags {
-  medium: string[];           // e.g. ["oil painting", "canvas"]
+  medium: string[];           // one or more of MEDIUM_OPTIONS, e.g. ["Painting"]
   colors: string[];           // e.g. ["deep blue", "burnt orange", "cream"]
   scale: string;              // "small" | "medium" | "large" | "monumental"
   orientation: string;        // "landscape" | "portrait" | "square" | "irregular"
@@ -37,7 +38,7 @@ export async function tagArtworkImage(imageUrl: string): Promise<ArtworkTags> {
             type: "text",
             text: `Analyze this artwork image and return a JSON object with these exact fields:
 {
-  "medium": ["list", "of", "materials/techniques"],
+  "medium": ["one or more values from exactly this list: ${MEDIUM_OPTIONS.join(", ")}"],
   "colors": ["list", "of", "3-6 dominant colors", "in plain language"],
   "scale": "small|medium|large|monumental",
   "orientation": "landscape|portrait|square|irregular",
@@ -50,7 +51,7 @@ export async function tagArtworkImage(imageUrl: string): Promise<ArtworkTags> {
   "description": "One concise sentence describing this artwork for search purposes"
 }
 
-Return ONLY the JSON object, no other text. Be specific about colors (e.g. "dusty rose" not just "pink"). For scale, consider: small = under 18 inches, medium = 18-36 inches, large = 36-72 inches, monumental = over 72 inches.`,
+Return ONLY the JSON object, no other text. For "medium", pick every value from the list above that applies to THIS SPECIFIC piece based on what's visible in the image — do not guess at the artist's other work. Use "New Media" for video/digital/installation work. Be specific about colors (e.g. "dusty rose" not just "pink"). For scale, consider: small = under 18 inches, medium = 18-36 inches, large = 36-72 inches, monumental = over 72 inches.`,
           },
         ],
       },
@@ -59,6 +60,14 @@ Return ONLY the JSON object, no other text. Be specific about colors (e.g. "dust
 
   const text = response.content[0].type === "text" ? response.content[0].text : "";
   return parseModelJson<ArtworkTags>(text);
+}
+
+// Defensive filter in case the model returns something off-list despite the
+// prompt constraint — callers persist this (not the raw aiTags.medium) into
+// ArtworkImage.medium, so it must only ever contain real MEDIUM_OPTIONS values.
+export function normalizeMediumTags(medium: string[] | undefined | null): string[] {
+  if (!medium) return [];
+  return [...new Set(medium.filter((m) => MEDIUM_OPTIONS.includes(m)))];
 }
 
 // ─── Artist Directory Search ───────────────────────────────────────────────────

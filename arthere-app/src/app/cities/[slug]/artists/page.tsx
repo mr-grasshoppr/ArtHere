@@ -7,6 +7,7 @@ import { NavBar } from '@/components/NavBar';
 import { ArtistsSearch } from '@/components/ArtistsSearch';
 import type { ArtistCardData } from '@/components/ArtistsGrid';
 import { CityBottomBar } from '@/components/CityBottomBar';
+import { parseMediumList } from '@/lib/artist-options';
 
 // ISR: content is edited via admin + self-service; regenerate at most every 30s
 export const revalidate = 30;
@@ -55,8 +56,10 @@ export default async function CityArtistsPage({
     communities: artist.placeRelations.map(r => r.place?.name ?? r.venueName).filter((n): n is string => !!n),
   }));
 
-  // Distinct, sorted option lists for the filter dropdowns.
-  const mediumOptions = [...new Set(artists.map(a => a.medium).filter((v): v is string => !!v))].sort();
+  // Distinct, sorted option lists for the filter dropdowns. medium is stored
+  // as a comma-joined list per artist (they can work in more than one), so
+  // split before deduping — otherwise each combination becomes its own pill.
+  const mediumOptions = [...new Set(artists.flatMap(a => parseMediumList(a.medium)))].sort();
   const isCityLevel = (v: string) => /^(Portland(,?\s*(OR|Oregon))?|Vancouver(,?\s*WA)?)$/i.test(v);
   const neighborhoodOptions = [...new Set(artists.map(a => a.neighborhood).filter((v): v is string => !!v && !isCityLevel(v)))].sort();
   const communityOptions = [...new Set(artists.flatMap(a => a.communities))].sort();

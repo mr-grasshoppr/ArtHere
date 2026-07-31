@@ -3,6 +3,7 @@ import { requireAdminPage } from "@/lib/admin";
 import Link from "next/link";
 import ArtistCharts from "./ArtistCharts";
 import VisibilityToggle from "./VisibilityToggle";
+import { mediumMatches, parseMediumList } from "@/lib/artist-options";
 
 function tally(values: (string | null)[], total: number) {
   const counts: Record<string, number> = {};
@@ -13,6 +14,12 @@ function tally(values: (string | null)[], total: number) {
   return Object.entries(counts)
     .sort((a, b) => b[1] - a[1])
     .map(([label, count]) => ({ label, count, pct: Math.round((count / (total || 1)) * 100) }));
+}
+
+// Artists can list more than one medium (a comma-joined field) — tally each
+// individual medium rather than each distinct combination string.
+function tallyMedium(values: (string | null)[], total: number) {
+  return tally(values.flatMap(parseMediumList), total);
 }
 
 export default async function AdminArtistsPage({
@@ -34,13 +41,13 @@ export default async function AdminArtistsPage({
     },
   });
 
-  const mediumData = tally(allArtists.map((a) => a.medium), allArtists.length);
+  const mediumData = tallyMedium(allArtists.map((a) => a.medium), allArtists.length);
   const neighborhoodData = tally(allArtists.map((a) => a.neighborhood), allArtists.length);
 
   const artists =
     activeField && activeValue
       ? allArtists.filter((a) => {
-          if (activeField === "medium") return a.medium === activeValue;
+          if (activeField === "medium") return mediumMatches(a.medium, activeValue);
           if (activeField === "neighborhood") return a.neighborhood === activeValue;
           if (activeField === "placeholder") return String(a.isPlaceholder) === activeValue;
           return true;

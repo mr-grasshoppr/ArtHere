@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { waitUntil } from "@vercel/functions";
 import { prisma } from "@/lib/db";
 import { put } from "@vercel/blob";
-import { tagArtworkImage } from "@/lib/claude";
+import { tagArtworkImage, normalizeMediumTags } from "@/lib/claude";
 import { archiveOriginal } from "@/lib/originals";
 import { computeAndStoreFocus } from "@/lib/image-focus";
 import { Prisma } from "@prisma/client";
@@ -64,7 +64,11 @@ export async function POST(req: NextRequest) {
       .then(async (tags) => {
         await prisma.artworkImage.update({
           where: { id: image.id },
-          data: { aiTags: tags as unknown as Prisma.InputJsonValue, aiTaggedAt: new Date() },
+          data: {
+            aiTags: tags as unknown as Prisma.InputJsonValue,
+            aiTaggedAt: new Date(),
+            medium: normalizeMediumTags(tags.medium),
+          },
         });
       })
       .catch((err) => {

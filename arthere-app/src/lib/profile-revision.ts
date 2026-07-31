@@ -86,6 +86,8 @@ export async function snapshotPlace(placeId: string, editedBy: Editor, editorEma
           name: place.name,
           neighborhood: place.neighborhood,
           description: place.description,
+          quote: place.quote,
+          quoteAttribution: place.quoteAttribution,
           website: place.website,
           websiteLabel: place.websiteLabel,
           heroImageUrl: place.heroImageUrl,

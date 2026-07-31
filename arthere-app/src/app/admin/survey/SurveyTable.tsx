@@ -29,6 +29,7 @@ type SurveyResponse = {
   involvementInterests: string[];
   involvementInterestsOther: string | null;
   completedAt: Date | null;
+  connectionSuggestions: string | null;
   openFeedback: string | null;
   learnedAbout: string[];
   source: string | null;
@@ -146,6 +147,7 @@ function Row({ r, onTestToggle }: { r: SurveyResponse; onTestToggle: (id: string
                 <Field label="Featured (legacy)" value={r.featuredArtistInterest} />
                 <Field label="Email" value={r.email} />
                 <Field label="Raffle" value={r.raffleOptIn} />
+                <Field label="Connections" value={r.connectionSuggestions} />
                 <Field label="Feedback" value={r.openFeedback} />
               </div>
             </div>

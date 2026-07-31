@@ -2,8 +2,8 @@ import { randomBytes } from 'crypto';
 import { render } from '@react-email/components';
 import { prisma } from '@/lib/db';
 import { resend } from '@/lib/resend';
-import { MagicLinkEmail } from '@/emails/MagicLinkEmail';
-import { ProfileLinkEmail } from '@/emails/ProfileLinkEmail';
+import { MagicLinkEmail, MAGIC_LINK_DEFAULT_BODY_TEXT } from '@/emails/MagicLinkEmail';
+import { ProfileLinkEmail, profileLinkDefaultBodyText } from '@/emails/ProfileLinkEmail';
 import React from 'react';
 
 // 'welcome' — first-time onboarding invite (admin-triggered), warm framing.
@@ -151,6 +151,88 @@ export async function sendPlaceMagicLink({
   if (error) throw new Error(`Resend: ${error.message ?? error.name}`);
 
   return token;
+}
+
+// ─── Admin invite preview (mint the link, but let the admin see/edit the
+// message before anything is actually emailed) ─────────────────────────────────
+
+export interface InvitePreview {
+  email: string;
+  link: string;
+  subject: string;
+  bodyText: string;
+}
+
+async function mintToken(scope: { artistId: string } | { placeId: string }, email: string): Promise<string> {
+  await prisma.magicLinkToken.updateMany({ where: { ...scope, used: false }, data: { used: true } });
+  const expiresAt = new Date(Date.now() + TOKEN_TTL_HOURS * 60 * 60 * 1000);
+  const { token } = await prisma.magicLinkToken.create({
+    data: { token: newToken(), email, ...scope, expiresAt },
+    select: { token: true },
+  });
+  return token;
+}
+
+export async function createArtistInvitePreview({
+  email,
+  artistId,
+  variant = 'welcome',
+}: SendArtistLinkParams): Promise<InvitePreview> {
+  const token = await mintToken({ artistId }, email);
+  const link = `${BASE_URL}/profile/setup?token=${token}`;
+  const subject = variant === 'returning' ? 'View and edit your Art Here profile' : 'Set up your Art Here artist profile';
+  const bodyText = variant === 'returning' ? profileLinkDefaultBodyText('profile') : MAGIC_LINK_DEFAULT_BODY_TEXT;
+  return { email, link, subject, bodyText };
+}
+
+export async function sendArtistInviteEmail({
+  email,
+  artistName,
+  link,
+  subject,
+  bodyText,
+  variant = 'welcome',
+}: SendArtistLinkParams & { link: string; subject: string; bodyText: string }): Promise<void> {
+  const name = firstName(artistName);
+  const element =
+    variant === 'returning'
+      ? React.createElement(ProfileLinkEmail, { name, link, noun: 'profile' as const, bodyText })
+      : React.createElement(MagicLinkEmail, { artistName: name, link, bodyText });
+
+  const { html, text } = await renderEmail(element);
+  const { error } = await resend.emails.send({ from: FROM_ADDRESS, to: email, bcc: ADMIN_BCC, subject, html, text });
+  if (error) throw new Error(`Resend: ${error.message ?? error.name}`);
+}
+
+export async function createPlaceInvitePreview({
+  email,
+  placeId,
+  placeName,
+  variant = 'welcome',
+}: SendPlaceLinkParams): Promise<InvitePreview> {
+  const token = await mintToken({ placeId }, email);
+  const link = `${BASE_URL}/place/setup?token=${token}`;
+  const subject = variant === 'returning' ? 'View and edit your Art Here page' : `Manage your Art Here page — ${placeName}`;
+  const bodyText = variant === 'returning' ? profileLinkDefaultBodyText('page') : MAGIC_LINK_DEFAULT_BODY_TEXT;
+  return { email, link, subject, bodyText };
+}
+
+export async function sendPlaceInviteEmail({
+  email,
+  placeName,
+  link,
+  subject,
+  bodyText,
+  variant = 'welcome',
+}: SendPlaceLinkParams & { link: string; subject: string; bodyText: string }): Promise<void> {
+  const element =
+    variant === 'returning'
+      ? React.createElement(ProfileLinkEmail, { name: placeName, link, noun: 'page' as const, bodyText })
+      : React.createElement(MagicLinkEmail, { artistName: placeName, link, bodyText });
+
+  const { html, text } = await renderEmail(element);
+  const { error } = await resend.emails.send({ from: FROM_ADDRESS, to: email, bcc: ADMIN_BCC, subject, html, text });
+  if (error) throw new Error(`Resend: ${error.message ?? error.name}`);
 }
 
 // ─── Token verification ───────────────────────────────────────────────────────
