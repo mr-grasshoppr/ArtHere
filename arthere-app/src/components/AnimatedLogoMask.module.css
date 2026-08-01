@@ -3,7 +3,8 @@
   aspect-ratio: 1668 / 1457;
   overflow: hidden;
   /* Painted immediately so the logo reads as a solid black mark on first
-     paint; the track fades up on top once its slides have loaded. */
+     paint; the track fades up on top as soon as it mounts, independent of
+     how long the background image itself takes to finish loading. */
   background-color: #1a1a1a;
   -webkit-mask-image: url('/images/arthere-mask.png');
   mask-image: url('/images/arthere-mask.png');
@@ -22,22 +23,27 @@
   height: 100%;
   display: flex;
   animation:
-    reveal 1.6s ease-out forwards,
-    slide 36s linear infinite;
+    reveal 1.2s ease-out forwards,
+    slide 44s linear infinite;
 }
 
 .slide {
   position: relative;
   height: 100%;
+  /* Preserves the composition's own aspect ratio at the mask's rendered
+     height, so it displays undistorted with its full width available to
+     pan across rather than being cropped to the mask's own (narrower)
+     aspect ratio. */
+  aspect-ratio: 2875 / 1080;
   flex-shrink: 0;
+  background-image: url('/images/logo-mask-background.jpg');
   background-size: cover;
   background-position: 50% 50%;
   background-repeat: no-repeat;
 }
 
-/* Six slides total (three works, doubled) — -50% is exactly three
-   slide-widths, so the loop repeats seamlessly with constant motion,
-   no pause and no return to black mid-cycle. */
+/* Two copies of one composition — -50% is exactly one slide-width, so the
+   loop repeats seamlessly with constant motion. */
 @keyframes slide {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -50,6 +56,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .track {
-    animation: reveal 1.6s ease-out forwards;
+    animation: reveal 1.2s ease-out forwards;
   }
 }
