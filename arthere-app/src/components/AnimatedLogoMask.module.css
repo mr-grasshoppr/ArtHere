@@ -3,7 +3,7 @@
   aspect-ratio: 1668 / 1457;
   overflow: hidden;
   /* Painted immediately so the logo reads as a solid black mark on first
-     paint; the first artwork fades in on top once the cycle starts. */
+     paint; the track fades up on top once its slides have loaded. */
   background-color: #1a1a1a;
   -webkit-mask-image: url('/images/arthere-mask.png');
   mask-image: url('/images/arthere-mask.png');
@@ -15,51 +15,41 @@
   mask-size: 100% 100%;
 }
 
-/* One wrapper per beat (black, then each artwork) — all four share this
-   timeline, offset by animation-delay so exactly one is ever visible. */
-.frame {
+.track {
   position: absolute;
-  inset: 0;
-  overflow: hidden;
-  opacity: 0;
-  background: #0a0a0a;
-  animation: cycle 24s ease-in-out infinite;
+  top: 0;
+  left: 0;
+  height: 100%;
+  display: flex;
+  animation:
+    reveal 1.6s ease-out forwards,
+    slide 36s linear infinite;
 }
 
-.frameImg {
-  object-fit: cover;
-  /* Scaled up beyond the frame so the right-to-left drift never runs out of
-     image to reveal — the "tighter crop" the motion needs, without having
-     to hand-crop the source files. */
-  animation: pan 24s ease-in-out infinite;
+.slide {
+  position: relative;
+  height: 100%;
+  flex-shrink: 0;
+  background-size: cover;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
 }
 
-@keyframes cycle {
-  0%     { opacity: 0; }
-  6.25%  { opacity: 1; }
-  18.75% { opacity: 1; }
-  25%    { opacity: 0; }
-  100%   { opacity: 0; }
+/* Six slides total (three works, doubled) — -50% is exactly three
+   slide-widths, so the loop repeats seamlessly with constant motion,
+   no pause and no return to black mid-cycle. */
+@keyframes slide {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
-@keyframes pan {
-  0%     { transform: scale(1.32) translateX(9%); }
-  6.25%  { transform: scale(1.32) translateX(9%); }
-  18.75% { transform: scale(1.32) translateX(-9%); }
-  25%    { transform: scale(1.32) translateX(-9%); }
-  100%   { transform: scale(1.32) translateX(9%); }
+@keyframes reveal {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .frame {
-    animation: none;
-    opacity: 0;
-  }
-  .frame:nth-of-type(2) {
-    opacity: 1;
-  }
-  .frameImg {
-    animation: none;
-    transform: scale(1.05);
+  .track {
+    animation: reveal 1.6s ease-out forwards;
   }
 }

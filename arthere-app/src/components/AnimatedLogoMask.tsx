@@ -1,11 +1,12 @@
-import Image from 'next/image';
 import styles from './AnimatedLogoMask.module.css';
 
 // Approved for this treatment — confirm with an artist before adding more.
-const ARTWORKS = [
-  '/images/Kurtis_Piltz1.jpeg',
-  '/images/Kristin_Casaletto_LetItPullMeOut.jpg',
-  '/images/Kristin_Casaletto_SavingForLater.jpg',
+// Each file already has soft feathered edges and the artist's name baked in
+// bottom-right (see scripts/build-logo-mask-slides.mjs for how they were made).
+const SLIDES = [
+  '/images/mask-slide-kurtis.png',
+  '/images/mask-slide-kristin1.png',
+  '/images/mask-slide-kristin2.png',
 ];
 
 interface Props {
@@ -15,22 +16,18 @@ interface Props {
 }
 
 export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '' }: Props) {
+  // Two back-to-back copies of the same three slides — translateX(-50%)
+  // lands exactly back on the start, so the loop is seamless and motion
+  // never stops, pauses, or resets to black mid-cycle.
+  const track = [...SLIDES, ...SLIDES];
+
   return (
     <div className={`${styles.mask} ${className}`} style={{ width }}>
-      <div className={styles.frame} style={{ animationDelay: '0s' }} />
-      {ARTWORKS.map((src, i) => (
-        <div key={src} className={styles.frame} style={{ animationDelay: `${-6 - i * 6}s` }}>
-          <Image
-            src={src}
-            alt=""
-            fill
-            sizes="(max-width: 640px) 60vw, 520px"
-            priority={i === 0}
-            className={styles.frameImg}
-            style={{ animationDelay: `${-6 - i * 6}s` }}
-          />
-        </div>
-      ))}
+      <div className={styles.track}>
+        {track.map((src, i) => (
+          <div key={i} className={styles.slide} style={{ width, backgroundImage: `url(${src})` }} />
+        ))}
+      </div>
     </div>
   );
 }
