@@ -66,7 +66,7 @@ export default async function CityNetworkPage({
       type: 'artist',
       href: `/cities/${slug}/artists/${artist.slug}`,
       external: false,
-      imageUrl: artist.heroImageUrl ?? artist.artworkImages[0]?.url ?? null,
+      imageUrl: artist.bioPhotoUrl ?? artist.heroImageUrl ?? artist.artworkImages[0]?.url ?? null,
       neighborhood: artistNeighborhood,
       meta: [artist.medium, artistNeighborhood].filter(Boolean).join(' · '),
     });

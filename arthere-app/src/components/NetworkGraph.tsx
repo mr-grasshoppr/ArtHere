@@ -372,8 +372,33 @@ export function NetworkGraph({ nodes, links }: Props) {
         </div>
       )}
 
-      {/* Hover card */}
-      {hover && (
+      {/* Hover card — artists get a narrower card with their bio photo as a
+          portrait strip on the left and text to the right; places keep the
+          wider card with the photo as a banner across the top. */}
+      {hover && hover.node.type === 'artist' ? (
+        <div
+          className="fixed z-50 pointer-events-none bg-[#111] border border-[#222] rounded-lg overflow-hidden w-[200px] flex items-stretch shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
+          style={{ left: hover.x + 14, top: hover.y + 14 }}
+        >
+          {hover.node.imageUrl && (
+            <div className="relative w-[72px] flex-shrink-0 bg-[#1a1a1a]">
+              <Image src={hover.node.imageUrl} alt="" fill sizes="72px" className="object-cover" />
+            </div>
+          )}
+          <div className="p-3 min-w-0">
+            <div className="font-heading text-[0.85rem] font-bold text-white mb-0.5">{hover.node.label}</div>
+            {hover.node.meta && (
+              <div className="flex items-center gap-1.5 text-[0.7rem] text-[#888] leading-snug">
+                <span
+                  className="inline-block w-2 h-2 rounded-full flex-shrink-0"
+                  style={{ background: colorForNeighborhood(hover.node.neighborhood, neighborhoods) }}
+                />
+                {hover.node.meta}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : hover ? (
         <div
           className="fixed z-50 pointer-events-none bg-[#111] border border-[#222] rounded-lg overflow-hidden w-[220px] shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
           style={{ left: hover.x + 14, top: hover.y + 14 }}
@@ -396,15 +421,54 @@ export function NetworkGraph({ nodes, links }: Props) {
             )}
           </div>
         </div>
-      )}
+      ) : null}
 
-      {/* Controls, bottom-left. Type toggles (Artists/Places) stay visible
-          since there are only ever two — the neighborhood color key lives in
-          its own expandable panel above, since that list keeps growing as
-          more cities/neighborhoods are added. */}
-      <div className="absolute bottom-4 left-4 z-10 text-[0.72rem]">
+      {/* Controls, top-left — same corner the filter bars on the other city
+          pages sit in. Type toggles (Artists/Places) stay visible since
+          there are only ever two — the neighborhood color key lives in its
+          own expandable panel below, since that list keeps growing as more
+          cities/neighborhoods are added. */}
+      <div className="absolute top-[90px] left-5 z-10 text-[0.72rem]">
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => setShowArtists(s => !s)}
+            className={pillClass('dark', showArtists)}
+          >
+            Artists
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowPlaces(s => !s)}
+            className={pillClass('dark', showPlaces)}
+          >
+            Places
+          </button>
+
+          <span className="w-px h-3 bg-[#2a2a2a]" />
+
+          <button
+            type="button"
+            onClick={() => setNeighborhoodsOpen(o => !o)}
+            className="flex items-center gap-1.5 text-[#bbb] hover:text-white transition-colors select-none cursor-pointer"
+          >
+            {selectedArea ?? 'Neighborhoods'}
+            {selectedArea !== null && (
+              <span className="flex items-center justify-center min-w-[15px] h-[15px] px-1 rounded-full bg-[#333] text-[0.6rem] text-[#bbb]">
+                1
+              </span>
+            )}
+            <span
+              className="text-[0.6rem] text-[#666] transition-transform duration-200"
+              style={!neighborhoodsOpen ? { transform: 'rotate(180deg)' } : undefined}
+            >
+              &#9650;
+            </span>
+          </button>
+        </div>
+
         {neighborhoodsOpen && (
-          <div className="mb-2 w-[200px] max-h-[40vh] overflow-y-auto flex flex-col gap-2 bg-[#111]/95 backdrop-blur-sm border border-[#222] rounded-lg p-3 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+          <div className="mt-2 w-[200px] max-h-[40vh] overflow-y-auto flex flex-col gap-2 bg-[#111]/95 backdrop-blur-sm border border-[#222] rounded-lg p-3 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
             {/* All — clears the area filter */}
             <button
               type="button"
@@ -444,44 +508,6 @@ export function NetworkGraph({ nodes, links }: Props) {
             })}
           </div>
         )}
-
-        <div className="flex items-center gap-2.5">
-          <button
-            type="button"
-            onClick={() => setShowArtists(s => !s)}
-            className={pillClass('dark', showArtists)}
-          >
-            Artists
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowPlaces(s => !s)}
-            className={pillClass('dark', showPlaces)}
-          >
-            Places
-          </button>
-
-          <span className="w-px h-3 bg-[#2a2a2a]" />
-
-          <button
-            type="button"
-            onClick={() => setNeighborhoodsOpen(o => !o)}
-            className="flex items-center gap-1.5 text-[#bbb] hover:text-white transition-colors select-none cursor-pointer"
-          >
-            {selectedArea ?? 'Neighborhoods'}
-            {selectedArea !== null && (
-              <span className="flex items-center justify-center min-w-[15px] h-[15px] px-1 rounded-full bg-[#333] text-[0.6rem] text-[#bbb]">
-                1
-              </span>
-            )}
-            <span
-              className="text-[0.6rem] text-[#666] transition-transform duration-200"
-              style={neighborhoodsOpen ? { transform: 'rotate(180deg)' } : undefined}
-            >
-              &#9650;
-            </span>
-          </button>
-        </div>
       </div>
     </div>
   );
