@@ -6,6 +6,7 @@ import type { Metadata } from 'next';
 import { NavBar } from '@/components/NavBar';
 import { CityBottomBar } from '@/components/CityBottomBar';
 import { NetworkGraph, type NetworkNode, type NetworkLink } from '@/components/NetworkGraph';
+import { normalizeNeighborhood } from '@/lib/neighborhoods';
 
 // ISR: content is edited via admin + self-service; regenerate at most every 30s
 export const revalidate = 30;
@@ -57,6 +58,7 @@ export default async function CityNetworkPage({
 
   for (const artist of cityArtists) {
     const artistId = `artist-${artist.slug}`;
+    const artistNeighborhood = artist.neighborhood ? normalizeNeighborhood(artist.neighborhood) : null;
 
     nodes.push({
       id: artistId,
@@ -65,8 +67,8 @@ export default async function CityNetworkPage({
       href: `/cities/${slug}/artists/${artist.slug}`,
       external: false,
       imageUrl: artist.heroImageUrl ?? artist.artworkImages[0]?.url ?? null,
-      neighborhood: artist.neighborhood,
-      meta: [artist.medium, artist.neighborhood].filter(Boolean).join(' · '),
+      neighborhood: artistNeighborhood,
+      meta: [artist.medium, artistNeighborhood].filter(Boolean).join(' · '),
     });
 
     for (const rel of artist.placeRelations) {
@@ -80,6 +82,7 @@ export default async function CityNetworkPage({
 
       if (!seenPlaces.has(placeId)) {
         seenPlaces.add(placeId);
+        const placeNeighborhood = place?.neighborhood ? normalizeNeighborhood(place.neighborhood) : null;
         nodes.push({
           id: placeId,
           label: name,
@@ -87,8 +90,8 @@ export default async function CityNetworkPage({
           href: place?.inDirectory ? `/cities/${slug}/places/${place.slug}` : null,
           external: false,
           imageUrl: place?.heroImageUrl ?? null,
-          neighborhood: place?.neighborhood ?? null,
-          meta: place?.neighborhood ?? '',
+          neighborhood: placeNeighborhood,
+          meta: placeNeighborhood ?? '',
         });
       }
 

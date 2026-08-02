@@ -6,6 +6,7 @@ import { createArtistInvitePreview, sendArtistInviteEmail, type InvitePreview } 
 import { requireAdmin } from "@/lib/admin";
 import { snapshotArtist } from "@/lib/profile-revision";
 import { buildHireForText } from "@/lib/artist-options";
+import { normalizeNeighborhood } from "@/lib/neighborhoods";
 
 // Mints the one-time login link and the default email copy, but sends
 // nothing yet — the admin previews/edits it first (see InvitePreviewModal).
@@ -58,7 +59,7 @@ export async function updateArtistProfile(artistId: string, data: ProfileInput) 
       name: data.name.trim(),
       bio: data.bio.trim() || null,
       medium: data.medium.trim() || null,
-      neighborhood: data.neighborhood.trim() || null,
+      neighborhood: data.neighborhood.trim() ? normalizeNeighborhood(data.neighborhood.trim()) : null,
       offerings: data.offerings.map((o) => o.trim()).filter(Boolean),
       hireFor: buildHireForText(data.offerings),
     },

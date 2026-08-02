@@ -207,7 +207,7 @@ export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, co
         />
         <FilterDropdown
           theme="dark"
-          label="Community"
+          label="Places"
           pluralLabel="communities"
           options={communityOptions}
           value={communityFilter}

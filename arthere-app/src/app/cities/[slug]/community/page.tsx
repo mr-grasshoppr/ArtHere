@@ -10,6 +10,7 @@ import { CommunityBrowser, type CommunityPlaceData } from '@/components/Communit
 import { getFocalStyles } from '@/lib/image-focus';
 import { SiteFooter } from '@/components/SiteFooter';
 import { TechSupportLink } from '@/components/TechSupportLink';
+import { isCityLevelNeighborhood, normalizeNeighborhood } from '@/lib/neighborhoods';
 
 // ISR: content is edited via admin + self-service; regenerate at most every 30s
 export const revalidate = 30;
@@ -29,7 +30,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const city = await prisma.city.findUnique({ where: { slug }, select: { displayName: true, name: true } });
   const label = city?.displayName ?? city?.name ?? slug;
-  return { title: `${label} Community — Art Here` };
+  return { title: `${label} Places — Art Here` };
 }
 
 export default async function CityCommunityPage({
@@ -110,9 +111,14 @@ export default async function CityCommunityPage({
     if (p.heroImageUrl) p.focus = focals.get(p.heroImageUrl);
   }
 
-  const isCityLevel = (v: string) => /^(Portland(,?\s*(OR|Oregon))?|Vancouver(,?\s*WA)?)$/i.test(v);
   const neighborhoodOptions = [
-    ...new Set(places.map(p => p.neighborhood).filter((v): v is string => !!v && !isCityLevel(v))),
+    ...new Set(
+      places
+        .map(p => p.neighborhood)
+        .filter((v): v is string => !!v)
+        .map(normalizeNeighborhood)
+        .filter(v => !isCityLevelNeighborhood(v))
+    ),
   ].sort();
 
   return (
@@ -121,7 +127,7 @@ export default async function CityCommunityPage({
 
       <div className="max-w-[1400px] mx-auto px-5 sm:px-10 pt-12 pb-8 border-b border-[#f0f0f0]">
         <h1 className="font-heading text-[2rem] font-bold tracking-[-0.01em] mb-1.5">
-          {city.name} Community
+          {city.name} Places
         </h1>
         <p className="text-[0.95rem] text-[#888] font-light">
           The places and people that support {city.name}&rsquo;s artists.
@@ -132,7 +138,7 @@ export default async function CityCommunityPage({
         <CommunityBrowser places={places} neighborhoodOptions={neighborhoodOptions} citySlug={slug} />
       ) : (
         <div className="max-w-[1400px] mx-auto px-5 sm:px-10 py-16 text-center text-[#999] text-[0.95rem]">
-          No community connections yet.
+          No places listed yet.
         </div>
       )}
 

@@ -136,7 +136,7 @@ export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOp
             onToggle={() => toggleDropdown('neighborhood')}
           />
           <FilterDropdown
-            label="Community"
+            label="Places"
             pluralLabel="communities"
             options={communityOptions}
             value={communityFilter}

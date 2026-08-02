@@ -7,6 +7,7 @@ import { parseHireText } from "@/lib/claude";
 import { profileSchema, parseBody } from "@/lib/schemas";
 import { slugify } from "@/lib/slug";
 import { snapshotArtist } from "@/lib/profile-revision";
+import { normalizeNeighborhood } from "@/lib/neighborhoods";
 
 // GET — fetch current user's artist profile
 export async function GET() {
@@ -91,7 +92,7 @@ export async function POST(req: NextRequest) {
     name: name.trim(),
     bio: bio?.trim() || null,
     medium: medium?.trim() || null,
-    neighborhood: neighborhood?.trim() || null,
+    neighborhood: neighborhood?.trim() ? normalizeNeighborhood(neighborhood.trim()) : null,
     hireFor: hireForClean,
     website: website?.trim() || null,
     instagram: instagram?.trim().replace(/^@/, "") || null,

@@ -8,6 +8,7 @@ import { ArtistsSearch } from '@/components/ArtistsSearch';
 import type { ArtistCardData } from '@/components/ArtistsGrid';
 import { CityBottomBar } from '@/components/CityBottomBar';
 import { parseMediumList } from '@/lib/artist-options';
+import { isCityLevelNeighborhood, normalizeNeighborhood } from '@/lib/neighborhoods';
 
 // ISR: content is edited via admin + self-service; regenerate at most every 30s
 export const revalidate = 30;
@@ -60,8 +61,15 @@ export default async function CityArtistsPage({
   // as a comma-joined list per artist (they can work in more than one), so
   // split before deduping — otherwise each combination becomes its own pill.
   const mediumOptions = [...new Set(artists.flatMap(a => parseMediumList(a.medium)))].sort();
-  const isCityLevel = (v: string) => /^(Portland(,?\s*(OR|Oregon))?|Vancouver(,?\s*WA)?)$/i.test(v);
-  const neighborhoodOptions = [...new Set(artists.map(a => a.neighborhood).filter((v): v is string => !!v && !isCityLevel(v)))].sort();
+  const neighborhoodOptions = [
+    ...new Set(
+      artists
+        .map(a => a.neighborhood)
+        .filter((v): v is string => !!v)
+        .map(normalizeNeighborhood)
+        .filter(v => !isCityLevelNeighborhood(v))
+    ),
+  ].sort();
   const communityOptions = [...new Set(artists.flatMap(a => a.communities))].sort();
 
   return (

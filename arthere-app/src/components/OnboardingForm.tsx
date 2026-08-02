@@ -472,9 +472,9 @@ export default function OnboardingForm({
         </div>
       </div>
 
-      {/* ── Community / places ────────────────────────────────────────── */}
+      {/* ── Places ─────────────────────────────────────────────────────── */}
       <div className="mb-8">
-        <h2 className="text-[0.7rem] font-semibold text-[#aaa] uppercase tracking-widest mb-3">Community</h2>
+        <h2 className="text-[0.7rem] font-semibold text-[#aaa] uppercase tracking-widest mb-3">Places</h2>
         <div className="space-y-2">
           {places.map((rel, i) => (
             <div key={i} className="flex flex-col gap-1.5">

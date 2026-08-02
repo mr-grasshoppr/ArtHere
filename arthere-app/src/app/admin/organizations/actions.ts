@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/admin";
 import { createPlaceInvitePreview, sendPlaceInviteEmail, type InvitePreview } from "@/lib/magic-link";
 import { snapshotPlace } from "@/lib/profile-revision";
 import { slugify } from "@/lib/slug";
+import { normalizeNeighborhood } from "@/lib/neighborhoods";
 
 async function uniquePlaceSlug(name: string): Promise<string> {
   const base = slugify(name) || "venue";
@@ -61,7 +62,7 @@ export async function updateOrganization(placeId: string, data: OrgInput) {
     where: { id: placeId },
     data: {
       name: data.name.trim(),
-      neighborhood: data.neighborhood.trim() || null,
+      neighborhood: data.neighborhood.trim() ? normalizeNeighborhood(data.neighborhood.trim()) : null,
       description: data.description.trim() || null,
       quote: data.quote.trim() || null,
       quoteAttribution: data.quoteAttribution.trim() || null,

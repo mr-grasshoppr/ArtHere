@@ -159,7 +159,7 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals }: P
           href={communityHref}
           className="inline-block mx-5 sm:ml-10 my-10 text-[#888] text-[0.88rem] no-underline hover:text-[#1a1a1a] transition-colors"
         >
-          ← {cityDisplayName} Community
+          ← {cityDisplayName} Places
         </Link>
       )}
 

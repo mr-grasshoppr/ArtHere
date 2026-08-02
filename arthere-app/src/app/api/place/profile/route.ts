@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { placeProfileSchema, parseBody } from '@/lib/schemas';
 import { snapshotPlace } from '@/lib/profile-revision';
+import { normalizeNeighborhood } from '@/lib/neighborhoods';
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -20,7 +21,7 @@ export async function POST(req: NextRequest) {
     where: { id: place.id },
     data: {
       name: typeof name === 'string' && name.trim() ? name.trim() : place.name,
-      neighborhood: typeof neighborhood === 'string' ? neighborhood.trim() || null : undefined,
+      neighborhood: typeof neighborhood === 'string' ? (neighborhood.trim() ? normalizeNeighborhood(neighborhood.trim()) : null) : undefined,
       description: typeof description === 'string' ? description.trim() || null : undefined,
       quote: typeof quote === 'string' ? quote.trim() || null : undefined,
       quoteAttribution: typeof quoteAttribution === 'string' ? quoteAttribution.trim() || null : undefined,

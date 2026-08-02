@@ -19,7 +19,7 @@ export function CityBottomBar({ citySlug, cityDisplayName }: Props) {
   const tabs: Tab[] = [
     { label: 'artwork',    href: `/cities/${citySlug}/artwork` },
     { label: 'artists',   href: `/cities/${citySlug}/artists` },
-    { label: 'community', href: `/cities/${citySlug}/community` },
+    { label: 'places',    href: `/cities/${citySlug}/community` },
     { label: 'network',   href: `/cities/${citySlug}/network` },
   ];
 

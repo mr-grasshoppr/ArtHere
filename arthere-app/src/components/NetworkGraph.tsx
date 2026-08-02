@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import Image from 'next/image';
+import { isCityLevelNeighborhood } from '@/lib/neighborhoods';
+import { pillClass } from '@/components/FilterDropdown';
 
 export interface NetworkNode {
   id: string;
@@ -32,16 +34,12 @@ type SimLink = d3.SimulationLinkDatum<SimNode>;
 const PALETTE = d3.schemeTableau10;
 const UNKNOWN_COLOR = '#6b6b6b';
 
-// City-level strings that should not appear as filter options in the legend —
-// they're too broad to be useful for neighborhood-level filtering.
-const CITY_LEVEL = /^Portland(,?\s*(OR|Oregon))?$/i;
-
 function getNeighborhoods(nodes: NetworkNode[]): string[] {
   return Array.from(
     new Set(
       nodes
         .map(n => n.neighborhood)
-        .filter((n): n is string => !!n && !CITY_LEVEL.test(n))
+        .filter((n): n is string => !!n && !isCityLevelNeighborhood(n))
     )
   ).sort();
 }
@@ -447,37 +445,19 @@ export function NetworkGraph({ nodes, links }: Props) {
           </div>
         )}
 
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-2.5">
           <button
             type="button"
             onClick={() => setShowArtists(s => !s)}
-            className={`flex items-center gap-2 transition-colors select-none cursor-pointer ${
-              showArtists ? 'text-[#bbb]' : 'text-[#555]'
-            }`}
+            className={pillClass('dark', showArtists)}
           >
-            <span
-              className="w-2.5 h-2.5 rounded-full border transition-colors"
-              style={{
-                borderColor: showArtists ? '#bbb' : '#555',
-                backgroundColor: showArtists ? '#bbb' : 'transparent',
-              }}
-            />
             Artists
           </button>
           <button
             type="button"
             onClick={() => setShowPlaces(s => !s)}
-            className={`flex items-center gap-2 transition-colors select-none cursor-pointer ${
-              showPlaces ? 'text-[#bbb]' : 'text-[#555]'
-            }`}
+            className={pillClass('dark', showPlaces)}
           >
-            <span
-              className="w-2.5 h-2.5 border transition-colors"
-              style={{
-                borderColor: showPlaces ? '#bbb' : '#555',
-                backgroundColor: showPlaces ? '#bbb' : 'transparent',
-              }}
-            />
             Places
           </button>
 
@@ -488,7 +468,7 @@ export function NetworkGraph({ nodes, links }: Props) {
             onClick={() => setNeighborhoodsOpen(o => !o)}
             className="flex items-center gap-1.5 text-[#bbb] hover:text-white transition-colors select-none cursor-pointer"
           >
-            {selectedArea ?? 'Areas'}
+            {selectedArea ?? 'Neighborhoods'}
             {selectedArea !== null && (
               <span className="flex items-center justify-center min-w-[15px] h-[15px] px-1 rounded-full bg-[#333] text-[0.6rem] text-[#bbb]">
                 1
