@@ -385,16 +385,10 @@ export function NetworkGraph({ nodes, links }: Props) {
               <Image src={hover.node.imageUrl} alt="" fill sizes="72px" className="object-cover" />
             </div>
           )}
-          <div className="p-3 min-w-0">
-            <div className="font-heading text-[0.85rem] font-bold text-white mb-0.5">{hover.node.label}</div>
+          <div className="px-3 py-2 min-w-0 flex flex-col justify-center">
+            <div className="font-heading text-[0.8rem] font-bold text-white leading-tight">{hover.node.label}</div>
             {hover.node.meta && (
-              <div className="flex items-center gap-1.5 text-[0.7rem] text-[#888] leading-snug">
-                <span
-                  className="inline-block w-2 h-2 rounded-full flex-shrink-0"
-                  style={{ background: colorForNeighborhood(hover.node.neighborhood, neighborhoods) }}
-                />
-                {hover.node.meta}
-              </div>
+              <div className="text-[0.68rem] text-[#888] leading-tight mt-0.5">{hover.node.meta}</div>
             )}
           </div>
         </div>

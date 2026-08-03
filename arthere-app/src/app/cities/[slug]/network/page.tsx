@@ -68,7 +68,9 @@ export default async function CityNetworkPage({
       external: false,
       imageUrl: artist.bioPhotoUrl ?? artist.heroImageUrl ?? artist.artworkImages[0]?.url ?? null,
       neighborhood: artistNeighborhood,
-      meta: [artist.medium, artistNeighborhood].filter(Boolean).join(' · '),
+      // The hover card for artists shows just their medium, not neighborhood
+      // (the node's own color already encodes neighborhood).
+      meta: artist.medium ?? '',
     });
 
     for (const rel of artist.placeRelations) {
