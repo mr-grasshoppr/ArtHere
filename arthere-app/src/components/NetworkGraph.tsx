@@ -372,12 +372,15 @@ export function NetworkGraph({ nodes, links }: Props) {
         </div>
       )}
 
-      {/* Hover card — artists get a narrower card with their bio photo as a
-          portrait strip on the left and text to the right; places keep the
-          wider card with the photo as a banner across the top. */}
+      {/* Hover card — artists get a compact, fixed-height card with their
+          bio photo as a portrait strip on the left and text to the right
+          (medium is clamped to 2 lines so a short medium like "Ceramics"
+          and a long one like "Painting, Installation, Multimedia" both
+          produce the same card height). Places get their own larger,
+          taller card with the photo as a banner across the top. */}
       {hover && hover.node.type === 'artist' ? (
         <div
-          className="fixed z-50 pointer-events-none bg-[#111] border border-[#222] rounded-lg overflow-hidden w-[200px] flex items-stretch shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
+          className="fixed z-50 pointer-events-none bg-[#111] border border-[#222] rounded-lg overflow-hidden w-[200px] h-[76px] flex items-stretch shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
           style={{ left: hover.x + 14, top: hover.y + 14 }}
         >
           {hover.node.imageUrl && (
@@ -388,30 +391,24 @@ export function NetworkGraph({ nodes, links }: Props) {
           <div className="px-3 py-2 min-w-0 flex flex-col justify-center">
             <div className="font-heading text-[0.8rem] font-bold text-white leading-tight">{hover.node.label}</div>
             {hover.node.meta && (
-              <div className="text-[0.68rem] text-[#888] leading-tight mt-0.5">{hover.node.meta}</div>
+              <div className="text-[0.68rem] text-[#888] leading-tight mt-0.5 line-clamp-2">{hover.node.meta}</div>
             )}
           </div>
         </div>
       ) : hover ? (
         <div
-          className="fixed z-50 pointer-events-none bg-[#111] border border-[#222] rounded-lg overflow-hidden w-[220px] flex items-stretch shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
+          className="fixed z-50 pointer-events-none bg-[#111] border border-[#222] rounded-lg overflow-hidden w-[240px] shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
           style={{ left: hover.x + 14, top: hover.y + 14 }}
         >
           {hover.node.imageUrl && (
-            <div className="relative w-[72px] flex-shrink-0 bg-[#1a1a1a]">
-              <Image src={hover.node.imageUrl} alt="" fill sizes="72px" className="object-cover" />
+            <div className="relative w-full h-[110px] bg-[#1a1a1a]">
+              <Image src={hover.node.imageUrl} alt="" fill sizes="240px" className="object-cover" />
             </div>
           )}
-          <div className="px-3 py-2 min-w-0 flex flex-col justify-center">
-            <div className="font-heading text-[0.8rem] font-bold text-white leading-tight">{hover.node.label}</div>
+          <div className="p-3">
+            <div className="font-heading text-[0.9rem] font-bold text-white mb-1">{hover.node.label}</div>
             {hover.node.meta && (
-              <div className="flex items-center gap-1.5 text-[0.68rem] text-[#888] leading-tight mt-0.5">
-                <span
-                  className="inline-block w-2 h-2 rounded-full flex-shrink-0"
-                  style={{ background: colorForNeighborhood(hover.node.neighborhood, neighborhoods) }}
-                />
-                {hover.node.meta}
-              </div>
+              <div className="text-[0.75rem] text-[#888] leading-snug">{hover.node.meta}</div>
             )}
           </div>
         </div>
