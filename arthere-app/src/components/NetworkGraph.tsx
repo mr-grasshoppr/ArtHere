@@ -82,7 +82,7 @@ export function NetworkGraph({ nodes, links }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [showArtists, setShowArtists] = useState(true);
   const [showPlaces, setShowPlaces] = useState(true);
-  const [selectedArea, setSelectedArea] = useState<string | null>(null);
+  const [selectedAreas, setSelectedAreas] = useState<Set<string>>(new Set());
   const [hover, setHover] = useState<HoverState | null>(null);
   const [neighborhoodsOpen, setNeighborhoodsOpen] = useState(false);
 
@@ -102,11 +102,12 @@ export function NetworkGraph({ nodes, links }: Props) {
     const width = container.clientWidth;
     const height = container.clientHeight;
 
-    // Artists visible when their type toggle is on and they match the selected area.
+    // Artists visible when their type toggle is on and they match one of the
+    // selected neighborhoods (any number can be selected at once).
     const visibleArtists = new Set(
       nodes
         .filter(n => n.type === 'artist' && showArtists)
-        .filter(n => selectedArea === null || n.neighborhood === selectedArea)
+        .filter(n => selectedAreas.size === 0 || (n.neighborhood !== null && selectedAreas.has(n.neighborhood)))
         .map(n => n.id)
     );
 
@@ -120,10 +121,11 @@ export function NetworkGraph({ nodes, links }: Props) {
         if (visibleArtists.has(src)) visiblePlaces.add(tgt);
         if (visibleArtists.has(tgt)) visiblePlaces.add(src);
       }
-      // Also include places whose own neighborhood matches the selected area.
-      if (selectedArea !== null) {
+      // Also include places whose own neighborhood matches one of the
+      // selected neighborhoods.
+      if (selectedAreas.size > 0) {
         nodes
-          .filter(n => n.type === 'place' && n.neighborhood === selectedArea)
+          .filter(n => n.type === 'place' && n.neighborhood !== null && selectedAreas.has(n.neighborhood))
           .forEach(n => visiblePlaces.add(n.id));
       }
     }
@@ -360,7 +362,7 @@ export function NetworkGraph({ nodes, links }: Props) {
       sim.stop();
       resizeObserver.disconnect();
     };
-  }, [nodes, links, showArtists, showPlaces, selectedArea, neighborhoods]);
+  }, [nodes, links, showArtists, showPlaces, selectedAreas, neighborhoods]);
 
   return (
     <div ref={containerRef} className="absolute inset-0 overflow-hidden">
@@ -372,15 +374,15 @@ export function NetworkGraph({ nodes, links }: Props) {
         </div>
       )}
 
-      {/* Hover card — artists get a compact, fixed-height card with their
-          bio photo as a portrait strip on the left and text to the right
-          (medium is clamped to 2 lines so a short medium like "Ceramics"
-          and a long one like "Painting, Installation, Multimedia" both
-          produce the same card height). Places get their own larger,
-          taller card with the photo as a banner across the top. */}
+      {/* Hover card — artists get a compact card with their bio photo as a
+          portrait strip on the left and text to the right. Width is generous
+          enough that most medium lists fit in 1-2 lines; text is never
+          clamped/truncated, so a card with a longer medium list just grows a
+          little taller rather than losing text. Places get their own larger
+          card with the photo as a banner across the top. */}
       {hover && hover.node.type === 'artist' ? (
         <div
-          className="fixed z-50 pointer-events-none bg-[#111] border border-[#222] rounded-lg overflow-hidden w-[200px] h-[76px] flex items-stretch shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
+          className="fixed z-50 pointer-events-none bg-[#111] border border-[#222] rounded-lg overflow-hidden w-[300px] min-h-[76px] flex items-stretch shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
           style={{ left: hover.x + 14, top: hover.y + 14 }}
         >
           {hover.node.imageUrl && (
@@ -391,7 +393,7 @@ export function NetworkGraph({ nodes, links }: Props) {
           <div className="px-3 py-2 min-w-0 flex flex-col justify-center">
             <div className="font-heading text-[0.8rem] font-bold text-white leading-tight">{hover.node.label}</div>
             {hover.node.meta && (
-              <div className="text-[0.68rem] text-[#888] leading-tight mt-0.5 line-clamp-2">{hover.node.meta}</div>
+              <div className="text-[0.68rem] text-[#888] leading-snug mt-0.5">{hover.node.meta}</div>
             )}
           </div>
         </div>
@@ -443,10 +445,10 @@ export function NetworkGraph({ nodes, links }: Props) {
             onClick={() => setNeighborhoodsOpen(o => !o)}
             className="flex items-center gap-1.5 text-[#bbb] hover:text-white transition-colors select-none cursor-pointer"
           >
-            {selectedArea ?? 'Neighborhoods'}
-            {selectedArea !== null && (
+            {selectedAreas.size === 1 ? [...selectedAreas][0] : 'Neighborhoods'}
+            {selectedAreas.size > 0 && (
               <span className="flex items-center justify-center min-w-[15px] h-[15px] px-1 rounded-full bg-[#333] text-[0.6rem] text-[#bbb]">
-                1
+                {selectedAreas.size}
               </span>
             )}
             <span
@@ -460,31 +462,38 @@ export function NetworkGraph({ nodes, links }: Props) {
 
         {neighborhoodsOpen && (
           <div className="mt-2 w-[200px] max-h-[40vh] overflow-y-auto flex flex-col gap-2 bg-[#111]/95 backdrop-blur-sm border border-[#222] rounded-lg p-3 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
-            {/* All — clears the area filter */}
+            {/* All — clears every selected neighborhood */}
             <button
               type="button"
-              onClick={() => setSelectedArea(null)}
+              onClick={() => setSelectedAreas(new Set())}
               className={`flex items-center gap-2 text-left transition-colors select-none cursor-pointer ${
-                selectedArea === null ? 'text-[#bbb]' : 'text-[#555]'
+                selectedAreas.size === 0 ? 'text-[#bbb]' : 'text-[#555]'
               }`}
             >
               <span
                 className="w-2.5 h-2.5 rounded-full border flex-shrink-0 transition-colors"
                 style={{
-                  borderColor: selectedArea === null ? '#bbb' : '#555',
-                  backgroundColor: selectedArea === null ? '#bbb' : 'transparent',
+                  borderColor: selectedAreas.size === 0 ? '#bbb' : '#555',
+                  backgroundColor: selectedAreas.size === 0 ? '#bbb' : 'transparent',
                 }}
               />
               All
             </button>
             {neighborhoods.map(n => {
               const color = colorForNeighborhood(n, neighborhoods);
-              const on = selectedArea === n;
+              const on = selectedAreas.has(n);
               return (
                 <button
                   key={n}
                   type="button"
-                  onClick={() => setSelectedArea(on ? null : n)}
+                  onClick={() =>
+                    setSelectedAreas(prev => {
+                      const next = new Set(prev);
+                      if (next.has(n)) next.delete(n);
+                      else next.add(n);
+                      return next;
+                    })
+                  }
                   className={`flex items-center gap-2 text-left transition-colors select-none cursor-pointer ${
                     on ? 'text-[#bbb]' : 'text-[#555]'
                   }`}
