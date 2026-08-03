@@ -73,7 +73,7 @@ export default async function CityArtistsPage({
   const communityOptions = [...new Set(artists.flatMap(a => a.communities))].sort();
 
   return (
-    <div className="min-h-full bg-white text-[#1a1a1a] pt-14 pb-14">
+    <div className="min-h-screen bg-white text-[#1a1a1a] pt-14 pb-14">
       <NavBar activeCitySlug={slug} theme="light" />
 
       <div className="max-w-[1400px] mx-auto px-5 sm:px-10 pt-12 pb-8 border-b border-[#f0f0f0]">

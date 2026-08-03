@@ -66,7 +66,7 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals }:
     'text-[#999] underline underline-offset-4 decoration-[#ddd] hover:text-[#1a1a1a] hover:decoration-[#aaa] transition-colors';
 
   return (
-    <div className="min-h-full bg-white text-[#1a1a1a] pt-14 pb-14">
+    <div className="min-h-screen bg-white text-[#1a1a1a] pt-14 pb-14">
       <NavBar activeCitySlug={citySlug ?? artist.city?.slug} theme="light" />
 
       {artist.isPlaceholder && (

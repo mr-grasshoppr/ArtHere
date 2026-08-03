@@ -25,7 +25,7 @@ export default async function PlaceEditPage() {
   );
 
   return (
-    <div className="min-h-full bg-white text-[#1a1a1a]">
+    <div className="min-h-screen bg-white text-[#1a1a1a]">
       <PlaceEditForm
         initialData={{
           name: place.name,

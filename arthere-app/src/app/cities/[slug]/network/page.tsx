@@ -102,7 +102,7 @@ export default async function CityNetworkPage({
   }
 
   return (
-    <div className="min-h-full bg-[#0a0a0a] text-white pt-14 pb-14">
+    <div className="min-h-screen bg-[#0a0a0a] text-white pt-14 pb-14">
       <NavBar activeCitySlug={slug} />
 
       <div className="relative" style={{ height: 'calc(100vh - 7rem)' }}>

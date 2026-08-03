@@ -170,7 +170,7 @@ export default function PlaceEditForm({
   }
 
   return (
-    <div className="min-h-full bg-white text-[#1a1a1a]">
+    <div className="min-h-screen bg-white text-[#1a1a1a]">
 
       {/* Hero */}
       <div className="relative">

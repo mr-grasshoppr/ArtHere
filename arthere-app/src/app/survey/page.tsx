@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function SurveyPage() {
   return (
-    <div className="min-h-full bg-white text-[#1a1a1a] pt-14 pb-14">
+    <div className="min-h-screen bg-white text-[#1a1a1a] pt-14 pb-14">
       <NavBar theme="light" />
 
       <SurveyPageContent />

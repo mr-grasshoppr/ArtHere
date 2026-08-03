@@ -37,7 +37,7 @@ export default async function Home() {
   const cities = allCities.filter(c => !c.slug.endsWith('-demo'));
 
   return (
-    <div className="min-h-full bg-white text-[#1a1a1a]">
+    <div className="min-h-screen bg-white text-[#1a1a1a]">
       <NavBar theme="light" />
 
       {/* Hero: logo shape with artwork sliding behind it, plus cities list */}
