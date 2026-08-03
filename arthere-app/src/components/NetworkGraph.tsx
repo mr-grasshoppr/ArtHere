@@ -151,7 +151,12 @@ export function NetworkGraph({ nodes, links }: Props) {
     // Bigger than the original dots — big enough that a face photo reads.
     const radius = (n: SimNode) => {
       const d = degree.get(n.id) ?? 0;
-      return n.type === 'artist' ? 18 + d * 2 : 16 + d * 1.5;
+      const base = n.type === 'artist' ? 18 + d * 2 : 16 + d * 1.5;
+      // Places without a page yet (a free-text venue, or one not in the
+      // curated directory) are visually de-emphasized — much smaller than
+      // places that actually link somewhere.
+      if (n.type === 'place' && !n.href) return base * 0.25;
+      return base;
     };
 
     const svg = d3.select<SVGSVGElement, unknown>(svgEl);
