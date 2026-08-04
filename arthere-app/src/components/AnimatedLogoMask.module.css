@@ -1,3 +1,11 @@
+.wrapper {
+  /* Lets .credit's font-size scale with the mask's own rendered width via
+     cqw units — this component renders anywhere from ~160px (survey/login
+     on mobile) to 520px (home), and a fixed rem size either overflows the
+     small ones or reads too tiny on the large one. */
+  container-type: inline-size;
+}
+
 .mask {
   position: relative;
   aspect-ratio: 1668 / 1457;
@@ -41,7 +49,7 @@
   right: 2.5%;
   bottom: 1%;
   font-family: var(--font-bebas), sans-serif;
-  font-size: 0.85rem;
+  font-size: clamp(0.5rem, 4.5cqw, 0.85rem);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.45);

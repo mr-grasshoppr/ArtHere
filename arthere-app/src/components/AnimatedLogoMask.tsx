@@ -79,7 +79,7 @@ export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', s
   const showImage = reducedMotion || phase === 'image';
 
   return (
-    <div className={`relative ${className}`} style={{ width }}>
+    <div className={`relative ${styles.wrapper} ${className}`} style={{ width }}>
       <div
         className={styles.mask}
         style={{
