@@ -48,8 +48,12 @@
   position: absolute;
   right: 2.5%;
   bottom: 1%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   font-family: var(--font-bebas), sans-serif;
-  font-size: clamp(0.5rem, 4.5cqw, 0.85rem);
+  font-size: clamp(0.36rem, 3cqw, 0.65rem);
+  line-height: 1.15;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.45);

@@ -77,6 +77,8 @@ export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', s
 
   const current = slides[index];
   const showImage = reducedMotion || phase === 'image';
+  const [firstName, ...restName] = current.artistName.trim().split(/\s+/);
+  const lastName = restName.join(' ');
 
   return (
     <div className={`relative ${styles.wrapper} ${className}`} style={{ width }}>
@@ -123,7 +125,8 @@ export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', s
         className={styles.credit}
         style={{ opacity: showImage ? 1 : 0, transition: reducedMotion ? 'none' : `opacity ${DISSOLVE_MS}ms ease-in-out` }}
       >
-        {current.artistName}
+        <span>{firstName}</span>
+        {lastName && <span>{lastName}</span>}
       </div>
     </div>
   );
