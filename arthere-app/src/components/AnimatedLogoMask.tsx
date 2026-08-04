@@ -81,7 +81,7 @@ export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', s
 
   const current = slides[index];
   const upNext = slides[(index + 1) % slides.length];
-  const revealed = reducedMotion || phase === 'holding' || phase === 'dissolving';
+  const revealed = reducedMotion || phase === 'revealing' || phase === 'holding' || phase === 'dissolving';
   const dissolving = !reducedMotion && phase === 'dissolving';
   const backgroundColor = dissolving ? upNext.color : current.color;
   const imageVisible = reducedMotion || phase === 'revealing' || phase === 'holding';
