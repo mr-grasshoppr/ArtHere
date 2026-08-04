@@ -82,8 +82,11 @@ export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', s
 
   const current = slides[index];
   const showImage = reducedMotion || phase === 'image';
-  const [firstName, ...restName] = current.artistName.trim().split(/\s+/);
-  const lastName = restName.join(' ');
+  // Shared by both maps below so each slide's credit label fades in lockstep
+  // with that *same* slide's own artwork layer — a single label bound to
+  // `current` would swap text the instant `index` advances, which is before
+  // the outgoing image has actually finished its own dissolve-out.
+  const isVisible = (i: number) => i === index && showImage;
 
   return (
     <div className={`relative ${styles.wrapper} ${className}`} style={{ width }}>
@@ -94,46 +97,50 @@ export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', s
           transition: reducedMotion ? 'none' : `background-color ${DISSOLVE_MS}ms ease-in-out`,
         }}
       >
-        {slides.map((slide, i) => {
-          const visible = i === index && showImage;
-          return (
+        {slides.map((slide, i) => (
+          <div
+            key={slide.id}
+            className={styles.imageLayer}
+            style={{
+              opacity: isVisible(i) ? 1 : 0,
+              transition: reducedMotion ? 'none' : `opacity ${DISSOLVE_MS}ms ease-in-out`,
+            }}
+          >
             <div
-              key={slide.id}
-              className={styles.imageLayer}
-              style={{
-                opacity: visible ? 1 : 0,
-                transition: reducedMotion ? 'none' : `opacity ${DISSOLVE_MS}ms ease-in-out`,
+              ref={(el) => {
+                panRefs.current[i] = el;
               }}
+              className={styles.panLayer}
+              style={{ '--pan-duration': `${PAN_MS}ms` } as CSSProperties}
             >
-              <div
-                ref={(el) => {
-                  panRefs.current[i] = el;
-                }}
-                className={styles.panLayer}
-                style={{ '--pan-duration': `${PAN_MS}ms` } as CSSProperties}
-              >
-                <Image
-                  src={slide.imageUrl}
-                  alt={`Artwork by ${slide.artistName}`}
-                  fill
-                  sizes="(max-width: 640px) 60vw, 520px"
-                  className="object-cover"
-                  style={focals?.get(slide.imageUrl) ?? { objectPosition: '50% 50%' }}
-                  priority={i === 0}
-                />
-              </div>
+              <Image
+                src={slide.imageUrl}
+                alt={`Artwork by ${slide.artistName}`}
+                fill
+                sizes="(max-width: 640px) 60vw, 520px"
+                className="object-cover"
+                style={focals?.get(slide.imageUrl) ?? { objectPosition: '50% 50%' }}
+                priority={i === 0}
+              />
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
 
-      <div
-        className={styles.credit}
-        style={{ opacity: showImage ? 1 : 0, transition: reducedMotion ? 'none' : `opacity ${DISSOLVE_MS}ms ease-in-out` }}
-      >
-        <span>{firstName}</span>
-        {lastName && <span>{lastName}</span>}
-      </div>
+      {slides.map((slide, i) => {
+        const [firstName, ...restName] = slide.artistName.trim().split(/\s+/);
+        const lastName = restName.join(' ');
+        return (
+          <div
+            key={slide.id}
+            className={styles.credit}
+            style={{ opacity: isVisible(i) ? 1 : 0, transition: reducedMotion ? 'none' : `opacity ${DISSOLVE_MS}ms ease-in-out` }}
+          >
+            <span>{firstName}</span>
+            {lastName && <span>{lastName}</span>}
+          </div>
+        );
+      })}
     </div>
   );
 }
