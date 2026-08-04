@@ -138,12 +138,12 @@ export default async function AdminArtistsPage({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="font-medium truncate">{a.name || <span className="text-[#bbb] italic">(no name)</span>}</span>
-                  {a.user.emailVerified && (
+                  {a.user?.emailVerified && (
                     <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">verified</span>
                   )}
                 </div>
                 <div className="text-sm text-[#888] truncate">
-                  {a.user.email} · {a.medium ?? "no medium"} · {a.neighborhood ?? "no neighborhood"}
+                  {a.user?.email ?? "no owner yet"} · {a.medium ?? "no medium"} · {a.neighborhood ?? "no neighborhood"}
                 </div>
               </div>
 

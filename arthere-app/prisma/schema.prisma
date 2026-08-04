@@ -65,7 +65,10 @@ model User {
 
 model Artist {
   id               String           @id @default(cuid())
-  userId           String           @unique
+  // Optional — an admin can create a bare profile page (e.g. a prototype to
+  // pitch an artist) before any owner account exists. The invite flow
+  // attaches a User later, the same way it already works for Place.
+  userId           String?          @unique
   slug             String           @unique
   name             String
   bio              String?          @db.Text
@@ -94,7 +97,7 @@ model Artist {
 
   cityId           String?
   city             City?            @relation(fields: [cityId], references: [id])
-  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user             User?            @relation(fields: [userId], references: [id])
   artworkImages    ArtworkImage[]
   placeRelations   ArtistPlace[]
   intake           ArtistIntake?

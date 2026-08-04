@@ -67,8 +67,10 @@ export default async function AdminArtistDetailPage({ params }: { params: Promis
             </div>
 
             <div className="text-sm space-y-1 pt-2 border-t border-[#f0f0f0]">
-              <Row label="Email" value={artist.user.email} />
-              <Row label="Verified" value={artist.user.emailVerified ? new Date(artist.user.emailVerified).toLocaleDateString() : "No"} />
+              <Row label="Email" value={artist.user?.email ?? null} />
+              {artist.user && (
+                <Row label="Verified" value={artist.user.emailVerified ? new Date(artist.user.emailVerified).toLocaleDateString() : "No"} />
+              )}
               <Row label="Medium" value={artist.medium} />
               <Row label="Neighborhood" value={artist.neighborhood} />
               <Row label="Commissions" value={commissionLabel[artist.commissionStatus]} />
@@ -133,7 +135,7 @@ export default async function AdminArtistDetailPage({ params }: { params: Promis
               >
                 View public profile ↗
               </Link>
-              <SendInviteButton artistId={artist.id} email={artist.user.email} />
+              <SendInviteButton artistId={artist.id} initialEmail={artist.user?.email ?? ""} />
             </div>
           </div>
         </div>

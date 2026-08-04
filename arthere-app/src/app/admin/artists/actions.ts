@@ -13,29 +13,18 @@ async function uniqueArtistSlug(name: string): Promise<string> {
   return slug;
 }
 
-// Deliberately creates an artist profile from admin. Unlike Place, Artist.userId
-// is required — there's no lazy/deferred-owner path — so this takes an email
-// up front and provisions (or reuses) the account immediately, the same way
-// attachPlaceUser does for organizations, just not deferrable.
-export async function createArtist(name: string, email: string): Promise<string> {
+// Deliberately creates a bare artist profile from admin — no owner account
+// required. Mirrors createOrganization: a prototype page an admin can build
+// out and share (e.g. to pitch an artist) before anyone's agreed to anything.
+// An owner email can be attached later via the invite flow.
+export async function createArtist(name: string): Promise<string> {
   await requireAdmin();
   const trimmedName = name.trim();
-  const trimmedEmail = email.trim().toLowerCase();
   if (!trimmedName) throw new Error("Name is required");
-  if (!trimmedEmail) throw new Error("An email is required to create an artist profile");
-
-  const user = await prisma.user.upsert({
-    where: { email: trimmedEmail },
-    create: { email: trimmedEmail },
-    update: {},
-  });
-  if (await prisma.artist.findUnique({ where: { userId: user.id } })) {
-    throw new Error("That email is already linked to another artist profile.");
-  }
 
   const slug = await uniqueArtistSlug(trimmedName);
   const artist = await prisma.artist.create({
-    data: { name: trimmedName, slug, userId: user.id, isPlaceholder: true },
+    data: { name: trimmedName, slug, isPlaceholder: true },
   });
   return artist.id;
 }

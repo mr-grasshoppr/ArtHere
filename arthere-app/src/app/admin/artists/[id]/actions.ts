@@ -8,16 +8,32 @@ import { snapshotArtist } from "@/lib/profile-revision";
 import { buildHireForText } from "@/lib/artist-options";
 import { normalizeNeighborhood } from "@/lib/neighborhoods";
 
+// Attaches (or reuses) an owner account for an artist that doesn't have one
+// yet — a profile created bare via "+ New artist" has no userId until an
+// admin sends an invite. Mirrors attachPlaceUser exactly.
+async function attachArtistUser(artistId: string, email: string): Promise<string> {
+  const artist = await prisma.artist.findUnique({ where: { id: artistId }, select: { userId: true } });
+  if (artist?.userId) return artist.userId;
+
+  const user = await prisma.user.upsert({ where: { email }, create: { email }, update: {} });
+  try {
+    await prisma.artist.update({ where: { id: artistId }, data: { userId: user.id } });
+  } catch {
+    throw new Error("That email is already linked to another artist profile. Use a different email.");
+  }
+  return user.id;
+}
+
 // Mints the one-time login link and the default email copy, but sends
 // nothing yet — the admin previews/edits it first (see InvitePreviewModal).
-export async function previewArtistInvite(artistId: string): Promise<InvitePreview> {
+export async function previewArtistInvite(artistId: string, email: string): Promise<InvitePreview> {
   await requireAdmin();
-  const artist = await prisma.artist.findUnique({
-    where: { id: artistId },
-    include: { user: true },
-  });
+  const clean = email.trim().toLowerCase();
+  if (!clean) throw new Error("An email is required to send an invite");
+  const artist = await prisma.artist.findUnique({ where: { id: artistId } });
   if (!artist) throw new Error("Artist not found");
-  return createArtistInvitePreview({ email: artist.user.email, artistId, artistName: artist.name });
+  await attachArtistUser(artistId, clean);
+  return createArtistInvitePreview({ email: clean, artistId, artistName: artist.name });
 }
 
 export async function sendArtistInvite(
