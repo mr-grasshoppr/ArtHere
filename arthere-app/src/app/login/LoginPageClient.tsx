@@ -4,7 +4,8 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { AnimatedLogoMask } from '@/components/AnimatedLogoMask';
+import { AnimatedLogoMask, type LogoSlideData } from '@/components/AnimatedLogoMask';
+import type { CSSProperties } from "react";
 
 const INPUT_CLASS =
   "w-full px-4 py-3 rounded-lg border border-[#e5e5e5] text-[0.95rem] text-[#1a1a1a] placeholder-[#bbb] focus:outline-none focus:border-[#1a1a1a] transition-colors bg-white";
@@ -12,7 +13,13 @@ const INPUT_CLASS =
 const BUTTON_PRIMARY =
   "w-full px-6 py-3 rounded-full bg-[#1a1a1a] text-white text-[0.9rem] font-medium transition-opacity hover:opacity-80 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer";
 
-export default function LoginPage() {
+export default function LoginPage({
+  logoSlides,
+  logoFocals,
+}: {
+  logoSlides: LogoSlideData[];
+  logoFocals: Map<string, CSSProperties>;
+}) {
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -69,7 +76,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="mb-10 text-center">
           <Link href="/" className="inline-block mb-8">
-            <AnimatedLogoMask width="min(55vw, 220px)" className="mx-auto" />
+            <AnimatedLogoMask width="min(55vw, 220px)" className="mx-auto" slides={logoSlides} focals={logoFocals} />
           </Link>
           <h1 className="font-heading text-[1.7rem] font-bold tracking-[-0.01em] leading-[1.2] mb-3">
             Join us to put artists on the map!

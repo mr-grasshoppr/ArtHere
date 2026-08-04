@@ -3,14 +3,21 @@
 import { useState } from 'react';
 import { SurveyForm } from '@/components/SurveyForm';
 import Link from 'next/link';
-import { AnimatedLogoMask } from '@/components/AnimatedLogoMask';
+import { AnimatedLogoMask, type LogoSlideData } from '@/components/AnimatedLogoMask';
+import type { CSSProperties } from 'react';
 
 /**
  * Everything below the nav bar on /survey: the intro copy, consent checkboxes,
  * and start gate — then the form itself once the respondent clicks "Start Survey".
  * After submission, swaps to a thank-you view.
  */
-export function SurveyPageContent() {
+export function SurveyPageContent({
+  logoSlides,
+  logoFocals,
+}: {
+  logoSlides: LogoSlideData[];
+  logoFocals: Map<string, CSSProperties>;
+}) {
   const [submitted, setSubmitted] = useState(false);
   const [started, setStarted] = useState(false);
   const [purposeConfirmed, setPurposeConfirmed] = useState(false);
@@ -22,7 +29,7 @@ export function SurveyPageContent() {
   if (submitted) {
     return (
       <div className="max-w-[640px] mx-auto px-5 sm:px-10 pt-14 sm:pt-20 pb-20 text-center">
-        <AnimatedLogoMask width="min(45vw, 160px)" />
+        <AnimatedLogoMask width="min(45vw, 160px)" slides={logoSlides} focals={logoFocals} />
         <h1 className="font-heading text-[clamp(2rem,5vw,2.8rem)] font-bold tracking-[-0.02em] leading-[1.15] mb-7 mt-8">
           Thank You!
         </h1>
@@ -43,7 +50,7 @@ export function SurveyPageContent() {
   if (!started) {
     return (
       <div className="max-w-[640px] mx-auto px-5 sm:px-10 pt-14 sm:pt-20 pb-20">
-        <AnimatedLogoMask width="min(45vw, 160px)" />
+        <AnimatedLogoMask width="min(45vw, 160px)" slides={logoSlides} focals={logoFocals} />
 
         <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#bbb] mb-4 mt-8">
           Art Here · Portland

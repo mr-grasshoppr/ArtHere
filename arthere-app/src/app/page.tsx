@@ -5,6 +5,7 @@ import { NavBar } from '@/components/NavBar';
 import { UsMap } from '@/components/UsMap';
 import { SiteFooter } from '@/components/SiteFooter';
 import { AnimatedLogoMask } from '@/components/AnimatedLogoMask';
+import { getLogoSlides } from '@/lib/logo-slides';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,6 +36,7 @@ const COMING_SOON_CITY_DATA: { label: string; code: string }[] = [
 export default async function Home() {
   const allCities = await getCachedCities();
   const cities = allCities.filter(c => !c.slug.endsWith('-demo'));
+  const { slides: logoSlides, focals: logoFocals } = await getLogoSlides();
 
   return (
     <div className="min-h-screen bg-white text-[#1a1a1a]">
@@ -42,7 +44,7 @@ export default async function Home() {
 
       {/* Hero: logo shape with artwork sliding behind it, plus cities list */}
       <section className="min-h-[80vh] sm:min-h-0 flex flex-col items-center justify-center px-5 pt-24 pb-16">
-        <AnimatedLogoMask width="min(60vw, 520px)" />
+        <AnimatedLogoMask width="min(60vw, 520px)" slides={logoSlides} focals={logoFocals} />
 
         <div className="mt-9 flex flex-col items-start gap-1">
           {cities.map(city => {
