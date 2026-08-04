@@ -3,6 +3,7 @@ import { requireAdminPage } from "@/lib/admin";
 import Link from "next/link";
 import ArtistCharts from "./ArtistCharts";
 import VisibilityToggle from "./VisibilityToggle";
+import NewArtistForm from "./NewArtistForm";
 import { mediumMatches, parseMediumList } from "@/lib/artist-options";
 
 function tally(values: (string | null)[], total: number) {
@@ -96,6 +97,10 @@ export default async function AdminArtistsPage({
             Export CSV
           </a>
         </div>
+      </div>
+
+      <div className="mb-6">
+        <NewArtistForm />
       </div>
 
       {allArtists.length > 0 && (
