@@ -26,13 +26,15 @@
   overflow: hidden;
 }
 
-/* Separate from .imageLayer (which only handles the opacity crossfade) so
-   remounting this one to restart the pan keyframe on each new turn never
-   disturbs the opacity transition running on its stable-keyed parent. */
+/* Separate from .imageLayer (which only handles the opacity crossfade) —
+   this node is never unmounted; its pan animation is restarted in place
+   (JS: remove .panning, force reflow, re-add) so the <Image> underneath is
+   never torn down mid-crossfade. Neutral/centered at rest — .panning's own
+   `from` keyframe is what actually sets the pan's start position. */
 .panLayer {
   position: absolute;
   inset: 0;
-  transform: translateX(6%) scale(1.12);
+  transform: scale(1.05);
 }
 
 .panning {

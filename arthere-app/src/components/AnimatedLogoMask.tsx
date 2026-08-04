@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import Image from 'next/image';
 import styles from './AnimatedLogoMask.module.css';
@@ -43,12 +43,12 @@ const PAN_MS = IMAGE_HOLD_MS + DISSOLVE_MS;
 export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', slides, focals }: Props) {
   const [index, setIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>('color');
-  // Bumped exactly once per slide, right as it starts becoming visible — used
-  // to key-remount its pan layer so the CSS keyframe restarts from `from`
-  // every turn instead of reversing mid-flight (a `transition`-based target
-  // that just flips back and forth would visibly reverse direction).
-  const [turn, setTurn] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
+  // One stable DOM node per slide holds the pan animation — restarted in
+  // place (remove class, force reflow, re-add) rather than via a changing
+  // React `key`, which would unmount/remount the <Image> underneath and
+  // could flash right at the crossfade boundary.
+  const panRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     setReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -63,11 +63,16 @@ export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', s
         setPhase('color');
       } else {
         setPhase('image');
-        setTurn((t) => t + 1);
+        const el = panRefs.current[index];
+        if (el) {
+          el.classList.remove(styles.panning);
+          void el.offsetWidth; // force reflow so the re-add below is a fresh animation run, not a no-op
+          el.classList.add(styles.panning);
+        }
       }
     }, duration);
     return () => clearTimeout(timer);
-  }, [phase, slides.length, reducedMotion]);
+  }, [phase, slides.length, reducedMotion, index]);
 
   if (slides.length === 0) {
     // Matches the old placeholder state so nothing looks broken with an
@@ -90,8 +95,7 @@ export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', s
         }}
       >
         {slides.map((slide, i) => {
-          const isCurrent = i === index;
-          const visible = isCurrent && showImage;
+          const visible = i === index && showImage;
           return (
             <div
               key={slide.id}
@@ -102,8 +106,10 @@ export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', s
               }}
             >
               <div
-                key={isCurrent ? `pan-${turn}` : 'idle'}
-                className={isCurrent && !reducedMotion ? `${styles.panLayer} ${styles.panning}` : styles.panLayer}
+                ref={(el) => {
+                  panRefs.current[i] = el;
+                }}
+                className={styles.panLayer}
                 style={{ '--pan-duration': `${PAN_MS}ms` } as CSSProperties}
               >
                 <Image
