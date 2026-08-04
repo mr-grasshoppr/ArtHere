@@ -82,7 +82,6 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals }: P
       {(place.description || place.quote || place.website) && (
         <section className="max-w-[980px] mx-auto px-5 sm:px-10 pt-7 pb-10">
           <div className="max-w-[680px] text-[1.05rem] text-[#444] font-light leading-[1.8]">
-            {place.description && <p className="mb-[18px]">{place.description}</p>}
             {place.quote && (
               <blockquote className="italic border-l-2 border-[#ccc] pl-5 mb-[18px] text-[#888] text-[0.92rem]">
                 &ldquo;{place.quote}&rdquo;
@@ -91,6 +90,7 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals }: P
                 )}
               </blockquote>
             )}
+            {place.description && <p className="mb-[18px]">{place.description}</p>}
             {place.website && (
               <p className="text-[#999] text-[0.9rem]">
                 <a

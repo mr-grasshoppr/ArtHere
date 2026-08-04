@@ -7,6 +7,7 @@ import { FramingButton } from "@/components/FramingButton";
 import { PhotoGrid } from "@/components/PhotoGrid";
 import { focalStyle, type Focal } from "@/lib/focal-style";
 import type { FramingValue } from "@/components/FramingEditor";
+import { resizeImageForUpload } from "@/lib/client-image-resize";
 
 type Org = {
   id: string;
@@ -30,7 +31,7 @@ const labelCls = "block text-xs text-[#888] uppercase tracking-wide mb-1.5";
 
 async function uploadBlob(file: File): Promise<string> {
   const form = new FormData();
-  form.append("file", file);
+  form.append("file", await resizeImageForUpload(file));
   form.append("prefix", "places");
   const res = await fetch("/api/admin/upload/blob", { method: "POST", body: form });
   if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? "Upload failed");

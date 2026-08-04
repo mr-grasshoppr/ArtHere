@@ -53,10 +53,17 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals }:
     cityDisplayName,
   ].filter(Boolean);
 
-  const bioParagraphs = (artist.bio ?? '')
+  const isQuoteParagraph = (p: string) => /^["“]/.test(p) && /["”]$/.test(p);
+  const bioParagraphsRaw = (artist.bio ?? '')
     .split(/\n\s*\n/)
     .map(p => p.trim())
     .filter(Boolean);
+  // Pull quotes render above the rest of the bio regardless of where they
+  // fall in the original text.
+  const bioParagraphs = [
+    ...bioParagraphsRaw.filter(isQuoteParagraph),
+    ...bioParagraphsRaw.filter(p => !isQuoteParagraph(p)),
+  ];
 
   const placeHref = (slug: string) =>
     citySlug ? `/cities/${citySlug}/places/${slug}` : `/places/${slug}`;
@@ -131,8 +138,7 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals }:
         <section className="max-w-[980px] mx-auto px-5 sm:px-10 pt-7 pb-10">
           <div className="max-w-[680px] text-[1.05rem] text-[#444] font-light leading-[1.8]">
             {bioParagraphs.map((p, i) => {
-              const isQuote = /^["“]/.test(p) && /["”]$/.test(p);
-              if (isQuote) {
+              if (isQuoteParagraph(p)) {
                 return (
                   <blockquote
                     key={i}

@@ -7,6 +7,7 @@ import { FramingButton } from '@/components/FramingButton';
 import { PhotoGrid } from '@/components/PhotoGrid';
 import { focalStyle, type Focal } from '@/lib/focal-style';
 import type { FramingValue } from '@/components/FramingEditor';
+import { resizeImageForUpload } from '@/lib/client-image-resize';
 
 interface Artist {
   slug: string;
@@ -72,7 +73,7 @@ export default function PlaceEditForm({
 
   async function uploadFile(file: File, isHero = false) {
     const form = new FormData();
-    form.append('file', file);
+    form.append('file', await resizeImageForUpload(file));
     if (isHero) form.append('isHero', 'true');
     const res = await fetch('/api/upload', { method: 'POST', body: form });
     if (!res.ok) throw new Error('Upload failed');

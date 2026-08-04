@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FramingButton } from "@/components/FramingButton";
 import { focalStyle, type Focal } from "@/lib/focal-style";
 import type { FramingValue } from "@/components/FramingEditor";
+import { resizeImageForUpload } from "@/lib/client-image-resize";
 
 type InitialData = {
   name: string; medium: string; neighborhood: string; bio: string;
@@ -215,7 +216,7 @@ export default function OnboardingForm({
 
   async function uploadFile(file: File, fields: Record<string, string>) {
     const form = new FormData();
-    form.append("file", file);
+    form.append("file", await resizeImageForUpload(file));
     for (const [k, v] of Object.entries(fields)) form.append(k, v);
     return fetch("/api/upload", { method: "POST", body: form });
   }
