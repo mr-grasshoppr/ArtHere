@@ -6,6 +6,7 @@ import { FramingButton } from "@/components/FramingButton";
 import { focalStyle, type Focal } from "@/lib/focal-style";
 import type { FramingValue } from "@/components/FramingEditor";
 import { MEDIUM_OPTIONS } from "@/lib/artist-options";
+import { resizeImageForUpload } from "@/lib/client-image-resize";
 
 type Image = {
   id: string;
@@ -60,11 +61,17 @@ export default function AdminImageManager({
     setUploading(true);
     setError("");
 
+    // Tracked locally (not read from `images` state) because a multi-file
+    // batch runs through this loop before any state update lands — reading
+    // `images.length` per-iteration would see the same stale snapshot for
+    // every file and mark them all as hero.
+    let hasHero = images.some((img) => img.isHero);
+
     for (const file of files) {
       const form = new FormData();
-      form.append("file", file);
+      form.append("file", await resizeImageForUpload(file));
       form.append("artistId", artistId);
-      form.append("isHero", images.length === 0 ? "true" : "false");
+      form.append("isHero", hasHero ? "false" : "true");
       try {
         const res = await fetch("/api/admin/upload", { method: "POST", body: form });
         if (!res.ok) {
@@ -72,6 +79,7 @@ export default function AdminImageManager({
           setError(err.error ?? "Upload failed");
         } else {
           const data = await res.json();
+          if (data.isHero) hasHero = true;
           setImages((prev) => [
             ...prev,
             { id: data.id, url: data.url, altText: null, isHero: data.isHero, sortOrder: prev.length, medium: [] },
@@ -93,7 +101,7 @@ export default function AdminImageManager({
     setError("");
 
     const form = new FormData();
-    form.append("file", file);
+    form.append("file", await resizeImageForUpload(file));
     form.append("artistId", artistId);
     form.append("isBioPhoto", "true");
 
