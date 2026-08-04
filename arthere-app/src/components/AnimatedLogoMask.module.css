@@ -19,11 +19,13 @@
 
 .credit {
   position: absolute;
-  right: 3%;
-  bottom: 0;
-  font-size: 0.62rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  /* Left-justified under the "R" of "HERE" (the mask's bottom row reads
+     H-E-R-E across the full width, so the R starts a touch past center). */
+  left: 52%;
+  bottom: 1%;
+  font-family: var(--font-bebas), sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #999;
   white-space: nowrap;

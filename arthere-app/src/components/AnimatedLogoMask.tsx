@@ -21,35 +21,23 @@ interface Props {
   focals?: Map<string, CSSProperties>;
 }
 
-type Phase = 'color' | 'revealing' | 'holding' | 'dissolving';
+type Phase = 'color' | 'image';
 
-const COLOR_HOLD_MS = 1000;
-const REVEAL_MS = 1400;
-const IMAGE_HOLD_MS = 4200;
-const DISSOLVE_MS = 1100;
-const NAME_FADE_MS = 500;
-
-const PHASE_DURATION: Record<Phase, number> = {
-  color: COLOR_HOLD_MS,
-  revealing: REVEAL_MS,
-  holding: IMAGE_HOLD_MS,
-  dissolving: DISSOLVE_MS,
-};
-
-const NEXT_PHASE: Record<Phase, Phase> = {
-  color: 'revealing',
-  revealing: 'holding',
-  holding: 'dissolving',
-  dissolving: 'color', // handled specially below — also advances the slide index
-};
+const COLOR_HOLD_MS = 1200;
+const IMAGE_HOLD_MS = 5000;
+const DISSOLVE_MS = 1200;
+// The pan runs for the image's whole visible window (dissolve-in + hold +
+// dissolve-out) so it reads as one continuous right-to-left drift, not a
+// hold with a separate motion segment.
+const PAN_MS = IMAGE_HOLD_MS + DISSOLVE_MS;
 
 /**
  * The masked "ART HERE" mark, cycling through admin-managed slides: solid
- * color -> left-to-right wipe reveals the slide's artwork -> hold -> dissolve
- * into the *next* slide's color -> repeat. All slide images render at once
- * (each an absolutely-positioned layer, hidden via clip-path/opacity) so the
- * browser has them cached well before their turn comes up — no load-triggered
- * flash mid-animation.
+ * color dissolves into the slide's artwork (which drifts right-to-left the
+ * whole time it's visible), holds, then dissolves into the *next* slide's
+ * color, and repeats. All slide images render at once (each an absolutely-
+ * positioned layer, hidden via opacity) so the browser has them cached well
+ * before their turn comes up — no load-triggered flash mid-animation.
  */
 export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', slides, focals }: Props) {
   const [index, setIndex] = useState(0);
@@ -62,14 +50,15 @@ export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', s
 
   useEffect(() => {
     if (slides.length === 0 || reducedMotion) return;
+    const duration = phase === 'color' ? COLOR_HOLD_MS : IMAGE_HOLD_MS;
     const timer = setTimeout(() => {
-      if (phase === 'dissolving') {
+      if (phase === 'image') {
         setIndex((i) => (i + 1) % slides.length);
         setPhase('color');
       } else {
-        setPhase(NEXT_PHASE[phase]);
+        setPhase('image');
       }
-    }, PHASE_DURATION[phase]);
+    }, duration);
     return () => clearTimeout(timer);
   }, [phase, slides.length, reducedMotion]);
 
@@ -80,29 +69,29 @@ export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', s
   }
 
   const current = slides[index];
-  const upNext = slides[(index + 1) % slides.length];
-  const revealed = reducedMotion || phase === 'revealing' || phase === 'holding' || phase === 'dissolving';
-  const dissolving = !reducedMotion && phase === 'dissolving';
-  const backgroundColor = dissolving ? upNext.color : current.color;
-  const imageVisible = reducedMotion || phase === 'revealing' || phase === 'holding';
+  const showImage = reducedMotion || phase === 'image';
 
   return (
     <div className={`relative ${className}`} style={{ width }}>
-      <div className={styles.mask} style={{ backgroundColor, transition: `background-color ${DISSOLVE_MS}ms ease-in-out` }}>
+      <div
+        className={styles.mask}
+        style={{
+          backgroundColor: current.color,
+          transition: reducedMotion ? 'none' : `background-color ${DISSOLVE_MS}ms ease-in-out`,
+        }}
+      >
         {slides.map((slide, i) => {
-          const isCurrent = i === index;
-          const layerRevealed = isCurrent && revealed;
-          const layerOpacity = isCurrent && !dissolving ? 1 : 0;
+          const visible = i === index && showImage;
           return (
             <div
               key={slide.id}
               className={styles.imageLayer}
               style={{
-                clipPath: layerRevealed ? 'inset(0 0 0 0)' : 'inset(0 100% 0 0)',
-                opacity: layerOpacity,
+                opacity: visible ? 1 : 0,
+                transform: visible ? 'translateX(-4%) scale(1.12)' : 'translateX(4%) scale(1.12)',
                 transition: reducedMotion
                   ? 'none'
-                  : `clip-path ${REVEAL_MS}ms ease-in-out, opacity ${DISSOLVE_MS}ms ease-in-out`,
+                  : `opacity ${DISSOLVE_MS}ms ease-in-out, transform ${PAN_MS}ms linear`,
               }}
             >
               <Image
@@ -121,7 +110,7 @@ export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', s
 
       <div
         className={styles.credit}
-        style={{ opacity: imageVisible ? 1 : 0, transition: reducedMotion ? 'none' : `opacity ${NAME_FADE_MS}ms ease-in-out` }}
+        style={{ opacity: showImage ? 1 : 0, transition: reducedMotion ? 'none' : `opacity ${DISSOLVE_MS}ms ease-in-out` }}
       >
         {current.artistName}
       </div>
