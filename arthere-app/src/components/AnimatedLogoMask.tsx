@@ -33,15 +33,21 @@ const PAN_MS = IMAGE_HOLD_MS + DISSOLVE_MS;
 
 /**
  * The masked "ART HERE" mark, cycling through admin-managed slides: solid
- * color dissolves into the slide's artwork (which drifts right-to-left the
- * whole time it's visible), holds, then dissolves into the *next* slide's
- * color, and repeats. All slide images render at once (each an absolutely-
- * positioned layer, hidden via opacity) so the browser has them cached well
- * before their turn comes up — no load-triggered flash mid-animation.
+ * color dissolves into the slide's artwork (which drifts right-to-left at a
+ * constant speed the whole time it's visible), holds, then dissolves into
+ * the *next* slide's color, and repeats. All slide images render at once
+ * (each an absolutely-positioned layer, hidden via opacity) so the browser
+ * has them cached well before their turn comes up — no load-triggered flash
+ * mid-animation.
  */
 export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', slides, focals }: Props) {
   const [index, setIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>('color');
+  // Bumped exactly once per slide, right as it starts becoming visible — used
+  // to key-remount its pan layer so the CSS keyframe restarts from `from`
+  // every turn instead of reversing mid-flight (a `transition`-based target
+  // that just flips back and forth would visibly reverse direction).
+  const [turn, setTurn] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
@@ -57,6 +63,7 @@ export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', s
         setPhase('color');
       } else {
         setPhase('image');
+        setTurn((t) => t + 1);
       }
     }, duration);
     return () => clearTimeout(timer);
@@ -81,28 +88,32 @@ export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', s
         }}
       >
         {slides.map((slide, i) => {
-          const visible = i === index && showImage;
+          const isCurrent = i === index;
+          const visible = isCurrent && showImage;
           return (
             <div
               key={slide.id}
               className={styles.imageLayer}
               style={{
                 opacity: visible ? 1 : 0,
-                transform: visible ? 'translateX(-4%) scale(1.12)' : 'translateX(4%) scale(1.12)',
-                transition: reducedMotion
-                  ? 'none'
-                  : `opacity ${DISSOLVE_MS}ms ease-in-out, transform ${PAN_MS}ms linear`,
+                transition: reducedMotion ? 'none' : `opacity ${DISSOLVE_MS}ms ease-in-out`,
               }}
             >
-              <Image
-                src={slide.imageUrl}
-                alt={`Artwork by ${slide.artistName}`}
-                fill
-                sizes="(max-width: 640px) 60vw, 520px"
-                className="object-cover"
-                style={focals?.get(slide.imageUrl) ?? { objectPosition: '50% 50%' }}
-                priority={i === 0}
-              />
+              <div
+                key={isCurrent ? `pan-${turn}` : 'idle'}
+                className={isCurrent && !reducedMotion ? `${styles.panLayer} ${styles.panning}` : styles.panLayer}
+                style={{ '--pan-duration': `${PAN_MS}ms` } as CSSProperties}
+              >
+                <Image
+                  src={slide.imageUrl}
+                  alt={`Artwork by ${slide.artistName}`}
+                  fill
+                  sizes="(max-width: 640px) 60vw, 520px"
+                  className="object-cover"
+                  style={focals?.get(slide.imageUrl) ?? { objectPosition: '50% 50%' }}
+                  priority={i === 0}
+                />
+              </div>
             </div>
           );
         })}

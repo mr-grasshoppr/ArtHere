@@ -15,19 +15,36 @@
 .imageLayer {
   position: absolute;
   inset: 0;
+  overflow: hidden;
+}
+
+/* Separate from .imageLayer (which only handles the opacity crossfade) so
+   remounting this one to restart the pan keyframe on each new turn never
+   disturbs the opacity transition running on its stable-keyed parent. */
+.panLayer {
+  position: absolute;
+  inset: 0;
+  transform: translateX(6%) scale(1.12);
+}
+
+.panning {
+  animation: pan var(--pan-duration, 6200ms) linear forwards;
+}
+
+@keyframes pan {
+  from { transform: translateX(6%) scale(1.12); }
+  to   { transform: translateX(-6%) scale(1.12); }
 }
 
 .credit {
   position: absolute;
-  /* Left-justified under the "R" of "HERE" (the mask's bottom row reads
-     H-E-R-E across the full width, so the R starts a touch past center). */
-  left: 52%;
+  right: 2.5%;
   bottom: 1%;
   font-family: var(--font-bebas), sans-serif;
   font-size: 0.85rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #999;
+  color: rgba(255, 255, 255, 0.45);
   white-space: nowrap;
   pointer-events: none;
 }
@@ -35,5 +52,9 @@
 @media (prefers-reduced-motion: reduce) {
   .imageLayer {
     transition: none !important;
+  }
+  .panning {
+    animation: none;
+    transform: none;
   }
 }
