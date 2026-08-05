@@ -169,7 +169,7 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals }:
       {/* Places */}
       {artist.placeRelations.length > 0 && (
         <section className="max-w-[980px] mx-auto px-5 sm:px-10 pb-12">
-          <div className="text-[0.75rem] uppercase tracking-[0.18em] text-[#999] mb-3">Places</div>
+          <div className="text-[0.75rem] uppercase tracking-[0.18em] text-[#999] mb-3">Community Connections</div>
           <div className="flex flex-wrap gap-x-6 gap-y-2 items-baseline">
             {artist.placeRelations.map(rel => {
               // A relation is either a real page (rel.place) or a free-text
