@@ -6,6 +6,7 @@ import ArtistNotes from "./ArtistNotes";
 import ArtistImages from "./ArtistImages";
 import { SendInviteButton } from "./SendInviteButton";
 import { linkTypeLabel } from "@/lib/artist-options";
+import VisibilityToggle from "../VisibilityToggle";
 
 export default async function AdminArtistDetailPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdminPage();
@@ -47,6 +48,21 @@ export default async function AdminArtistDetailPage({ params }: { params: Promis
           Edit profile
         </Link>
       </div>
+
+      {artist.submittedForReviewAt && (
+        <div className="mb-6 flex items-center justify-between gap-4 bg-amber-50 border border-amber-200 rounded-lg px-5 py-3">
+          <p className="text-sm text-amber-800">
+            <span className="font-medium">Ready for review</span> — submitted{" "}
+            {new Date(artist.submittedForReviewAt).toLocaleString("en-US", {
+              month: "short",
+              day: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
+            })}
+          </p>
+          <VisibilityToggle artistId={artist.id} isPlaceholder={artist.isPlaceholder} />
+        </div>
+      )}
 
       <div className="grid md:grid-cols-3 gap-8">
         {/* Left: profile info */}

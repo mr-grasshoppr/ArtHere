@@ -36,7 +36,14 @@ export async function createArtist(name: string): Promise<string> {
  */
 export async function setArtistPlaceholder(artistId: string, isPlaceholder: boolean) {
   await requireAdmin();
-  await prisma.artist.update({ where: { id: artistId }, data: { isPlaceholder } });
+  await prisma.artist.update({
+    where: { id: artistId },
+    data: {
+      isPlaceholder,
+      // Publishing consumes the pending review request, if any.
+      ...(isPlaceholder ? {} : { submittedForReviewAt: null }),
+    },
+  });
   // The admin list and the public city pages both read this flag.
   revalidatePath("/admin/artists");
   revalidatePath("/cities/portland");

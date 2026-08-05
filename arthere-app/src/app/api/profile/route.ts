@@ -101,20 +101,25 @@ export async function POST(req: NextRequest) {
     priceRangeMax: num(priceRangeMax),
     sizeRangeMin: num(sizeRangeMin),
     sizeRangeMax: num(sizeRangeMax),
-    isPlaceholder: false,
   };
 
   let artist;
   if (existing) {
+    // isPlaceholder is deliberately left untouched here — autosave must never
+    // flip a profile live. Only an admin publish (setArtistPlaceholder) or
+    // the initial create below does that.
     artist = await prisma.artist.update({
       where: { id: existing.id },
       data: artistData,
     });
   } else {
+    // A brand-new profile starts unpublished, pending admin review — see
+    // "Submit for review" in OnboardingForm / api/profile/submit-for-review.
     try {
       artist = await prisma.artist.create({
         data: {
           ...artistData,
+          isPlaceholder: true,
           slug,
           userId: session.user.id,
         },
@@ -125,6 +130,7 @@ export async function POST(req: NextRequest) {
       artist = await prisma.artist.create({
         data: {
           ...artistData,
+          isPlaceholder: true,
           slug: `${baseSlug}-${Math.random().toString(36).slice(2, 8)}`,
           userId: session.user.id,
         },

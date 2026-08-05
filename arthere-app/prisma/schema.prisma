@@ -92,6 +92,11 @@ model Artist {
   hireFor          String?          @db.Text
   hireTags         Json?
   isPlaceholder    Boolean          @default(false)
+  // Set when the artist clicks "Submit for review" on their edit page — a
+  // deliberate signal distinct from autosave. Cleared when an admin
+  // publishes the profile (setArtistPlaceholder). Only meaningful while
+  // isPlaceholder is true; publishing "consumes" the request.
+  submittedForReviewAt DateTime?
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 

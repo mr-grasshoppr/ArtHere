@@ -15,6 +15,8 @@ type InitialData = {
   sizeRangeMin: number | null; sizeRangeMax: number | null;
   images: { id: string; url: string; isHero: boolean }[];
   placeRelations: { placeName: string; relationship: string }[];
+  isPlaceholder: boolean;
+  submittedForReviewAt: string | null;
 } | null;
 
 const COMMISSION_OPTIONS = [
@@ -141,10 +143,17 @@ export default function OnboardingForm({
   const [uploadingBio, setUploadingBio] = useState(false);
   const [uploadError, setUploadError] = useState("");
 
-  const [, setHasArtist] = useState(!!initialData);
+  const [hasArtist, setHasArtist] = useState(!!initialData);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [finishing, setFinishing] = useState(false);
+
+  // Publish gating — a brand-new profile (no initialData yet) will become a
+  // placeholder the moment it's first saved (see api/profile/route.ts), so
+  // default to true rather than leaving this undefined pre-save.
+  const [isPlaceholder] = useState(initialData?.isPlaceholder ?? true);
+  const [reviewSubmittedAt, setReviewSubmittedAt] = useState<string | null>(initialData?.submittedForReviewAt ?? null);
+  const [submittingReview, setSubmittingReview] = useState(false);
 
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -300,6 +309,23 @@ export default function OnboardingForm({
     router.push("/profile");
   }
 
+  // Deliberate "I'm done, please look at this" signal — separate from
+  // autosave so it isn't fired on every keystroke. Saves first so the admin
+  // reviews what was actually just typed, not a stale version.
+  async function handleSubmitForReview() {
+    setSubmittingReview(true);
+    try {
+      await persist();
+      const res = await fetch("/api/profile/submit-for-review", { method: "POST" });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? "Something went wrong.");
+      setReviewSubmittedAt(new Date().toISOString());
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : "Something went wrong.");
+      setSaveStatus("error");
+    }
+    setSubmittingReview(false);
+  }
+
   return (
     <div>
       {/* ── Top bar ──────────────────────────────────────────────────── */}
@@ -309,6 +335,28 @@ export default function OnboardingForm({
           {saveStatus === "saving" && <span className="text-[#999] text-xs">Saving…</span>}
           {saveStatus === "saved" && <span className="text-[#999] text-xs">Saved</span>}
           {saveStatus === "error" && <span className="text-red-500 text-xs">{errorMsg}</span>}
+          {isPlaceholder && hasArtist && (
+            reviewSubmittedAt ? (
+              <button
+                type="button"
+                onClick={handleSubmitForReview}
+                disabled={submittingReview}
+                className="text-xs px-3 py-1.5 rounded-full border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors disabled:opacity-50"
+                title="Submitted — click to notify Art Here again after further changes"
+              >
+                {submittingReview ? "Sending…" : "✓ Submitted for review"}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSubmitForReview}
+                disabled={submittingReview}
+                className="text-xs px-4 py-2 rounded-full border border-[#1a1a1a] text-[#1a1a1a] font-medium hover:bg-[#1a1a1a] hover:text-white transition-colors disabled:opacity-50"
+              >
+                {submittingReview ? "Submitting…" : "Submit for review"}
+              </button>
+            )
+          )}
           <button type="button" onClick={handleFinish} disabled={finishing} className={BTN}>
             {finishing ? "Saving…" : "Done"}
           </button>

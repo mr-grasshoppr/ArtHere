@@ -49,6 +49,8 @@ export default async function OnboardingPage() {
     sizeRangeMax: a.sizeRangeMax,
     images: a.artworkImages.map((img) => ({ id: img.id, url: img.url, isHero: img.isHero })),
     placeRelations: a.placeRelations.map((r) => ({ placeName: r.place?.name ?? r.venueName ?? '', relationship: r.relationship })),
+    isPlaceholder: a.isPlaceholder,
+    submittedForReviewAt: a.submittedForReviewAt?.toISOString() ?? null,
   } : null;
 
   return (

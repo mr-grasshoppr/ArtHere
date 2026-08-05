@@ -51,11 +51,13 @@ export default async function AdminArtistsPage({
           if (activeField === "medium") return mediumMatches(a.medium, activeValue);
           if (activeField === "neighborhood") return a.neighborhood === activeValue;
           if (activeField === "placeholder") return String(a.isPlaceholder) === activeValue;
+          if (activeField === "needsReview") return a.submittedForReviewAt != null;
           return true;
         })
       : allArtists;
 
   const liveCount = allArtists.filter((a) => !a.isPlaceholder).length;
+  const needsReviewCount = allArtists.filter((a) => a.submittedForReviewAt != null).length;
   const countLabel = activeField && activeValue
     ? `${artists.length} of ${allArtists.length}`
     : `${allArtists.length}`;
@@ -67,9 +69,21 @@ export default async function AdminArtistsPage({
           <h1 className="text-2xl font-medium">Artist Profiles</h1>
           <span className="text-sm text-[#888]">{countLabel} profiles</span>
           <span className="text-sm text-green-700">{liveCount} live</span>
+          {needsReviewCount > 0 && (
+            <Link
+              href="/admin/artists?field=needsReview&value=true"
+              className="text-sm text-amber-700 hover:underline"
+            >
+              {needsReviewCount} awaiting review
+            </Link>
+          )}
           {activeField && activeValue && (
             <span className="text-sm bg-[#f0f0f0] px-2 py-0.5 rounded-full text-[#555]">
-              {activeField === "placeholder" ? (activeValue === "true" ? "Placeholder" : "Real") : activeValue}
+              {activeField === "placeholder"
+                ? (activeValue === "true" ? "Placeholder" : "Real")
+                : activeField === "needsReview"
+                ? "Awaiting review"
+                : activeValue}
               <Link href="/admin/artists" className="ml-1.5 text-[#bbb] hover:text-[#555]">✕</Link>
             </span>
           )}
@@ -88,6 +102,14 @@ export default async function AdminArtistsPage({
             >
               Real
             </Link>
+            {needsReviewCount > 0 && (
+              <Link
+                href="/admin/artists?field=needsReview&value=true"
+                className={`px-3 py-1.5 rounded-full border transition-colors ${activeField === "needsReview" ? "bg-amber-50 border-amber-300 text-amber-700" : "border-[#e5e5e5] text-[#888] hover:border-[#999]"}`}
+              >
+                Needs review
+              </Link>
+            )}
           </div>
           <a
             href="/api/admin/export/artists"
@@ -140,6 +162,14 @@ export default async function AdminArtistsPage({
                   <span className="font-medium truncate">{a.name || <span className="text-[#bbb] italic">(no name)</span>}</span>
                   {a.user?.emailVerified && (
                     <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">verified</span>
+                  )}
+                  {a.submittedForReviewAt && (
+                    <span
+                      className="text-xs bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded flex-shrink-0"
+                      title={`Submitted for review ${new Date(a.submittedForReviewAt).toLocaleString()}`}
+                    >
+                      Needs review
+                    </span>
                   )}
                 </div>
                 <div className="text-sm text-[#888] truncate">
