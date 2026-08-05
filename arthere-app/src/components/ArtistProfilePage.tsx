@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
-import type { Artist, ArtworkImage, ArtistPlace, ArtistLink, Place, City } from '@prisma/client';
+import type { Artist, ArtworkImage, ArtistPlace, ArtistOtherConnection, ArtistLink, Place, City } from '@prisma/client';
 import { NavBar } from '@/components/NavBar';
 import { CityBottomBar } from '@/components/CityBottomBar';
 import { SiteFooter } from '@/components/SiteFooter';
@@ -12,6 +12,7 @@ import { linkTypeLabel } from '@/lib/artist-options';
 export type ArtistWithProfile = Artist & {
   artworkImages: ArtworkImage[];
   placeRelations: (ArtistPlace & { place: Place | null })[];
+  otherConnections: ArtistOtherConnection[];
   links: ArtistLink[];
   city: City | null;
 };
@@ -186,14 +187,14 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals }:
         </section>
       )}
 
-      {/* Other affiliations */}
-      {artist.otherAffiliations.length > 0 && (
+      {/* Other connections */}
+      {artist.otherConnections.length > 0 && (
         <section className="max-w-[980px] mx-auto px-5 sm:px-10 pb-12">
-          <div className="text-[0.75rem] uppercase tracking-[0.18em] text-[#999] mb-3">Other Affiliations</div>
+          <div className="text-[0.75rem] uppercase tracking-[0.18em] text-[#999] mb-3">Other Connections</div>
           <div className="flex flex-wrap gap-x-6 gap-y-2 items-baseline">
-            {artist.otherAffiliations.map((affiliation, i) => (
-              <span key={i} className="text-[0.85rem] text-[#aaa] font-light">
-                {affiliation}
+            {artist.otherConnections.map((conn) => (
+              <span key={conn.id} className="text-[0.85rem] text-[#aaa] font-light">
+                {conn.name}
               </span>
             ))}
           </div>

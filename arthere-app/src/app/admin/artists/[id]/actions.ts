@@ -60,7 +60,7 @@ type ProfileInput = {
   name: string;
   bio: string;
   quote: string;
-  otherAffiliations: string[];
+  otherConnections: { name: string; relationship: string; relationshipLabel?: string }[];
   medium: string;
   neighborhood: string;
   offerings: string[];
@@ -77,13 +77,27 @@ export async function updateArtistProfile(artistId: string, data: ProfileInput) 
       name: data.name.trim(),
       bio: data.bio.trim() || null,
       quote: data.quote.trim() || null,
-      otherAffiliations: data.otherAffiliations.map((a) => a.trim()).filter(Boolean),
       medium: data.medium.trim() || null,
       neighborhood: data.neighborhood.trim() ? normalizeNeighborhood(data.neighborhood.trim()) : null,
       offerings: data.offerings.map((o) => o.trim()).filter(Boolean),
       hireFor: buildHireForText(data.offerings),
     },
   });
+
+  // Replace all other connections.
+  await prisma.artistOtherConnection.deleteMany({ where: { artistId } });
+  const validConnections = data.otherConnections.filter((c) => c.name.trim() && c.relationship);
+  if (validConnections.length > 0) {
+    await prisma.artistOtherConnection.createMany({
+      data: validConnections.map((c, i) => ({
+        artistId,
+        name: c.name.trim(),
+        relationship: c.relationship as PlaceRelationship,
+        relationshipLabel: c.relationshipLabel?.trim() || null,
+        sortOrder: i,
+      })),
+    });
+  }
 
   // Replace all place relations — the editor now manages both real-place
   // (placeId) rows and free-text (venueName) rows for venues with no page yet.

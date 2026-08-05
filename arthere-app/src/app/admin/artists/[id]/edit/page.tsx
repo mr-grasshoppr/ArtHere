@@ -17,6 +17,7 @@ export default async function AdminArtistEditPage({ params }: { params: Promise<
       include: {
         artworkImages: { orderBy: { sortOrder: "asc" } },
         placeRelations: { include: { place: true } },
+        otherConnections: { orderBy: { sortOrder: "asc" } },
         links: { orderBy: { sortOrder: "asc" } },
         intake: true,
       },

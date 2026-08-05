@@ -3,7 +3,8 @@ import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ProfileHero, ProfileGallery } from "@/components/ProfileImages";
-import { hireForSentence, socialPlatformName } from "@/lib/profile-display";
+import { hireForSentence } from "@/lib/profile-display";
+import { linkTypeLabel } from "@/lib/artist-options";
 import { getFocalStyles } from "@/lib/image-focus";
 
 export default async function ProfilePage() {
@@ -17,6 +18,7 @@ export default async function ProfilePage() {
         include: {
           artworkImages: { orderBy: { sortOrder: "asc" } },
           placeRelations: { include: { place: true } },
+          links: { orderBy: { sortOrder: "asc" } },
           intake: true,
         },
       },
@@ -116,28 +118,19 @@ export default async function ProfilePage() {
 
 
       {/* Links */}
-      {(artist.website || artist.instagram) && (
-        <section className="border-t border-[#f0f0f0] pt-6 flex gap-4">
-          {artist.website && (
+      {artist.links.length > 0 && (
+        <section className="border-t border-[#f0f0f0] pt-6 flex gap-4 flex-wrap">
+          {artist.links.map((link) => (
             <a
-              href={artist.website}
+              key={link.id}
+              href={link.url}
               target="_blank"
               rel="noopener noreferrer"
               className="text-[#888] text-sm hover:text-[#1a1a1a] transition-colors"
             >
-              Website ↗
+              {link.label ?? linkTypeLabel(link.type)} ↗
             </a>
-          )}
-          {artist.instagram && (
-            <a
-              href={artist.instagram.startsWith("http") ? artist.instagram : `https://instagram.com/${artist.instagram.replace(/^@/, "")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#888] text-sm hover:text-[#1a1a1a] transition-colors"
-            >
-              {socialPlatformName(artist.instagram)} ↗
-            </a>
-          )}
+          ))}
         </section>
       )}
 

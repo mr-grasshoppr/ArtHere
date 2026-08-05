@@ -91,10 +91,6 @@ model Artist {
   // sentence built from this array) so the existing AI search parsing that
   // reads hireFor keeps working unchanged.
   offerings        String[]         @default([])
-  // Free-text affiliations that aren't places — professional associations,
-  // schools, guilds, etc. Parallel to placeRelations but no linking or
-  // relationship structure, since these aren't Art Here pages.
-  otherAffiliations String[]        @default([])
   hireFor          String?          @db.Text
   hireTags         Json?
   isPlaceholder    Boolean          @default(false)
@@ -115,8 +111,26 @@ model Artist {
   adminNotes       AdminNote[]
   magicLinkTokens  MagicLinkToken[]
   links            ArtistLink[]
+  otherConnections ArtistOtherConnection[]
 
   @@index([cityId])
+}
+
+// International/national/other affiliations outside the artist's local
+// area — associations, guilds, schools, etc. Structured like ArtistPlace
+// (name + relationship) but never linked to an Art Here page.
+model ArtistOtherConnection {
+  id                String            @id @default(cuid())
+  artistId          String
+  name              String
+  relationship      PlaceRelationship
+  relationshipLabel String?
+  sortOrder         Int               @default(0)
+  createdAt         DateTime          @default(now())
+
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@index([artistId])
 }
 
 // A social/portfolio/shop link, one of several per artist. Superseded the old

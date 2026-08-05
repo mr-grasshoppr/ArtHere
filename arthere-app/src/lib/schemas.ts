@@ -16,7 +16,6 @@ export const profileSchema = z
     name: z.string().min(1).max(200),
     bio: longText.nullish(),
     quote: mediumText.nullish(),
-    otherAffiliations: stringList.nullish(),
     medium: shortText.nullish(),
     neighborhood: shortText.nullish(),
     hireFor: mediumText.nullish(),
@@ -37,6 +36,26 @@ export const profileSchema = z
         })
       )
       .max(30)
+      .nullish(),
+    otherConnections: z
+      .array(
+        z.object({
+          name: shortText,
+          relationship: z.string().max(50),
+          relationshipLabel: shortText.nullish(),
+        })
+      )
+      .max(10)
+      .nullish(),
+    links: z
+      .array(
+        z.object({
+          type: z.string().max(50),
+          url: z.string().max(500),
+          label: shortText.nullish(),
+        })
+      )
+      .max(3)
       .nullish(),
     intake: z
       .object({

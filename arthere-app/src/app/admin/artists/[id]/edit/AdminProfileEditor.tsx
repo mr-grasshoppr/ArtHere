@@ -7,6 +7,7 @@ import { MEDIUM_OPTIONS, OFFERING_OPTIONS, LINK_TYPE_OPTIONS } from "@/lib/artis
 
 type Place = { id: string; name: string; neighborhood: string | null };
 type PlaceRelation = { placeId?: string; venueName?: string; relationship: string; relationshipLabel?: string };
+type OtherConnection = { name: string; relationship: string; relationshipLabel?: string };
 type Link = { type: string; url: string; label?: string };
 
 type Artist = {
@@ -14,7 +15,7 @@ type Artist = {
   name: string;
   bio: string | null;
   quote: string | null;
-  otherAffiliations: string[];
+  otherConnections: { name: string; relationship: string; relationshipLabel: string | null }[];
   medium: string | null;
   neighborhood: string | null;
   offerings: string[];
@@ -64,7 +65,9 @@ export default function AdminProfileEditor({
   const [name, setName] = useState(artist.name);
   const [bio, setBio] = useState(artist.bio ?? "");
   const [quote, setQuote] = useState(artist.quote ?? "");
-  const [otherAffiliations, setOtherAffiliations] = useState<string[]>(artist.otherAffiliations);
+  const [otherConnections, setOtherConnections] = useState<OtherConnection[]>(
+    artist.otherConnections.map((c) => ({ name: c.name, relationship: c.relationship, relationshipLabel: c.relationshipLabel ?? "" }))
+  );
   const [neighborhood, setNeighborhood] = useState(artist.neighborhood ?? "");
 
   const initialMedium = parseMedium(artist.medium);
@@ -126,7 +129,7 @@ export default function AdminProfileEditor({
           name,
           bio,
           quote,
-          otherAffiliations,
+          otherConnections,
           medium,
           neighborhood,
           offerings,
@@ -390,36 +393,58 @@ export default function AdminProfileEditor({
         </button>
       </section>
 
-      {/* Other affiliations */}
+      {/* Other connections */}
       <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
         <div>
-          <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Other Affiliations</h2>
-          <p className="text-xs text-[#aaa] mt-1">Associations, guilds, schools, etc. — not tied to an Art Here page.</p>
+          <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Other Connections</h2>
+          <p className="text-xs text-[#aaa] mt-1">International, national, or other affiliations outside the artist's local area.</p>
         </div>
-        {otherAffiliations.map((val, i) => (
-          <div key={i} className="flex items-center gap-2">
-            <input
-              type="text"
-              value={val}
-              onChange={(e) => setOtherAffiliations((prev) => prev.map((a, idx) => (idx === i ? e.target.value : a)))}
-              placeholder="e.g. Member, Oregon Watercolor Society"
-              className={`flex-1 ${inputCls}`}
-            />
-            <button
-              type="button"
-              onClick={() => setOtherAffiliations((prev) => prev.filter((_, idx) => idx !== i))}
-              className="text-[#ccc] hover:text-red-400 text-lg leading-none transition-colors"
-            >
-              ×
-            </button>
+        {otherConnections.map((conn, i) => (
+          <div key={i} className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={conn.name}
+                onChange={(e) => setOtherConnections((prev) => prev.map((c, idx) => (idx === i ? { ...c, name: e.target.value } : c)))}
+                placeholder="e.g. Oregon Watercolor Society"
+                className={`flex-1 ${inputCls}`}
+              />
+              <select
+                value={conn.relationship}
+                onChange={(e) =>
+                  setOtherConnections((prev) => prev.map((c, idx) => idx === i ? { ...c, relationship: e.target.value, relationshipLabel: "" } : c))
+                }
+                className={selectCls}
+              >
+                {RELATIONSHIP_TYPES.map((rt) => (
+                  <option key={rt.value} value={rt.value}>{rt.label}</option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => setOtherConnections((prev) => prev.filter((_, idx) => idx !== i))}
+                className="text-[#ccc] hover:text-red-400 text-lg leading-none transition-colors"
+              >
+                ×
+              </button>
+            </div>
+            {conn.relationship === "OTHER" && (
+              <input
+                type="text"
+                value={conn.relationshipLabel ?? ""}
+                onChange={(e) => setOtherConnections((prev) => prev.map((c, idx) => idx === i ? { ...c, relationshipLabel: e.target.value } : c))}
+                placeholder="Describe the connection…"
+                className={`${inputCls} text-sm`}
+              />
+            )}
           </div>
         ))}
         <button
           type="button"
-          onClick={() => setOtherAffiliations((prev) => [...prev, ""])}
+          onClick={() => setOtherConnections((prev) => [...prev, { name: "", relationship: "MEMBER", relationshipLabel: "" }])}
           className="text-sm text-[#888] border border-dashed border-[#e5e5e5] px-4 py-2 rounded-lg hover:border-[#999] transition-colors"
         >
-          + Add affiliation
+          + Add connection
         </button>
       </section>
 

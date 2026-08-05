@@ -9,22 +9,23 @@ import { resizeImageForUpload } from "@/lib/client-image-resize";
 
 type InitialData = {
   name: string; medium: string; neighborhood: string; bio: string;
-  quote: string; otherAffiliations: string[];
-  website: string; instagram: string; bioPhotoUrl: string | null; hireFor: string;
-  commissionStatus: string;
-  priceRangeMin: number | null; priceRangeMax: number | null;
-  sizeRangeMin: number | null; sizeRangeMax: number | null;
+  quote: string;
+  otherConnections: { name: string; relationship: string; relationshipLabel?: string }[];
+  links: { type: string; url: string; label?: string }[];
+  bioPhotoUrl: string | null; hireFor: string;
   images: { id: string; url: string; isHero: boolean }[];
   placeRelations: { placeName: string; relationship: string }[];
   isPlaceholder: boolean;
   submittedForReviewAt: string | null;
 } | null;
 
-const COMMISSION_OPTIONS = [
-  { value: "OPEN", label: "Open" },
-  { value: "ON_REQUEST", label: "By request" },
-  { value: "CLOSED", label: "Closed" },
-  { value: "UNSPECIFIED", label: "Prefer not to say" },
+const LINK_TYPE_OPTIONS = [
+  { value: "WEBSITE", label: "Website", placeholder: "https://yoursite.com" },
+  { value: "PORTFOLIO", label: "Portfolio", placeholder: "https://yourportfolio.com" },
+  { value: "INSTAGRAM", label: "Instagram", placeholder: "https://instagram.com/you" },
+  { value: "PATREON", label: "Patreon", placeholder: "https://patreon.com/you" },
+  { value: "SHOP", label: "Shop", placeholder: "https://yourshop.com" },
+  { value: "OTHER", label: "Other", placeholder: "https://…" },
 ];
 
 const RELATIONSHIP_TYPES = [
@@ -43,7 +44,7 @@ const MEDIUM_OPTIONS = [
 ];
 
 const OFFERING_OPTIONS = [
-  { value: "sell_existing", label: "Buying existing artwork" },
+  { value: "sell_existing", label: "Selling existing artwork" },
   { value: "custom_artwork", label: "Custom work" },
   { value: "classes", label: "Teaching classes, lessons, or workshops" },
   { value: "consultations", label: "Consultations" },
@@ -101,9 +102,6 @@ export default function OnboardingForm({
   const [neighborhood, setNeighborhood] = useState(initialData?.neighborhood ?? "");
   const [bio, setBio] = useState(initialData?.bio ?? "");
   const [quote, setQuote] = useState(initialData?.quote ?? "");
-  const [otherAffiliations, setOtherAffiliations] = useState<string[]>(initialData?.otherAffiliations ?? []);
-  const [website, setWebsite] = useState(initialData?.website ?? "");
-  const [instagram, setInstagram] = useState(initialData?.instagram ?? "");
 
   // Places: 3 fixed rows, pre-filled from existing data. `placeId` is set only
   // when a venue is picked from the typeahead (links to that page); otherwise
@@ -113,6 +111,20 @@ export default function OnboardingForm({
     const existing = initialData?.placeRelations ?? [];
     const rows = existing.slice(0, 3).map((r) => ({ placeName: r.placeName, relationship: r.relationship, relationshipLabel: (r as { relationshipLabel?: string }).relationshipLabel ?? "" }));
     while (rows.length < 3) rows.push({ placeName: "", relationship: "MEMBER", relationshipLabel: "" });
+    return rows;
+  });
+
+  // Other connections — same shape as Places but never linked to a page.
+  const [otherConnections, setOtherConnections] = useState<{ name: string; relationship: string; relationshipLabel: string }[]>(
+    () => (initialData?.otherConnections ?? []).map((c) => ({ name: c.name, relationship: c.relationship, relationshipLabel: c.relationshipLabel ?? "" }))
+  );
+
+  // Links: 3 fixed rows, each typed via dropdown. Blank rows (no url) are
+  // dropped on save.
+  const [links, setLinks] = useState<{ type: string; url: string; label: string }[]>(() => {
+    const existing = initialData?.links ?? [];
+    const rows = existing.slice(0, 3).map((l) => ({ type: l.type, url: l.url, label: l.label ?? "" }));
+    while (rows.length < 3) rows.push({ type: "WEBSITE", url: "", label: "" });
     return rows;
   });
 
@@ -131,13 +143,6 @@ export default function OnboardingForm({
     ).map((o) => o.value);
   });
   const [offeringsOther, setOfferingsOther] = useState("");
-
-  // Commissions & pricing (shown under Additional details)
-  const [commissionStatus, setCommissionStatus] = useState(initialData?.commissionStatus ?? "UNSPECIFIED");
-  const [priceMin, setPriceMin] = useState(initialData?.priceRangeMin != null ? String(initialData.priceRangeMin) : "");
-  const [priceMax, setPriceMax] = useState(initialData?.priceRangeMax != null ? String(initialData.priceRangeMax) : "");
-  const [sizeMin, setSizeMin] = useState(initialData?.sizeRangeMin != null ? String(initialData.sizeRangeMin) : "");
-  const [sizeMax, setSizeMax] = useState(initialData?.sizeRangeMax != null ? String(initialData.sizeRangeMax) : "");
 
   // Images
   const [images, setImages] = useState<{ id: string; url: string; isHero: boolean }[]>(initialData?.images ?? []);
@@ -192,20 +197,18 @@ export default function OnboardingForm({
           name,
           bio,
           quote: quote.trim() || null,
-          otherAffiliations: otherAffiliations.map((a) => a.trim()).filter(Boolean),
           medium: buildMediumText() || null,
           neighborhood,
           hireFor: buildOfferingsText() || null,
-          website,
-          instagram,
-          commissionStatus,
-          priceRangeMin: priceMin || null,
-          priceRangeMax: priceMax || null,
-          sizeRangeMin: sizeMin || null,
-          sizeRangeMax: sizeMax || null,
           placeRelations: places
             .filter((p) => p.placeName.trim())
             .map((p) => ({ placeId: p.placeId, placeName: p.placeName.trim(), relationship: p.relationship, relationshipLabel: p.relationshipLabel.trim() || null })),
+          otherConnections: otherConnections
+            .filter((c) => c.name.trim())
+            .map((c) => ({ name: c.name.trim(), relationship: c.relationship, relationshipLabel: c.relationshipLabel.trim() || null })),
+          links: links
+            .filter((l) => l.url.trim())
+            .map((l) => ({ type: l.type, url: l.url.trim(), label: l.label.trim() || null })),
         }),
       });
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? "Something went wrong.");
@@ -224,7 +227,7 @@ export default function OnboardingForm({
     saveTimer.current = setTimeout(persist, 900);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, bio, quote, JSON.stringify(otherAffiliations), JSON.stringify(mediumValues), mediumOther, neighborhood, website, instagram, JSON.stringify(offerings), offeringsOther, JSON.stringify(places), commissionStatus, priceMin, priceMax, sizeMin, sizeMax]);
+  }, [name, bio, quote, JSON.stringify(mediumValues), mediumOther, neighborhood, JSON.stringify(offerings), offeringsOther, JSON.stringify(places), JSON.stringify(otherConnections), JSON.stringify(links)]);
 
   // ─── Images ──────────────────────────────────────────────────────────
 
@@ -501,9 +504,8 @@ export default function OnboardingForm({
         onChange={(e) => setQuote(e.target.value)}
         rows={2}
         placeholder="Optional — a short quote shown above your bio"
-        className={`${FIELD} leading-relaxed resize-none mb-2`}
+        className={`${FIELD} leading-relaxed resize-none mb-4`}
       />
-      <p className="text-[0.72rem] font-semibold text-[#1a1a1a] mb-4 ml-1">Pull quote (optional)</p>
 
       {/* ── Bio ───────────────────────────────────────────────────────── */}
       <textarea
@@ -511,34 +513,55 @@ export default function OnboardingForm({
         onChange={(e) => setBio(e.target.value)}
         rows={5}
         placeholder="Tell visitors about yourself and your work, your background, what you make, and what inspires you."
-        className={`${FIELD} leading-relaxed resize-none mb-4`}
+        className={`${FIELD} leading-relaxed resize-none mb-2`}
       />
+      <p className="text-[0.72rem] font-semibold text-[#1a1a1a] mb-4 ml-1">Your bio</p>
 
       {/* ── Links ─────────────────────────────────────────────────────── */}
-      <div className="flex gap-3 mb-8 flex-wrap">
-        <div className="flex-1 min-w-[160px]">
-          <input
-            value={website}
-            onChange={(e) => setWebsite(e.target.value)}
-            placeholder="https://yoursite.com"
-            className={FIELD}
-          />
-          <p className="text-[0.72rem] font-semibold text-[#1a1a1a] mt-1.5 ml-1">Website</p>
-        </div>
-        <div className="flex-1 min-w-[160px]">
-          <input
-            value={instagram}
-            onChange={(e) => setInstagram(e.target.value)}
-            placeholder="https://instagram.com/yourhandle"
-            className={FIELD}
-          />
-          <p className="text-[0.72rem] font-semibold text-[#1a1a1a] mt-1.5 ml-1">Social media URL</p>
+      <div className="mb-8">
+        <p className="text-[0.72rem] font-semibold text-[#1a1a1a] mb-2 ml-1">Links</p>
+        <div className="space-y-2">
+          {links.map((link, i) => {
+            const meta = LINK_TYPE_OPTIONS.find((t) => t.value === link.type) ?? LINK_TYPE_OPTIONS[0];
+            return (
+              <div key={i} className="flex flex-col gap-1.5">
+                <div className="flex items-center gap-2">
+                  <select
+                    value={link.type}
+                    onChange={(e) => setLinks((prev) => prev.map((l, idx) => idx === i ? { ...l, type: e.target.value } : l))}
+                    className="px-3 py-3 rounded-lg border border-[#e8e8e8] text-sm text-[#555] bg-white focus:outline-none focus:border-[#1a1a1a] transition-colors cursor-pointer"
+                  >
+                    {LINK_TYPE_OPTIONS.map((t) => (
+                      <option key={t.value} value={t.value}>{t.label}</option>
+                    ))}
+                  </select>
+                  <input
+                    value={link.url}
+                    onChange={(e) => setLinks((prev) => prev.map((l, idx) => idx === i ? { ...l, url: e.target.value } : l))}
+                    placeholder={meta.placeholder}
+                    className={`${FIELD} flex-1`}
+                  />
+                </div>
+                {link.type === "OTHER" && (
+                  <input
+                    value={link.label}
+                    onChange={(e) => setLinks((prev) => prev.map((l, idx) => idx === i ? { ...l, label: e.target.value } : l))}
+                    placeholder="Label, e.g. Etsy shop"
+                    className={`${FIELD} text-sm`}
+                  />
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
       {/* ── Places ─────────────────────────────────────────────────────── */}
       <div className="mb-8">
-        <h2 className="text-[0.7rem] font-semibold text-[#aaa] uppercase tracking-widest mb-3">Places</h2>
+        <h2 className="text-[0.7rem] font-semibold text-[#aaa] uppercase tracking-widest mb-1">Community Connections</h2>
+        <p className="text-[0.78rem] text-[#999] mb-3">
+          The local places, organizations, galleries, and businesses you&apos;re connected to.
+        </p>
         <div className="space-y-2">
           {places.map((rel, i) => (
             <div key={i} className="flex flex-col gap-1.5">
@@ -592,36 +615,55 @@ export default function OnboardingForm({
         </button>
       </div>
 
-      {/* ── Other affiliations ───────────────────────────────────────── */}
+      {/* ── Other connections ────────────────────────────────────────── */}
       <div className="mb-8">
-        <h2 className="text-[0.7rem] font-semibold text-[#aaa] uppercase tracking-widest mb-3">Other Affiliations</h2>
+        <h2 className="text-[0.7rem] font-semibold text-[#aaa] uppercase tracking-widest mb-1">Other Connections</h2>
         <p className="text-[0.78rem] text-[#999] mb-3">
-          Associations, guilds, schools, etc. that aren&apos;t galleries, organizations, or businesses in your local area.
+          International, national, or other affiliations outside of your local area.
         </p>
         <div className="space-y-2">
-          {otherAffiliations.map((val, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <input
-                value={val}
-                onChange={(e) => setOtherAffiliations((prev) => prev.map((a, idx) => (idx === i ? e.target.value : a)))}
-                placeholder="e.g. Member, Oregon Watercolor Society"
-                className={`${FIELD} flex-1`}
-              />
-              <button
-                type="button"
-                onClick={() => setOtherAffiliations((prev) => prev.filter((_, idx) => idx !== i))}
-                className="text-[#ccc] hover:text-[#999] text-lg leading-none flex-shrink-0 px-1"
-                title="Remove"
-              >×</button>
+          {otherConnections.map((conn, i) => (
+            <div key={i} className="flex flex-col gap-1.5">
+              <div className="flex items-center gap-2">
+                <input
+                  value={conn.name}
+                  onChange={(e) => setOtherConnections((prev) => prev.map((c, idx) => idx === i ? { ...c, name: e.target.value } : c))}
+                  placeholder="e.g. Oregon Watercolor Society"
+                  className={`${FIELD} flex-1`}
+                />
+                <select
+                  value={conn.relationship}
+                  onChange={(e) => setOtherConnections((prev) => prev.map((c, idx) => idx === i ? { ...c, relationship: e.target.value, relationshipLabel: "" } : c))}
+                  className="px-3 py-3 rounded-lg border border-[#e8e8e8] text-sm text-[#555] bg-white focus:outline-none focus:border-[#1a1a1a] transition-colors cursor-pointer"
+                >
+                  {RELATIONSHIP_TYPES.map((rt) => (
+                    <option key={rt.value} value={rt.value}>{rt.label}</option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => setOtherConnections((prev) => prev.filter((_, idx) => idx !== i))}
+                  className="text-[#ccc] hover:text-[#999] text-lg leading-none flex-shrink-0 px-1"
+                  title="Remove"
+                >×</button>
+              </div>
+              {conn.relationship === "OTHER" && (
+                <input
+                  value={conn.relationshipLabel}
+                  onChange={(e) => setOtherConnections((prev) => prev.map((c, idx) => idx === i ? { ...c, relationshipLabel: e.target.value } : c))}
+                  placeholder="Describe your connection…"
+                  className={`${FIELD} text-sm ml-0`}
+                />
+              )}
             </div>
           ))}
         </div>
         <button
           type="button"
-          onClick={() => setOtherAffiliations((prev) => [...prev, ""])}
+          onClick={() => setOtherConnections((prev) => [...prev, { name: "", relationship: "MEMBER", relationshipLabel: "" }])}
           className="mt-3 text-[0.82rem] text-[#999] hover:text-[#1a1a1a] transition-colors"
         >
-          + Add another affiliation
+          + Add another connection
         </button>
       </div>
 
@@ -672,10 +714,7 @@ export default function OnboardingForm({
 
       {/* ── Additional details ────────────────────────────────────────── */}
       <div className="border-t border-[#f0f0f0] pt-8 mb-10">
-        <h2 className="font-heading text-base font-bold text-[#1a1a1a] mb-1">Additional details</h2>
-        <p className="text-[#666] text-sm mb-6">
-          Your selections appear on your profile as: <em>&ldquo;Ask me about buying existing artwork, custom work…&rdquo;</em>
-        </p>
+        <h2 className="font-heading text-base font-bold text-[#1a1a1a] mb-6">Additional details</h2>
 
         <fieldset className="mb-4">
           <legend className={LABEL}>What do you currently offer?</legend>
@@ -715,41 +754,6 @@ export default function OnboardingForm({
                 />
               </div>
             </label>
-          </div>
-        </fieldset>
-
-        <fieldset className="mb-4">
-          <legend className={LABEL}>Commission availability</legend>
-          <div className="flex flex-wrap gap-2 mb-5">
-            {COMMISSION_OPTIONS.map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setCommissionStatus(opt.value)}
-                className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${commissionStatus === opt.value ? "bg-[#1a1a1a] text-white border-[#1a1a1a]" : "bg-white text-[#555] border-[#e0e0e0] hover:border-[#999]"}`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex gap-3 flex-wrap">
-            <div className="flex-1 min-w-[200px]">
-              <p className={LABEL}>Price range (USD)</p>
-              <div className="flex items-center gap-2">
-                <input type="number" min="0" value={priceMin} onChange={(e) => setPriceMin(e.target.value)} placeholder="Min" className={FIELD} />
-                <span className="text-[#ccc]">–</span>
-                <input type="number" min="0" value={priceMax} onChange={(e) => setPriceMax(e.target.value)} placeholder="Max" className={FIELD} />
-              </div>
-            </div>
-            <div className="flex-1 min-w-[200px]">
-              <p className={LABEL}>Size range (inches)</p>
-              <div className="flex items-center gap-2">
-                <input type="number" min="0" value={sizeMin} onChange={(e) => setSizeMin(e.target.value)} placeholder="Min" className={FIELD} />
-                <span className="text-[#ccc]">–</span>
-                <input type="number" min="0" value={sizeMax} onChange={(e) => setSizeMax(e.target.value)} placeholder="Max" className={FIELD} />
-              </div>
-            </div>
           </div>
         </fieldset>
       </div>

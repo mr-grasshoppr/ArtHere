@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { waitUntil } from "@vercel/functions";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { PlaceRelationship } from "@prisma/client";
+import { PlaceRelationship, LinkType } from "@prisma/client";
 import { parseHireText } from "@/lib/claude";
 import { profileSchema, parseBody } from "@/lib/schemas";
 import { slugify } from "@/lib/slug";
@@ -19,6 +19,8 @@ export async function GET() {
     include: {
       artworkImages: { orderBy: { sortOrder: "asc" } },
       placeRelations: { include: { place: true } },
+      otherConnections: { orderBy: { sortOrder: "asc" } },
+      links: { orderBy: { sortOrder: "asc" } },
       intake: true,
     },
   });
@@ -40,12 +42,9 @@ export async function POST(req: NextRequest) {
     name,
     bio,
     quote,
-    otherAffiliations,
     medium,
     neighborhood,
     hireFor,
-    website,
-    instagram,
     commissionStatus,
     priceRangeMin,
     priceRangeMax,
@@ -53,6 +52,10 @@ export async function POST(req: NextRequest) {
     sizeRangeMax,
     // Place relations: [{ placeId, relationship }]
     placeRelations,
+    // Affiliations outside the artist's local area: [{ name, relationship }]
+    otherConnections,
+    // Up to 3 links: [{ type, url, label }]
+    links,
     // Intake
     intake,
   } = body;
@@ -94,19 +97,20 @@ export async function POST(req: NextRequest) {
     name: name.trim(),
     bio: bio?.trim() || null,
     quote: quote?.trim() || null,
-    otherAffiliations: Array.isArray(otherAffiliations)
-      ? otherAffiliations.map((a) => a.trim()).filter(Boolean)
-      : [],
     medium: medium?.trim() || null,
     neighborhood: neighborhood?.trim() ? normalizeNeighborhood(neighborhood.trim()) : null,
     hireFor: hireForClean,
-    website: website?.trim() || null,
-    instagram: instagram?.trim().replace(/^@/, "") || null,
-    commissionStatus: commissionStatus || "UNSPECIFIED",
-    priceRangeMin: num(priceRangeMin),
-    priceRangeMax: num(priceRangeMax),
-    sizeRangeMin: num(sizeRangeMin),
-    sizeRangeMax: num(sizeRangeMax),
+    // website/instagram are no longer written here — self-service now manages
+    // ArtistLink instead (see below). Omitted, not nulled, so any historical
+    // values are left alone.
+    // commissionStatus/price/size range no longer have onboarding UI — only
+    // touch them if a caller actually sends a value, so autosave (which now
+    // never sends these) can't silently clobber previously-saved values.
+    ...(commissionStatus !== undefined ? { commissionStatus: commissionStatus || "UNSPECIFIED" } : {}),
+    ...(priceRangeMin !== undefined ? { priceRangeMin: num(priceRangeMin) } : {}),
+    ...(priceRangeMax !== undefined ? { priceRangeMax: num(priceRangeMax) } : {}),
+    ...(sizeRangeMin !== undefined ? { sizeRangeMin: num(sizeRangeMin) } : {}),
+    ...(sizeRangeMax !== undefined ? { sizeRangeMax: num(sizeRangeMax) } : {}),
   };
 
   let artist;
@@ -205,6 +209,44 @@ export async function POST(req: NextRequest) {
           venueName: r.venueName,
           relationship: r.relationship,
           relationshipLabel: r.relationshipLabel,
+        })),
+      });
+    }
+  }
+
+  // Update other connections — affiliations outside the artist's local area,
+  // structured like placeRelations but never linked to an Art Here page.
+  if (Array.isArray(otherConnections)) {
+    await prisma.artistOtherConnection.deleteMany({ where: { artistId: artist.id } });
+    const validConnections = (otherConnections as { name: string; relationship: string; relationshipLabel?: string | null }[])
+      .filter((c) => c.name?.trim() && c.relationship);
+    if (validConnections.length > 0) {
+      await prisma.artistOtherConnection.createMany({
+        data: validConnections.map((c, i) => ({
+          artistId: artist.id,
+          name: c.name.trim(),
+          relationship: c.relationship as PlaceRelationship,
+          relationshipLabel: c.relationshipLabel?.trim() || null,
+          sortOrder: i,
+        })),
+      });
+    }
+  }
+
+  // Update links — up to 3, each typed via the Links dropdown.
+  if (Array.isArray(links)) {
+    await prisma.artistLink.deleteMany({ where: { artistId: artist.id } });
+    const validLinks = (links as { type: string; url: string; label?: string | null }[])
+      .filter((l) => l.url?.trim() && l.type)
+      .slice(0, 3);
+    if (validLinks.length > 0) {
+      await prisma.artistLink.createMany({
+        data: validLinks.map((l, i) => ({
+          artistId: artist.id,
+          type: l.type as LinkType,
+          url: l.url.trim(),
+          label: l.label?.trim() || null,
+          sortOrder: i,
         })),
       });
     }
