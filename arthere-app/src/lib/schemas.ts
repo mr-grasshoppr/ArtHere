@@ -15,6 +15,8 @@ export const profileSchema = z
   .object({
     name: z.string().min(1).max(200),
     bio: longText.nullish(),
+    quote: mediumText.nullish(),
+    otherAffiliations: stringList.nullish(),
     medium: shortText.nullish(),
     neighborhood: shortText.nullish(),
     hireFor: mediumText.nullish(),

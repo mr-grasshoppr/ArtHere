@@ -72,6 +72,8 @@ model Artist {
   slug             String           @unique
   name             String
   bio              String?          @db.Text
+  // Optional pull quote shown above the bio on the public profile.
+  quote            String?          @db.Text
   bioPhotoUrl      String?
   heroImageUrl     String?
   website          String?
@@ -89,6 +91,10 @@ model Artist {
   // sentence built from this array) so the existing AI search parsing that
   // reads hireFor keeps working unchanged.
   offerings        String[]         @default([])
+  // Free-text affiliations that aren't places — professional associations,
+  // schools, guilds, etc. Parallel to placeRelations but no linking or
+  // relationship structure, since these aren't Art Here pages.
+  otherAffiliations String[]        @default([])
   hireFor          String?          @db.Text
   hireTags         Json?
   isPlaceholder    Boolean          @default(false)

@@ -13,6 +13,8 @@ type Artist = {
   id: string;
   name: string;
   bio: string | null;
+  quote: string | null;
+  otherAffiliations: string[];
   medium: string | null;
   neighborhood: string | null;
   offerings: string[];
@@ -61,6 +63,8 @@ export default function AdminProfileEditor({
 
   const [name, setName] = useState(artist.name);
   const [bio, setBio] = useState(artist.bio ?? "");
+  const [quote, setQuote] = useState(artist.quote ?? "");
+  const [otherAffiliations, setOtherAffiliations] = useState<string[]>(artist.otherAffiliations);
   const [neighborhood, setNeighborhood] = useState(artist.neighborhood ?? "");
 
   const initialMedium = parseMedium(artist.medium);
@@ -121,6 +125,8 @@ export default function AdminProfileEditor({
         await updateArtistProfile(artist.id, {
           name,
           bio,
+          quote,
+          otherAffiliations,
           medium,
           neighborhood,
           offerings,
@@ -149,6 +155,17 @@ export default function AdminProfileEditor({
         <div>
           <label className={labelCls}>Neighborhood</label>
           <input type="text" value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)} placeholder="e.g. SE Portland" className={inputCls} />
+        </div>
+
+        <div>
+          <label className={labelCls}>Pull quote</label>
+          <textarea
+            value={quote}
+            onChange={(e) => setQuote(e.target.value)}
+            rows={2}
+            placeholder="A short quote shown above the bio"
+            className={`${inputCls} resize-y`}
+          />
         </div>
 
         <div>
@@ -370,6 +387,39 @@ export default function AdminProfileEditor({
           className="text-sm text-[#888] border border-dashed border-[#e5e5e5] px-4 py-2 rounded-lg hover:border-[#999] transition-colors"
         >
           + Add place
+        </button>
+      </section>
+
+      {/* Other affiliations */}
+      <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
+        <div>
+          <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Other Affiliations</h2>
+          <p className="text-xs text-[#aaa] mt-1">Associations, guilds, schools, etc. — not tied to an Art Here page.</p>
+        </div>
+        {otherAffiliations.map((val, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <input
+              type="text"
+              value={val}
+              onChange={(e) => setOtherAffiliations((prev) => prev.map((a, idx) => (idx === i ? e.target.value : a)))}
+              placeholder="e.g. Member, Oregon Watercolor Society"
+              className={`flex-1 ${inputCls}`}
+            />
+            <button
+              type="button"
+              onClick={() => setOtherAffiliations((prev) => prev.filter((_, idx) => idx !== i))}
+              className="text-[#ccc] hover:text-red-400 text-lg leading-none transition-colors"
+            >
+              ×
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={() => setOtherAffiliations((prev) => [...prev, ""])}
+          className="text-sm text-[#888] border border-dashed border-[#e5e5e5] px-4 py-2 rounded-lg hover:border-[#999] transition-colors"
+        >
+          + Add affiliation
         </button>
       </section>
 

@@ -59,6 +59,8 @@ export async function deleteNote(noteId: string) {
 type ProfileInput = {
   name: string;
   bio: string;
+  quote: string;
+  otherAffiliations: string[];
   medium: string;
   neighborhood: string;
   offerings: string[];
@@ -74,6 +76,8 @@ export async function updateArtistProfile(artistId: string, data: ProfileInput) 
     data: {
       name: data.name.trim(),
       bio: data.bio.trim() || null,
+      quote: data.quote.trim() || null,
+      otherAffiliations: data.otherAffiliations.map((a) => a.trim()).filter(Boolean),
       medium: data.medium.trim() || null,
       neighborhood: data.neighborhood.trim() ? normalizeNeighborhood(data.neighborhood.trim()) : null,
       offerings: data.offerings.map((o) => o.trim()).filter(Boolean),

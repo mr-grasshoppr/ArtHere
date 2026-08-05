@@ -53,17 +53,10 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals }:
     cityDisplayName,
   ].filter(Boolean);
 
-  const isQuoteParagraph = (p: string) => /^["“]/.test(p) && /["”]$/.test(p);
-  const bioParagraphsRaw = (artist.bio ?? '')
+  const bioParagraphs = (artist.bio ?? '')
     .split(/\n\s*\n/)
     .map(p => p.trim())
     .filter(Boolean);
-  // Pull quotes render above the rest of the bio regardless of where they
-  // fall in the original text.
-  const bioParagraphs = [
-    ...bioParagraphsRaw.filter(isQuoteParagraph),
-    ...bioParagraphsRaw.filter(p => !isQuoteParagraph(p)),
-  ];
 
   const placeHref = (slug: string) =>
     citySlug ? `/cities/${citySlug}/places/${slug}` : `/places/${slug}`;
@@ -134,22 +127,17 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals }:
       </div>
 
       {/* Bio */}
-      {(bioParagraphs.length > 0 || artist.links.length > 0) && (
+      {(artist.quote || bioParagraphs.length > 0 || artist.links.length > 0) && (
         <section className="max-w-[980px] mx-auto px-5 sm:px-10 pt-7 pb-10">
           <div className="max-w-[680px] text-[1.05rem] text-[#444] font-light leading-[1.8]">
-            {bioParagraphs.map((p, i) => {
-              if (isQuoteParagraph(p)) {
-                return (
-                  <blockquote
-                    key={i}
-                    className="italic border-l-2 border-[#ccc] pl-5 mb-[18px] text-[#888] text-[0.92rem]"
-                  >
-                    {p}
-                  </blockquote>
-                );
-              }
-              return <p key={i} className="mb-[18px]">{p}</p>;
-            })}
+            {artist.quote && (
+              <blockquote className="italic border-l-2 border-[#ccc] pl-5 mb-[18px] text-[#888] text-[0.92rem]">
+                &ldquo;{artist.quote}&rdquo;
+              </blockquote>
+            )}
+            {bioParagraphs.map((p, i) => (
+              <p key={i} className="mb-[18px]">{p}</p>
+            ))}
             {artist.links.length > 0 && (
               <p className="text-[#999] text-[0.9rem]">
                 {artist.links.map((link, i) => (
@@ -194,6 +182,20 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals }:
                 </span>
               );
             })}
+          </div>
+        </section>
+      )}
+
+      {/* Other affiliations */}
+      {artist.otherAffiliations.length > 0 && (
+        <section className="max-w-[980px] mx-auto px-5 sm:px-10 pb-12">
+          <div className="text-[0.75rem] uppercase tracking-[0.18em] text-[#999] mb-3">Other Affiliations</div>
+          <div className="flex flex-wrap gap-x-6 gap-y-2 items-baseline">
+            {artist.otherAffiliations.map((affiliation, i) => (
+              <span key={i} className="text-[0.85rem] text-[#aaa] font-light">
+                {affiliation}
+              </span>
+            ))}
           </div>
         </section>
       )}

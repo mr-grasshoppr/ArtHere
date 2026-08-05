@@ -39,6 +39,8 @@ export async function POST(req: NextRequest) {
   const {
     name,
     bio,
+    quote,
+    otherAffiliations,
     medium,
     neighborhood,
     hireFor,
@@ -91,6 +93,10 @@ export async function POST(req: NextRequest) {
   const artistData = {
     name: name.trim(),
     bio: bio?.trim() || null,
+    quote: quote?.trim() || null,
+    otherAffiliations: Array.isArray(otherAffiliations)
+      ? otherAffiliations.map((a) => a.trim()).filter(Boolean)
+      : [],
     medium: medium?.trim() || null,
     neighborhood: neighborhood?.trim() ? normalizeNeighborhood(neighborhood.trim()) : null,
     hireFor: hireForClean,

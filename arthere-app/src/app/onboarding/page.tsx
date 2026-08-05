@@ -38,6 +38,8 @@ export default async function OnboardingPage() {
     medium: a.medium ?? "",
     neighborhood: a.neighborhood ?? "",
     bio: a.bio ?? "",
+    quote: a.quote ?? "",
+    otherAffiliations: a.otherAffiliations,
     website: a.website ?? "",
     instagram: a.instagram ?? "",
     bioPhotoUrl: a.bioPhotoUrl ?? null,

@@ -9,6 +9,7 @@ import { resizeImageForUpload } from "@/lib/client-image-resize";
 
 type InitialData = {
   name: string; medium: string; neighborhood: string; bio: string;
+  quote: string; otherAffiliations: string[];
   website: string; instagram: string; bioPhotoUrl: string | null; hireFor: string;
   commissionStatus: string;
   priceRangeMin: number | null; priceRangeMax: number | null;
@@ -99,6 +100,8 @@ export default function OnboardingForm({
   });
   const [neighborhood, setNeighborhood] = useState(initialData?.neighborhood ?? "");
   const [bio, setBio] = useState(initialData?.bio ?? "");
+  const [quote, setQuote] = useState(initialData?.quote ?? "");
+  const [otherAffiliations, setOtherAffiliations] = useState<string[]>(initialData?.otherAffiliations ?? []);
   const [website, setWebsite] = useState(initialData?.website ?? "");
   const [instagram, setInstagram] = useState(initialData?.instagram ?? "");
 
@@ -188,6 +191,8 @@ export default function OnboardingForm({
         body: JSON.stringify({
           name,
           bio,
+          quote: quote.trim() || null,
+          otherAffiliations: otherAffiliations.map((a) => a.trim()).filter(Boolean),
           medium: buildMediumText() || null,
           neighborhood,
           hireFor: buildOfferingsText() || null,
@@ -219,7 +224,7 @@ export default function OnboardingForm({
     saveTimer.current = setTimeout(persist, 900);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, bio, JSON.stringify(mediumValues), mediumOther, neighborhood, website, instagram, JSON.stringify(offerings), offeringsOther, JSON.stringify(places), commissionStatus, priceMin, priceMax, sizeMin, sizeMax]);
+  }, [name, bio, quote, JSON.stringify(otherAffiliations), JSON.stringify(mediumValues), mediumOther, neighborhood, website, instagram, JSON.stringify(offerings), offeringsOther, JSON.stringify(places), commissionStatus, priceMin, priceMax, sizeMin, sizeMax]);
 
   // ─── Images ──────────────────────────────────────────────────────────
 
@@ -490,6 +495,16 @@ export default function OnboardingForm({
         </div>
       </div>
 
+      {/* ── Pull quote ───────────────────────────────────────────────── */}
+      <textarea
+        value={quote}
+        onChange={(e) => setQuote(e.target.value)}
+        rows={2}
+        placeholder="Optional — a short quote shown above your bio"
+        className={`${FIELD} leading-relaxed resize-none mb-2`}
+      />
+      <p className="text-[0.72rem] font-semibold text-[#1a1a1a] mb-4 ml-1">Pull quote (optional)</p>
+
       {/* ── Bio ───────────────────────────────────────────────────────── */}
       <textarea
         value={bio}
@@ -574,6 +589,39 @@ export default function OnboardingForm({
           className="mt-3 text-[0.82rem] text-[#999] hover:text-[#1a1a1a] transition-colors"
         >
           + Add another place
+        </button>
+      </div>
+
+      {/* ── Other affiliations ───────────────────────────────────────── */}
+      <div className="mb-8">
+        <h2 className="text-[0.7rem] font-semibold text-[#aaa] uppercase tracking-widest mb-3">Other Affiliations</h2>
+        <p className="text-[0.78rem] text-[#999] mb-3">
+          Associations, guilds, schools, etc. that aren&apos;t galleries, organizations, or businesses in your local area.
+        </p>
+        <div className="space-y-2">
+          {otherAffiliations.map((val, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <input
+                value={val}
+                onChange={(e) => setOtherAffiliations((prev) => prev.map((a, idx) => (idx === i ? e.target.value : a)))}
+                placeholder="e.g. Member, Oregon Watercolor Society"
+                className={`${FIELD} flex-1`}
+              />
+              <button
+                type="button"
+                onClick={() => setOtherAffiliations((prev) => prev.filter((_, idx) => idx !== i))}
+                className="text-[#ccc] hover:text-[#999] text-lg leading-none flex-shrink-0 px-1"
+                title="Remove"
+              >×</button>
+            </div>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={() => setOtherAffiliations((prev) => [...prev, ""])}
+          className="mt-3 text-[0.82rem] text-[#999] hover:text-[#1a1a1a] transition-colors"
+        >
+          + Add another affiliation
         </button>
       </div>
 
