@@ -17,7 +17,7 @@ export default function LogoSlideManager({ initialSlides }: { initialSlides: Log
 
   useEffect(() => setSlides(initialSlides), [initialSlides]);
 
-  function scheduleSave(id: string, data: { color?: string; artistName?: string }) {
+  function scheduleSave(id: string, data: { artistName?: string }) {
     clearTimeout(saveTimers.current[id]);
     saveTimers.current[id] = setTimeout(() => {
       updateLogoSlide(id, data).catch(() => {});
@@ -77,7 +77,7 @@ export default function LogoSlideManager({ initialSlides }: { initialSlides: Log
             )}
           </div>
 
-          <div className="flex-1 min-w-0 grid grid-cols-2 gap-3">
+          <div className="flex-1 min-w-0 space-y-3">
             <label className="text-xs text-[#888] flex flex-col gap-1">
               Artist name
               <input
@@ -87,35 +87,11 @@ export default function LogoSlideManager({ initialSlides }: { initialSlides: Log
                   patchLocal(slide.id, { artistName: e.target.value });
                   scheduleSave(slide.id, { artistName: e.target.value });
                 }}
-                className="px-2.5 py-1.5 border border-[#e5e5e5] rounded text-sm text-[#1a1a1a]"
+                className="px-2.5 py-1.5 border border-[#e5e5e5] rounded text-sm text-[#1a1a1a] max-w-xs"
               />
             </label>
 
-            <label className="text-xs text-[#888] flex flex-col gap-1">
-              Color (shown before this slide&apos;s image)
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  value={slide.color}
-                  onChange={(e) => {
-                    patchLocal(slide.id, { color: e.target.value });
-                    scheduleSave(slide.id, { color: e.target.value });
-                  }}
-                  className="w-9 h-9 rounded border border-[#e5e5e5] cursor-pointer"
-                />
-                <input
-                  type="text"
-                  value={slide.color}
-                  onChange={(e) => {
-                    patchLocal(slide.id, { color: e.target.value });
-                    scheduleSave(slide.id, { color: e.target.value });
-                  }}
-                  className="px-2.5 py-1.5 border border-[#e5e5e5] rounded text-sm text-[#1a1a1a] w-24"
-                />
-              </div>
-            </label>
-
-            <div className="col-span-2 flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap">
               <input
                 type="file"
                 accept="image/jpeg,image/png,image/webp"

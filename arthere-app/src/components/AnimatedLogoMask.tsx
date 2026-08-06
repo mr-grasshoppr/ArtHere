@@ -7,7 +7,6 @@ import styles from './AnimatedLogoMask.module.css';
 
 export type LogoSlideData = {
   id: string;
-  color: string;
   imageUrl: string;
   artistName: string;
 };
@@ -21,9 +20,9 @@ interface Props {
   focals?: Map<string, CSSProperties>;
 }
 
-type Phase = 'color' | 'image';
+type Phase = 'gap' | 'image';
 
-const COLOR_HOLD_MS = 1200;
+const GAP_MS = 1200;
 const IMAGE_HOLD_MS = 5000;
 const DISSOLVE_MS = 1200;
 // The pan runs for the image's whole visible window (dissolve-in + hold +
@@ -32,17 +31,20 @@ const DISSOLVE_MS = 1200;
 const PAN_MS = IMAGE_HOLD_MS + DISSOLVE_MS;
 
 /**
- * The masked "ART HERE" mark, cycling through admin-managed slides: solid
- * color dissolves into the slide's artwork (which drifts right-to-left at a
- * constant speed the whole time it's visible), holds, then dissolves into
- * the *next* slide's color, and repeats. All slide images render at once
- * (each an absolutely-positioned layer, hidden via opacity) so the browser
- * has them cached well before their turn comes up — no load-triggered flash
- * mid-animation.
+ * The masked "ART HERE" mark, cycling through admin-managed slides: a gap
+ * (the shared gradient background alone) dissolves into the slide's artwork
+ * (which drifts right-to-left at a constant speed the whole time it's
+ * visible), holds, then dissolves back into the gradient, and repeats. The
+ * gradient itself pans continuously and independently of the slide cycle —
+ * same speed/direction as the artwork, but never resetting — so each gap
+ * reveals a different stretch of it rather than the same crop every time.
+ * All slide images render at once (each an absolutely-positioned layer,
+ * hidden via opacity) so the browser has them cached well before their turn
+ * comes up — no load-triggered flash mid-animation.
  */
 export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', slides, focals }: Props) {
   const [index, setIndex] = useState(0);
-  const [phase, setPhase] = useState<Phase>('color');
+  const [phase, setPhase] = useState<Phase>('gap');
   const [reducedMotion, setReducedMotion] = useState(false);
   // One stable DOM node per slide holds the pan animation — restarted in
   // place (remove class, force reflow, re-add) rather than via a changing
@@ -56,11 +58,11 @@ export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', s
 
   useEffect(() => {
     if (slides.length === 0 || reducedMotion) return;
-    const duration = phase === 'color' ? COLOR_HOLD_MS : IMAGE_HOLD_MS;
+    const duration = phase === 'gap' ? GAP_MS : IMAGE_HOLD_MS;
     const timer = setTimeout(() => {
       if (phase === 'image') {
         setIndex((i) => (i + 1) % slides.length);
-        setPhase('color');
+        setPhase('gap');
       } else {
         setPhase('image');
         const el = panRefs.current[index];
@@ -80,7 +82,6 @@ export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', s
     return <div className={`${styles.mask} ${className}`} style={{ width, backgroundColor: '#1a1a1a' }} />;
   }
 
-  const current = slides[index];
   const showImage = reducedMotion || phase === 'image';
   // Shared by both maps below so each slide's credit label fades in lockstep
   // with that *same* slide's own artwork layer — a single label bound to
@@ -90,13 +91,14 @@ export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', s
 
   return (
     <div className={`relative ${styles.wrapper} ${className}`} style={{ width }}>
-      <div
-        className={styles.mask}
-        style={{
-          backgroundColor: current.color,
-          transition: reducedMotion ? 'none' : `background-color ${DISSOLVE_MS}ms ease-in-out`,
-        }}
-      >
+      <div className={styles.mask}>
+        {/* Shared gradient background — pans continuously, independent of
+            the slide cycle, so it never shows the same crop twice in a row. */}
+        <div className={reducedMotion ? styles.gradientTrackStill : styles.gradientTrack}>
+          <div className={styles.gradientSlide} />
+          <div className={styles.gradientSlide} />
+        </div>
+
         {slides.map((slide, i) => (
           <div
             key={slide.id}

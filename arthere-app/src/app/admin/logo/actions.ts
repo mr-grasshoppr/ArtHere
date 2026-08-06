@@ -9,7 +9,6 @@ export async function createLogoSlide(): Promise<string> {
   const slide = await prisma.logoSlide.create({
     data: {
       sortOrder: (last?.sortOrder ?? -1) + 1,
-      color: "#0D9CC3",
       imageUrl: "",
       artistName: "",
     },
@@ -19,7 +18,7 @@ export async function createLogoSlide(): Promise<string> {
 
 export async function updateLogoSlide(
   id: string,
-  data: { color?: string; imageUrl?: string; artistName?: string }
+  data: { imageUrl?: string; artistName?: string }
 ) {
   await requireAdmin();
   await prisma.logoSlide.update({ where: { id }, data });

@@ -10,6 +10,9 @@
   position: relative;
   aspect-ratio: 1668 / 1457;
   overflow: hidden;
+  /* Fallback so the mark still reads as a solid shape on first paint,
+     before the gradient background image has decoded. */
+  background-color: #1a1a1a;
   -webkit-mask-image: url('/images/arthere-mask.png');
   mask-image: url('/images/arthere-mask.png');
   -webkit-mask-repeat: no-repeat;
@@ -18,6 +21,40 @@
   mask-position: center;
   -webkit-mask-size: 100% 100%;
   mask-size: 100% 100%;
+}
+
+/* Shared gradient background, behind every artwork layer. Two copies
+   scrolled by exactly one copy-width (-50%) loop seamlessly. Runs on its
+   own infinite timeline, independent of the slide cycle — same speed and
+   direction as the artwork's own pan (~1.9% of container width/sec), but
+   never resets, so it never shows the same crop twice between artworks. */
+.gradientTrack {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  animation: gradientPan 163s linear infinite;
+}
+
+.gradientTrackStill {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+
+.gradientSlide {
+  position: relative;
+  height: 100%;
+  aspect-ratio: 2321 / 642;
+  flex-shrink: 0;
+  background-image: url('/images/logo-gradient-background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+@keyframes gradientPan {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
 }
 
 .imageLayer {

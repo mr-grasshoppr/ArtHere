@@ -7,7 +7,7 @@ import type { CSSProperties } from "react";
 // out of sync on ordering or which focal points get attached.
 export async function getLogoSlides(): Promise<{ slides: LogoSlideData[]; focals: Map<string, CSSProperties> }> {
   const rows = await prisma.logoSlide.findMany({ orderBy: { sortOrder: "asc" } });
-  const slides = rows.map((r) => ({ id: r.id, color: r.color, imageUrl: r.imageUrl, artistName: r.artistName }));
+  const slides = rows.map((r) => ({ id: r.id, imageUrl: r.imageUrl, artistName: r.artistName }));
   const focals = await getFocalStyles(slides.map((s) => s.imageUrl));
   return { slides, focals };
 }

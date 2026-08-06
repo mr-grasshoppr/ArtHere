@@ -456,12 +456,11 @@ model ImageFocus {
 // The masked "ART HERE" mark on the home/survey/login pages cycles through
 // these in order: solid `color`, then a left-to-right wipe reveals `imageUrl`
 // (credited to `artistName`), holds, then dissolves into the *next* slide's
-// color and repeats. sortOrder is the only thing that matters for ordering —
-// ids are never assumed sequential.
+// shared gradient background (see AnimatedLogoMask) and repeats. sortOrder is
+// the only thing that matters for ordering — ids are never assumed sequential.
 model LogoSlide {
   id         String   @id @default(cuid())
   sortOrder  Int      @default(0)
-  color      String // hex shown before this slide's image wipes in
   imageUrl   String
   artistName String
   createdAt  DateTime @default(now())
