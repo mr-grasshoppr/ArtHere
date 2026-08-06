@@ -44,7 +44,7 @@
 .gradientSlide {
   position: relative;
   height: 100%;
-  aspect-ratio: 2321 / 642;
+  aspect-ratio: 2321 / 634;
   flex-shrink: 0;
   background-image: url('/images/logo-gradient-background.jpg');
   background-size: cover;
