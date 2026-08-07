@@ -62,6 +62,7 @@ export default async function CityPlacePage({
       where: { slug: placeSlug },
       include: {
         artists: {
+          where: { artist: { isPlaceholder: false } },
           orderBy: { createdAt: 'asc' },
           include: { artist: true },
         },

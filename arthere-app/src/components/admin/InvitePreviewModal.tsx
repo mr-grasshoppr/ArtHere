@@ -11,6 +11,7 @@ import { useState } from "react";
 export function InvitePreviewModal({
   email,
   link,
+  greetingName,
   initialSubject,
   initialBodyText,
   onSend,
@@ -18,6 +19,8 @@ export function InvitePreviewModal({
 }: {
   email: string;
   link: string;
+  /** Name shown in the "Hi ___," greeting — same value the actual email uses. Null/blank shows as "there". */
+  greetingName?: string | null;
   initialSubject: string;
   initialBodyText: string;
   onSend: (subject: string, bodyText: string) => Promise<void>;
@@ -108,13 +111,14 @@ export function InvitePreviewModal({
 
             <div className="mb-5">
               <label className="block text-xs text-[#888] uppercase tracking-wide mb-1.5">Message</label>
+              <p className="text-sm text-[#1a1a1a] mb-2">Hi {greetingName?.trim() || "there"},</p>
               <textarea
                 value={bodyText}
                 onChange={(e) => setBodyText(e.target.value)}
                 rows={6}
                 className="w-full px-3 py-2 border border-[#e5e5e5] rounded-lg text-sm focus:outline-none focus:border-[#999] resize-y"
               />
-              <p className="text-[0.7rem] text-[#bbb] mt-1.5">Appears below the greeting. The logo, sign-in button, and footer stay the same.</p>
+              <p className="text-[0.7rem] text-[#bbb] mt-1.5">The greeting above isn&rsquo;t editable. The logo, sign-in button, and footer stay the same.</p>
             </div>
 
             {error && <p className="text-red-500 text-sm mb-3">{error}</p>}

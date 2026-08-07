@@ -55,6 +55,7 @@ export function SendInviteButton({ artistId, initialEmail }: { artistId: string;
         <InvitePreviewModal
           email={preview.email}
           link={preview.link}
+          greetingName={preview.greetingName}
           initialSubject={preview.subject}
           initialBodyText={preview.bodyText}
           onClose={() => {

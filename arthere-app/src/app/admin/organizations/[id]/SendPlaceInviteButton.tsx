@@ -54,6 +54,7 @@ export function SendPlaceInviteButton({ placeId, initialEmail }: { placeId: stri
         <InvitePreviewModal
           email={preview.email}
           link={preview.link}
+          greetingName={preview.greetingName}
           initialSubject={preview.subject}
           initialBodyText={preview.bodyText}
           onClose={() => {

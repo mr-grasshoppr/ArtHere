@@ -40,6 +40,7 @@ export default async function PlacePage({
     where: { slug },
     include: {
       artists: {
+        where: { artist: { isPlaceholder: false } },
         orderBy: { createdAt: 'asc' },
         include: { artist: { include: { city: true } } },
       },

@@ -148,6 +148,8 @@ export interface InvitePreview {
   link: string;
   subject: string;
   bodyText: string;
+  /** Name used in the email's "Hi ___," greeting — same firstName() extraction the actual send uses, so the preview matches exactly. Null shows as "there". */
+  greetingName: string | null;
 }
 
 async function mintToken(scope: { artistId: string } | { placeId: string }, email: string): Promise<string> {
@@ -163,13 +165,14 @@ async function mintToken(scope: { artistId: string } | { placeId: string }, emai
 export async function createArtistInvitePreview({
   email,
   artistId,
+  artistName,
   variant = 'welcome',
 }: SendArtistLinkParams): Promise<InvitePreview> {
   const token = await mintToken({ artistId }, email);
   const link = `${BASE_URL}/profile/setup?token=${token}`;
   const subject = variant === 'returning' ? 'View and edit your Art Here profile' : 'Set up your Art Here artist profile';
   const bodyText = variant === 'returning' ? profileLinkDefaultBodyText('profile') : MAGIC_LINK_DEFAULT_BODY_TEXT;
-  return { email, link, subject, bodyText };
+  return { email, link, subject, bodyText, greetingName: firstName(artistName) };
 }
 
 export async function sendArtistInviteEmail({
@@ -201,7 +204,8 @@ export async function createPlaceInvitePreview({
   const link = `${BASE_URL}/place/setup?token=${token}`;
   const subject = variant === 'returning' ? 'View and edit your Art Here page' : `Manage your Art Here page — ${placeName}`;
   const bodyText = variant === 'returning' ? profileLinkDefaultBodyText('page') : MAGIC_LINK_DEFAULT_BODY_TEXT;
-  return { email, link, subject, bodyText };
+  // Places keep the full venue name in the greeting (never firstName()-truncated).
+  return { email, link, subject, bodyText, greetingName: placeName ?? null };
 }
 
 export async function sendPlaceInviteEmail({
