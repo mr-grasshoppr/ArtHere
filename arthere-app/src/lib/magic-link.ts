@@ -1,28 +1,15 @@
 import { randomBytes } from 'crypto';
-import { render } from '@react-email/components';
 import { prisma } from '@/lib/db';
 import { resend } from '@/lib/resend';
 import { MagicLinkEmail, MAGIC_LINK_DEFAULT_BODY_TEXT } from '@/emails/MagicLinkEmail';
 import { ProfileLinkEmail, profileLinkDefaultBodyText } from '@/emails/ProfileLinkEmail';
+import { renderEmail } from '@/lib/render-email';
 import React from 'react';
 
 // 'welcome' — first-time onboarding invite (admin-triggered), warm framing.
 // 'returning' — an existing artist/place asked for a fresh sign-in link
 // (self-service via /my-art-here), plain "here's your edit link" framing.
 export type LinkVariant = 'welcome' | 'returning';
-
-// Render the email to HTML + plaintext ourselves rather than handing Resend the
-// `react` prop — Resend v6 dynamically imports `@react-email/render` at send
-// time, which isn't resolvable in our bundle and throws "Failed to render
-// React component". Rendering here with the installed `@react-email/components`
-// sidesteps that entirely.
-async function renderEmail(element: React.ReactElement) {
-  const [html, text] = await Promise.all([
-    render(element),
-    render(element, { plainText: true }),
-  ]);
-  return { html, text };
-}
 
 const TOKEN_TTL_HOURS = 48;
 

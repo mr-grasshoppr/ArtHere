@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { waitUntil } from '@vercel/functions';
 import { randomBytes } from 'crypto';
 import React from 'react';
-import { render } from '@react-email/components';
 import { SurveyThankYouEmail } from '@/emails/SurveyThankYouEmail';
+import { AdminNotificationEmail } from '@/emails/AdminNotificationEmail';
+import { renderEmail } from '@/lib/render-email';
 import { prisma } from '@/lib/db';
 import { resend } from '@/lib/resend';
 import { rateLimit } from '@/lib/rate-limit';
-import { escapeHtml } from '@/lib/email';
 import { INVOLVEMENT_FEATURED } from '@/lib/survey-constants';
 import { surveySchema, parseBody } from '@/lib/schemas';
 
@@ -94,30 +94,9 @@ async function onCompleted(response: { id: string; email: string | null; involve
 
   // waitUntil keeps the serverless function alive until the emails send —
   // bare fire-and-forget promises are frozen once the response returns.
-  waitUntil(resend.emails.send({
-    from: 'Art Here <hello@artishere.org>',
-    to: 'maryannamail@gmail.com',
-    subject: 'New PDX Community Survey Response',
-    text: `A new survey response was submitted.\n\nRespondent email: ${email ?? '(not provided)'}\n\nGet involved:\n${involvementList.length ? involvementList.map(i => `• ${i}`).join('\n') : 'None selected'}\n\nView all responses: https://artishere.org/admin/survey`,
-    html: `
-      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 24px; color: #1a1a1a;">
-        <h2 style="font-size: 1.2rem; font-weight: 500; margin: 0 0 20px;">New Survey Response</h2>
-        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
-          <tr>
-            <td style="padding: 8px 12px 8px 0; color: #888; white-space: nowrap; vertical-align: top;">Respondent email</td>
-            <td style="padding: 8px 0; color: #1a1a1a;">${email ? `<a href="mailto:${escapeHtml(email)}" style="color: #1a1a1a;">${escapeHtml(email)}</a>` : '<em style="color:#aaa">not provided</em>'}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 12px 8px 0; color: #888; white-space: nowrap; vertical-align: top;">Get involved</td>
-            <td style="padding: 8px 0; color: #1a1a1a;">${involvementList.length ? involvementList.map(i => `• ${escapeHtml(i)}`).join('<br>') : '<em style="color:#aaa">None selected</em>'}</td>
-          </tr>
-        </table>
-        <p style="margin: 28px 0 0;">
-          <a href="https://artishere.org/admin/survey" style="color: #1a1a1a; font-size: 0.85rem;">View all responses →</a>
-        </p>
-      </div>
-    `,
-  }).catch(err => console.error('[survey] admin notification failed:', err)));
+  waitUntil(sendAdminNotification(email, involvementList).catch(
+    err => console.error('[survey] admin notification failed:', err),
+  ));
 
   if (email) {
     waitUntil(sendThankYou(email).catch(
@@ -126,14 +105,41 @@ async function onCompleted(response: { id: string; email: string | null; involve
   }
 }
 
-// Rendered here rather than via Resend's `react` prop — see the note in
-// lib/magic-link.ts for why that path throws in our bundle.
+async function sendAdminNotification(email: string | null, involvementList: string[]) {
+  const emailValue: React.ReactNode = email
+    ? React.createElement('a', { href: `mailto:${email}`, style: { color: '#1a1a1a' } }, email)
+    : React.createElement('em', { style: { color: '#aaa' } }, 'not provided');
+
+  const involvementValue: React.ReactNode = involvementList.length
+    ? involvementList.flatMap((item, i) =>
+        i === 0 ? [`• ${item}`] : [React.createElement('br', { key: `br-${i}` }), `• ${item}`]
+      )
+    : React.createElement('em', { style: { color: '#aaa' } }, 'None selected');
+
+  const { html } = await renderEmail(
+    React.createElement(AdminNotificationEmail, {
+      preview: 'New PDX Community Survey Response',
+      heading: 'New Survey Response',
+      rows: [
+        { label: 'Respondent email', value: emailValue },
+        { label: 'Get involved', value: involvementValue },
+      ],
+      ctaLabel: 'View all responses →',
+      ctaHref: 'https://artishere.org/admin/survey',
+    })
+  );
+
+  await resend.emails.send({
+    from: 'Art Here <hello@artishere.org>',
+    to: 'maryannamail@gmail.com',
+    subject: 'New PDX Community Survey Response',
+    text: `A new survey response was submitted.\n\nRespondent email: ${email ?? '(not provided)'}\n\nGet involved:\n${involvementList.length ? involvementList.map(i => `• ${i}`).join('\n') : 'None selected'}\n\nView all responses: https://artishere.org/admin/survey`,
+    html,
+  });
+}
+
 async function sendThankYou(email: string) {
-  const element = React.createElement(SurveyThankYouEmail);
-  const [html, text] = await Promise.all([
-    render(element),
-    render(element, { plainText: true }),
-  ]);
+  const { html, text } = await renderEmail(React.createElement(SurveyThankYouEmail));
   await resend.emails.send({
     from: 'Art Here <hello@artishere.org>',
     to: email,
