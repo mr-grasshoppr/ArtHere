@@ -114,7 +114,7 @@
 
 .logoArtistName {
   position: absolute;
-  bottom: 12px;
+  bottom: calc(var(--cg-row-px, 100px) * 0.17);
   left: 14px;
   font-weight: 300;
   font-style: italic;
