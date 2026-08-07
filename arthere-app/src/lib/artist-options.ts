@@ -14,7 +14,7 @@ export const MEDIUM_OPTIONS = [
 ];
 
 export const OFFERING_OPTIONS = [
-  { value: 'sell_existing', label: 'Buying existing artwork' },
+  { value: 'sell_existing', label: 'Selling existing artwork' },
   { value: 'custom_artwork', label: 'Custom work' },
   { value: 'classes', label: 'Teaching classes, lessons, or workshops' },
   { value: 'consultations', label: 'Consultations' },
