@@ -125,11 +125,16 @@ export async function POST(req: NextRequest) {
   } else {
     // A brand-new profile starts unpublished, pending admin review — see
     // "Submit for review" in OnboardingForm / api/profile/submit-for-review.
+    // Without a cityId the artist never matches any city-scoped page's query
+    // (see lib/city-scope.ts) — publishing it later would silently leave it
+    // invisible on the artwork/artists/network pages despite being live.
+    const portland = await prisma.city.findUnique({ where: { slug: "portland" } });
     try {
       artist = await prisma.artist.create({
         data: {
           ...artistData,
           isPlaceholder: true,
+          cityId: portland?.id ?? null,
           slug,
           userId: session.user.id,
         },
@@ -141,6 +146,7 @@ export async function POST(req: NextRequest) {
         data: {
           ...artistData,
           isPlaceholder: true,
+          cityId: portland?.id ?? null,
           slug: `${baseSlug}-${Math.random().toString(36).slice(2, 8)}`,
           userId: session.user.id,
         },

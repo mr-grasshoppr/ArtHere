@@ -23,8 +23,12 @@ export async function createArtist(name: string): Promise<string> {
   if (!trimmedName) throw new Error("Name is required");
 
   const slug = await uniqueArtistSlug(trimmedName);
+  // Without a cityId the artist never matches any city-scoped page's query
+  // (see lib/city-scope.ts) — publishing it later would silently leave it
+  // invisible on the artwork/artists/network pages despite being live.
+  const portland = await prisma.city.findUnique({ where: { slug: "portland" } });
   const artist = await prisma.artist.create({
-    data: { name: trimmedName, slug, isPlaceholder: true },
+    data: { name: trimmedName, slug, isPlaceholder: true, cityId: portland?.id ?? null },
   });
   return artist.id;
 }
