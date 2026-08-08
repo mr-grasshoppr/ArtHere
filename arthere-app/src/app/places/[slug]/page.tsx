@@ -47,7 +47,7 @@ export default async function PlacePage({
     },
   });
 
-  if (!place || !place.inDirectory) notFound();
+  if (!place) notFound();
 
   // Derive the city to link back to from the first connected artist that has
   // one — places themselves aren't tied to a city directly.

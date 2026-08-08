@@ -49,6 +49,12 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals }: P
     <div className="min-h-screen bg-white text-[#1a1a1a] pt-14 pb-14">
       <NavBar activeCitySlug={citySlug} theme="light" />
 
+      {!place.inDirectory && (
+        <div className="bg-amber-50 border-b border-amber-200 text-amber-700 text-[0.82rem] text-center py-2 px-4">
+          Preview — not yet live in the Community directory.
+        </div>
+      )}
+
       {/* Hero image — fixed 21:9 aspect (not viewport-relative height) so the
           crop framed in the admin/self-service editor, which previews the
           same 21:9 ratio, actually matches what renders here. */}

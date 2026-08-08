@@ -6,7 +6,7 @@ import type { Metadata } from 'next';
 import { NavBar } from '@/components/NavBar';
 import { CityBottomBar } from '@/components/CityBottomBar';
 import { NetworkGraph, type NetworkNode, type NetworkLink } from '@/components/NetworkGraph';
-import { normalizeNeighborhood } from '@/lib/neighborhoods';
+import { parseNeighborhoodList } from '@/lib/neighborhoods';
 
 // ISR: content is edited via admin + self-service; regenerate at most every 30s
 export const revalidate = 30;
@@ -58,7 +58,9 @@ export default async function CityNetworkPage({
 
   for (const artist of cityArtists) {
     const artistId = `artist-${artist.slug}`;
-    const artistNeighborhood = artist.neighborhood ? normalizeNeighborhood(artist.neighborhood) : null;
+    // A node can only belong to one color group — if a profile lists several
+    // neighborhoods (places can, via the multiselect picker), use the first.
+    const artistNeighborhood = parseNeighborhoodList(artist.neighborhood)[0] ?? null;
 
     nodes.push({
       id: artistId,
@@ -84,7 +86,7 @@ export default async function CityNetworkPage({
 
       if (!seenPlaces.has(placeId)) {
         seenPlaces.add(placeId);
-        const placeNeighborhood = place?.neighborhood ? normalizeNeighborhood(place.neighborhood) : null;
+        const placeNeighborhood = parseNeighborhoodList(place?.neighborhood)[0] ?? null;
         nodes.push({
           id: placeId,
           label: name,

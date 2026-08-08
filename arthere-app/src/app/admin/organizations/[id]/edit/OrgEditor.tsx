@@ -3,9 +3,12 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { updateOrganization } from "../../actions";
+import OrgVisibilityToggle from "../../OrgVisibilityToggle";
 import { FramingButton } from "@/components/FramingButton";
 import { PhotoGrid } from "@/components/PhotoGrid";
+import { NeighborhoodPicker } from "@/components/NeighborhoodPicker";
 import { focalStyle, type Focal } from "@/lib/focal-style";
+import { parseNeighborhoodList, joinNeighborhoodList } from "@/lib/neighborhoods";
 import type { FramingValue } from "@/components/FramingEditor";
 import { resizeImageForUpload } from "@/lib/client-image-resize";
 
@@ -21,6 +24,7 @@ type Org = {
   heroImageUrl: string | null;
   thumbnailImageUrl: string | null;
   galleryImages: string[];
+  inDirectory: boolean;
 };
 
 const GALLERY_MAX = 3;
@@ -38,7 +42,15 @@ async function uploadBlob(file: File): Promise<string> {
   return (await res.json()).url as string;
 }
 
-export default function OrgEditor({ place, initialFocals }: { place: Org; initialFocals?: Record<string, Focal> }) {
+export default function OrgEditor({
+  place,
+  neighborhoodOptions,
+  initialFocals,
+}: {
+  place: Org;
+  neighborhoodOptions: string[];
+  initialFocals?: Record<string, Focal>;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
@@ -52,7 +64,7 @@ export default function OrgEditor({ place, initialFocals }: { place: Org; initia
   }
 
   const [name, setName] = useState(place.name);
-  const [neighborhood, setNeighborhood] = useState(place.neighborhood);
+  const [neighborhoods, setNeighborhoods] = useState<string[]>(parseNeighborhoodList(place.neighborhood));
   const [description, setDescription] = useState(place.description);
   const [quote, setQuote] = useState(place.quote);
   const [quoteAttribution, setQuoteAttribution] = useState(place.quoteAttribution);
@@ -114,7 +126,7 @@ export default function OrgEditor({ place, initialFocals }: { place: Org; initia
       try {
         await updateOrganization(place.id, {
           name,
-          neighborhood,
+          neighborhood: joinNeighborhoodList(neighborhoods) ?? "",
           description,
           quote,
           quoteAttribution,
@@ -134,6 +146,11 @@ export default function OrgEditor({ place, initialFocals }: { place: Org; initia
 
   return (
     <form onSubmit={handleSave} className="space-y-8">
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-[#999] uppercase tracking-wide">Directory status</span>
+        <OrgVisibilityToggle placeId={place.id} inDirectory={place.inDirectory} />
+      </div>
+
       {/* Hero image */}
       <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
         <div>
@@ -203,8 +220,8 @@ export default function OrgEditor({ place, initialFocals }: { place: Org; initia
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className={labelCls}>Neighborhood</label>
-            <input type="text" value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)} placeholder="e.g. Multnomah Village" className={inputCls} />
+            <label className={labelCls}>Neighborhoods</label>
+            <NeighborhoodPicker options={neighborhoodOptions} value={neighborhoods} onChange={setNeighborhoods} />
           </div>
           <div>
             <label className={labelCls}>Owner email</label>

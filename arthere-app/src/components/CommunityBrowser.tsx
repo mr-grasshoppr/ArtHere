@@ -4,7 +4,8 @@ import { useState, type CSSProperties } from 'react';
 import Link from 'next/link';
 import { FadeImage } from '@/components/FadeImage';
 import type { PlaceRelationship } from '@prisma/client';
-import { FilterDropdown, pillClass } from './FilterDropdown';
+import { MultiFilterDropdown, pillClass } from './FilterDropdown';
+import { parseNeighborhoodList } from '@/lib/neighborhoods';
 
 const RELATIONSHIP_LABELS: Partial<Record<PlaceRelationship, string>> = {
   INSTRUCTOR: 'Instructor',
@@ -86,10 +87,13 @@ function PlaceCard({ place, citySlug }: { place: CommunityPlaceData; citySlug?: 
  * directory, followed by a responsive grid of place cards.
  */
 export function CommunityBrowser({ places, neighborhoodOptions, citySlug }: Props) {
-  const [neighborhoodFilter, setNeighborhoodFilter] = useState('');
+  const [neighborhoodFilter, setNeighborhoodFilter] = useState<string[]>([]);
   const [openDropdown, setOpenDropdown] = useState(false);
 
-  const shown = places.filter(p => !neighborhoodFilter || p.neighborhood === neighborhoodFilter);
+  const shown = places.filter(p =>
+    neighborhoodFilter.length === 0 ||
+    parseNeighborhoodList(p.neighborhood).some(n => neighborhoodFilter.includes(n))
+  );
 
   return (
     <>
@@ -102,13 +106,13 @@ export function CommunityBrowser({ places, neighborhoodOptions, citySlug }: Prop
         <div className="max-w-[1400px] mx-auto px-5 sm:px-10 py-3 sm:py-4 flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={() => setNeighborhoodFilter('')}
-            className={pillClass('light', !neighborhoodFilter)}
+            onClick={() => setNeighborhoodFilter([])}
+            className={pillClass('light', neighborhoodFilter.length === 0)}
           >
             All
           </button>
 
-          <FilterDropdown
+          <MultiFilterDropdown
             label="Neighborhood"
             pluralLabel="neighborhoods"
             options={neighborhoodOptions}

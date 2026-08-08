@@ -10,7 +10,7 @@ import { CommunityBrowser, type CommunityPlaceData } from '@/components/Communit
 import { getFocalStyles } from '@/lib/image-focus';
 import { SiteFooter } from '@/components/SiteFooter';
 import { TechSupportLink } from '@/components/TechSupportLink';
-import { isCityLevelNeighborhood, normalizeNeighborhood } from '@/lib/neighborhoods';
+import { isCityLevelNeighborhood, parseNeighborhoodList } from '@/lib/neighborhoods';
 
 // ISR: content is edited via admin + self-service; regenerate at most every 30s
 export const revalidate = 30;
@@ -114,9 +114,7 @@ export default async function CityCommunityPage({
   const neighborhoodOptions = [
     ...new Set(
       places
-        .map(p => p.neighborhood)
-        .filter((v): v is string => !!v)
-        .map(normalizeNeighborhood)
+        .flatMap(p => parseNeighborhoodList(p.neighborhood))
         .filter(v => !isCityLevelNeighborhood(v))
     ),
   ].sort();

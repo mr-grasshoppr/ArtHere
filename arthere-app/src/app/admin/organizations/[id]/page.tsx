@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import PlaceNotes from "./PlaceNotes";
 import { SendPlaceInviteButton } from "./SendPlaceInviteButton";
+import { getFocalStyles } from "@/lib/image-focus";
 
 export default async function AdminOrgDetailPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdminPage();
@@ -20,6 +21,11 @@ export default async function AdminOrgDetailPage({ params }: { params: Promise<{
   });
 
   if (!place) notFound();
+
+  // Match the header's 21:9 crop (and its auto-detected/manual focal point)
+  // so this thumbnail previews the same framing as the live page.
+  const focals = await getFocalStyles([place.heroImageUrl]);
+  const heroStyle = place.heroImageUrl ? focals.get(place.heroImageUrl) : undefined;
 
   return (
     <div>
@@ -40,7 +46,12 @@ export default async function AdminOrgDetailPage({ params }: { params: Promise<{
         <div className="md:col-span-1 space-y-6">
           {place.heroImageUrl && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={place.heroImageUrl} alt={place.name} className="w-full aspect-video object-cover rounded-xl bg-[#f0f0f0]" />
+            <img
+              src={place.heroImageUrl}
+              alt={place.name}
+              className="w-full aspect-[21/9] object-cover rounded-xl bg-[#f0f0f0]"
+              style={heroStyle}
+            />
           )}
 
           {place.galleryImages.length > 0 && (
@@ -100,7 +111,7 @@ export default async function AdminOrgDetailPage({ params }: { params: Promise<{
                 target="_blank"
                 className="inline-flex items-center justify-center px-4 py-2 rounded-full border border-[#e0e0e0] text-xs font-medium text-[#444] hover:border-[#1a1a1a] hover:text-[#1a1a1a] transition-colors"
               >
-                View public page ↗
+                View page ↗
               </Link>
               <SendPlaceInviteButton placeId={place.id} initialEmail={place.user?.email ?? ""} />
             </div>

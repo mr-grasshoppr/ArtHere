@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import OrgEditor from "./OrgEditor";
 import { getFocals } from "@/lib/image-focus";
+import { getKnownNeighborhoods } from "@/lib/neighborhoods";
 
 export default async function AdminOrgEditPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdminPage();
@@ -17,9 +18,11 @@ export default async function AdminOrgEditPage({ params }: { params: Promise<{ i
 
   if (!place) notFound();
 
-  const initialFocals = Object.fromEntries(
-    await getFocals([place.heroImageUrl, place.thumbnailImageUrl, ...place.galleryImages])
-  );
+  const [initialFocalsEntries, neighborhoodOptions] = await Promise.all([
+    getFocals([place.heroImageUrl, place.thumbnailImageUrl, ...place.galleryImages]),
+    getKnownNeighborhoods(),
+  ]);
+  const initialFocals = Object.fromEntries(initialFocalsEntries);
 
   return (
     <div className="max-w-2xl">
@@ -44,7 +47,9 @@ export default async function AdminOrgEditPage({ params }: { params: Promise<{ i
           heroImageUrl: place.heroImageUrl,
           thumbnailImageUrl: place.thumbnailImageUrl,
           galleryImages: place.galleryImages,
+          inDirectory: place.inDirectory,
         }}
+        neighborhoodOptions={neighborhoodOptions}
         initialFocals={initialFocals}
       />
     </div>

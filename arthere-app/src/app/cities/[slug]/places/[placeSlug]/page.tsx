@@ -71,7 +71,7 @@ export default async function CityPlacePage({
     prisma.city.findUnique({ where: { slug: citySlug } }),
   ]);
 
-  if (!place || !place.inDirectory || !city) notFound();
+  if (!place || !city) notFound();
 
   const focals = await getFocalStyles([place.heroImageUrl, ...place.galleryImages]);
 

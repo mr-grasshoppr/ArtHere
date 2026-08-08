@@ -7,7 +7,7 @@ import { NavBar } from '@/components/NavBar';
 import { ArtworkBrowser, type ArtworkArtistData } from '@/components/ArtworkBrowser';
 import { CityBottomBar } from '@/components/CityBottomBar';
 import { parseMediumList } from '@/lib/artist-options';
-import { isCityLevelNeighborhood, normalizeNeighborhood } from '@/lib/neighborhoods';
+import { isCityLevelNeighborhood, parseNeighborhoodList } from '@/lib/neighborhoods';
 
 // ISR: content is edited via admin + self-service; regenerate at most every 30s
 export const revalidate = 30;
@@ -66,9 +66,12 @@ export default async function CityArtworkPage({
           cropBox: img.cropBox as { x: number; y: number; w: number; h: number } | null,
           alt: img.altText ?? `Artwork by ${artist.name}`,
           isHero: img.isHero,
-          // Per-artwork medium, from AI tagging — falls back to the artist's
-          // overall mediums if this image hasn't been tagged yet.
-          medium: img.medium.length > 0 ? img.medium : parseMediumList(artist.medium),
+          // Per-artwork medium, from AI tagging. Deliberately NOT falling back
+          // to the artist's overall mediums — an illustrator's painting photo
+          // shouldn't match a search/filter for "Illustration" just because
+          // it hasn't been AI-tagged yet. Untagged pieces simply don't match
+          // any specific medium filter until tagging completes.
+          medium: img.medium,
         })),
     }))
     .filter(artist => artist.images.length > 0);
@@ -80,9 +83,7 @@ export default async function CityArtworkPage({
   const neighborhoodOptions = [
     ...new Set(
       artists
-        .map(a => a.neighborhood)
-        .filter((v): v is string => !!v)
-        .map(normalizeNeighborhood)
+        .flatMap(a => parseNeighborhoodList(a.neighborhood))
         .filter(v => !isCityLevelNeighborhood(v))
     ),
   ].sort();

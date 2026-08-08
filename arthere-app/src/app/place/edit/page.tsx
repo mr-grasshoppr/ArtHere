@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db';
 import { redirect } from 'next/navigation';
 import PlaceEditForm from './PlaceEditForm';
 import { getFocals } from '@/lib/image-focus';
+import { getKnownNeighborhoods } from '@/lib/neighborhoods';
 
 export default async function PlaceEditPage() {
   const session = await auth();
@@ -20,9 +21,11 @@ export default async function PlaceEditPage() {
 
   if (!place) redirect('/my-art-here');
 
-  const initialFocals = Object.fromEntries(
-    await getFocals([place.heroImageUrl, place.thumbnailImageUrl, ...place.galleryImages])
-  );
+  const [initialFocalsEntries, neighborhoodOptions] = await Promise.all([
+    getFocals([place.heroImageUrl, place.thumbnailImageUrl, ...place.galleryImages]),
+    getKnownNeighborhoods(),
+  ]);
+  const initialFocals = Object.fromEntries(initialFocalsEntries);
 
   return (
     <div className="min-h-screen bg-white text-[#1a1a1a]">
@@ -38,8 +41,10 @@ export default async function PlaceEditPage() {
           thumbnailImageUrl: place.thumbnailImageUrl ?? null,
           galleryImages: place.galleryImages,
           artists: place.artists.map(rel => ({ slug: rel.artist.slug, name: rel.artist.name })),
+          inDirectory: place.inDirectory,
         }}
         placeSlug={place.slug}
+        neighborhoodOptions={neighborhoodOptions}
         initialFocals={initialFocals}
       />
     </div>

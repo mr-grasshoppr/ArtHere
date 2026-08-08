@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { FramingButton } from '@/components/FramingButton';
 import { PhotoGrid } from '@/components/PhotoGrid';
+import { NeighborhoodPicker } from '@/components/NeighborhoodPicker';
 import { focalStyle, type Focal } from '@/lib/focal-style';
+import { parseNeighborhoodList, joinNeighborhoodList } from '@/lib/neighborhoods';
 import type { FramingValue } from '@/components/FramingEditor';
 import { resizeImageForUpload } from '@/lib/client-image-resize';
 
@@ -25,6 +27,7 @@ interface InitialData {
   thumbnailImageUrl: string | null;
   galleryImages: string[];
   artists: Artist[];
+  inDirectory: boolean;
 }
 
 type InitialFocals = Record<string, Focal>;
@@ -34,17 +37,18 @@ const GALLERY_MAX = 3;
 const LABEL = 'block text-[0.7rem] font-semibold text-[#aaa] mb-2 uppercase tracking-widest';
 const BTN = 'px-6 py-2.5 rounded-full bg-[#1a1a1a] text-white text-[0.88rem] font-medium transition-opacity hover:opacity-80 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer';
 const INLINE_H1 = 'bg-transparent border-0 border-b border-[#e8e8e8] focus:border-[#aaa] focus:outline-none transition-colors placeholder-[#d0d0d0] text-[#1a1a1a] font-heading text-[1.35rem] sm:text-[1.6rem] font-bold tracking-[-0.01em] leading-tight w-full pb-1';
-const INLINE_META = 'bg-transparent border-0 border-b border-[#e8e8e8] focus:border-[#aaa] focus:outline-none transition-colors placeholder-[#d0d0d0] text-[0.88rem] text-[#888] font-light w-full pb-1';
 const INLINE_BODY = 'bg-transparent border border-transparent hover:border-[#e8e8e8] focus:border-[#ccc] focus:outline-none rounded-md transition-colors placeholder-[#ccc] text-[1.05rem] text-[#444] font-light leading-[1.8] w-full px-2 -mx-2 py-1 resize-none';
 const FIELD = 'w-full px-4 py-3 rounded-lg border border-[#e8e8e8] text-[0.95rem] text-[#1a1a1a] placeholder-[#ccc] focus:outline-none focus:border-[#1a1a1a] transition-colors bg-white';
 
 export default function PlaceEditForm({
   initialData,
   placeSlug,
+  neighborhoodOptions,
   initialFocals,
 }: {
   initialData: InitialData;
   placeSlug: string;
+  neighborhoodOptions: string[];
   initialFocals?: InitialFocals;
 }) {
   const router = useRouter();
@@ -59,7 +63,7 @@ export default function PlaceEditForm({
   }
 
   const [name, setName] = useState(initialData.name);
-  const [neighborhood, setNeighborhood] = useState(initialData.neighborhood);
+  const [neighborhoods, setNeighborhoods] = useState<string[]>(parseNeighborhoodList(initialData.neighborhood));
   const [description, setDescription] = useState(initialData.description);
   const [quote, setQuote] = useState(initialData.quote);
   const [quoteAttribution, setQuoteAttribution] = useState(initialData.quoteAttribution);
@@ -88,7 +92,7 @@ export default function PlaceEditForm({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name,
-          neighborhood,
+          neighborhood: joinNeighborhoodList(neighborhoods) ?? '',
           description,
           quote,
           quoteAttribution,
@@ -111,7 +115,7 @@ export default function PlaceEditForm({
     saveTimer.current = setTimeout(() => persistAll(), 1200);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, neighborhood, description, quote, quoteAttribution, website]);
+  }, [name, neighborhoods, description, quote, quoteAttribution, website]);
 
   async function handleHeroSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -230,13 +234,19 @@ export default function PlaceEditForm({
           className={INLINE_H1}
         />
         <p className="text-[0.65rem] text-[#ccc] mt-1 mb-5">Name</p>
-        <input
-          value={neighborhood}
-          onChange={e => setNeighborhood(e.target.value)}
-          placeholder="Neighborhood"
-          className={INLINE_META}
-        />
-        <p className="text-[0.65rem] text-[#ccc] mt-1">Neighborhood</p>
+        <div className="max-w-[320px]">
+          <NeighborhoodPicker options={neighborhoodOptions} value={neighborhoods} onChange={setNeighborhoods} />
+        </div>
+        <p className="text-[0.65rem] text-[#ccc] mt-1 mb-5">Neighborhoods</p>
+        <span
+          className={`inline-flex items-center text-xs px-2.5 py-1 rounded-full border ${
+            initialData.inDirectory
+              ? 'bg-green-50 border-green-300 text-green-700'
+              : 'bg-[#f5f5f5] border-[#e5e5e5] text-[#999]'
+          }`}
+        >
+          {initialData.inDirectory ? '● Live in the Community directory' : 'Not yet live — an Art Here admin will publish this page'}
+        </span>
       </div>
 
       {/* Description + quote + website */}

@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FilterDropdown, pillClass } from './FilterDropdown';
+import { FilterDropdown, MultiFilterDropdown, pillClass } from './FilterDropdown';
+import { parseNeighborhoodList } from '@/lib/neighborhoods';
 
 interface CropBox { x: number; y: number; w: number; h: number; }
 
@@ -123,19 +124,19 @@ function CroppedTile({ src, alt, cropBox }: { src: string; alt: string; cropBox:
  */
 export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, communityOptions }: Props) {
   const [mediumFilter, setMediumFilter] = useState('');
-  const [neighborhoodFilter, setNeighborhoodFilter] = useState('');
+  const [neighborhoodFilter, setNeighborhoodFilter] = useState<string[]>([]);
   const [communityFilter, setCommunityFilter] = useState('');
   const [openDropdown, setOpenDropdown] = useState<DropdownKey | null>(null);
   const [sequence, setSequence] = useState<SequenceItem[]>([]);
 
-  const hasFilter = !!(mediumFilter || neighborhoodFilter || communityFilter);
+  const hasFilter = !!(mediumFilter || neighborhoodFilter.length > 0 || communityFilter);
 
   // Medium filters per artwork, not per artist — an artist who does both
   // painting and sculpture shouldn't show sculpture photos when someone's
   // filtering for painting. Neighborhood/community stay artist-level.
   let filtered = artists
     .filter(a =>
-      (!neighborhoodFilter || a.neighborhood === neighborhoodFilter) &&
+      (neighborhoodFilter.length === 0 || parseNeighborhoodList(a.neighborhood).some(n => neighborhoodFilter.includes(n))) &&
       (!communityFilter || a.communities.includes(communityFilter))
     )
     .map(a => (mediumFilter ? { ...a, images: a.images.filter(img => img.medium.includes(mediumFilter)) } : a))
@@ -153,7 +154,7 @@ export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, co
 
   function clearFilters() {
     setMediumFilter('');
-    setNeighborhoodFilter('');
+    setNeighborhoodFilter([]);
     setCommunityFilter('');
   }
 
@@ -195,7 +196,7 @@ export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, co
           isOpen={openDropdown === 'medium'}
           onToggle={() => toggleDropdown('medium')}
         />
-        <FilterDropdown
+        <MultiFilterDropdown
           theme="dark"
           label="Neighborhood"
           pluralLabel="neighborhoods"
