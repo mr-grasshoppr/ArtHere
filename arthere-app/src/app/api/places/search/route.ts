@@ -18,6 +18,7 @@ export async function GET(req: NextRequest) {
   const places = await prisma.place.findMany({
     where: {
       inDirectory: true,
+      isArchived: false,
       name: { contains: q, mode: 'insensitive' },
     },
     select: { id: true, name: true, slug: true },

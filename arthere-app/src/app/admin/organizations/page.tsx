@@ -21,14 +21,21 @@ export default async function AdminOrganizationsPage({
     },
   });
 
-  const liveCount = allPlaces.filter((p) => p.inDirectory).length;
+  // Archived pages are tucked out of the default view entirely, same as
+  // artists — see setPlacesArchived.
+  const nonArchived = allPlaces.filter((p) => !p.isArchived);
+  const archivedCount = allPlaces.length - nonArchived.length;
+
+  const liveCount = nonArchived.filter((p) => p.inDirectory).length;
 
   const places =
-    filter === "live" ? allPlaces.filter((p) => p.inDirectory)
-    : filter === "hidden" ? allPlaces.filter((p) => !p.inDirectory)
-    : allPlaces;
+    filter === "live" ? nonArchived.filter((p) => p.inDirectory)
+    : filter === "hidden" ? nonArchived.filter((p) => !p.inDirectory)
+    : filter === "archived" ? allPlaces.filter((p) => p.isArchived)
+    : nonArchived;
 
-  const countLabel = filter ? `${places.length} of ${allPlaces.length}` : `${allPlaces.length}`;
+  const totalForLabel = filter === "archived" ? archivedCount : nonArchived.length;
+  const countLabel = filter ? `${places.length} of ${totalForLabel}` : `${totalForLabel}`;
 
   return (
     <div>
@@ -37,6 +44,11 @@ export default async function AdminOrganizationsPage({
           <h1 className="text-2xl font-medium">Organizations</h1>
           <span className="text-sm text-[#888]">{countLabel} pages</span>
           <span className="text-sm text-green-700">{liveCount} live</span>
+          {archivedCount > 0 && (
+            <Link href="/admin/organizations?filter=archived" className="text-sm text-[#999] hover:underline">
+              {archivedCount} archived
+            </Link>
+          )}
         </div>
         <div className="flex items-center gap-3">
           <div className="flex gap-1 text-xs">
@@ -52,6 +64,14 @@ export default async function AdminOrganizationsPage({
             >
               Hidden
             </Link>
+            {archivedCount > 0 && (
+              <Link
+                href="/admin/organizations?filter=archived"
+                className={`px-3 py-1.5 rounded-full border transition-colors ${filter === "archived" ? "bg-[#e5e5e5] border-[#ccc] text-[#555]" : "border-[#e5e5e5] text-[#888] hover:border-[#999]"}`}
+              >
+                Archived
+              </Link>
+            )}
             {filter && (
               <Link href="/admin/organizations" className="px-3 py-1.5 rounded-full border border-[#e5e5e5] text-[#bbb] hover:border-[#999]">
                 Clear ✕

@@ -12,7 +12,7 @@ export const revalidate = 30;
 export async function generateStaticParams() {
   return safeStaticParams(async () => {
     const places = await prisma.place.findMany({
-      where: { inDirectory: true },
+      where: { inDirectory: true, isArchived: false },
       select: {
         slug: true,
         artists: { select: { artist: { select: { city: { select: { slug: true } } } } } },

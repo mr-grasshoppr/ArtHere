@@ -53,3 +53,18 @@ export async function setArtistPlaceholder(artistId: string, isPlaceholder: bool
   revalidatePath("/cities/portland");
   revalidatePath("/cities/portland/artists");
 }
+
+/**
+ * Tucks profiles out of the default admin list and unconditionally out of
+ * public pages (see artistScopeWhere in lib/city-scope.ts), independent of
+ * isPlaceholder — archiving doesn't change whatever Live/Hidden state a
+ * profile had, so unarchiving restores it exactly as it was.
+ */
+export async function setArtistsArchived(artistIds: string[], isArchived: boolean) {
+  await requireAdmin();
+  if (artistIds.length === 0) return;
+  await prisma.artist.updateMany({ where: { id: { in: artistIds } }, data: { isArchived } });
+  revalidatePath("/admin/artists");
+  revalidatePath("/cities/portland");
+  revalidatePath("/cities/portland/artists");
+}

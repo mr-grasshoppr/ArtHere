@@ -68,25 +68,34 @@ export default async function AdminArtistsPage({
     },
   });
 
-  const mediumData = tallyMedium(allArtists.map((a) => a.medium), allArtists.length);
-  const neighborhoodData = tally(allArtists.map((a) => a.neighborhood), allArtists.length);
+  // Archived profiles are tucked out of the default view entirely — charts,
+  // counts, and the list all work off `nonArchived` unless the Archived
+  // filter is the active one.
+  const nonArchived = allArtists.filter((a) => !a.isArchived);
+  const archivedCount = allArtists.length - nonArchived.length;
 
+  const mediumData = tallyMedium(nonArchived.map((a) => a.medium), nonArchived.length);
+  const neighborhoodData = tally(nonArchived.map((a) => a.neighborhood), nonArchived.length);
+
+  const baseArtists = activeField === "archived" ? allArtists : nonArchived;
   const artists =
     activeField && activeValue
-      ? allArtists.filter((a) => {
+      ? baseArtists.filter((a) => {
           if (activeField === "medium") return mediumMatches(a.medium, activeValue);
           if (activeField === "neighborhood") return a.neighborhood === activeValue;
           if (activeField === "placeholder") return String(a.isPlaceholder) === activeValue;
           if (activeField === "needsReview") return a.submittedForReviewAt != null;
+          if (activeField === "archived") return String(a.isArchived) === activeValue;
           return true;
         })
-      : allArtists;
+      : baseArtists;
 
-  const liveCount = allArtists.filter((a) => !a.isPlaceholder).length;
-  const needsReviewCount = allArtists.filter((a) => a.submittedForReviewAt != null).length;
+  const liveCount = nonArchived.filter((a) => !a.isPlaceholder).length;
+  const needsReviewCount = nonArchived.filter((a) => a.submittedForReviewAt != null).length;
+  const totalForLabel = activeField === "archived" ? archivedCount : nonArchived.length;
   const countLabel = activeField && activeValue
-    ? `${artists.length} of ${allArtists.length}`
-    : `${allArtists.length}`;
+    ? `${artists.length} of ${totalForLabel}`
+    : `${totalForLabel}`;
 
   return (
     <div>
@@ -103,12 +112,19 @@ export default async function AdminArtistsPage({
               {needsReviewCount} awaiting review
             </Link>
           )}
+          {archivedCount > 0 && (
+            <Link href="/admin/artists?field=archived&value=true" className="text-sm text-[#999] hover:underline">
+              {archivedCount} archived
+            </Link>
+          )}
           {activeField && activeValue && (
             <span className="text-sm bg-[#f0f0f0] px-2 py-0.5 rounded-full text-[#555]">
               {activeField === "placeholder"
                 ? (activeValue === "true" ? "Placeholder" : "Real")
                 : activeField === "needsReview"
                 ? "Awaiting review"
+                : activeField === "archived"
+                ? "Archived"
                 : activeValue}
               <Link href="/admin/artists" className="ml-1.5 text-[#bbb] hover:text-[#555]">✕</Link>
             </span>
@@ -142,6 +158,14 @@ export default async function AdminArtistsPage({
                 className={`px-3 py-1.5 rounded-full border transition-colors ${activeField === "needsReview" ? "bg-amber-50 border-amber-300 text-amber-700" : "border-[#e5e5e5] text-[#888] hover:border-[#999]"}`}
               >
                 Needs review
+              </Link>
+            )}
+            {archivedCount > 0 && (
+              <Link
+                href="/admin/artists?field=archived&value=true"
+                className={`px-3 py-1.5 rounded-full border transition-colors ${activeField === "archived" ? "bg-[#e5e5e5] border-[#ccc] text-[#555]" : "border-[#e5e5e5] text-[#888] hover:border-[#999]"}`}
+              >
+                Archived
               </Link>
             )}
           </div>
@@ -217,11 +241,11 @@ export default async function AdminArtistsPage({
             <NewArtistForm />
           </div>
 
-          {allArtists.length > 0 && (
+          {nonArchived.length > 0 && (
             <ArtistCharts
               mediumData={mediumData}
               neighborhoodData={neighborhoodData}
-              total={allArtists.length}
+              total={nonArchived.length}
               activeField={activeField}
               activeValue={activeValue}
             />

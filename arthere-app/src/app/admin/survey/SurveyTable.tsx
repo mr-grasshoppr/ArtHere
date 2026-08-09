@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { INVOLVEMENT_FEATURED, INVOLVEMENT_VOLUNTEER, RAFFLE_YES } from "@/lib/survey-constants";
-import { setResponseIsTest } from "./actions";
+import { setResponseIsTest, setResponsesArchived } from "./actions";
 
 type SurveyResponse = {
   id: string;
@@ -34,6 +34,7 @@ type SurveyResponse = {
   learnedAbout: string[];
   source: string | null;
   isTest: boolean;
+  isArchived: boolean;
 };
 
 // Legacy-aware accessors: pre-redesign responses stored involvement answers
@@ -59,9 +60,22 @@ function Field({ label, value }: { label: string; value: string | string[] | nul
   );
 }
 
-function Row({ r, onTestToggle }: { r: SurveyResponse; onTestToggle: (id: string, isTest: boolean) => void }) {
+function Row({
+  r,
+  onTestToggle,
+  onArchiveToggle,
+  selected,
+  onSelectChange,
+}: {
+  r: SurveyResponse;
+  onTestToggle: (id: string, isTest: boolean) => void;
+  onArchiveToggle: (id: string, isArchived: boolean) => void;
+  selected: boolean;
+  onSelectChange: (id: string, selected: boolean) => void;
+}) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
+  const [archivePending, startArchiveTransition] = useTransition();
 
   function handleMarkTest(e: React.MouseEvent) {
     e.stopPropagation();
@@ -71,13 +85,29 @@ function Row({ r, onTestToggle }: { r: SurveyResponse; onTestToggle: (id: string
     });
   }
 
+  function handleToggleArchive(e: React.MouseEvent) {
+    e.stopPropagation();
+    startArchiveTransition(async () => {
+      await setResponsesArchived([r.id], !r.isArchived);
+      onArchiveToggle(r.id, !r.isArchived);
+    });
+  }
+
   return (
     <>
       <tr
         id={r.id}
-        className={`border-b border-[#f0f0f0] hover:bg-[#fafafa] cursor-pointer ${r.isTest ? "opacity-50" : ""}`}
+        className={`border-b border-[#f0f0f0] hover:bg-[#fafafa] cursor-pointer ${r.isTest || r.isArchived ? "opacity-50" : ""}`}
         onClick={() => setOpen((o) => !o)}
       >
+        <td className="pl-4 pr-2 py-3" onClick={(e) => e.stopPropagation()}>
+          <input
+            type="checkbox"
+            checked={selected}
+            onChange={(e) => onSelectChange(r.id, e.target.checked)}
+            className="cursor-pointer"
+          />
+        </td>
         <td className="px-4 py-3 text-sm text-[#999]">
           {new Date(r.createdAt).toLocaleDateString("en-US", {
             month: "short",
@@ -89,6 +119,9 @@ function Row({ r, onTestToggle }: { r: SurveyResponse; onTestToggle: (id: string
           )}
           {r.isTest && (
             <span className="ml-2 text-[10px] uppercase tracking-wide bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded">test</span>
+          )}
+          {r.isArchived && (
+            <span className="ml-2 text-[10px] uppercase tracking-wide bg-[#e5e5e5] text-[#777] px-1.5 py-0.5 rounded">archived</span>
           )}
         </td>
         <td className="px-4 py-3 text-sm font-medium">{r.email ?? <span className="text-[#bbb]">Anonymous</span>}</td>
@@ -109,7 +142,7 @@ function Row({ r, onTestToggle }: { r: SurveyResponse; onTestToggle: (id: string
       </tr>
       {open && (
         <tr className="border-b border-[#f0f0f0] bg-[#f7f7f7]">
-          <td colSpan={8} className="px-6 py-4">
+          <td colSpan={9} className="px-6 py-4">
             <div className="grid md:grid-cols-2 gap-x-10 gap-y-1">
               <div>
                 <p className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-2">About Portland</p>
@@ -151,7 +184,7 @@ function Row({ r, onTestToggle }: { r: SurveyResponse; onTestToggle: (id: string
                 <Field label="Feedback" value={r.openFeedback} />
               </div>
             </div>
-            <div className="mt-4 pt-3 border-t border-[#e5e5e5]">
+            <div className="mt-4 pt-3 border-t border-[#e5e5e5] flex gap-2">
               <button
                 onClick={handleMarkTest}
                 disabled={pending}
@@ -162,6 +195,17 @@ function Row({ r, onTestToggle }: { r: SurveyResponse; onTestToggle: (id: string
                 }`}
               >
                 {pending ? "Saving…" : r.isTest ? "Unmark as test" : "Mark as test"}
+              </button>
+              <button
+                onClick={handleToggleArchive}
+                disabled={archivePending}
+                className={`text-xs px-3 py-1.5 rounded border transition-colors ${
+                  r.isArchived
+                    ? "border-[#ccc] bg-[#e5e5e5] text-[#555] hover:bg-[#ddd]"
+                    : "border-[#e5e5e5] text-[#888] hover:border-[#999]"
+                }`}
+              >
+                {archivePending ? "Saving…" : r.isArchived ? "Unarchive" : "Archive"}
               </button>
             </div>
           </td>
@@ -215,20 +259,52 @@ export default function SurveyTable({
 }) {
   const [textFilter, setTextFilter] = useState("");
   const [showTests, setShowTests] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
   const [localIsTest, setLocalIsTest] = useState<Record<string, boolean>>({});
+  const [localIsArchived, setLocalIsArchived] = useState<Record<string, boolean>>({});
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkPending, startBulkTransition] = useTransition();
 
   function handleTestToggle(id: string, isTest: boolean) {
     setLocalIsTest((prev) => ({ ...prev, [id]: isTest }));
   }
 
+  function handleArchiveToggle(id: string, isArchived: boolean) {
+    setLocalIsArchived((prev) => ({ ...prev, [id]: isArchived }));
+  }
+
+  function handleSelectChange(id: string, isSelected: boolean) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (isSelected) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }
+
+  function handleBulkArchive(isArchived: boolean) {
+    const ids = [...selected];
+    if (ids.length === 0) return;
+    startBulkTransition(async () => {
+      await setResponsesArchived(ids, isArchived);
+      setLocalIsArchived((prev) => {
+        const next = { ...prev };
+        for (const id of ids) next[id] = isArchived;
+        return next;
+      });
+      setSelected(new Set());
+    });
+  }
+
   const responsesWithLocal = responses.map((r) => ({
     ...r,
     isTest: r.id in localIsTest ? localIsTest[r.id] : r.isTest,
+    isArchived: r.id in localIsArchived ? localIsArchived[r.id] : r.isArchived,
   }));
 
-  const visibleResponses = showTests
-    ? responsesWithLocal
-    : responsesWithLocal.filter((r) => !r.isTest);
+  const visibleResponses = responsesWithLocal.filter(
+    (r) => (showTests || !r.isTest) && (showArchived || !r.isArchived)
+  );
 
   const categoryFiltered = applyCategoryFilter(visibleResponses, initialFilter);
   const fieldFiltered = applyFieldFilter(categoryFiltered, fieldFilter?.field, fieldFilter?.value);
@@ -243,6 +319,7 @@ export default function SurveyTable({
     : fieldFiltered;
 
   const testCount = responsesWithLocal.filter((r) => r.isTest).length;
+  const archivedCount = responsesWithLocal.filter((r) => r.isArchived).length;
 
   return (
     <div>
@@ -255,6 +332,25 @@ export default function SurveyTable({
           className="w-full max-w-sm px-4 py-2 border border-[#e5e5e5] rounded-lg text-sm bg-white focus:outline-none focus:border-[#999]"
         />
         <div className="flex items-center gap-3 flex-shrink-0">
+          {selected.size > 0 && (
+            <div className="flex items-center gap-2 pr-2 border-r border-[#e5e5e5]">
+              <span className="text-xs text-[#888]">{selected.size} selected</span>
+              <button
+                onClick={() => handleBulkArchive(true)}
+                disabled={bulkPending}
+                className="text-xs px-3 py-1.5 rounded border border-[#e5e5e5] text-[#555] hover:border-[#999] transition-colors disabled:opacity-50"
+              >
+                {bulkPending ? "Saving…" : "Archive"}
+              </button>
+              <button
+                onClick={() => handleBulkArchive(false)}
+                disabled={bulkPending}
+                className="text-xs px-3 py-1.5 rounded border border-[#e5e5e5] text-[#555] hover:border-[#999] transition-colors disabled:opacity-50"
+              >
+                Unarchive
+              </button>
+            </div>
+          )}
           {testCount > 0 && (
             <button
               onClick={() => setShowTests((s) => !s)}
@@ -267,6 +363,18 @@ export default function SurveyTable({
               {showTests ? `Hide ${testCount} test${testCount !== 1 ? "s" : ""}` : `Show ${testCount} test${testCount !== 1 ? "s" : ""}`}
             </button>
           )}
+          {archivedCount > 0 && (
+            <button
+              onClick={() => setShowArchived((s) => !s)}
+              className={`text-xs px-3 py-1.5 rounded border transition-colors ${
+                showArchived
+                  ? "bg-[#e5e5e5] border-[#ccc] text-[#555]"
+                  : "border-[#e5e5e5] text-[#999] hover:border-[#ccc]"
+              }`}
+            >
+              {showArchived ? `Hide ${archivedCount} archived` : `Show ${archivedCount} archived`}
+            </button>
+          )}
           <span className="text-sm text-[#888]">{filtered.length} shown</span>
         </div>
       </div>
@@ -274,6 +382,17 @@ export default function SurveyTable({
         <table className="w-full">
           <thead className="border-b border-[#e5e5e5]">
             <tr className="text-xs uppercase tracking-wide text-[#999]">
+              <th className="pl-4 pr-2 py-3 text-left font-medium">
+                <input
+                  type="checkbox"
+                  checked={filtered.length > 0 && filtered.every((r) => selected.has(r.id))}
+                  onChange={(e) => {
+                    if (e.target.checked) setSelected(new Set(filtered.map((r) => r.id)));
+                    else setSelected(new Set());
+                  }}
+                  className="cursor-pointer"
+                />
+              </th>
               <th className="px-4 py-3 text-left font-medium">Date</th>
               <th className="px-4 py-3 text-left font-medium">Email</th>
               <th className="px-4 py-3 text-left font-medium">Status</th>
@@ -287,13 +406,20 @@ export default function SurveyTable({
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-sm text-[#bbb]">
+                <td colSpan={9} className="px-4 py-8 text-center text-sm text-[#bbb]">
                   No responses found.
                 </td>
               </tr>
             )}
             {filtered.map((r) => (
-              <Row key={r.id} r={r} onTestToggle={handleTestToggle} />
+              <Row
+                key={r.id}
+                r={r}
+                onTestToggle={handleTestToggle}
+                onArchiveToggle={handleArchiveToggle}
+                selected={selected.has(r.id)}
+                onSelectChange={handleSelectChange}
+              />
             ))}
           </tbody>
         </table>

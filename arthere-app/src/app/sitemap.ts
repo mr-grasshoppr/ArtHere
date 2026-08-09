@@ -11,10 +11,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     [cities, artists, places] = await Promise.all([
       prisma.city.findMany({ select: { slug: true } }),
       prisma.artist.findMany({
-        where: { isPlaceholder: false },
+        where: { isPlaceholder: false, isArchived: false },
         select: { slug: true, updatedAt: true },
       }),
-      prisma.place.findMany({ where: { inDirectory: true }, select: { slug: true } }),
+      prisma.place.findMany({ where: { inDirectory: true, isArchived: false }, select: { slug: true } }),
     ]);
   } catch {
     // Database unreachable (CI build) — emit the static entries only.

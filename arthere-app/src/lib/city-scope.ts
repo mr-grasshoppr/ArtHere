@@ -38,5 +38,8 @@ export function artistScopeWhere(scope: CityScope) {
   return {
     cityId: { in: scope.cityIds },
     ...(!scope.isDemo && { isPlaceholder: false }),
+    // Archived artists never appear publicly, demo cities included — archiving
+    // is independent of (and always wins over) the placeholder/live state.
+    isArchived: false,
   };
 }

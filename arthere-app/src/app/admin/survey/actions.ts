@@ -12,3 +12,13 @@ export async function setResponseIsTest(id: string, isTest: boolean) {
   revalidatePath("/admin/survey");
   revalidatePath("/admin");
 }
+
+// Archiving just tucks rows out of the default table view — unlike isTest it
+// does NOT affect stats/funnel/charts, since archived responses are still
+// real data, just not ones you need in front of you right now.
+export async function setResponsesArchived(ids: string[], isArchived: boolean) {
+  await requireAdmin();
+  if (ids.length === 0) return;
+  await prisma.surveyResponse.updateMany({ where: { id: { in: ids } }, data: { isArchived } });
+  revalidatePath("/admin/survey");
+}

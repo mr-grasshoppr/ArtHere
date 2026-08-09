@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import VisibilityToggle from "./VisibilityToggle";
+import { setArtistsArchived } from "./actions";
 
 type ArtistRow = {
   id: string;
@@ -11,6 +12,7 @@ type ArtistRow = {
   medium: string | null;
   neighborhood: string | null;
   isPlaceholder: boolean;
+  isArchived: boolean;
   submittedForReviewAt: Date | null;
   createdAt: Date;
   user: { email: string | null; emailVerified: Date | null } | null;
@@ -31,6 +33,8 @@ const SORTERS: Record<SortKey, (a: ArtistRow, b: ArtistRow) => number> = {
 export default function ArtistsList({ artists }: { artists: ArtistRow[] }) {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortKey>("newest");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkPending, startBulkTransition] = useTransition();
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -43,6 +47,24 @@ export default function ArtistsList({ artists }: { artists: ArtistRow[] }) {
       : artists;
     return [...rows].sort(SORTERS[sort]);
   }, [artists, search, sort]);
+
+  function toggleSelect(id: string, isSelected: boolean) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (isSelected) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }
+
+  function handleBulkArchive(isArchived: boolean) {
+    const ids = [...selected];
+    if (ids.length === 0) return;
+    startBulkTransition(async () => {
+      await setArtistsArchived(ids, isArchived);
+      setSelected(new Set());
+    });
+  }
 
   return (
     <div>
@@ -65,6 +87,25 @@ export default function ArtistsList({ artists }: { artists: ArtistRow[] }) {
           <option value="name-desc">Name Z–A</option>
           <option value="images-desc">Most images</option>
         </select>
+        {selected.size > 0 && (
+          <div className="flex items-center gap-2 pl-2 border-l border-[#e5e5e5]">
+            <span className="text-xs text-[#888]">{selected.size} selected</span>
+            <button
+              onClick={() => handleBulkArchive(true)}
+              disabled={bulkPending}
+              className="text-xs px-3 py-1.5 rounded border border-[#e5e5e5] text-[#555] hover:border-[#999] transition-colors disabled:opacity-50"
+            >
+              {bulkPending ? "Saving…" : "Archive"}
+            </button>
+            <button
+              onClick={() => handleBulkArchive(false)}
+              disabled={bulkPending}
+              className="text-xs px-3 py-1.5 rounded border border-[#e5e5e5] text-[#555] hover:border-[#999] transition-colors disabled:opacity-50"
+            >
+              Unarchive
+            </button>
+          </div>
+        )}
         <span className="text-sm text-[#888]">{filtered.length} shown</span>
       </div>
 
@@ -78,8 +119,20 @@ export default function ArtistsList({ artists }: { artists: ArtistRow[] }) {
             <Link
               key={a.id}
               href={`/admin/artists/${a.id}`}
-              className="flex items-center gap-4 px-5 py-4 hover:bg-[#fafafa] transition-colors"
+              className={`flex items-center gap-4 px-5 py-4 hover:bg-[#fafafa] transition-colors ${a.isArchived ? "opacity-50" : ""}`}
             >
+              <input
+                type="checkbox"
+                checked={selected.has(a.id)}
+                onChange={(e) => toggleSelect(a.id, e.target.checked)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  toggleSelect(a.id, !selected.has(a.id));
+                }}
+                className="cursor-pointer flex-shrink-0"
+              />
+
               <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-[#f0f0f0] flex-shrink-0">
                 {heroImage ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -104,6 +157,9 @@ export default function ArtistsList({ artists }: { artists: ArtistRow[] }) {
                     >
                       Needs review
                     </span>
+                  )}
+                  {a.isArchived && (
+                    <span className="text-xs bg-[#e5e5e5] text-[#666] px-1.5 py-0.5 rounded flex-shrink-0">archived</span>
                   )}
                 </div>
                 <div className="text-sm text-[#888] truncate">

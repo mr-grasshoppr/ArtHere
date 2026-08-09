@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import OrgVisibilityToggle from "./OrgVisibilityToggle";
+import { setPlacesArchived } from "./actions";
 
 type PlaceRow = {
   id: string;
@@ -10,6 +11,7 @@ type PlaceRow = {
   neighborhood: string | null;
   heroImageUrl: string | null;
   inDirectory: boolean;
+  isArchived: boolean;
   createdAt: Date;
   user: { email: string | null } | null;
   _count: { artists: number; adminNotes: number };
@@ -28,6 +30,8 @@ const SORTERS: Record<SortKey, (a: PlaceRow, b: PlaceRow) => number> = {
 export default function OrganizationsList({ places }: { places: PlaceRow[] }) {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortKey>("newest");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkPending, startBulkTransition] = useTransition();
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -38,6 +42,24 @@ export default function OrganizationsList({ places }: { places: PlaceRow[] }) {
       : places;
     return [...rows].sort(SORTERS[sort]);
   }, [places, search, sort]);
+
+  function toggleSelect(id: string, isSelected: boolean) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (isSelected) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }
+
+  function handleBulkArchive(isArchived: boolean) {
+    const ids = [...selected];
+    if (ids.length === 0) return;
+    startBulkTransition(async () => {
+      await setPlacesArchived(ids, isArchived);
+      setSelected(new Set());
+    });
+  }
 
   return (
     <div>
@@ -60,6 +82,25 @@ export default function OrganizationsList({ places }: { places: PlaceRow[] }) {
           <option value="name-desc">Name Z–A</option>
           <option value="artists-desc">Most artists</option>
         </select>
+        {selected.size > 0 && (
+          <div className="flex items-center gap-2 pl-2 border-l border-[#e5e5e5]">
+            <span className="text-xs text-[#888]">{selected.size} selected</span>
+            <button
+              onClick={() => handleBulkArchive(true)}
+              disabled={bulkPending}
+              className="text-xs px-3 py-1.5 rounded border border-[#e5e5e5] text-[#555] hover:border-[#999] transition-colors disabled:opacity-50"
+            >
+              {bulkPending ? "Saving…" : "Archive"}
+            </button>
+            <button
+              onClick={() => handleBulkArchive(false)}
+              disabled={bulkPending}
+              className="text-xs px-3 py-1.5 rounded border border-[#e5e5e5] text-[#555] hover:border-[#999] transition-colors disabled:opacity-50"
+            >
+              Unarchive
+            </button>
+          </div>
+        )}
         <span className="text-sm text-[#888]">{filtered.length} shown</span>
       </div>
 
@@ -69,8 +110,20 @@ export default function OrganizationsList({ places }: { places: PlaceRow[] }) {
           <Link
             key={p.id}
             href={`/admin/organizations/${p.id}`}
-            className="flex items-center gap-4 px-5 py-4 hover:bg-[#fafafa] transition-colors"
+            className={`flex items-center gap-4 px-5 py-4 hover:bg-[#fafafa] transition-colors ${p.isArchived ? "opacity-50" : ""}`}
           >
+            <input
+              type="checkbox"
+              checked={selected.has(p.id)}
+              onChange={(e) => toggleSelect(p.id, e.target.checked)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleSelect(p.id, !selected.has(p.id));
+              }}
+              className="cursor-pointer flex-shrink-0"
+            />
+
             <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-[#f0f0f0] flex-shrink-0">
               {p.heroImageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -83,7 +136,12 @@ export default function OrganizationsList({ places }: { places: PlaceRow[] }) {
             </div>
 
             <div className="flex-1 min-w-0">
-              <div className="font-medium truncate">{p.name}</div>
+              <div className="flex items-center gap-2">
+                <span className="font-medium truncate">{p.name}</span>
+                {p.isArchived && (
+                  <span className="text-xs bg-[#e5e5e5] text-[#666] px-1.5 py-0.5 rounded flex-shrink-0">archived</span>
+                )}
+              </div>
               <div className="text-sm text-[#888] truncate">
                 {p.user?.email ?? "no owner email"} · {p.neighborhood ?? "no neighborhood"}
               </div>
