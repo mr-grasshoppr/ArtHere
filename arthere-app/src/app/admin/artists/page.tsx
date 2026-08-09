@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { requireAdminPage } from "@/lib/admin";
 import Link from "next/link";
 import ArtistCharts from "./ArtistCharts";
-import VisibilityToggle from "./VisibilityToggle";
+import ArtistsList from "./ArtistsList";
 import NewArtistForm from "./NewArtistForm";
 import { InviteInterestedButton } from "./InviteInterestedButton";
 import { SendInviteButton } from "./[id]/SendInviteButton";
@@ -227,58 +227,7 @@ export default async function AdminArtistsPage({
             />
           )}
 
-          <div className="bg-white border border-[#e5e5e5] rounded-lg divide-y divide-[#f0f0f0]">
-            {artists.length === 0 && (
-              <p className="p-6 text-sm text-[#999]">No artist profiles match this filter.</p>
-            )}
-            {artists.map((a) => {
-              const heroImage = a.artworkImages.find((i) => i.isHero) ?? a.artworkImages[0];
-              return (
-                <Link
-                  key={a.id}
-                  href={`/admin/artists/${a.id}`}
-                  className="flex items-center gap-4 px-5 py-4 hover:bg-[#fafafa] transition-colors"
-                >
-                  <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-[#f0f0f0] flex-shrink-0">
-                    {heroImage ? (
-                      <img src={heroImage.url} alt={a.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[#ccc] text-xl font-light">
-                        {a.name.charAt(0)}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium truncate">{a.name || <span className="text-[#bbb] italic">(no name)</span>}</span>
-                      {a.user?.emailVerified && (
-                        <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">verified</span>
-                      )}
-                      {a.submittedForReviewAt && (
-                        <span
-                          className="text-xs bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded flex-shrink-0"
-                          title={`Submitted for review ${new Date(a.submittedForReviewAt).toLocaleString()}`}
-                        >
-                          Needs review
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-sm text-[#888] truncate">
-                      {a.user?.email ?? "no owner yet"} · {a.medium ?? "no medium"} · {a.neighborhood ?? "no neighborhood"}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-6 text-xs text-[#bbb] flex-shrink-0">
-                    <span>{a.artworkImages.length} images</span>
-                    <span>{a._count.adminNotes} notes</span>
-                    <span>{new Date(a.createdAt).toLocaleDateString()}</span>
-                    <VisibilityToggle artistId={a.id} isPlaceholder={a.isPlaceholder} />
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
+          <ArtistsList artists={artists} />
         </>
       )}
     </div>

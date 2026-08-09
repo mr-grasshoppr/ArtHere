@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { requireAdminPage } from "@/lib/admin";
 import Link from "next/link";
-import OrgVisibilityToggle from "./OrgVisibilityToggle";
+import OrganizationsList from "./OrganizationsList";
 import NewOrganizationForm from "./NewOrganizationForm";
 
 export default async function AdminOrganizationsPage({
@@ -70,42 +70,8 @@ export default async function AdminOrganizationsPage({
 
       <NewOrganizationForm />
 
-      <div className="bg-white border border-[#e5e5e5] rounded-lg divide-y divide-[#f0f0f0] mt-6">
-        {places.length === 0 && (
-          <p className="p-6 text-sm text-[#999]">No organizations yet.</p>
-        )}
-        {places.map((p) => (
-          <Link
-            key={p.id}
-            href={`/admin/organizations/${p.id}`}
-            className="flex items-center gap-4 px-5 py-4 hover:bg-[#fafafa] transition-colors"
-          >
-            <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-[#f0f0f0] flex-shrink-0">
-              {p.heroImageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={p.heroImageUrl} alt={p.name} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-[#ccc] text-xl font-light">
-                  {p.name.charAt(0)}
-                </div>
-              )}
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <div className="font-medium truncate">{p.name}</div>
-              <div className="text-sm text-[#888] truncate">
-                {p.user?.email ?? "no owner email"} · {p.neighborhood ?? "no neighborhood"}
-              </div>
-            </div>
-
-            <div className="flex items-center gap-6 text-xs text-[#bbb] flex-shrink-0">
-              <span>{p._count.artists} artists</span>
-              <span>{p._count.adminNotes} notes</span>
-              <span>{new Date(p.createdAt).toLocaleDateString()}</span>
-              <OrgVisibilityToggle placeId={p.id} inDirectory={p.inDirectory} />
-            </div>
-          </Link>
-        ))}
+      <div className="mt-6">
+        <OrganizationsList places={places} />
       </div>
     </div>
   );
