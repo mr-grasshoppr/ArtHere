@@ -5,13 +5,14 @@ import Link from "next/link";
 import AdminProfileEditor from "./AdminProfileEditor";
 import AdminImageManager from "./AdminImageManager";
 import { getFocals } from "@/lib/image-focus";
+import { getMediumOptions } from "@/lib/medium-options";
 
 export default async function AdminArtistEditPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdminPage();
 
   const { id } = await params;
 
-  const [artist, places] = await Promise.all([
+  const [artist, places, mediumOptions] = await Promise.all([
     prisma.artist.findUnique({
       where: { id },
       include: {
@@ -23,6 +24,7 @@ export default async function AdminArtistEditPage({ params }: { params: Promise<
       },
     }),
     prisma.place.findMany({ where: { inDirectory: true }, orderBy: { name: "asc" } }),
+    getMediumOptions(),
   ]);
 
   if (!artist) notFound();
@@ -49,6 +51,7 @@ export default async function AdminArtistEditPage({ params }: { params: Promise<
           initialImages={artist.artworkImages}
           initialBioPhotoUrl={artist.bioPhotoUrl}
           initialFocals={initialFocals}
+          initialMediumOptions={mediumOptions}
         />
       </div>
 

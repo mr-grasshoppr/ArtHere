@@ -55,15 +55,15 @@ export function SendInviteButton({ artistId, initialEmail }: { artistId: string;
         <InvitePreviewModal
           email={preview.email}
           link={preview.link}
-          greetingName={preview.greetingName}
+          initialGreetingName={preview.greetingName}
           initialSubject={preview.subject}
           initialBodyText={preview.bodyText}
           onClose={() => {
             setPreview(null);
             if (wasSent) setState("sent");
           }}
-          onSend={async (subject, bodyText) => {
-            await sendArtistInvite(artistId, { email: preview.email, link: preview.link, subject, bodyText });
+          onSend={async (subject, bodyText, greetingName) => {
+            await sendArtistInvite(artistId, { email: preview.email, link: preview.link, subject, bodyText, greetingName });
             setWasSent(true);
           }}
         />

@@ -112,7 +112,7 @@ export async function previewPlaceInvite(placeId: string, email: string): Promis
 
 export async function sendPlaceInvite(
   placeId: string,
-  preview: { email: string; link: string; subject: string; bodyText: string }
+  preview: { email: string; link: string; subject: string; bodyText: string; greetingName?: string | null }
 ) {
   await requireAdmin();
   const place = await prisma.place.findUnique({ where: { id: placeId } });

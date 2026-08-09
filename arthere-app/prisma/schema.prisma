@@ -57,61 +57,65 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts  Account[]
-  sessions  Session[]
-  artist    Artist?
-  place     Place?
+  accounts Account[]
+  sessions Session[]
+  artist   Artist?
+  place    Place?
 }
 
 model Artist {
-  id               String           @id @default(cuid())
+  id                   String           @id @default(cuid())
   // Optional — an admin can create a bare profile page (e.g. a prototype to
   // pitch an artist) before any owner account exists. The invite flow
   // attaches a User later, the same way it already works for Place.
-  userId           String?          @unique
-  slug             String           @unique
-  name             String
-  bio              String?          @db.Text
+  userId               String?          @unique
+  slug                 String           @unique
+  name                 String
+  bio                  String?          @db.Text
   // Optional pull quote shown above the bio on the public profile.
-  quote            String?          @db.Text
-  bioPhotoUrl      String?
-  heroImageUrl     String?
-  website          String?
-  websiteLabel     String?
-  instagram        String?
-  medium           String?
-  neighborhood     String?
-  commissionStatus CommissionStatus @default(UNSPECIFIED)
-  priceRangeMin    Int?
-  priceRangeMax    Int?
-  sizeRangeMin     Int?
-  sizeRangeMax     Int?
+  quote                String?          @db.Text
+  bioPhotoUrl          String?
+  heroImageUrl         String?
+  website              String?
+  websiteLabel         String?
+  instagram            String?
+  medium               String?
+  neighborhood         String?
+  commissionStatus     CommissionStatus @default(UNSPECIFIED)
+  priceRangeMin        Int?
+  priceRangeMax        Int?
+  sizeRangeMin         Int?
+  sizeRangeMax         Int?
   // Structured "what to hire this artist for" — checkbox selections plus any
   // custom entries the artist/admin added. hireFor stays in sync (a joined
   // sentence built from this array) so the existing AI search parsing that
   // reads hireFor keeps working unchanged.
-  offerings        String[]         @default([])
-  hireFor          String?          @db.Text
-  hireTags         Json?
-  isPlaceholder    Boolean          @default(false)
+  offerings            String[]         @default([])
+  hireFor              String?          @db.Text
+  hireTags             Json?
+  isPlaceholder        Boolean          @default(false)
   // Set when the artist clicks "Submit for review" on their edit page — a
   // deliberate signal distinct from autosave. Cleared when an admin
   // publishes the profile (setArtistPlaceholder). Only meaningful while
   // isPlaceholder is true; publishing "consumes" the request.
   submittedForReviewAt DateTime?
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
 
-  cityId           String?
-  city             City?            @relation(fields: [cityId], references: [id])
-  user             User?            @relation(fields: [userId], references: [id])
-  artworkImages    ArtworkImage[]
-  placeRelations   ArtistPlace[]
-  intake           ArtistIntake?
-  adminNotes       AdminNote[]
-  magicLinkTokens  MagicLinkToken[]
-  links            ArtistLink[]
-  otherConnections ArtistOtherConnection[]
+  cityId            String?
+  city              City?                   @relation(fields: [cityId], references: [id])
+  user              User?                   @relation(fields: [userId], references: [id])
+  artworkImages     ArtworkImage[]
+  placeRelations    ArtistPlace[]
+  // Set when this profile was created by converting a "Request an
+  // invite"/"Get featured" contact submission (see admin/artists Interested
+  // tab). Back-relation of ContactSubmission.invitedArtistId.
+  contactSubmission ContactSubmission?
+  intake            ArtistIntake?
+  adminNotes        AdminNote[]
+  magicLinkTokens   MagicLinkToken[]
+  links             ArtistLink[]
+  otherConnections  ArtistOtherConnection[]
 
   @@index([cityId])
 }
@@ -172,14 +176,14 @@ enum CommissionStatus {
 // ─── Artwork Images ───────────────────────────────────────────────────────────
 
 model ArtworkImage {
-  id         String    @id @default(cuid())
+  id         String   @id @default(cuid())
   artistId   String
   url        String
-  cropBox    Json?     // {x,y,w,h} fractions — artwork bounds (excludes frame/wall)
+  cropBox    Json? // {x,y,w,h} fractions — artwork bounds (excludes frame/wall)
   altText    String?
-  sortOrder  Int       @default(0)
-  isHero     Boolean   @default(false)
-  uploadedAt DateTime  @default(now())
+  sortOrder  Int      @default(0)
+  isHero     Boolean  @default(false)
+  uploadedAt DateTime @default(now())
 
   // AI-generated tags stored as JSON
   // Shape: { medium, colors, scale, style, subjects, indoor_outdoor, mood }
@@ -192,43 +196,56 @@ model ArtworkImage {
   // AI mistags a piece.
   medium     String[]  @default([])
 
-  artist     Artist    @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
 
   @@index([artistId])
+}
+
+// The selectable per-artwork/per-artist medium vocabulary (Painting,
+// Illustration, etc). Started as a hardcoded list in lib/artist-options.ts;
+// moved to a table so an admin can add a new label (e.g. "Installation")
+// without a code deploy. label is what's shown and stored on
+// Artist.medium / ArtworkImage.medium — it's the value, not just a display
+// string, so renaming a row here would silently orphan existing data.
+model MediumOption {
+  id        String   @id @default(cuid())
+  label     String   @unique
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
 }
 
 // ─── Places ───────────────────────────────────────────────────────────────────
 
 model Place {
-  id           String        @id @default(cuid())
-  slug         String        @unique
-  name         String
-  neighborhood String?
-  description  String?       @db.Text
+  id                String   @id @default(cuid())
+  slug              String   @unique
+  name              String
+  neighborhood      String?
+  description       String?  @db.Text
   // Optional pull quote shown on the page (e.g. a customer or community
   // testimonial), with its speaker credited separately.
-  quote            String?   @db.Text
-  quoteAttribution String?
-  website      String?
-  websiteLabel String?
+  quote             String?  @db.Text
+  quoteAttribution  String?
+  website           String?
+  websiteLabel      String?
   // heroImageUrl heads the org's own page; thumbnailImageUrl is the card shown
   // in the Community directory. When no thumbnail is set the hero is used.
-  heroImageUrl String?
+  heroImageUrl      String?
   thumbnailImageUrl String?
   // A few extra photos shown in a gallery on the place's page.
-  galleryImages String[]     @default([])
+  galleryImages     String[] @default([])
   // Whether this place appears in the city Community directory page.
   // Places an artist is connected to but that aren't part of the curated
   // directory (closed venues, schools, etc.) are still listed on the
   // artist's profile, just not linked or shown on the Community page.
-  inDirectory  Boolean       @default(true)
-  createdAt    DateTime      @default(now())
+  inDirectory       Boolean  @default(true)
+  createdAt         DateTime @default(now())
 
-  userId       String?       @unique
-  user         User?         @relation(fields: [userId], references: [id])
-  artists      ArtistPlace[]
+  userId          String?          @unique
+  user            User?            @relation(fields: [userId], references: [id])
+  artists         ArtistPlace[]
   magicLinkTokens MagicLinkToken[]
-  adminNotes   AdminNote[]
+  adminNotes      AdminNote[]
 }
 
 model ArtistPlace {
@@ -246,8 +263,8 @@ model ArtistPlace {
   endedAt           DateTime?
   createdAt         DateTime          @default(now())
 
-  artist       Artist            @relation(fields: [artistId], references: [id], onDelete: Cascade)
-  place        Place?            @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  place  Place? @relation(fields: [placeId], references: [id], onDelete: Cascade)
 
   @@unique([artistId, placeId, relationship])
   @@index([placeId])
@@ -275,7 +292,7 @@ model ArtistIntake {
   notes                String?  @db.Text
   updatedAt            DateTime @updatedAt
 
-  artist               Artist   @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
 }
 
 // ─── Cities ───────────────────────────────────────────────────────────────────
@@ -290,7 +307,7 @@ model City {
   description         String?  @db.Text
   createdAt           DateTime @default(now())
 
-  artists             Artist[]
+  artists Artist[]
 }
 
 // ─── Community Survey ─────────────────────────────────────────────────────────
@@ -332,15 +349,15 @@ model SurveyResponse {
 
   // Where are you based
   zipCode       String? // Q6
-  neighborhoods String?  @db.Text // Q7
+  neighborhoods String? @db.Text // Q7
 
   // About Multnomah Village
-  mvFamiliarity    String? // Q8
-  mvWords          String[] @default([]) // Q9 — three words (deprecated, kept for old responses)
+  mvFamiliarity     String? // Q8
+  mvWords           String[] @default([]) // Q9 — three words (deprecated, kept for old responses)
   mvConnectionLevel String? // How connected do you feel to the artist community in MV?
-  mvHelpers        String?  @db.Text // What people/places helped you discover artists in MV?
-  mvSupport        String[] @default([]) // How would you most like to connect with/support artists in MV?
-  mvSupportOther   String? // Write-in for "Other" in mvSupport
+  mvHelpers         String?  @db.Text // What people/places helped you discover artists in MV?
+  mvSupport         String[] @default([]) // How would you most like to connect with/support artists in MV?
+  mvSupportOther    String? // Write-in for "Other" in mvSupport
 
   // Multnomah Days 2026 (deprecated — kept for old responses)
   multnomahDaysInvolvement String[] @default([])
@@ -415,6 +432,13 @@ model ContactSubmission {
   social    String?
   message   String?  @db.Text
   intent    String?
+
+  // Set once an admin converts this submission into a placeholder Artist via
+  // the admin/artists "Interested" tab — the tab uses this to know the
+  // submission moved from "raw" to "invited, awaiting profile". Null'd out
+  // (not cascade-deleted) if that artist is later removed.
+  invitedArtistId String? @unique
+  invitedArtist   Artist? @relation(fields: [invitedArtistId], references: [id], onDelete: SetNull)
 }
 
 // ─── Admin Notes ──────────────────────────────────────────────────────────────
@@ -429,8 +453,8 @@ model AdminNote {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  artist    Artist?  @relation(fields: [artistId], references: [id], onDelete: Cascade)
-  place     Place?   @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  artist Artist? @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  place  Place?  @relation(fields: [placeId], references: [id], onDelete: Cascade)
 
   @@index([artistId])
   @@index([placeId])
@@ -476,11 +500,11 @@ model LogoSlide {
 
 model ProfileRevision {
   id          String   @id @default(cuid())
-  entityType  String   // "artist" | "place"
-  entityId    String   // the Artist.id or Place.id this revision belongs to
-  editedBy    String   // "artist" | "place" | "admin" | "system"
-  editorEmail String?  // email of the account that made the change, when known
-  snapshot    Json     // full profile snapshot (fields + relations + image list)
+  entityType  String // "artist" | "place"
+  entityId    String // the Artist.id or Place.id this revision belongs to
+  editedBy    String // "artist" | "place" | "admin" | "system"
+  editorEmail String? // email of the account that made the change, when known
+  snapshot    Json // full profile snapshot (fields + relations + image list)
   createdAt   DateTime @default(now())
 
   @@index([entityType, entityId, createdAt])

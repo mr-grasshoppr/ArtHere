@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { tagArtworkImage, normalizeMediumTags } from "@/lib/claude";
+import { parseMediumList } from "@/lib/artist-options";
+import { getMediumOptions } from "@/lib/medium-options";
 import { Prisma } from "@prisma/client";
 
 export async function POST(req: NextRequest) {
@@ -31,13 +33,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const tags = await tagArtworkImage(image.url);
+  const mediumOptions = await getMediumOptions();
+  const tags = await tagArtworkImage(image.url, parseMediumList(image.artist.medium), mediumOptions);
   await prisma.artworkImage.update({
     where: { id: imageId },
     data: {
       aiTags: tags as unknown as Prisma.InputJsonValue,
       aiTaggedAt: new Date(),
-      medium: normalizeMediumTags(tags.medium),
+      medium: normalizeMediumTags(tags.medium, mediumOptions),
     },
   });
 

@@ -32,15 +32,23 @@ export const OCCUPATION_OPTIONS = [
   OCCUPATION_PREFER_NOT,
 ];
 
-/** artistStatus value meaning "does not make art" — everything else (except empty) is an artist. */
-export const NOT_MAKING_ART = 'No';
+/**
+ * artistStatus values meaning "does not make art" — any answer in this set
+ * (or empty) routes to the non-artist path; everything else is an artist.
+ */
+export const NOT_MAKING_ART_NOT_REGULARLY = 'Not regularly';
+export const NOT_MAKING_ART_NEVER = 'No, I never make art';
+export const NOT_MAKING_ART_VALUES: readonly string[] = [
+  NOT_MAKING_ART_NOT_REGULARLY,
+  NOT_MAKING_ART_NEVER,
+];
 export const ARTIST_STATUS_OPTIONS = [
   'Yes, it is my primary occupation',
   'Yes, I have an active art practice alongside other work',
   `Yes, I'm an art student`,
   'Yes, for fun or as a hobby',
-  NOT_MAKING_ART,
-  OTHER,
+  NOT_MAKING_ART_NOT_REGULARLY,
+  NOT_MAKING_ART_NEVER,
 ];
 
 export const ART_MEDIUM_OTHER = OTHER;
@@ -173,10 +181,9 @@ export const RAFFLE_OPTIONS = [RAFFLE_YES, 'No'];
 
 export const LEARNED_ABOUT_OTHER = OTHER;
 export const LEARNED_ABOUT_OPTIONS = [
-  'Multnomah Arts Center',
   'Community art center',
   'Local business',
-  'Local art gallery',
+  'Art Gallery',
   'Social media',
   'Flyers in public places',
   'Friends, Family, or Word of Mouth',

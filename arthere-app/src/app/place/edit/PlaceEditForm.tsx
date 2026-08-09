@@ -10,10 +10,15 @@ import { focalStyle, type Focal } from '@/lib/focal-style';
 import { parseNeighborhoodList, joinNeighborhoodList } from '@/lib/neighborhoods';
 import type { FramingValue } from '@/components/FramingEditor';
 import { resizeImageForUpload } from '@/lib/client-image-resize';
+import type { PlaceRelationship } from '@prisma/client';
+import { RELATIONSHIP_LABELS } from '@/components/PlaceProfilePage';
 
 interface Artist {
+  connectionId: string;
   slug: string;
   name: string;
+  relationship: PlaceRelationship;
+  relationshipLabel: string | null;
 }
 
 interface InitialData {
@@ -71,6 +76,8 @@ export default function PlaceEditForm({
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(initialData.heroImageUrl);
   const [thumbnailImageUrl, setThumbnailImageUrl] = useState<string | null>(initialData.thumbnailImageUrl);
   const [galleryImages, setGalleryImages] = useState<string[]>(initialData.galleryImages);
+  const [artists, setArtists] = useState<Artist[]>(initialData.artists);
+  const [removingConnectionId, setRemovingConnectionId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
@@ -164,6 +171,19 @@ export default function PlaceEditForm({
   async function handleGalleryReorder(next: string[]) {
     setGalleryImages(next);
     await persistAll({ galleryImages: next });
+  }
+
+  async function handleRemoveArtistConnection(connectionId: string) {
+    if (!confirm("Remove this artist's connection to your page? They'll no longer be listed here or on your public page.")) return;
+    setRemovingConnectionId(connectionId);
+    try {
+      const res = await fetch(`/api/place/artist-connections?id=${connectionId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
+      setArtists((prev) => prev.filter((a) => a.connectionId !== connectionId));
+    } catch {
+      alert("Couldn't remove that connection — please try again.");
+    }
+    setRemovingConnectionId(null);
   }
 
   async function handleDone() {
@@ -284,16 +304,32 @@ export default function PlaceEditForm({
         </div>
       </div>
 
-      {/* Artists here (read-only) */}
-      {initialData.artists.length > 0 && (
+      {/* Artists here */}
+      {artists.length > 0 && (
         <div className="max-w-[980px] mx-auto px-5 sm:px-10 py-8 border-b border-[#f0f0f0]">
           <div className={LABEL}>Artists here</div>
-          <div className="flex flex-wrap gap-x-6 gap-y-2 items-baseline">
-            {initialData.artists.map(a => (
-              <span key={a.slug} className="text-[0.85rem] text-[#888] font-light">{a.name}</span>
-            ))}
+          <div className="flex flex-col gap-2">
+            {artists.map(a => {
+              const label = a.relationship === 'OTHER' ? a.relationshipLabel : RELATIONSHIP_LABELS[a.relationship];
+              return (
+                <div key={a.connectionId} className="flex items-baseline gap-2">
+                  <span className="text-[0.85rem] text-[#444]">{a.name}</span>
+                  {label && <span className="text-[0.78rem] text-[#aaa] font-light">{label}</span>}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveArtistConnection(a.connectionId)}
+                    disabled={removingConnectionId === a.connectionId}
+                    className="ml-auto text-[0.75rem] text-[#bbb] hover:text-red-600 transition-colors disabled:opacity-40"
+                  >
+                    {removingConnectionId === a.connectionId ? 'Removing…' : 'Remove'}
+                  </button>
+                </div>
+              );
+            })}
           </div>
-          <p className="text-[0.7rem] text-[#ccc] mt-3">Managed by the Art Here team.</p>
+          <p className="text-[0.7rem] text-[#ccc] mt-3">
+            Artists add these connections themselves. If one doesn&rsquo;t belong, remove it — this can&rsquo;t be undone from here.
+          </p>
         </div>
       )}
 

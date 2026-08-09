@@ -7,12 +7,13 @@ export default async function AdminOverviewPage() {
   await requireAdminPage();
 
   // Admin-flagged test responses are excluded everywhere they'd distort a count.
-  const [surveyCount, artistCount, orgCount, noteCount, contactCount] = await Promise.all([
+  const [surveyCount, artistCount, orgCount, noteCount, contactCount, needsReviewCount] = await Promise.all([
     prisma.surveyResponse.count({ where: { isTest: false } }),
     prisma.artist.count(),
     prisma.place.count(),
     prisma.adminNote.count(),
     prisma.contactSubmission.count(),
+    prisma.artworkImage.count({ where: { medium: { isEmpty: true } } }),
   ]);
 
   const recentSurveys = await prisma.surveyResponse.findMany({
@@ -36,10 +37,11 @@ export default async function AdminOverviewPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-12">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-12">
         {[
           { label: "Survey Responses", value: surveyCount, href: "/admin/survey" },
           { label: "Artist Profiles", value: artistCount, href: "/admin/artists" },
+          { label: "Needs Medium Review", value: needsReviewCount, href: "/admin/artwork-review" },
           { label: "Organizations", value: orgCount, href: "/admin/organizations" },
           { label: "Admin Notes", value: noteCount, href: "/admin/artists" },
           { label: "Contact Submissions", value: contactCount, href: "/admin/contacts" },

@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin";
 import { slugify } from "@/lib/slug";
 
-async function uniqueArtistSlug(name: string): Promise<string> {
+export async function uniqueArtistSlug(name: string): Promise<string> {
   const base = slugify(name) || "artist";
   let slug = base;
   let i = 1;

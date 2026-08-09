@@ -11,7 +11,7 @@ import { normalizeNeighborhood } from "@/lib/neighborhoods";
 // Attaches (or reuses) an owner account for an artist that doesn't have one
 // yet — a profile created bare via "+ New artist" has no userId until an
 // admin sends an invite. Mirrors attachPlaceUser exactly.
-async function attachArtistUser(artistId: string, email: string): Promise<string> {
+export async function attachArtistUser(artistId: string, email: string): Promise<string> {
   const artist = await prisma.artist.findUnique({ where: { id: artistId }, select: { userId: true } });
   if (artist?.userId) return artist.userId;
 
@@ -38,7 +38,7 @@ export async function previewArtistInvite(artistId: string, email: string): Prom
 
 export async function sendArtistInvite(
   artistId: string,
-  preview: { email: string; link: string; subject: string; bodyText: string }
+  preview: { email: string; link: string; subject: string; bodyText: string; greetingName?: string | null }
 ) {
   await requireAdmin();
   const artist = await prisma.artist.findUnique({ where: { id: artistId } });

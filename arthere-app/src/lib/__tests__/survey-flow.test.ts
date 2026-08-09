@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { getNextStep, getFullPath, isMakingArt } from "../survey-flow";
-import { NOT_MAKING_ART } from "../survey-constants";
+import { NOT_MAKING_ART_NOT_REGULARLY, NOT_MAKING_ART_NEVER } from "../survey-constants";
 
 const artist = { artistStatus: "Yes, it is my primary occupation" };
-const nonArtist = { artistStatus: NOT_MAKING_ART };
+const nonArtist = { artistStatus: NOT_MAKING_ART_NEVER };
 
 describe("survey step machine", () => {
   it("branches artists into the art-medium and practice steps", () => {
@@ -35,5 +35,13 @@ describe("survey step machine", () => {
 
   it("empty status is treated as not-yet-answered, not artist", () => {
     expect(isMakingArt({ artistStatus: "" })).toBe(false);
+  });
+
+  it("both non-artist answers route around the artist steps", () => {
+    for (const status of [NOT_MAKING_ART_NOT_REGULARLY, NOT_MAKING_ART_NEVER]) {
+      expect(isMakingArt({ artistStatus: status })).toBe(false);
+      expect(getNextStep("about-you-art", { artistStatus: status })).toBe("portland-familiarity");
+      expect(getNextStep("portland-detail", { artistStatus: status })).toBe("involvement");
+    }
   });
 });

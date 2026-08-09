@@ -40,7 +40,13 @@ export default async function PlaceEditPage() {
           heroImageUrl: place.heroImageUrl ?? null,
           thumbnailImageUrl: place.thumbnailImageUrl ?? null,
           galleryImages: place.galleryImages,
-          artists: place.artists.map(rel => ({ slug: rel.artist.slug, name: rel.artist.name })),
+          artists: place.artists.map(rel => ({
+          connectionId: rel.id,
+          slug: rel.artist.slug,
+          name: rel.artist.name,
+          relationship: rel.relationship,
+          relationshipLabel: rel.relationshipLabel,
+        })),
           inDirectory: place.inDirectory,
         }}
         placeSlug={place.slug}

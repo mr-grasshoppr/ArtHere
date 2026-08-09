@@ -40,7 +40,7 @@ const RELATIONSHIP_TYPES = [
 
 const MEDIUM_OPTIONS = [
   'Painting', 'Drawing', 'Photography', 'Sculpture', 'Ceramics',
-  'Textiles', 'Woodworking', 'New Media', 'Illustration',
+  'Textiles', 'Woodworking', 'New Media', 'Illustration', 'Installation',
 ];
 
 const OFFERING_OPTIONS = [

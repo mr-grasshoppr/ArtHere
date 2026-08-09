@@ -11,7 +11,7 @@ import { useState } from "react";
 export function InvitePreviewModal({
   email,
   link,
-  greetingName,
+  initialGreetingName,
   initialSubject,
   initialBodyText,
   onSend,
@@ -19,13 +19,14 @@ export function InvitePreviewModal({
 }: {
   email: string;
   link: string;
-  /** Name shown in the "Hi ___," greeting — same value the actual email uses. Null/blank shows as "there". */
-  greetingName?: string | null;
+  /** Starting value for the editable "Hi ___," greeting. Null/blank shows as "there". */
+  initialGreetingName?: string | null;
   initialSubject: string;
   initialBodyText: string;
-  onSend: (subject: string, bodyText: string) => Promise<void>;
+  onSend: (subject: string, bodyText: string, greetingName: string | null) => Promise<void>;
   onClose: () => void;
 }) {
+  const [greetingName, setGreetingName] = useState(initialGreetingName?.trim() ?? "");
   const [subject, setSubject] = useState(initialSubject);
   const [bodyText, setBodyText] = useState(initialBodyText);
   const [sending, setSending] = useState(false);
@@ -47,7 +48,7 @@ export function InvitePreviewModal({
     setSending(true);
     setError("");
     try {
-      await onSend(subject, bodyText);
+      await onSend(subject, bodyText, greetingName.trim() || null);
       setSent(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Send failed");
@@ -111,14 +112,23 @@ export function InvitePreviewModal({
 
             <div className="mb-5">
               <label className="block text-xs text-[#888] uppercase tracking-wide mb-1.5">Message</label>
-              <p className="text-sm text-[#1a1a1a] mb-2">Hi {greetingName?.trim() || "there"},</p>
+              <div className="flex items-baseline gap-1.5 mb-2">
+                <span className="text-sm text-[#1a1a1a]">Hi</span>
+                <input
+                  value={greetingName}
+                  onChange={(e) => setGreetingName(e.target.value)}
+                  placeholder="there"
+                  className="w-32 px-1.5 py-0.5 border-b border-[#e5e5e5] text-sm text-[#1a1a1a] bg-transparent focus:outline-none focus:border-[#999]"
+                />
+                <span className="text-sm text-[#1a1a1a]">,</span>
+              </div>
               <textarea
                 value={bodyText}
                 onChange={(e) => setBodyText(e.target.value)}
                 rows={6}
                 className="w-full px-3 py-2 border border-[#e5e5e5] rounded-lg text-sm focus:outline-none focus:border-[#999] resize-y"
               />
-              <p className="text-[0.7rem] text-[#bbb] mt-1.5">The greeting above isn&rsquo;t editable. The logo, sign-in button, and footer stay the same.</p>
+              <p className="text-[0.7rem] text-[#bbb] mt-1.5">Use a nickname or preferred name if that&rsquo;s not what they go by. The logo, sign-in button, and footer stay the same.</p>
             </div>
 
             {error && <p className="text-red-500 text-sm mb-3">{error}</p>}

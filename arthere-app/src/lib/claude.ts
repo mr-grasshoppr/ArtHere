@@ -22,7 +22,19 @@ export interface ArtworkTags {
   description: string;        // 1-sentence natural language description
 }
 
-export async function tagArtworkImage(imageUrl: string): Promise<ArtworkTags> {
+export async function tagArtworkImage(
+  imageUrl: string,
+  artistMedium?: string[],
+  mediumOptions: string[] = MEDIUM_OPTIONS
+): Promise<ArtworkTags> {
+  // The artist's self-reported media are a hint, not a ceiling — an artist
+  // who lists "Illustration, Painting" overall may still upload a photograph.
+  // This is context for ambiguous cases, not a filter on the model's answer.
+  const hint =
+    artistMedium && artistMedium.length > 0
+      ? `\n\nFor context, this artist's overall self-reported media are: ${artistMedium.join(", ")}. Use that only as a tiebreaker for ambiguous cases — base "medium" on what THIS image actually shows, even if it falls outside that list.`
+      : "";
+
   const response = await client.messages.create({
     model: "claude-opus-4-5",
     max_tokens: 800,
@@ -38,7 +50,7 @@ export async function tagArtworkImage(imageUrl: string): Promise<ArtworkTags> {
             type: "text",
             text: `Analyze this artwork image and return a JSON object with these exact fields:
 {
-  "medium": ["one or more values from exactly this list: ${MEDIUM_OPTIONS.join(", ")}"],
+  "medium": ["one or more values from exactly this list: ${mediumOptions.join(", ")}"],
   "colors": ["list", "of", "3-6 dominant colors", "in plain language"],
   "scale": "small|medium|large|monumental",
   "orientation": "landscape|portrait|square|irregular",
@@ -51,7 +63,7 @@ export async function tagArtworkImage(imageUrl: string): Promise<ArtworkTags> {
   "description": "One concise sentence describing this artwork for search purposes"
 }
 
-Return ONLY the JSON object, no other text. For "medium", pick every value from the list above that applies to THIS SPECIFIC piece based on what's visible in the image — do not guess at the artist's other work. Use "New Media" for video/digital/installation work. Be specific about colors (e.g. "dusty rose" not just "pink"). For scale, consider: small = under 18 inches, medium = 18-36 inches, large = 36-72 inches, monumental = over 72 inches.`,
+Return ONLY the JSON object, no other text. For "medium", pick every value from the list above that applies to THIS SPECIFIC piece based on what's visible in the image — do not guess at the artist's other work. A piece can have more than one medium (e.g. a carved and painted wood piece is both "Woodworking" and "Painting") — include every value that genuinely applies. Use "New Media" for video/digital work; use "Installation" for site-specific or multi-part installation work. Be specific about colors (e.g. "dusty rose" not just "pink"). For scale, consider: small = under 18 inches, medium = 18-36 inches, large = 36-72 inches, monumental = over 72 inches.${hint}`,
           },
         ],
       },
@@ -64,10 +76,22 @@ Return ONLY the JSON object, no other text. For "medium", pick every value from 
 
 // Defensive filter in case the model returns something off-list despite the
 // prompt constraint — callers persist this (not the raw aiTags.medium) into
-// ArtworkImage.medium, so it must only ever contain real MEDIUM_OPTIONS values.
-export function normalizeMediumTags(medium: string[] | undefined | null): string[] {
+// ArtworkImage.medium, so it must only ever contain real, currently-valid
+// medium labels (validOptions — the live MediumOption table, see
+// lib/medium-options.ts). Matches case-insensitively (the model occasionally
+// returns "illustration" instead of "Illustration") and maps back to the
+// canonical option string, rather than silently dropping the tag.
+export function normalizeMediumTags(
+  medium: string[] | undefined | null,
+  validOptions: string[] = MEDIUM_OPTIONS
+): string[] {
   if (!medium) return [];
-  return [...new Set(medium.filter((m) => MEDIUM_OPTIONS.includes(m)))];
+  const canonical = new Set<string>();
+  for (const m of medium) {
+    const match = validOptions.find((opt) => opt.toLowerCase() === m.trim().toLowerCase());
+    if (match) canonical.add(match);
+  }
+  return [...canonical];
 }
 
 // ─── Artist Directory Search ───────────────────────────────────────────────────

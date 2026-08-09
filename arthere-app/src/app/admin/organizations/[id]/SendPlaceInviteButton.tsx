@@ -54,15 +54,15 @@ export function SendPlaceInviteButton({ placeId, initialEmail }: { placeId: stri
         <InvitePreviewModal
           email={preview.email}
           link={preview.link}
-          greetingName={preview.greetingName}
+          initialGreetingName={preview.greetingName}
           initialSubject={preview.subject}
           initialBodyText={preview.bodyText}
           onClose={() => {
             setPreview(null);
             if (wasSent) setState("sent");
           }}
-          onSend={async (subject, bodyText) => {
-            await sendPlaceInvite(placeId, { email: preview.email, link: preview.link, subject, bodyText });
+          onSend={async (subject, bodyText, greetingName) => {
+            await sendPlaceInvite(placeId, { email: preview.email, link: preview.link, subject, bodyText, greetingName });
             setWasSent(true);
           }}
         />

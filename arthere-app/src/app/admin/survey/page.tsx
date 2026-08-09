@@ -5,7 +5,7 @@ import SurveyTable from "./SurveyTable";
 import SurveyCharts from "./SurveyCharts";
 import SurveyFunnel from "./SurveyFunnel";
 import {
-  NOT_MAKING_ART,
+  NOT_MAKING_ART_VALUES,
   INVOLVEMENT_FEATURED,
   INVOLVEMENT_VOLUNTEER,
   RAFFLE_YES,
@@ -74,7 +74,7 @@ export default async function AdminSurveyPage({
     },
   ];
 
-  const artistOnly = realResponses.filter((r) => r.artistStatus && r.artistStatus !== NOT_MAKING_ART);
+  const artistOnly = realResponses.filter((r) => r.artistStatus && !NOT_MAKING_ART_VALUES.includes(r.artistStatus));
   const artistFunnelSteps = [
     { label: "Are making art", count: artistOnly.length },
     { label: "Career Stage", count: artistOnly.filter((r) => !!r.careerStage).length },

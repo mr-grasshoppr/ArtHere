@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   ARTIST_STATUS_OPTIONS,
-  NOT_MAKING_ART,
+  NOT_MAKING_ART_VALUES,
   INVOLVEMENT_OPTIONS,
   INVOLVEMENT_FEATURED,
   INVOLVEMENT_VOLUNTEER,
@@ -16,8 +16,10 @@ import {
 // strings the form never stores (this shipped once: the funnel used
 // "No, I'm not making art" while the form stored "No").
 describe("survey constants consistency", () => {
-  it("NOT_MAKING_ART is an actual artist-status option", () => {
-    expect(ARTIST_STATUS_OPTIONS).toContain(NOT_MAKING_ART);
+  it("every NOT_MAKING_ART value is an actual artist-status option", () => {
+    for (const v of NOT_MAKING_ART_VALUES) {
+      expect(ARTIST_STATUS_OPTIONS).toContain(v);
+    }
   });
 
   it("involvement sentinels are actual involvement options", () => {

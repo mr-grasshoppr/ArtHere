@@ -8,7 +8,7 @@ import { TechSupportLink } from '@/components/TechSupportLink';
 import { FadeImage } from '@/components/FadeImage';
 import { Lightbox } from '@/components/Lightbox';
 
-const RELATIONSHIP_LABELS: Record<PlaceRelationship, string> = {
+export const RELATIONSHIP_LABELS: Record<PlaceRelationship, string> = {
   INSTRUCTOR: 'Instructor',
   STUDENT: 'Student',
   GRANTEE: 'Grantee',

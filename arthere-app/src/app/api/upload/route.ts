@@ -6,6 +6,8 @@ import { put } from "@vercel/blob";
 import { tagArtworkImage, detectArtworkCrop, normalizeMediumTags } from "@/lib/claude";
 import { archiveOriginal } from "@/lib/originals";
 import { computeAndStoreFocus } from "@/lib/image-focus";
+import { parseMediumList } from "@/lib/artist-options";
+import { getMediumOptions } from "@/lib/medium-options";
 import { Prisma } from "@prisma/client";
 import sharp from "sharp";
 
@@ -116,20 +118,20 @@ export async function POST(req: NextRequest) {
   // fire-and-forget promise would be frozen (and often lost) once the
   // response returns on Vercel.
   waitUntil(
-    tagArtworkImage(blob.url)
-      .then(async (tags) => {
-        await prisma.artworkImage.update({
-          where: { id: image.id },
-          data: {
-            aiTags: tags as unknown as Prisma.InputJsonValue,
-            aiTaggedAt: new Date(),
-            medium: normalizeMediumTags(tags.medium),
-          },
-        });
-      })
-      .catch((err) => {
-        console.error("AI tagging failed for image", image.id, err);
-      })
+    (async () => {
+      const mediumOptions = await getMediumOptions();
+      const tags = await tagArtworkImage(blob.url, parseMediumList(artist.medium), mediumOptions);
+      await prisma.artworkImage.update({
+        where: { id: image.id },
+        data: {
+          aiTags: tags as unknown as Prisma.InputJsonValue,
+          aiTaggedAt: new Date(),
+          medium: normalizeMediumTags(tags.medium, mediumOptions),
+        },
+      });
+    })().catch((err) => {
+      console.error("AI tagging failed for image", image.id, err);
+    })
   );
 
   waitUntil(

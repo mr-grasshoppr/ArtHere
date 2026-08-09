@@ -1,6 +1,10 @@
 // Preset options shown as pills/checkboxes in artist profile editors, so the
 // admin editor and the public rendering agree on labels and ordering.
 
+// Baseline/fallback medium vocabulary — seeded into the MediumOption table
+// (see prisma/schema.prisma) on migration. The live, admin-extensible list
+// lives in the DB now (src/lib/medium-options.ts); this constant is only the
+// initial seed values plus a safety fallback if that table is ever empty.
 export const MEDIUM_OPTIONS = [
   'Painting',
   'Drawing',
@@ -11,6 +15,7 @@ export const MEDIUM_OPTIONS = [
   'Woodworking',
   'New Media',
   'Illustration',
+  'Installation',
 ];
 
 export const OFFERING_OPTIONS = [

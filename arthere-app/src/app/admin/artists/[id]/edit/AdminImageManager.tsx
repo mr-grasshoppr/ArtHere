@@ -5,7 +5,7 @@ import { setHeroImage, deleteImage, setBioPhoto, setArtworkMedium } from "../act
 import { FramingButton } from "@/components/FramingButton";
 import { focalStyle, type Focal } from "@/lib/focal-style";
 import type { FramingValue } from "@/components/FramingEditor";
-import { MEDIUM_OPTIONS } from "@/lib/artist-options";
+import { MediumMultiSelect } from "@/components/MediumMultiSelect";
 import { resizeImageForUpload } from "@/lib/client-image-resize";
 
 type Image = {
@@ -22,16 +22,19 @@ export default function AdminImageManager({
   initialImages,
   initialBioPhotoUrl,
   initialFocals,
+  initialMediumOptions,
 }: {
   artistId: string;
   initialImages: Image[];
   initialBioPhotoUrl: string | null;
   /** url → stored framing, keyed by image url; absent = default centered framing. */
   initialFocals?: Record<string, Focal>;
+  initialMediumOptions: string[];
 }) {
   const [images, setImages] = useState<Image[]>(initialImages);
   const [bioPhotoUrl, setBioPhotoUrl] = useState<string | null>(initialBioPhotoUrl);
   const [focals, setFocals] = useState<Record<string, Focal>>(initialFocals ?? {});
+  const [mediumOptions, setMediumOptions] = useState<string[]>(initialMediumOptions);
   const styleFor = (url?: string | null) => focalStyle(url ? focals[url] : undefined);
   function rememberFocal(url: string, value: FramingValue) {
     setFocals((prev) => ({ ...prev, [url]: value }));
@@ -44,15 +47,9 @@ export default function AdminImageManager({
   const fileRef = useRef<HTMLInputElement>(null);
   const bioFileRef = useRef<HTMLInputElement>(null);
 
-  function toggleMedium(imageId: string, option: string) {
-    setImages((prev) =>
-      prev.map((img) => {
-        if (img.id !== imageId) return img;
-        const next = img.medium.includes(option) ? img.medium.filter((m) => m !== option) : [...img.medium, option];
-        setArtworkMedium(artistId, imageId, next);
-        return { ...img, medium: next };
-      })
-    );
+  function updateMedium(imageId: string, next: string[]) {
+    setImages((prev) => prev.map((img) => (img.id === imageId ? { ...img, medium: next } : img)));
+    setArtworkMedium(artistId, imageId, next);
   }
 
   async function handleArtworkUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -249,21 +246,13 @@ export default function AdminImageManager({
               {/* Per-artwork medium — AI-tagged, hand-correctable. Used to
                   filter this specific piece on the artwork page. */}
               {editingMediumFor === img.id ? (
-                <div className="flex flex-wrap gap-1">
-                  {MEDIUM_OPTIONS.map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      onClick={() => toggleMedium(img.id, option)}
-                      className={`px-1.5 py-0.5 rounded-full text-[10px] border transition-colors ${
-                        img.medium.includes(option)
-                          ? "bg-[#1a1a1a] text-white border-[#1a1a1a]"
-                          : "bg-white text-[#666] border-[#e5e5e5] hover:border-[#999]"
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
+                <div className="flex flex-wrap gap-1 items-center">
+                  <MediumMultiSelect
+                    value={img.medium}
+                    onChange={(next) => updateMedium(img.id, next)}
+                    options={mediumOptions}
+                    onOptionsChange={setMediumOptions}
+                  />
                   <button
                     type="button"
                     onClick={() => setEditingMediumFor(null)}
