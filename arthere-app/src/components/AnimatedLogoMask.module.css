@@ -28,16 +28,24 @@
    own infinite timeline, independent of the slide cycle — same speed and
    direction as the artwork's own pan (~1.9% of container width/sec), but
    never resets, so it never shows the same crop twice between artworks. */
+/* top/left + height (not inset:0) so the track's own width is its content
+   size (both slides, flex-shrink:0) instead of being pinned to the mask's
+   width — translateX(-50%) below needs to resolve against that full content
+   width (one slide) to actually traverse the image, not a sliver of it. */
 .gradientTrack {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  height: 100%;
   display: flex;
   animation: gradientPan 163s linear infinite;
 }
 
 .gradientTrackStill {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  height: 100%;
   display: flex;
 }
 
