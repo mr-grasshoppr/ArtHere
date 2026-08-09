@@ -29,6 +29,10 @@ const DISSOLVE_MS = 1200;
 // dissolve-out) so it reads as one continuous right-to-left drift, not a
 // hold with a separate motion segment.
 const PAN_MS = IMAGE_HOLD_MS + DISSOLVE_MS;
+// Matches .gradientTrack's `animation: gradientPan 163s` in the CSS module —
+// duplicated here (not read from the CSS) so we can compute a negative
+// delay against it below.
+const GRADIENT_PAN_MS = 163_000;
 
 /**
  * The masked "ART HERE" mark, cycling through admin-managed slides: a gap
@@ -45,6 +49,10 @@ const PAN_MS = IMAGE_HOLD_MS + DISSOLVE_MS;
 export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', slides, focals }: Props) {
   const [index, setIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>('gap');
+  // Computed once per mount (not on every render) so re-renders from the
+  // phase/index timers don't keep nudging animation-delay and glitching the
+  // already-running pan.
+  const [gradientDelay] = useState(() => `-${(Date.now() % GRADIENT_PAN_MS) / 1000}s`);
   const [reducedMotion, setReducedMotion] = useState(false);
   // One stable DOM node per slide holds the pan animation — restarted in
   // place (remove class, force reflow, re-add) rather than via a changing
@@ -94,7 +102,10 @@ export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', s
       <div className={styles.mask}>
         {/* Shared gradient background — pans continuously, independent of
             the slide cycle, so it never shows the same crop twice in a row. */}
-        <div className={reducedMotion ? styles.gradientTrackStill : styles.gradientTrack}>
+        <div
+          className={reducedMotion ? styles.gradientTrackStill : styles.gradientTrack}
+          style={reducedMotion ? undefined : { animationDelay: gradientDelay }}
+        >
           <div className={styles.gradientSlide} />
           <div className={styles.gradientSlide} />
         </div>
