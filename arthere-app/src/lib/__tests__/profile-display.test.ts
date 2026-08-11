@@ -3,15 +3,18 @@ import { hireForSentence, socialPlatformName } from "../profile-display";
 
 describe("hireForSentence", () => {
   it("maps offerings to friendly verbs", () => {
-    expect(hireForSentence("Kurtis Piltz", "Buying existing artwork, Custom work")).toBe(
+    expect(hireForSentence("Kurtis", "Buying existing artwork, Custom work")).toBe(
       "Kurtis sells artwork, and takes commissions."
     );
   });
   it("dedupes repeated verbs", () => {
-    expect(hireForSentence("Ana Lee", "Teaching classes, lessons, or workshops")).toBe("Ana teaches.");
+    expect(hireForSentence("Ana", "Teaching classes, lessons, or workshops")).toBe("Ana teaches.");
   });
   it("returns empty string for empty input", () => {
     expect(hireForSentence("Ana", "")).toBe("");
+  });
+  it("uses the first name exactly as given, even if it's two words", () => {
+    expect(hireForSentence("Mary Ann", "Consultations")).toBe("Mary Ann offers consultations.");
   });
 });
 

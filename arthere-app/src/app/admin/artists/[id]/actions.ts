@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/db";
 import { LinkType, PlaceRelationship } from "@prisma/client";
-import { createArtistInvitePreview, sendArtistInviteEmail, type InvitePreview } from "@/lib/magic-link";
+import { createArtistInvitePreview, sendArtistInviteEmail, artistGreetingName, type InvitePreview } from "@/lib/magic-link";
 import { requireAdmin } from "@/lib/admin";
 import { snapshotArtist } from "@/lib/profile-revision";
 import { buildHireForText } from "@/lib/artist-options";
@@ -33,7 +33,7 @@ export async function previewArtistInvite(artistId: string, email: string): Prom
   const artist = await prisma.artist.findUnique({ where: { id: artistId } });
   if (!artist) throw new Error("Artist not found");
   await attachArtistUser(artistId, clean);
-  return createArtistInvitePreview({ email: clean, artistId, artistName: artist.name });
+  return createArtistInvitePreview({ email: clean, artistId, artistName: artistGreetingName(artist) });
 }
 
 export async function sendArtistInvite(
@@ -43,7 +43,7 @@ export async function sendArtistInvite(
   await requireAdmin();
   const artist = await prisma.artist.findUnique({ where: { id: artistId } });
   if (!artist) throw new Error("Artist not found");
-  await sendArtistInviteEmail({ artistId, artistName: artist.name, ...preview });
+  await sendArtistInviteEmail({ artistId, artistName: artistGreetingName(artist), ...preview });
 }
 
 export async function addNote(artistId: string, body: string) {
@@ -57,7 +57,8 @@ export async function deleteNote(noteId: string) {
 }
 
 type ProfileInput = {
-  name: string;
+  firstName: string;
+  lastName: string;
   bio: string;
   quote: string;
   otherConnections: { name: string; relationship: string; relationshipLabel?: string }[];
@@ -71,10 +72,18 @@ type ProfileInput = {
 export async function updateArtistProfile(artistId: string, data: ProfileInput) {
   const session = await requireAdmin();
 
+  const firstName = data.firstName.trim();
+  const lastName = data.lastName.trim();
+  // name stays in sync with firstName/lastName — everything else in the app
+  // (display, slug, search, CSV) keeps reading this single field unchanged.
+  const name = [firstName, lastName].filter(Boolean).join(" ");
+
   const artist = await prisma.artist.update({
     where: { id: artistId },
     data: {
-      name: data.name.trim(),
+      name,
+      firstName,
+      lastName: lastName || null,
       bio: data.bio.trim() || null,
       quote: data.quote.trim() || null,
       medium: data.medium.trim() || null,

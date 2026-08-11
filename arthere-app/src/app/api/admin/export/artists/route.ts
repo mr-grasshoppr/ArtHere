@@ -18,7 +18,7 @@ export async function GET() {
   });
 
   const headers = [
-    "id", "name", "slug", "email", "emailVerified",
+    "id", "name", "firstName", "lastName", "slug", "email", "emailVerified",
     "medium", "neighborhood", "website", "instagram",
     "commissionStatus", "priceRangeMin", "priceRangeMax",
     "sizeRangeMin", "sizeRangeMax",
@@ -32,6 +32,8 @@ export async function GET() {
       row([
         a.id,
         a.name,
+        a.firstName,
+        a.lastName,
         a.slug,
         a.user?.email ?? null,
         a.user?.emailVerified?.toISOString() ?? null,

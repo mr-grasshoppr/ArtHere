@@ -27,8 +27,18 @@ export async function createArtist(name: string): Promise<string> {
   // (see lib/city-scope.ts) — publishing it later would silently leave it
   // invisible on the artwork/artists/network pages despite being live.
   const portland = await prisma.city.findUnique({ where: { slug: "portland" } });
+  // Best-effort split for this one-shot admin quick-add — the full editor
+  // (with real First/Last fields) is where this gets corrected for real.
+  const nameParts = trimmedName.split(/\s+/);
   const artist = await prisma.artist.create({
-    data: { name: trimmedName, slug, isPlaceholder: true, cityId: portland?.id ?? null },
+    data: {
+      name: trimmedName,
+      firstName: nameParts[0],
+      lastName: nameParts.length > 1 ? nameParts.slice(1).join(" ") : null,
+      slug,
+      isPlaceholder: true,
+      cityId: portland?.id ?? null,
+    },
   });
   return artist.id;
 }

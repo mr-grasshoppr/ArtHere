@@ -13,7 +13,8 @@ const numberish = z.union([z.number(), z.string().max(20)]).nullish();
 
 export const profileSchema = z
   .object({
-    name: z.string().min(1).max(200),
+    firstName: z.string().min(1).max(100),
+    lastName: z.string().max(100).nullish(),
     bio: longText.nullish(),
     quote: mediumText.nullish(),
     medium: shortText.nullish(),

@@ -36,7 +36,8 @@ export default async function OnboardingPage() {
     : {};
 
   const initialData = a ? {
-    name: a.name ?? "",
+    firstName: a.firstName ?? "",
+    lastName: a.lastName ?? "",
     medium: a.medium ?? "",
     neighborhood: a.neighborhood ?? "",
     bio: a.bio ?? "",

@@ -8,7 +8,7 @@ import type { FramingValue } from "@/components/FramingEditor";
 import { resizeImageForUpload } from "@/lib/client-image-resize";
 
 type InitialData = {
-  name: string; medium: string; neighborhood: string; bio: string;
+  firstName: string; lastName: string; medium: string; neighborhood: string; bio: string;
   quote: string;
   otherConnections: { name: string; relationship: string; relationshipLabel?: string }[];
   links: { type: string; url: string; label?: string }[];
@@ -83,7 +83,8 @@ export default function OnboardingForm({
   const nameRef = useRef<HTMLInputElement>(null); // kept for scroll-to on finish validation
 
   // Profile fields
-  const [name, setName] = useState(initialData?.name ?? "");
+  const [firstName, setFirstName] = useState(initialData?.firstName ?? "");
+  const [lastName, setLastName] = useState(initialData?.lastName ?? "");
   const [mediumValues, setMediumValues] = useState<string[]>(() => {
     if (!initialData?.medium) return [];
     const parts = initialData.medium.split(',').map(s => s.trim());
@@ -190,14 +191,15 @@ export default function OnboardingForm({
   }
 
   async function persist() {
-    if (!name.trim() && !initialData) return;
+    if (!firstName.trim() && !initialData) return;
     setSaveStatus("saving");
     try {
       const res = await fetch("/api/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name,
+          firstName,
+          lastName: lastName.trim() || null,
           bio,
           quote: quote.trim() || null,
           medium: buildMediumText() || null,
@@ -225,12 +227,12 @@ export default function OnboardingForm({
   }
 
   useEffect(() => {
-    if (!name.trim()) return;
+    if (!firstName.trim()) return;
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(persist, 900);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, bio, quote, JSON.stringify(mediumValues), mediumOther, neighborhood, JSON.stringify(offerings), offeringsOther, JSON.stringify(places), JSON.stringify(otherConnections), JSON.stringify(links)]);
+  }, [firstName, lastName, bio, quote, JSON.stringify(mediumValues), mediumOther, neighborhood, JSON.stringify(offerings), offeringsOther, JSON.stringify(places), JSON.stringify(otherConnections), JSON.stringify(links)]);
 
   // ─── Images ──────────────────────────────────────────────────────────
 
@@ -426,14 +428,22 @@ export default function OnboardingForm({
 
       {/* ── Name + subtitle ───────────────────────────────────────────── */}
       <div className="mb-6">
-        <input
-          ref={nameRef}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Your name"
-          autoFocus
-          className={`${INLINE} text-3xl font-semibold mb-2`}
-        />
+        <div className="flex gap-3 mb-2">
+          <input
+            ref={nameRef}
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            placeholder="First name"
+            autoFocus
+            className={`${INLINE} text-3xl font-semibold flex-1 min-w-0`}
+          />
+          <input
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            placeholder="Last name"
+            className={`${INLINE} text-3xl font-semibold flex-1 min-w-0`}
+          />
+        </div>
         <div className="flex gap-3 flex-wrap mt-2">
           <div className="flex-1 min-w-[220px]">
             <p className="text-[0.72rem] font-semibold text-[#1a1a1a] mb-2 ml-1">Medium</p>

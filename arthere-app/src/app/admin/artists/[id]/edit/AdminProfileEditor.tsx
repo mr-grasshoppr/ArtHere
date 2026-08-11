@@ -13,6 +13,8 @@ type Link = { type: string; url: string; label?: string };
 type Artist = {
   id: string;
   name: string;
+  firstName: string | null;
+  lastName: string | null;
   bio: string | null;
   quote: string | null;
   otherConnections: { name: string; relationship: string; relationshipLabel: string | null }[];
@@ -62,7 +64,8 @@ export default function AdminProfileEditor({
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
 
-  const [name, setName] = useState(artist.name);
+  const [firstName, setFirstName] = useState(artist.firstName ?? "");
+  const [lastName, setLastName] = useState(artist.lastName ?? "");
   const [bio, setBio] = useState(artist.bio ?? "");
   const [quote, setQuote] = useState(artist.quote ?? "");
   const [otherConnections, setOtherConnections] = useState<OtherConnection[]>(
@@ -113,7 +116,7 @@ export default function AdminProfileEditor({
 
   function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!firstName.trim()) return;
     setError("");
     setSaved(false);
 
@@ -126,7 +129,8 @@ export default function AdminProfileEditor({
     startTransition(async () => {
       try {
         await updateArtistProfile(artist.id, {
-          name,
+          firstName,
+          lastName,
           bio,
           quote,
           otherConnections,
@@ -150,9 +154,15 @@ export default function AdminProfileEditor({
       <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-4">
         <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Basic Info</h2>
 
-        <div>
-          <label className={labelCls}>Name *</label>
-          <input type="text" required value={name} onChange={(e) => setName(e.target.value)} className={inputCls} />
+        <div className="flex gap-3">
+          <div className="flex-1">
+            <label className={labelCls}>First name *</label>
+            <input type="text" required value={firstName} onChange={(e) => setFirstName(e.target.value)} className={inputCls} />
+          </div>
+          <div className="flex-1">
+            <label className={labelCls}>Last name</label>
+            <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} className={inputCls} />
+          </div>
         </div>
 
         <div>
@@ -454,7 +464,7 @@ export default function AdminProfileEditor({
       <div className="flex gap-3">
         <button
           type="submit"
-          disabled={isPending || !name.trim()}
+          disabled={isPending || !firstName.trim()}
           className="px-6 py-2.5 bg-[#1a1a1a] text-white text-sm rounded-full hover:opacity-80 transition-opacity disabled:opacity-40"
         >
           {isPending ? "Saving…" : "Save changes"}

@@ -70,7 +70,15 @@ model Artist {
   // attaches a User later, the same way it already works for Place.
   userId               String?          @unique
   slug                 String           @unique
+  // name stays as the single source everywhere else in the app reads from
+  // (display, slug, search, CSV) — it's kept in sync with firstName/lastName
+  // on every save from the onboarding form and admin editor.
   name                 String
+  // Structured source of truth for the artist's actual first/last name, so
+  // email greetings and sentence-building don't have to guess by splitting
+  // `name` on whitespace (which mangles multi-word first names like "Mary Ann").
+  firstName            String?
+  lastName             String?
   bio                  String?          @db.Text
   // Optional pull quote shown above the bio on the public profile.
   quote                String?          @db.Text
@@ -199,6 +207,10 @@ model ArtworkImage {
   // artist's overall list of mediums. An admin can hand-correct this if the
   // AI mistags a piece.
   medium     String[]  @default([])
+  // Set when an admin has eyeballed this piece's tags during a manual audit
+  // pass (see /admin/artwork-review) — distinct from aiTaggedAt, which just
+  // means the AI ran, not that a human confirmed the result is correct.
+  tagsReviewedAt DateTime?
 
   artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
 

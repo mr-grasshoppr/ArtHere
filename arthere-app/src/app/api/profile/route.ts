@@ -39,7 +39,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
   const {
-    name,
+    firstName,
+    lastName,
     bio,
     quote,
     medium,
@@ -60,9 +61,13 @@ export async function POST(req: NextRequest) {
     intake,
   } = body;
 
-  if (!name?.trim()) {
-    return NextResponse.json({ error: "Name is required" }, { status: 400 });
+  if (!firstName?.trim()) {
+    return NextResponse.json({ error: "First name is required" }, { status: 400 });
   }
+
+  // `name` stays the single field the rest of the app reads (display, slug,
+  // search, CSV) — kept in sync from the structured firstName/lastName here.
+  const name = [firstName.trim(), lastName?.trim()].filter(Boolean).join(" ");
 
   // Generate a unique slug
   const baseSlug = slugify(name);
@@ -94,7 +99,9 @@ export async function POST(req: NextRequest) {
   };
 
   const artistData = {
-    name: name.trim(),
+    name,
+    firstName: firstName.trim(),
+    lastName: lastName?.trim() || null,
     bio: bio?.trim() || null,
     quote: quote?.trim() || null,
     medium: medium?.trim() || null,

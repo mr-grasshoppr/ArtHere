@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin";
-import { createArtistInvitePreview, type InvitePreview } from "@/lib/magic-link";
+import { createArtistInvitePreview, artistGreetingName, type InvitePreview } from "@/lib/magic-link";
 import { classifySocialLink } from "@/lib/social-link";
 import { attachArtistUser } from "./[id]/actions";
 import { uniqueArtistSlug } from "./actions";
@@ -74,7 +74,7 @@ export async function previewInterestedInvite(submissionId: string): Promise<Inv
   const preview = await createArtistInvitePreview({
     email,
     artistId,
-    artistName: artist.name,
+    artistName: artistGreetingName(artist),
     subject: INTERESTED_INVITE_SUBJECT,
     bodyText: INTERESTED_INVITE_BODY,
   });

@@ -3,10 +3,11 @@
 /**
  * Turn a stored hireFor string ("Buying existing artwork, Custom work, …")
  * into a friendly sentence: "Kurtis sells artwork, takes commissions, and
- * teaches."
+ * teaches." Takes the first name directly rather than splitting a full name
+ * — a caller passing "Mary Ann Smith" and expecting "Mary Ann" would have
+ * been mangled to "Mary" by a naive whitespace split.
  */
-export function hireForSentence(name: string, hireFor: string): string {
-  const firstName = name.split(' ')[0];
+export function hireForSentence(firstName: string, hireFor: string): string {
   const items = hireFor.split(/ · |, /).map(s => s.trim()).filter(Boolean);
   const verbs = items.map(item => {
     const l = item.toLowerCase();

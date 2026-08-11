@@ -22,14 +22,27 @@ const FROM_ADDRESS = 'Art Here <hello@artishere.org>';
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://artishere.org';
 const ADMIN_BCC = 'hello@artishere.org';
 
-// Emails greet artists by first name only. Falls back to the full string for
-// single-word names. Place emails deliberately keep the full venue name.
+// Trim-and-null-fallback only — no more splitting on whitespace. Splitting a
+// full name to guess the first word mangles multi-word first names ("Mary
+// Ann" -> "Mary"), which is exactly what Artist.firstName exists to avoid.
 // Returns null when we have no real name — the email then greets "Hi there"
 // rather than addressing someone by a name invented from their email address.
-function firstName(fullName: string | null | undefined): string | null {
-  const trimmed = fullName?.trim();
-  if (!trimmed) return null;
-  return trimmed.split(/\s+/)[0] || trimmed;
+function cleanGreetingName(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  return trimmed || null;
+}
+
+/**
+ * Best available first name for an email greeting: the artist's stored
+ * firstName, falling back to a naive split of the full name only for rows
+ * that predate the firstName field and haven't been saved since.
+ */
+export function artistGreetingName(artist: { firstName?: string | null; name?: string | null }): string | null {
+  const explicit = artist.firstName?.trim();
+  if (explicit) return explicit;
+  const full = artist.name?.trim();
+  if (!full) return null;
+  return full.split(/\s+/)[0] || full;
 }
 
 // ─── Artist magic links ───────────────────────────────────────────────────────
@@ -61,7 +74,7 @@ export async function sendMagicLink({
   });
 
   const link = `${BASE_URL}/profile/setup?token=${token}`;
-  const name = firstName(artistName);
+  const name = cleanGreetingName(artistName);
   const { element, subject } =
     variant === 'returning'
       ? {
@@ -148,7 +161,7 @@ export interface InvitePreview {
   link: string;
   subject: string;
   bodyText: string;
-  /** Name used in the email's "Hi ___," greeting — same firstName() extraction the actual send uses, so the preview matches exactly. Null shows as "there". */
+  /** Name used in the email's "Hi ___," greeting — same value the actual send uses, so the preview matches exactly. Null shows as "there". */
   greetingName: string | null;
 }
 
@@ -174,7 +187,7 @@ export async function createArtistInvitePreview({
   const link = `${BASE_URL}/profile/setup?token=${token}`;
   const subject = subjectOverride ?? (variant === 'returning' ? 'View and edit your Art Here profile' : 'Set up your Art Here artist profile');
   const bodyText = bodyTextOverride ?? (variant === 'returning' ? profileLinkDefaultBodyText('profile') : MAGIC_LINK_DEFAULT_BODY_TEXT);
-  return { email, link, subject, bodyText, greetingName: firstName(artistName) };
+  return { email, link, subject, bodyText, greetingName: cleanGreetingName(artistName) };
 }
 
 export async function sendArtistInviteEmail({
@@ -188,7 +201,7 @@ export async function sendArtistInviteEmail({
 }: SendArtistLinkParams & { link: string; subject: string; bodyText: string; greetingName?: string | null }): Promise<void> {
   // greetingName lets the admin's edit in the invite-preview modal win over
   // the auto-derived first name (e.g. a nickname the artist actually goes by).
-  const name = greetingName !== undefined ? greetingName : firstName(artistName);
+  const name = greetingName !== undefined ? greetingName : cleanGreetingName(artistName);
   const element =
     variant === 'returning'
       ? React.createElement(ProfileLinkEmail, { name, link, noun: 'profile' as const, bodyText })
@@ -209,7 +222,7 @@ export async function createPlaceInvitePreview({
   const link = `${BASE_URL}/place/setup?token=${token}`;
   const subject = variant === 'returning' ? 'View and edit your Art Here page' : `Manage your Art Here page — ${placeName}`;
   const bodyText = variant === 'returning' ? profileLinkDefaultBodyText('page') : PLACE_MAGIC_LINK_DEFAULT_BODY_TEXT;
-  // Places keep the full venue name in the greeting (never firstName()-truncated).
+  // Places keep the full venue name in the greeting (never truncated to a first word).
   return { email, link, subject, bodyText, greetingName: placeName ?? null };
 }
 
