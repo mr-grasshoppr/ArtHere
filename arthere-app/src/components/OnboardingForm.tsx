@@ -344,11 +344,14 @@ export default function OnboardingForm({
         <p className="font-heading text-sm font-bold text-[#1a1a1a]">Build your profile</p>
         <div className="flex items-center gap-3">
           {saveStatus === "saving" && <span className="text-[#999] text-xs">Saving…</span>}
-          {saveStatus === "saved" && <span className="text-[#999] text-xs">Saved</span>}
           {saveStatus === "error" && <span className="text-red-500 text-xs">{errorMsg}</span>}
-          <button type="button" onClick={handleFinish} disabled={finishing} className={BTN}>
-            {finishing ? "Saving…" : "Save"}
-          </button>
+          <span
+            className={`text-xs font-medium px-2.5 py-1 rounded-full ${
+              isPlaceholder ? "bg-[#f0f0f0] text-[#888]" : "bg-green-100 text-green-700"
+            }`}
+          >
+            {isPlaceholder ? "Draft" : "Live"}
+          </span>
         </div>
       </div>
 
