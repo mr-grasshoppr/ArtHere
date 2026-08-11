@@ -27,6 +27,17 @@ export default async function AdminArtistDetailPage({ params }: { params: Promis
 
   if (!artist) notFound();
 
+  // Every save (self-service or admin) writes one of these — surfacing it
+  // is the only reliable way to answer "have they actually touched this,"
+  // since Artist.updatedAt alone doesn't say who changed it.
+  const revisions = await prisma.profileRevision.findMany({
+    where: { entityType: "artist", entityId: artist.id },
+    orderBy: { createdAt: "desc" },
+    take: 5,
+    select: { editedBy: true, editorEmail: true, createdAt: true },
+  });
+  const lastArtistEdit = revisions.find((r) => r.editedBy === "artist");
+
   const commissionLabel: Record<string, string> = {
     OPEN: "Open",
     CLOSED: "Closed",
@@ -85,8 +96,16 @@ export default async function AdminArtistDetailPage({ params }: { params: Promis
             <div className="text-sm space-y-1 pt-2 border-t border-[#f0f0f0]">
               <Row label="Email" value={artist.user?.email ?? null} />
               {artist.user && (
-                <Row label="Verified" value={artist.user.emailVerified ? new Date(artist.user.emailVerified).toLocaleDateString() : "No"} />
+                <Row label="Logged in" value={artist.user.emailVerified ? new Date(artist.user.emailVerified).toLocaleDateString() : "Never"} />
               )}
+              <Row
+                label="Last edit"
+                value={
+                  lastArtistEdit
+                    ? `${new Date(lastArtistEdit.createdAt).toLocaleDateString()} (by artist)`
+                    : "Never edited by artist"
+                }
+              />
               <Row label="Medium" value={artist.medium} />
               <Row label="Neighborhood" value={artist.neighborhood} />
               <Row label="Commissions" value={commissionLabel[artist.commissionStatus]} />
@@ -154,6 +173,24 @@ export default async function AdminArtistDetailPage({ params }: { params: Promis
               <SendInviteButton artistId={artist.id} initialEmail={artist.user?.email ?? ""} />
             </div>
           </div>
+
+          {revisions.length > 0 && (
+            <div className="bg-white border border-[#e5e5e5] rounded-lg p-5">
+              <p className="text-xs text-[#999] mb-3 uppercase tracking-wide">Recent Activity</p>
+              <div className="space-y-2">
+                {revisions.map((r, i) => (
+                  <div key={i} className="text-sm flex items-baseline justify-between gap-2">
+                    <span className="text-[#444]">
+                      {r.editedBy === "artist" ? "Edited by artist" : r.editedBy === "admin" ? `Edited by admin${r.editorEmail ? ` (${r.editorEmail})` : ""}` : "System update"}
+                    </span>
+                    <span className="text-[#bbb] text-xs flex-shrink-0">
+                      {new Date(r.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right: images + notes */}
