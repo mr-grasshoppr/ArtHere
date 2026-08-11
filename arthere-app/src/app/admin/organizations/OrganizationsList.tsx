@@ -14,6 +14,7 @@ type PlaceRow = {
   isArchived: boolean;
   submittedForReviewAt: Date | null;
   createdAt: Date;
+  lastPlaceEditAt: Date | null;
   user: { email: string | null } | null;
   _count: { artists: number; adminNotes: number };
 };
@@ -159,7 +160,10 @@ export default function OrganizationsList({ places }: { places: PlaceRow[] }) {
             <div className="hidden sm:flex items-center gap-6 text-xs text-[#bbb] flex-shrink-0">
               <span>{p._count.artists} artists</span>
               <span>{p._count.adminNotes} notes</span>
-              <span>{new Date(p.createdAt).toLocaleDateString()}</span>
+              <span title="Created">Created {new Date(p.createdAt).toLocaleDateString()}</span>
+              <span title="Last edited by the org">
+                {p.lastPlaceEditAt ? `Edited ${new Date(p.lastPlaceEditAt).toLocaleDateString()}` : "Not edited"}
+              </span>
             </div>
             <div className="flex-shrink-0">
               <OrgVisibilityToggle placeId={p.id} inDirectory={p.inDirectory} />

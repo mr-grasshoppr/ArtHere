@@ -15,6 +15,7 @@ type ArtistRow = {
   isArchived: boolean;
   submittedForReviewAt: Date | null;
   createdAt: Date;
+  lastArtistEditAt: Date | null;
   user: { email: string | null; emailVerified: Date | null } | null;
   artworkImages: { id: string; url: string; isHero: boolean }[];
   _count: { adminNotes: number };
@@ -170,7 +171,10 @@ export default function ArtistsList({ artists }: { artists: ArtistRow[] }) {
               <div className="hidden sm:flex items-center gap-6 text-xs text-[#bbb] flex-shrink-0">
                 <span>{a.artworkImages.length} images</span>
                 <span>{a._count.adminNotes} notes</span>
-                <span>{new Date(a.createdAt).toLocaleDateString()}</span>
+                <span title="Created">Created {new Date(a.createdAt).toLocaleDateString()}</span>
+                <span title="Last edited by the artist">
+                  {a.lastArtistEditAt ? `Edited ${new Date(a.lastArtistEditAt).toLocaleDateString()}` : "Not edited"}
+                </span>
               </div>
               <div className="flex-shrink-0">
                 <VisibilityToggle artistId={a.id} isPlaceholder={a.isPlaceholder} />

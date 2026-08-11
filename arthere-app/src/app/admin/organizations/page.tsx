@@ -13,13 +13,24 @@ export default async function AdminOrganizationsPage({
 
   const { filter } = await searchParams;
 
-  const allPlaces = await prisma.place.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      user: { select: { email: true } },
-      _count: { select: { artists: true, adminNotes: true } },
-    },
-  });
+  const [placeRows, lastPlaceEdits] = await Promise.all([
+    prisma.place.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: { select: { email: true } },
+        _count: { select: { artists: true, adminNotes: true } },
+      },
+    }),
+    // Latest self-service edit per place, in one query rather than one per
+    // row — see Place.lastPlaceEditAt below.
+    prisma.profileRevision.groupBy({
+      by: ["entityId"],
+      where: { entityType: "place", editedBy: "place" },
+      _max: { createdAt: true },
+    }),
+  ]);
+  const lastPlaceEditMap = new Map(lastPlaceEdits.map((r) => [r.entityId, r._max.createdAt]));
+  const allPlaces = placeRows.map((p) => ({ ...p, lastPlaceEditAt: lastPlaceEditMap.get(p.id) ?? null }));
 
   // Archived pages are tucked out of the default view entirely, same as
   // artists — see setPlacesArchived.

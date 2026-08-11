@@ -58,15 +58,26 @@ export default async function AdminArtistsPage({
       })
     : [];
 
-  const allArtists = await prisma.artist.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      user: { select: { email: true, emailVerified: true } },
-      artworkImages: { select: { id: true, url: true, isHero: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
-      adminNotes: { select: { id: true, createdAt: true }, orderBy: { createdAt: "desc" } },
-      _count: { select: { adminNotes: true } },
-    },
-  });
+  const [artistRows, lastArtistEdits] = await Promise.all([
+    prisma.artist.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: { select: { email: true, emailVerified: true } },
+        artworkImages: { select: { id: true, url: true, isHero: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
+        adminNotes: { select: { id: true, createdAt: true }, orderBy: { createdAt: "desc" } },
+        _count: { select: { adminNotes: true } },
+      },
+    }),
+    // Latest self-service edit per artist, in one query rather than one per
+    // row — see Artist.lastArtistEditAt below.
+    prisma.profileRevision.groupBy({
+      by: ["entityId"],
+      where: { entityType: "artist", editedBy: "artist" },
+      _max: { createdAt: true },
+    }),
+  ]);
+  const lastArtistEditMap = new Map(lastArtistEdits.map((r) => [r.entityId, r._max.createdAt]));
+  const allArtists = artistRows.map((a) => ({ ...a, lastArtistEditAt: lastArtistEditMap.get(a.id) ?? null }));
 
   // Archived profiles are tucked out of the default view entirely — charts,
   // counts, and the list all work off `nonArchived` unless the Archived
