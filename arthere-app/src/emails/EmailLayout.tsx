@@ -8,9 +8,14 @@ import * as React from 'react';
 // with the site) before.
 
 // Colored (pink/green gradient) version — the plain black mark doesn't read
-// against a dark background in clients rendered with dark mode.
+// against a dark background in clients rendered with dark mode. Generated
+// directly from public/images/arthere_logo_green_pink.png (composited onto
+// white, since transparent PNGs render with a dark halo in Gmail dark mode)
+// — the previous uploaded asset had drifted to a washed-out pink that no
+// longer matched the site's actual brand color. Regenerate + re-upload
+// (see git history) if the source logo ever changes.
 export const LOGO_URL =
-  'https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/brand/arthere-logo-email-color.png';
+  'https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/brand/arthere-logo-email-color-v2.png';
 
 const NUNITO_WOFF2_URL =
   'https://fonts.gstatic.com/s/nunito/v32/XRXI3I6Li01BKofiOc5wtlZ2di8HDFwmdTQ3j6zbXWjgeg.woff2';
