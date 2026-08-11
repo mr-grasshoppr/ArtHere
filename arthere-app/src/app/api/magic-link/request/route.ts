@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { sendMagicLink, sendPlaceMagicLink } from '@/lib/magic-link';
+import { sendMagicLink, sendPlaceMagicLink, artistGreetingName } from '@/lib/magic-link';
 import { rateLimit } from '@/lib/rate-limit';
 
 // Always returns 200 — we never confirm whether an email exists.
@@ -28,15 +28,19 @@ export async function POST(req: NextRequest) {
 
   // Self-service requests come from people who already have a profile and want
   // to get back in — send the plain "here's your edit link" email, not the
-  // first-time onboarding invite.
+  // first-time onboarding invite. Not else-if: someone can own both an artist
+  // profile and an org page on the same email (see Adam Gerlach /
+  // Village Frame & Gallery) — they need a way back into both, not just
+  // whichever branch happened to win.
   if (user?.artist) {
     await sendMagicLink({
       email,
       artistId: user.artist.id,
-      artistName: user.artist.name,
+      artistName: artistGreetingName(user.artist),
       variant: 'returning',
     });
-  } else if (user?.place) {
+  }
+  if (user?.place) {
     await sendPlaceMagicLink({
       email,
       placeId: user.place.id,

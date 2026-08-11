@@ -22,6 +22,10 @@ export default async function ProfilePage() {
           intake: true,
         },
       },
+      // Someone can own both an artist profile and an org page on the same
+      // email — surface a way back to the other one instead of it being
+      // reachable only if they happen to already know the URL.
+      place: { select: { id: true, name: true } },
     },
   });
 
@@ -43,6 +47,15 @@ export default async function ProfilePage() {
           >
             Create your profile
           </Link>
+          {user.place && (
+            <p className="mt-6 text-sm text-[#999]">
+              This email already manages{" "}
+              <Link href="/place/edit" className="text-[#666] hover:text-[#1a1a1a] underline underline-offset-2">
+                {user.place.name}
+              </Link>
+              .
+            </p>
+          )}
         </div>
       </main>
     );
@@ -78,12 +91,19 @@ export default async function ProfilePage() {
         <Link href="/" className="text-[#999] text-sm hover:text-[#1a1a1a] transition-colors">
           ← Art Here Portland
         </Link>
-        <Link
-          href="/onboarding"
-          className="text-sm font-medium bg-[#1a1a1a] text-white px-5 py-2 rounded-full hover:opacity-80 transition-opacity"
-        >
-          Edit profile
-        </Link>
+        <div className="flex items-center gap-4">
+          {user.place && (
+            <Link href="/place/edit" className="text-sm text-[#888] hover:text-[#1a1a1a] transition-colors">
+              Manage {user.place.name} →
+            </Link>
+          )}
+          <Link
+            href="/onboarding"
+            className="text-sm font-medium bg-[#1a1a1a] text-white px-5 py-2 rounded-full hover:opacity-80 transition-opacity"
+          >
+            Edit profile
+          </Link>
+        </div>
       </div>
 
       {/* Hero image with bio photo */}
@@ -139,7 +159,7 @@ export default async function ProfilePage() {
 
       {artist.hireFor && (
         <p className="text-[#888] text-sm italic mt-6">
-          {hireForSentence(artist.name, artist.hireFor)}
+          {hireForSentence(artist.firstName || artist.name, artist.hireFor)}
         </p>
       )}
 
