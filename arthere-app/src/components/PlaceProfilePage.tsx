@@ -1,22 +1,13 @@
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
-import type { Place, ArtistPlace, Artist, PlaceRelationship } from '@prisma/client';
+import type { Place, ArtistPlace, Artist } from '@prisma/client';
 import { NavBar } from '@/components/NavBar';
 import { CityBottomBar } from '@/components/CityBottomBar';
 import { SiteFooter } from '@/components/SiteFooter';
 import { TechSupportLink } from '@/components/TechSupportLink';
 import { FadeImage } from '@/components/FadeImage';
 import { Lightbox } from '@/components/Lightbox';
-
-export const RELATIONSHIP_LABELS: Record<PlaceRelationship, string> = {
-  INSTRUCTOR: 'Instructor',
-  STUDENT: 'Student',
-  GRANTEE: 'Grantee',
-  EXHIBITING_ARTIST: 'Exhibiting Artist',
-  MEMBER: 'Member',
-  IN_SHOP: '',
-  OTHER: '',
-};
+import { RELATIONSHIP_LABELS } from '@/lib/artist-options';
 
 export type PlaceWithArtists = Place & {
   artists: (ArtistPlace & { artist: Artist })[];
