@@ -773,7 +773,7 @@ export default function OnboardingForm({
         {isPlaceholder && hasArtist && (
           <p className={`text-sm text-right mt-3 ${reviewSubmittedAt ? "text-[#00805a]" : "text-[#888]"}`}>
             {reviewSubmittedAt
-              ? "✓ Submitted! Your profile will go live as soon as we approve it."
+              ? "✓ Submitted! Your profile will go live soon!"
               : "Submit when you're ready to go live."}
           </p>
         )}
