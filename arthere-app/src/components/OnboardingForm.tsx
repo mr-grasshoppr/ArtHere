@@ -44,9 +44,9 @@ const MEDIUM_OPTIONS = [
 ];
 
 const OFFERING_OPTIONS = [
-  { value: "sell_existing", label: "Selling existing artwork" },
-  { value: "custom_artwork", label: "Custom work" },
-  { value: "classes", label: "Teaching classes, lessons, or workshops" },
+  { value: "sell_existing", label: "Existing artwork" },
+  { value: "custom_artwork", label: "Commissions" },
+  { value: "classes", label: "Workshops or classes" },
   { value: "consultations", label: "Consultations" },
 ];
 
@@ -128,18 +128,21 @@ export default function OnboardingForm({
     return rows;
   });
 
-  // Offerings checkboxes — reverse-map hireFor text back to option values
-  // Legacy label aliases for backward compat with previously saved data
-  const LEGACY_ALIASES: Record<string, string> = {
-    "sell_existing": "Sell existing artwork",
-    "custom_artwork": "Make custom artwork",
-    "classes": "Teach classes, lessons, or workshops",
-    "consultations": "Consultations",
+  // Offerings checkboxes — reverse-map hireFor text back to option values.
+  // Legacy label aliases for backward compat with previously saved data —
+  // each label this option has ever had, so old profiles' checkboxes still
+  // pre-check correctly after a wording change.
+  const LEGACY_ALIASES: Record<string, string[]> = {
+    "sell_existing": ["Sell existing artwork", "Selling existing artwork", "Buying existing artwork"],
+    "custom_artwork": ["Make custom artwork", "Custom work"],
+    "classes": ["Teach classes, lessons, or workshops", "Teaching classes, lessons, or workshops"],
+    "consultations": ["Consultations"],
   };
   const [offerings, setOfferings] = useState<string[]>(() => {
     if (!initialData?.hireFor) return [];
     return OFFERING_OPTIONS.filter((o) =>
-      initialData.hireFor.includes(o.label) || initialData.hireFor.includes(LEGACY_ALIASES[o.value] ?? '')
+      initialData.hireFor.includes(o.label) ||
+      (LEGACY_ALIASES[o.value] ?? []).some((alias) => initialData.hireFor.includes(alias))
     ).map((o) => o.value);
   });
   const [offeringsOther, setOfferingsOther] = useState("");
@@ -619,7 +622,7 @@ export default function OnboardingForm({
       <div className="mb-8">
         <h2 className="text-[0.7rem] font-semibold text-[#aaa] uppercase tracking-widest mb-1">Other Connections</h2>
         <p className="text-[0.78rem] text-[#999] mb-3">
-          International, national, or other affiliations outside of your local area.
+          Affiliations outside of your local area.
         </p>
         <div className="space-y-2">
           {otherConnections.map((conn, i) => (
