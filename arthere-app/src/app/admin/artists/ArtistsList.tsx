@@ -167,10 +167,12 @@ export default function ArtistsList({ artists }: { artists: ArtistRow[] }) {
                 </div>
               </div>
 
-              <div className="flex items-center gap-6 text-xs text-[#bbb] flex-shrink-0">
+              <div className="hidden sm:flex items-center gap-6 text-xs text-[#bbb] flex-shrink-0">
                 <span>{a.artworkImages.length} images</span>
                 <span>{a._count.adminNotes} notes</span>
                 <span>{new Date(a.createdAt).toLocaleDateString()}</span>
+              </div>
+              <div className="flex-shrink-0">
                 <VisibilityToggle artistId={a.id} isPlaceholder={a.isPlaceholder} />
               </div>
             </Link>
