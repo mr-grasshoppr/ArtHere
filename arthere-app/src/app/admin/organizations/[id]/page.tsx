@@ -43,8 +43,8 @@ export default async function AdminOrgDetailPage({ params }: { params: Promise<{
       </div>
 
       {place.submittedForReviewAt && (
-        <div className="mb-6 flex items-center justify-between gap-4 bg-amber-50 border border-amber-200 rounded-lg px-5 py-3">
-          <p className="text-sm text-amber-800">
+        <div className="mb-6 flex items-center justify-between gap-4 bg-[#f062a4]/10 border border-[#f062a4]/25 rounded-lg px-5 py-3">
+          <p className="text-sm text-[#a84573]">
             <span className="font-medium">Ready for review</span> — submitted{" "}
             {new Date(place.submittedForReviewAt).toLocaleString("en-US", {
               month: "short",

@@ -71,7 +71,7 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals }:
       <NavBar activeCitySlug={citySlug ?? artist.city?.slug} theme="light" />
 
       {artist.isPlaceholder && (
-        <div className="bg-amber-50 border-b border-amber-200 px-5 py-2.5 text-center text-[0.8rem] text-amber-700">
+        <div className="bg-[#f062a4]/10 border-b border-[#f062a4]/25 px-5 py-2.5 text-center text-[0.8rem] text-[#a84573]">
           This is a prototype profile. The artist has not yet set up their own page.
         </div>
       )}

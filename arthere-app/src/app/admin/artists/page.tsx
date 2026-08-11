@@ -107,7 +107,7 @@ export default async function AdminArtistsPage({
           {needsReviewCount > 0 && (
             <Link
               href="/admin/artists?field=needsReview&value=true"
-              className="text-sm text-amber-700 hover:underline"
+              className="text-sm text-[#a84573] hover:underline"
             >
               {needsReviewCount} awaiting review
             </Link>
@@ -142,7 +142,7 @@ export default async function AdminArtistsPage({
             )}
             <Link
               href="/admin/artists?field=placeholder&value=true"
-              className={`px-3 py-1.5 rounded-full border transition-colors ${activeField === "placeholder" && activeValue === "true" ? "bg-amber-50 border-amber-300 text-amber-700" : "border-[#e5e5e5] text-[#888] hover:border-[#999]"}`}
+              className={`px-3 py-1.5 rounded-full border transition-colors ${activeField === "placeholder" && activeValue === "true" ? "bg-[#f062a4]/10 border-[#f062a4]/40 text-[#a84573]" : "border-[#e5e5e5] text-[#888] hover:border-[#999]"}`}
             >
               Placeholder
             </Link>
@@ -155,7 +155,7 @@ export default async function AdminArtistsPage({
             {needsReviewCount > 0 && (
               <Link
                 href="/admin/artists?field=needsReview&value=true"
-                className={`px-3 py-1.5 rounded-full border transition-colors ${activeField === "needsReview" ? "bg-amber-50 border-amber-300 text-amber-700" : "border-[#e5e5e5] text-[#888] hover:border-[#999]"}`}
+                className={`px-3 py-1.5 rounded-full border transition-colors ${activeField === "needsReview" ? "bg-[#f062a4]/10 border-[#f062a4]/40 text-[#a84573]" : "border-[#e5e5e5] text-[#888] hover:border-[#999]"}`}
               >
                 Needs review
               </Link>

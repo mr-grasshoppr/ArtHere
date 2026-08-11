@@ -152,7 +152,7 @@ export default function ArtistsList({ artists }: { artists: ArtistRow[] }) {
                   )}
                   {a.submittedForReviewAt && (
                     <span
-                      className="text-xs bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded flex-shrink-0"
+                      className="text-xs bg-[#f062a4]/10 text-[#a84573] border border-[#f062a4]/25 px-1.5 py-0.5 rounded flex-shrink-0"
                       title={`Submitted for review ${new Date(a.submittedForReviewAt).toLocaleString()}`}
                     >
                       Needs review

@@ -129,7 +129,7 @@ export default async function AdminSurveyPage({
       value: stats.volunteer,
       pct: Math.round((stats.volunteer / (stats.total || 1)) * 100),
       href: "/admin/survey?filter=volunteer",
-      color: "bg-amber-50",
+      color: "bg-[#f062a4]/10",
     },
     {
       key: "featured",

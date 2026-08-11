@@ -118,7 +118,7 @@ function Row({
             <span className="ml-2 text-[10px] uppercase tracking-wide bg-[#f0f0f0] text-[#999] px-1.5 py-0.5 rounded">draft</span>
           )}
           {r.isTest && (
-            <span className="ml-2 text-[10px] uppercase tracking-wide bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded">test</span>
+            <span className="ml-2 text-[10px] uppercase tracking-wide bg-[#f062a4]/15 text-[#a84573] px-1.5 py-0.5 rounded">test</span>
           )}
           {r.isArchived && (
             <span className="ml-2 text-[10px] uppercase tracking-wide bg-[#e5e5e5] text-[#777] px-1.5 py-0.5 rounded">archived</span>
@@ -134,7 +134,7 @@ function Row({
         </td>
         <td className="px-4 py-3 text-sm">
           {wantsToVolunteer(r)
-            ? <span className="text-amber-700 font-medium">Yes</span>
+            ? <span className="text-[#a84573] font-medium">Yes</span>
             : <span className="text-[#bbb]">—</span>}
         </td>
         <td className="px-4 py-3 text-sm">{r.raffleOptIn ?? <span className="text-[#bbb]">—</span>}</td>
@@ -190,8 +190,8 @@ function Row({
                 disabled={pending}
                 className={`text-xs px-3 py-1.5 rounded border transition-colors ${
                   r.isTest
-                    ? "border-orange-300 bg-orange-50 text-orange-700 hover:bg-orange-100"
-                    : "border-[#e5e5e5] text-[#888] hover:border-orange-300 hover:text-orange-700"
+                    ? "border-[#f062a4]/40 bg-[#f062a4]/10 text-[#a84573] hover:bg-[#f062a4]/15"
+                    : "border-[#e5e5e5] text-[#888] hover:border-[#f062a4]/40 hover:text-[#a84573]"
                 }`}
               >
                 {pending ? "Saving…" : r.isTest ? "Unmark as test" : "Mark as test"}
@@ -356,7 +356,7 @@ export default function SurveyTable({
               onClick={() => setShowTests((s) => !s)}
               className={`text-xs px-3 py-1.5 rounded border transition-colors ${
                 showTests
-                  ? "border-orange-300 bg-orange-50 text-orange-700"
+                  ? "border-[#f062a4]/40 bg-[#f062a4]/10 text-[#a84573]"
                   : "border-[#e5e5e5] text-[#999] hover:border-[#ccc]"
               }`}
             >

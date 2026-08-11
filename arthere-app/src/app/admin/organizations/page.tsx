@@ -47,7 +47,7 @@ export default async function AdminOrganizationsPage({
           <span className="text-sm text-[#888]">{countLabel} pages</span>
           <span className="text-sm text-green-700">{liveCount} live</span>
           {needsReviewCount > 0 && (
-            <Link href="/admin/organizations?filter=needsReview" className="text-sm text-amber-700 hover:underline">
+            <Link href="/admin/organizations?filter=needsReview" className="text-sm text-[#a84573] hover:underline">
               {needsReviewCount} awaiting review
             </Link>
           )}
@@ -67,14 +67,14 @@ export default async function AdminOrganizationsPage({
             </Link>
             <Link
               href="/admin/organizations?filter=hidden"
-              className={`px-3 py-1.5 rounded-full border transition-colors ${filter === "hidden" ? "bg-amber-50 border-amber-300 text-amber-700" : "border-[#e5e5e5] text-[#888] hover:border-[#999]"}`}
+              className={`px-3 py-1.5 rounded-full border transition-colors ${filter === "hidden" ? "bg-[#f062a4]/10 border-[#f062a4]/40 text-[#a84573]" : "border-[#e5e5e5] text-[#888] hover:border-[#999]"}`}
             >
               Hidden
             </Link>
             {needsReviewCount > 0 && (
               <Link
                 href="/admin/organizations?filter=needsReview"
-                className={`px-3 py-1.5 rounded-full border transition-colors ${filter === "needsReview" ? "bg-amber-50 border-amber-300 text-amber-700" : "border-[#e5e5e5] text-[#888] hover:border-[#999]"}`}
+                className={`px-3 py-1.5 rounded-full border transition-colors ${filter === "needsReview" ? "bg-[#f062a4]/10 border-[#f062a4]/40 text-[#a84573]" : "border-[#e5e5e5] text-[#888] hover:border-[#999]"}`}
               >
                 Needs review
               </Link>
