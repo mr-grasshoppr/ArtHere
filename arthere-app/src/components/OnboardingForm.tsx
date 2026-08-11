@@ -740,14 +740,15 @@ export default function OnboardingForm({
       </div>
 
       <div className="pb-16">
-        {isPlaceholder && hasArtist && (
-          <p className={`text-sm text-right mb-3 ${reviewSubmittedAt ? "text-amber-700" : "text-[#888]"}`}>
-            {reviewSubmittedAt
-              ? "✓ Submitted — your profile won't go live until Art Here reviews and approves it."
-              : "Your profile won't be visible on the site until you submit it for review and Art Here approves it."}
-          </p>
-        )}
-        <div className="flex justify-end gap-3">
+        <div className="flex justify-end items-center gap-4">
+          <button
+            type="button"
+            onClick={handleFinish}
+            disabled={finishing}
+            className="text-sm text-[#888] hover:text-[#1a1a1a] transition-colors disabled:opacity-50"
+          >
+            {finishing ? "Saving…" : "Save"}
+          </button>
           {isPlaceholder && hasArtist && (
             reviewSubmittedAt ? (
               <button
@@ -757,23 +758,22 @@ export default function OnboardingForm({
                 className="text-sm px-5 py-2.5 rounded-full border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors disabled:opacity-50"
                 title="Submitted — click to notify Art Here again after further changes"
               >
-                {submittingReview ? "Sending…" : "✓ Submitted for review"}
+                {submittingReview ? "Sending…" : "✓ Submitted"}
               </button>
             ) : (
-              <button
-                type="button"
-                onClick={handleSubmitForReview}
-                disabled={submittingReview}
-                className="text-sm px-5 py-2.5 rounded-full border border-[#1a1a1a] text-[#1a1a1a] font-medium hover:bg-[#1a1a1a] hover:text-white transition-colors disabled:opacity-50"
-              >
-                {submittingReview ? "Submitting…" : "Submit for review"}
+              <button type="button" onClick={handleSubmitForReview} disabled={submittingReview} className={BTN}>
+                {submittingReview ? "Submitting…" : "Submit"}
               </button>
             )
           )}
-          <button type="button" onClick={handleFinish} disabled={finishing} className={BTN}>
-            {finishing ? "Saving…" : "Done — view my profile"}
-          </button>
         </div>
+        {isPlaceholder && hasArtist && (
+          <p className={`text-sm text-right mt-3 ${reviewSubmittedAt ? "text-amber-700" : "text-[#888]"}`}>
+            {reviewSubmittedAt
+              ? "✓ Submitted — your profile won't go live until Art Here reviews and approves it."
+              : "Submit when you're ready to go live."}
+          </p>
+        )}
       </div>
 
       </div>{/* end constrained content */}
