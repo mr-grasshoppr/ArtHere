@@ -758,7 +758,7 @@ export default function OnboardingForm({
                 type="button"
                 onClick={handleSubmitForReview}
                 disabled={submittingReview}
-                className="text-sm px-5 py-2.5 rounded-full border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors disabled:opacity-50"
+                className="text-sm px-5 py-2.5 rounded-full border border-[#00ae7a]/40 bg-[#00ae7a]/10 text-[#00805a] hover:bg-[#00ae7a]/20 transition-colors disabled:opacity-50"
                 title="Submitted — click to notify Art Here again after further changes"
               >
                 {submittingReview ? "Sending…" : "✓ Submitted"}
@@ -771,7 +771,7 @@ export default function OnboardingForm({
           )}
         </div>
         {isPlaceholder && hasArtist && (
-          <p className={`text-sm text-right mt-3 ${reviewSubmittedAt ? "text-amber-700" : "text-[#888]"}`}>
+          <p className={`text-sm text-right mt-3 ${reviewSubmittedAt ? "text-[#00805a]" : "text-[#888]"}`}>
             {reviewSubmittedAt
               ? "✓ Submitted — your profile won't go live until Art Here reviews and approves it."
               : "Submit when you're ready to go live."}
