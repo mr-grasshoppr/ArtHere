@@ -26,7 +26,9 @@ export default async function ArtworkReviewPage({
         // actually live on the site — hidden by default, revealable below.
         ...(includeHidden ? {} : { artist: { isPlaceholder: false, isArchived: false } }),
       },
-      include: { artist: { select: { id: true, name: true, slug: true, medium: true } } },
+      include: {
+        artist: { select: { id: true, name: true, slug: true, medium: true, isPlaceholder: true, isArchived: true } },
+      },
       orderBy: { uploadedAt: "desc" },
     }),
     getMediumOptions(),

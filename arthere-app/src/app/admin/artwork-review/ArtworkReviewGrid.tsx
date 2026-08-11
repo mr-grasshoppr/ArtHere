@@ -13,8 +13,38 @@ type Image = {
   altText: string | null;
   medium: string[];
   reviewed: boolean;
-  artist: { id: string; name: string; slug: string; medium: string | null };
+  artist: { id: string; name: string; slug: string; medium: string | null; isPlaceholder: boolean; isArchived: boolean };
 };
+
+type SortKey = "newest" | "medium" | "live-first" | "hidden-first";
+
+const SORT_LABELS: Record<SortKey, string> = {
+  newest: "Newest first",
+  medium: "By medium",
+  "live-first": "Live artists first",
+  "hidden-first": "Hidden artists first",
+};
+
+function isLive(artist: Image["artist"]) {
+  return !artist.isPlaceholder && !artist.isArchived;
+}
+
+function sortImages(images: Image[], sort: SortKey): Image[] {
+  if (sort === "newest") return images;
+  const withIndex = images.map((img, i) => ({ img, i }));
+  const cmp: Record<Exclude<SortKey, "newest">, (a: typeof withIndex[0], b: typeof withIndex[0]) => number> = {
+    medium: (a, b) => {
+      const am = a.img.artist.medium ?? "";
+      const bm = b.img.artist.medium ?? "";
+      if (!am && bm) return 1;
+      if (am && !bm) return -1;
+      return am.localeCompare(bm) || a.i - b.i;
+    },
+    "live-first": (a, b) => Number(isLive(b.img.artist)) - Number(isLive(a.img.artist)) || a.i - b.i,
+    "hidden-first": (a, b) => Number(isLive(a.img.artist)) - Number(isLive(b.img.artist)) || a.i - b.i,
+  };
+  return [...withIndex].sort(cmp[sort]).map(({ img }) => img);
+}
 
 export default function ArtworkReviewGrid({
   images: initialImages,
@@ -25,6 +55,7 @@ export default function ArtworkReviewGrid({
 }) {
   const [images, setImages] = useState(initialImages);
   const [mediumOptions, setMediumOptions] = useState(initialMediumOptions);
+  const [sort, setSort] = useState<SortKey>("newest");
   const [bulkPending, startBulkTransition] = useTransition();
 
   function updateMedium(image: Image, next: string[]) {
@@ -52,10 +83,11 @@ export default function ArtworkReviewGrid({
   }
 
   const remainingCount = images.filter((img) => !img.reviewed).length;
+  const sortedImages = sortImages(images, sort);
 
   return (
     <div>
-      <div className="mb-5">
+      <div className="mb-5 flex items-center gap-3 flex-wrap">
         <button
           onClick={markAllReviewed}
           disabled={bulkPending || remainingCount === 0}
@@ -63,10 +95,21 @@ export default function ArtworkReviewGrid({
         >
           {bulkPending ? "Saving…" : `Mark all ${remainingCount} remaining as reviewed`}
         </button>
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value as SortKey)}
+          className="px-3 py-2 border border-[#e5e5e5] rounded-lg text-xs bg-white text-[#555] focus:outline-none focus:border-[#999] cursor-pointer"
+        >
+          {(Object.keys(SORT_LABELS) as SortKey[]).map((key) => (
+            <option key={key} value={key}>
+              {SORT_LABELS[key]}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
-        {images.map((img) => {
+        {sortedImages.map((img) => {
           const artistMedium = parseMediumList(img.artist.medium);
           return (
             <div
@@ -97,11 +140,18 @@ export default function ArtworkReviewGrid({
                     Reviewed
                   </label>
                 </div>
-                {artistMedium.length > 0 && (
-                  <div className="text-xs text-[#999] mb-2">
-                    Reports: {artistMedium.join(", ")}
-                  </div>
-                )}
+                <div className="flex items-center gap-2 mb-2">
+                  <span
+                    className={`text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded ${
+                      isLive(img.artist) ? "bg-[#00ae7a]/10 text-[#00805a]" : "bg-[#e5e5e5] text-[#777]"
+                    }`}
+                  >
+                    {isLive(img.artist) ? "Live" : "Hidden"}
+                  </span>
+                  {artistMedium.length > 0 && (
+                    <span className="text-xs text-[#999] truncate">Reports: {artistMedium.join(", ")}</span>
+                  )}
+                </div>
                 <div className="mt-2">
                   <MediumMultiSelect
                     value={img.medium}
