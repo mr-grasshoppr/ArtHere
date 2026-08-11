@@ -258,6 +258,9 @@ model Place {
   // Tucked out of the default admin list and always excluded from public
   // pages, independent of inDirectory — mirrors Artist.isArchived.
   isArchived        Boolean  @default(false)
+  // Set when the org owner clicks "Submit" on their edit page — mirrors
+  // Artist.submittedForReviewAt exactly, including being cleared on publish.
+  submittedForReviewAt DateTime?
   createdAt         DateTime @default(now())
 
   userId          String?          @unique

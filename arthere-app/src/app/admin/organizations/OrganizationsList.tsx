@@ -12,6 +12,7 @@ type PlaceRow = {
   heroImageUrl: string | null;
   inDirectory: boolean;
   isArchived: boolean;
+  submittedForReviewAt: Date | null;
   createdAt: Date;
   user: { email: string | null } | null;
   _count: { artists: number; adminNotes: number };
@@ -138,6 +139,14 @@ export default function OrganizationsList({ places }: { places: PlaceRow[] }) {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="font-medium truncate">{p.name}</span>
+                {p.submittedForReviewAt && (
+                  <span
+                    className="text-xs bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded flex-shrink-0"
+                    title={`Submitted for review ${new Date(p.submittedForReviewAt).toLocaleString()}`}
+                  >
+                    Needs review
+                  </span>
+                )}
                 {p.isArchived && (
                   <span className="text-xs bg-[#e5e5e5] text-[#666] px-1.5 py-0.5 rounded flex-shrink-0">archived</span>
                 )}
@@ -147,10 +156,12 @@ export default function OrganizationsList({ places }: { places: PlaceRow[] }) {
               </div>
             </div>
 
-            <div className="flex items-center gap-6 text-xs text-[#bbb] flex-shrink-0">
+            <div className="hidden sm:flex items-center gap-6 text-xs text-[#bbb] flex-shrink-0">
               <span>{p._count.artists} artists</span>
               <span>{p._count.adminNotes} notes</span>
               <span>{new Date(p.createdAt).toLocaleDateString()}</span>
+            </div>
+            <div className="flex-shrink-0">
               <OrgVisibilityToggle placeId={p.id} inDirectory={p.inDirectory} />
             </div>
           </Link>

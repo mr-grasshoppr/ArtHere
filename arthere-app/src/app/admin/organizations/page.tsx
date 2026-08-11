@@ -27,10 +27,12 @@ export default async function AdminOrganizationsPage({
   const archivedCount = allPlaces.length - nonArchived.length;
 
   const liveCount = nonArchived.filter((p) => p.inDirectory).length;
+  const needsReviewCount = nonArchived.filter((p) => p.submittedForReviewAt != null).length;
 
   const places =
     filter === "live" ? nonArchived.filter((p) => p.inDirectory)
     : filter === "hidden" ? nonArchived.filter((p) => !p.inDirectory)
+    : filter === "needsReview" ? nonArchived.filter((p) => p.submittedForReviewAt != null)
     : filter === "archived" ? allPlaces.filter((p) => p.isArchived)
     : nonArchived;
 
@@ -44,6 +46,11 @@ export default async function AdminOrganizationsPage({
           <h1 className="text-2xl font-medium">Organizations</h1>
           <span className="text-sm text-[#888]">{countLabel} pages</span>
           <span className="text-sm text-green-700">{liveCount} live</span>
+          {needsReviewCount > 0 && (
+            <Link href="/admin/organizations?filter=needsReview" className="text-sm text-amber-700 hover:underline">
+              {needsReviewCount} awaiting review
+            </Link>
+          )}
           {archivedCount > 0 && (
             <Link href="/admin/organizations?filter=archived" className="text-sm text-[#999] hover:underline">
               {archivedCount} archived
@@ -64,6 +71,14 @@ export default async function AdminOrganizationsPage({
             >
               Hidden
             </Link>
+            {needsReviewCount > 0 && (
+              <Link
+                href="/admin/organizations?filter=needsReview"
+                className={`px-3 py-1.5 rounded-full border transition-colors ${filter === "needsReview" ? "bg-amber-50 border-amber-300 text-amber-700" : "border-[#e5e5e5] text-[#888] hover:border-[#999]"}`}
+              >
+                Needs review
+              </Link>
+            )}
             {archivedCount > 0 && (
               <Link
                 href="/admin/organizations?filter=archived"

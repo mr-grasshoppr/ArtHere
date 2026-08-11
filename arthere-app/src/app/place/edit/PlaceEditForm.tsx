@@ -11,7 +11,7 @@ import { parseNeighborhoodList, joinNeighborhoodList } from '@/lib/neighborhoods
 import type { FramingValue } from '@/components/FramingEditor';
 import { resizeImageForUpload } from '@/lib/client-image-resize';
 import type { PlaceRelationship } from '@prisma/client';
-import { RELATIONSHIP_LABELS } from '@/components/PlaceProfilePage';
+import { RELATIONSHIP_LABELS } from '@/lib/artist-options';
 
 interface Artist {
   connectionId: string;
@@ -33,6 +33,7 @@ interface InitialData {
   galleryImages: string[];
   artists: Artist[];
   inDirectory: boolean;
+  submittedForReviewAt: string | null;
 }
 
 type InitialFocals = Record<string, Focal>;
@@ -81,6 +82,8 @@ export default function PlaceEditForm({
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [reviewSubmittedAt, setReviewSubmittedAt] = useState<string | null>(initialData.submittedForReviewAt);
+  const [submittingReview, setSubmittingReview] = useState(false);
 
   async function uploadFile(file: File, isHero = false) {
     const form = new FormData();
@@ -194,6 +197,23 @@ export default function PlaceEditForm({
     router.push(`/places/${placeSlug}`);
   }
 
+  // Deliberate "I'm done, please look at this" signal — separate from
+  // autosave so it isn't fired on every keystroke. Mirrors OnboardingForm's
+  // handleSubmitForReview exactly.
+  async function handleSubmitForReview() {
+    setSubmittingReview(true);
+    try {
+      if (saveTimer.current) { clearTimeout(saveTimer.current); saveTimer.current = null; }
+      await persistAll();
+      const res = await fetch('/api/place/submit-for-review', { method: 'POST' });
+      if (!res.ok) throw new Error();
+      setReviewSubmittedAt(new Date().toISOString());
+    } catch {
+      setSaveStatus('error');
+    }
+    setSubmittingReview(false);
+  }
+
   return (
     <div className="min-h-screen bg-white text-[#1a1a1a]">
 
@@ -203,11 +223,18 @@ export default function PlaceEditForm({
           <p className="font-heading text-sm font-bold text-white/80">Build your page</p>
           <div className="flex items-center gap-3">
             {saveStatus === 'saving' && <span className="text-white/60 text-xs">Saving…</span>}
-            {saveStatus === 'saved' && <span className="text-white/60 text-xs">Saved</span>}
             {saveStatus === 'error' && <span className="text-red-300 text-xs">Error saving</span>}
-            <button type="button" onClick={handleDone} disabled={saving} className={BTN}>
-              {saving ? 'Saving…' : 'Done'}
-            </button>
+            <span
+              className={`text-xs font-medium px-2.5 py-1 rounded-full ${
+                initialData.inDirectory
+                  ? 'bg-[#00ae7a]/20 text-[#6fe3bd]'
+                  : reviewSubmittedAt
+                  ? 'bg-[#f062a4]/20 text-[#ff9dc7]'
+                  : 'bg-white/15 text-white/70'
+              }`}
+            >
+              {initialData.inDirectory ? 'Live' : reviewSubmittedAt ? 'Pending' : 'Draft'}
+            </span>
           </div>
         </div>
 
@@ -258,15 +285,6 @@ export default function PlaceEditForm({
           <NeighborhoodPicker options={neighborhoodOptions} value={neighborhoods} onChange={setNeighborhoods} />
         </div>
         <p className="text-[0.65rem] text-[#ccc] mt-1 mb-5">Neighborhoods</p>
-        <span
-          className={`inline-flex items-center text-xs px-2.5 py-1 rounded-full border ${
-            initialData.inDirectory
-              ? 'bg-green-50 border-green-300 text-green-700'
-              : 'bg-[#f5f5f5] border-[#e5e5e5] text-[#999]'
-          }`}
-        >
-          {initialData.inDirectory ? '● Live in the Community directory' : 'Not yet live — an Art Here admin will publish this page'}
-        </span>
       </div>
 
       {/* Description + quote + website */}
@@ -379,13 +397,46 @@ export default function PlaceEditForm({
       </div>
 
       {/* Bottom nav */}
-      <div className="max-w-[980px] mx-auto px-5 sm:px-10 py-8 border-t border-[#f0f0f0] flex justify-between items-center">
-        <a href={`/places/${placeSlug}`} className="text-[0.88rem] text-[#aaa] hover:text-[#1a1a1a] transition-colors no-underline">
-          ← View my page
-        </a>
-        <button type="button" onClick={handleDone} disabled={saving} className={BTN}>
-          {saving ? 'Saving…' : 'Done — view my page'}
-        </button>
+      <div className="max-w-[980px] mx-auto px-5 sm:px-10 py-8 border-t border-[#f0f0f0]">
+        <div className="flex justify-between items-center">
+          <a href={`/places/${placeSlug}`} className="text-[0.88rem] text-[#aaa] hover:text-[#1a1a1a] transition-colors no-underline">
+            ← View my page
+          </a>
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={handleDone}
+              disabled={saving}
+              className="text-sm text-[#888] hover:text-[#1a1a1a] transition-colors disabled:opacity-50"
+            >
+              {saving ? 'Saving…' : 'Save'}
+            </button>
+            {!initialData.inDirectory && (
+              reviewSubmittedAt ? (
+                <button
+                  type="button"
+                  onClick={handleSubmitForReview}
+                  disabled={submittingReview}
+                  className="text-sm px-5 py-2.5 rounded-full border border-[#00ae7a]/40 bg-[#00ae7a]/10 text-[#00805a] hover:bg-[#00ae7a]/20 transition-colors disabled:opacity-50"
+                  title="Submitted — click to notify Art Here again after further changes"
+                >
+                  {submittingReview ? 'Sending…' : '✓ Submitted'}
+                </button>
+              ) : (
+                <button type="button" onClick={handleSubmitForReview} disabled={submittingReview} className={BTN}>
+                  {submittingReview ? 'Submitting…' : 'Submit'}
+                </button>
+              )
+            )}
+          </div>
+        </div>
+        {!initialData.inDirectory && (
+          <p className={`text-sm text-right mt-3 ${reviewSubmittedAt ? 'text-[#00805a]' : 'text-[#888]'}`}>
+            {reviewSubmittedAt
+              ? '✓ Submitted! Your page will go live soon!'
+              : "Submit when you're ready to go live."}
+          </p>
+        )}
       </div>
 
       <div className="pb-10 text-center">

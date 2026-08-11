@@ -85,7 +85,15 @@ export async function updateOrganization(placeId: string, data: OrgInput) {
 // Community directory.
 export async function setPlaceVisibility(placeId: string, inDirectory: boolean) {
   await requireAdmin();
-  await prisma.place.update({ where: { id: placeId }, data: { inDirectory } });
+  await prisma.place.update({
+    where: { id: placeId },
+    data: {
+      inDirectory,
+      // Publishing consumes the pending review request, if any — mirrors
+      // setArtistPlaceholder.
+      ...(inDirectory ? { submittedForReviewAt: null } : {}),
+    },
+  });
 }
 
 // Tucks pages out of the default admin list and unconditionally out of

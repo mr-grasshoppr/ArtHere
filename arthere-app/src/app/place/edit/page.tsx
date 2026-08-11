@@ -62,6 +62,7 @@ export default async function PlaceEditPage() {
           relationshipLabel: rel.relationshipLabel,
         })),
           inDirectory: place.inDirectory,
+          submittedForReviewAt: place.submittedForReviewAt?.toISOString() ?? null,
         }}
         placeSlug={place.slug}
         neighborhoodOptions={neighborhoodOptions}

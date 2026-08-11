@@ -5,6 +5,7 @@ import Link from "next/link";
 import PlaceNotes from "./PlaceNotes";
 import { SendPlaceInviteButton } from "./SendPlaceInviteButton";
 import { getFocalStyles } from "@/lib/image-focus";
+import OrgVisibilityToggle from "../OrgVisibilityToggle";
 
 export default async function AdminOrgDetailPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdminPage();
@@ -40,6 +41,21 @@ export default async function AdminOrgDetailPage({ params }: { params: Promise<{
           Edit page
         </Link>
       </div>
+
+      {place.submittedForReviewAt && (
+        <div className="mb-6 flex items-center justify-between gap-4 bg-amber-50 border border-amber-200 rounded-lg px-5 py-3">
+          <p className="text-sm text-amber-800">
+            <span className="font-medium">Ready for review</span> — submitted{" "}
+            {new Date(place.submittedForReviewAt).toLocaleString("en-US", {
+              month: "short",
+              day: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
+            })}
+          </p>
+          <OrgVisibilityToggle placeId={place.id} inDirectory={place.inDirectory} />
+        </div>
+      )}
 
       <div className="grid md:grid-cols-3 gap-8">
         {/* Left: info */}

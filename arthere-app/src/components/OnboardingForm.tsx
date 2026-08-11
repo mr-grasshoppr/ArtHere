@@ -349,10 +349,14 @@ export default function OnboardingForm({
           {saveStatus === "error" && <span className="text-red-500 text-xs">{errorMsg}</span>}
           <span
             className={`text-xs font-medium px-2.5 py-1 rounded-full ${
-              isPlaceholder ? "bg-[#f0f0f0] text-[#888]" : "bg-green-100 text-green-700"
+              !isPlaceholder
+                ? "bg-[#00ae7a]/10 text-[#00805a]"
+                : reviewSubmittedAt
+                ? "bg-[#f062a4]/10 text-[#a84573]"
+                : "bg-[#f0f0f0] text-[#888]"
             }`}
           >
-            {isPlaceholder ? "Draft" : "Live"}
+            {!isPlaceholder ? "Live" : reviewSubmittedAt ? "Pending" : "Draft"}
           </span>
         </div>
       </div>
