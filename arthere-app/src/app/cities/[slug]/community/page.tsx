@@ -66,7 +66,7 @@ export default async function CityCommunityPage({
       // Skip name-only venues (no page) and places that aren't part of the
       // curated Community directory (closed venues, schools, etc.) — they still
       // appear as plain-text mentions on the artist's own profile.
-      if (!place || !place.inDirectory) continue;
+      if (!place || !place.inDirectory || place.isArchived) continue;
 
       if (!placeMap.has(place.id)) {
         placeMap.set(place.id, {

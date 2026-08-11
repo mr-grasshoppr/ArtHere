@@ -11,7 +11,7 @@ export const revalidate = 30;
 
 export async function generateStaticParams() {
   return safeStaticParams(async () => {
-    const places = await prisma.place.findMany({ where: { inDirectory: true }, select: { slug: true } });
+    const places = await prisma.place.findMany({ where: { inDirectory: true, isArchived: false }, select: { slug: true } });
     return places.map(p => ({ slug: p.slug }));
   });
 }

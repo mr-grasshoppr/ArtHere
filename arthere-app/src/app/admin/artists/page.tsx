@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { requireAdminPage } from "@/lib/admin";
 import Link from "next/link";
 import ArtistCharts from "./ArtistCharts";
-import VisibilityToggle from "./VisibilityToggle";
+import ArtistsList from "./ArtistsList";
 import NewArtistForm from "./NewArtistForm";
 import { InviteInterestedButton } from "./InviteInterestedButton";
 import { SendInviteButton } from "./[id]/SendInviteButton";
@@ -68,25 +68,34 @@ export default async function AdminArtistsPage({
     },
   });
 
-  const mediumData = tallyMedium(allArtists.map((a) => a.medium), allArtists.length);
-  const neighborhoodData = tally(allArtists.map((a) => a.neighborhood), allArtists.length);
+  // Archived profiles are tucked out of the default view entirely — charts,
+  // counts, and the list all work off `nonArchived` unless the Archived
+  // filter is the active one.
+  const nonArchived = allArtists.filter((a) => !a.isArchived);
+  const archivedCount = allArtists.length - nonArchived.length;
 
+  const mediumData = tallyMedium(nonArchived.map((a) => a.medium), nonArchived.length);
+  const neighborhoodData = tally(nonArchived.map((a) => a.neighborhood), nonArchived.length);
+
+  const baseArtists = activeField === "archived" ? allArtists : nonArchived;
   const artists =
     activeField && activeValue
-      ? allArtists.filter((a) => {
+      ? baseArtists.filter((a) => {
           if (activeField === "medium") return mediumMatches(a.medium, activeValue);
           if (activeField === "neighborhood") return a.neighborhood === activeValue;
           if (activeField === "placeholder") return String(a.isPlaceholder) === activeValue;
           if (activeField === "needsReview") return a.submittedForReviewAt != null;
+          if (activeField === "archived") return String(a.isArchived) === activeValue;
           return true;
         })
-      : allArtists;
+      : baseArtists;
 
-  const liveCount = allArtists.filter((a) => !a.isPlaceholder).length;
-  const needsReviewCount = allArtists.filter((a) => a.submittedForReviewAt != null).length;
+  const liveCount = nonArchived.filter((a) => !a.isPlaceholder).length;
+  const needsReviewCount = nonArchived.filter((a) => a.submittedForReviewAt != null).length;
+  const totalForLabel = activeField === "archived" ? archivedCount : nonArchived.length;
   const countLabel = activeField && activeValue
-    ? `${artists.length} of ${allArtists.length}`
-    : `${allArtists.length}`;
+    ? `${artists.length} of ${totalForLabel}`
+    : `${totalForLabel}`;
 
   return (
     <div>
@@ -103,12 +112,19 @@ export default async function AdminArtistsPage({
               {needsReviewCount} awaiting review
             </Link>
           )}
+          {archivedCount > 0 && (
+            <Link href="/admin/artists?field=archived&value=true" className="text-sm text-[#999] hover:underline">
+              {archivedCount} archived
+            </Link>
+          )}
           {activeField && activeValue && (
             <span className="text-sm bg-[#f0f0f0] px-2 py-0.5 rounded-full text-[#555]">
               {activeField === "placeholder"
                 ? (activeValue === "true" ? "Placeholder" : "Real")
                 : activeField === "needsReview"
                 ? "Awaiting review"
+                : activeField === "archived"
+                ? "Archived"
                 : activeValue}
               <Link href="/admin/artists" className="ml-1.5 text-[#bbb] hover:text-[#555]">✕</Link>
             </span>
@@ -142,6 +158,14 @@ export default async function AdminArtistsPage({
                 className={`px-3 py-1.5 rounded-full border transition-colors ${activeField === "needsReview" ? "bg-amber-50 border-amber-300 text-amber-700" : "border-[#e5e5e5] text-[#888] hover:border-[#999]"}`}
               >
                 Needs review
+              </Link>
+            )}
+            {archivedCount > 0 && (
+              <Link
+                href="/admin/artists?field=archived&value=true"
+                className={`px-3 py-1.5 rounded-full border transition-colors ${activeField === "archived" ? "bg-[#e5e5e5] border-[#ccc] text-[#555]" : "border-[#e5e5e5] text-[#888] hover:border-[#999]"}`}
+              >
+                Archived
               </Link>
             )}
           </div>
@@ -217,68 +241,17 @@ export default async function AdminArtistsPage({
             <NewArtistForm />
           </div>
 
-          {allArtists.length > 0 && (
+          {nonArchived.length > 0 && (
             <ArtistCharts
               mediumData={mediumData}
               neighborhoodData={neighborhoodData}
-              total={allArtists.length}
+              total={nonArchived.length}
               activeField={activeField}
               activeValue={activeValue}
             />
           )}
 
-          <div className="bg-white border border-[#e5e5e5] rounded-lg divide-y divide-[#f0f0f0]">
-            {artists.length === 0 && (
-              <p className="p-6 text-sm text-[#999]">No artist profiles match this filter.</p>
-            )}
-            {artists.map((a) => {
-              const heroImage = a.artworkImages.find((i) => i.isHero) ?? a.artworkImages[0];
-              return (
-                <Link
-                  key={a.id}
-                  href={`/admin/artists/${a.id}`}
-                  className="flex items-center gap-4 px-5 py-4 hover:bg-[#fafafa] transition-colors"
-                >
-                  <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-[#f0f0f0] flex-shrink-0">
-                    {heroImage ? (
-                      <img src={heroImage.url} alt={a.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[#ccc] text-xl font-light">
-                        {a.name.charAt(0)}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium truncate">{a.name || <span className="text-[#bbb] italic">(no name)</span>}</span>
-                      {a.user?.emailVerified && (
-                        <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">verified</span>
-                      )}
-                      {a.submittedForReviewAt && (
-                        <span
-                          className="text-xs bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded flex-shrink-0"
-                          title={`Submitted for review ${new Date(a.submittedForReviewAt).toLocaleString()}`}
-                        >
-                          Needs review
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-sm text-[#888] truncate">
-                      {a.user?.email ?? "no owner yet"} · {a.medium ?? "no medium"} · {a.neighborhood ?? "no neighborhood"}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-6 text-xs text-[#bbb] flex-shrink-0">
-                    <span>{a.artworkImages.length} images</span>
-                    <span>{a._count.adminNotes} notes</span>
-                    <span>{new Date(a.createdAt).toLocaleDateString()}</span>
-                    <VisibilityToggle artistId={a.id} isPlaceholder={a.isPlaceholder} />
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
+          <ArtistsList artists={artists} />
         </>
       )}
     </div>

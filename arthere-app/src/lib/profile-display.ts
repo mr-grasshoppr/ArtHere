@@ -10,8 +10,8 @@ export function hireForSentence(name: string, hireFor: string): string {
   const items = hireFor.split(/ · |, /).map(s => s.trim()).filter(Boolean);
   const verbs = items.map(item => {
     const l = item.toLowerCase();
-    if (l.includes('sell') || l.includes('buying existing')) return 'sells artwork';
-    if (l.includes('custom work')) return 'takes commissions';
+    if (l.includes('sell') || l.includes('buying existing') || l.includes('existing artwork')) return 'sells artwork';
+    if (l.includes('custom work') || l.includes('commission')) return 'takes commissions';
     if (l.includes('teach') || l.includes('classes') || l.includes('lessons') || l.includes('workshop')) return 'teaches';
     if (l.includes('consultation')) return 'offers consultations';
     return l;

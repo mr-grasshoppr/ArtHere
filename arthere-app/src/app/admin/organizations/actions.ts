@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin";
 import { createPlaceInvitePreview, sendPlaceInviteEmail, type InvitePreview } from "@/lib/magic-link";
@@ -85,6 +86,17 @@ export async function updateOrganization(placeId: string, data: OrgInput) {
 export async function setPlaceVisibility(placeId: string, inDirectory: boolean) {
   await requireAdmin();
   await prisma.place.update({ where: { id: placeId }, data: { inDirectory } });
+}
+
+// Tucks pages out of the default admin list and unconditionally out of
+// public pages (community directory, sitemap, venue typeahead), independent
+// of inDirectory — mirrors Artist.isArchived.
+export async function setPlacesArchived(placeIds: string[], isArchived: boolean) {
+  await requireAdmin();
+  if (placeIds.length === 0) return;
+  await prisma.place.updateMany({ where: { id: { in: placeIds } }, data: { isArchived } });
+  revalidatePath("/admin/organizations");
+  revalidatePath("/cities/portland/community");
 }
 
 export async function addPlaceNote(placeId: string, body: string) {

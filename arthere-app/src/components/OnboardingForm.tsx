@@ -44,9 +44,9 @@ const MEDIUM_OPTIONS = [
 ];
 
 const OFFERING_OPTIONS = [
-  { value: "sell_existing", label: "Selling existing artwork" },
-  { value: "custom_artwork", label: "Custom work" },
-  { value: "classes", label: "Teaching classes, lessons, or workshops" },
+  { value: "sell_existing", label: "Existing artwork" },
+  { value: "custom_artwork", label: "Commissions" },
+  { value: "classes", label: "Workshops or classes" },
   { value: "consultations", label: "Consultations" },
 ];
 
@@ -128,18 +128,21 @@ export default function OnboardingForm({
     return rows;
   });
 
-  // Offerings checkboxes — reverse-map hireFor text back to option values
-  // Legacy label aliases for backward compat with previously saved data
-  const LEGACY_ALIASES: Record<string, string> = {
-    "sell_existing": "Sell existing artwork",
-    "custom_artwork": "Make custom artwork",
-    "classes": "Teach classes, lessons, or workshops",
-    "consultations": "Consultations",
+  // Offerings checkboxes — reverse-map hireFor text back to option values.
+  // Legacy label aliases for backward compat with previously saved data —
+  // each label this option has ever had, so old profiles' checkboxes still
+  // pre-check correctly after a wording change.
+  const LEGACY_ALIASES: Record<string, string[]> = {
+    "sell_existing": ["Sell existing artwork", "Selling existing artwork", "Buying existing artwork"],
+    "custom_artwork": ["Make custom artwork", "Custom work"],
+    "classes": ["Teach classes, lessons, or workshops", "Teaching classes, lessons, or workshops"],
+    "consultations": ["Consultations"],
   };
   const [offerings, setOfferings] = useState<string[]>(() => {
     if (!initialData?.hireFor) return [];
     return OFFERING_OPTIONS.filter((o) =>
-      initialData.hireFor.includes(o.label) || initialData.hireFor.includes(LEGACY_ALIASES[o.value] ?? '')
+      initialData.hireFor.includes(o.label) ||
+      (LEGACY_ALIASES[o.value] ?? []).some((alias) => initialData.hireFor.includes(alias))
     ).map((o) => o.value);
   });
   const [offeringsOther, setOfferingsOther] = useState("");
@@ -341,33 +344,14 @@ export default function OnboardingForm({
         <p className="font-heading text-sm font-bold text-[#1a1a1a]">Build your profile</p>
         <div className="flex items-center gap-3">
           {saveStatus === "saving" && <span className="text-[#999] text-xs">Saving…</span>}
-          {saveStatus === "saved" && <span className="text-[#999] text-xs">Saved</span>}
           {saveStatus === "error" && <span className="text-red-500 text-xs">{errorMsg}</span>}
-          {isPlaceholder && hasArtist && (
-            reviewSubmittedAt ? (
-              <button
-                type="button"
-                onClick={handleSubmitForReview}
-                disabled={submittingReview}
-                className="text-xs px-3 py-1.5 rounded-full border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors disabled:opacity-50"
-                title="Submitted — click to notify Art Here again after further changes"
-              >
-                {submittingReview ? "Sending…" : "✓ Submitted for review"}
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={handleSubmitForReview}
-                disabled={submittingReview}
-                className="text-xs px-4 py-2 rounded-full border border-[#1a1a1a] text-[#1a1a1a] font-medium hover:bg-[#1a1a1a] hover:text-white transition-colors disabled:opacity-50"
-              >
-                {submittingReview ? "Submitting…" : "Submit for review"}
-              </button>
-            )
-          )}
-          <button type="button" onClick={handleFinish} disabled={finishing} className={BTN}>
-            {finishing ? "Saving…" : "Done"}
-          </button>
+          <span
+            className={`text-xs font-medium px-2.5 py-1 rounded-full ${
+              isPlaceholder ? "bg-[#f0f0f0] text-[#888]" : "bg-green-100 text-green-700"
+            }`}
+          >
+            {isPlaceholder ? "Draft" : "Live"}
+          </span>
         </div>
       </div>
 
@@ -619,7 +603,7 @@ export default function OnboardingForm({
       <div className="mb-8">
         <h2 className="text-[0.7rem] font-semibold text-[#aaa] uppercase tracking-widest mb-1">Other Connections</h2>
         <p className="text-[0.78rem] text-[#999] mb-3">
-          International, national, or other affiliations outside of your local area.
+          Affiliations outside of your local area.
         </p>
         <div className="space-y-2">
           {otherConnections.map((conn, i) => (
@@ -758,10 +742,41 @@ export default function OnboardingForm({
         </fieldset>
       </div>
 
-      <div className="flex justify-end pb-16">
-        <button type="button" onClick={handleFinish} disabled={finishing} className={BTN}>
-          {finishing ? "Saving…" : "Done — view my profile"}
-        </button>
+      <div className="pb-16">
+        <div className="flex justify-end items-center gap-4">
+          <button
+            type="button"
+            onClick={handleFinish}
+            disabled={finishing}
+            className="text-sm text-[#888] hover:text-[#1a1a1a] transition-colors disabled:opacity-50"
+          >
+            {finishing ? "Saving…" : "Save"}
+          </button>
+          {isPlaceholder && hasArtist && (
+            reviewSubmittedAt ? (
+              <button
+                type="button"
+                onClick={handleSubmitForReview}
+                disabled={submittingReview}
+                className="text-sm px-5 py-2.5 rounded-full border border-[#00ae7a]/40 bg-[#00ae7a]/10 text-[#00805a] hover:bg-[#00ae7a]/20 transition-colors disabled:opacity-50"
+                title="Submitted — click to notify Art Here again after further changes"
+              >
+                {submittingReview ? "Sending…" : "Submitted"}
+              </button>
+            ) : (
+              <button type="button" onClick={handleSubmitForReview} disabled={submittingReview} className={BTN}>
+                {submittingReview ? "Submitting…" : "Submit"}
+              </button>
+            )
+          )}
+        </div>
+        {isPlaceholder && hasArtist && (
+          <p className={`text-sm text-right mt-3 ${reviewSubmittedAt ? "text-[#00805a]" : "text-[#888]"}`}>
+            {reviewSubmittedAt
+              ? "✓ Submitted! Your profile will go live soon!"
+              : "Submit when you're ready to go live."}
+          </p>
+        )}
       </div>
 
       </div>{/* end constrained content */}

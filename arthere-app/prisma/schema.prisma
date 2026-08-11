@@ -99,6 +99,10 @@ model Artist {
   // publishes the profile (setArtistPlaceholder). Only meaningful while
   // isPlaceholder is true; publishing "consumes" the request.
   submittedForReviewAt DateTime?
+  // Tucked out of the default admin list and always excluded from public
+  // pages, independent of isPlaceholder — archiving doesn't change whatever
+  // Live/Hidden state the profile had, so unarchiving restores it as-is.
+  isArchived           Boolean          @default(false)
   createdAt            DateTime         @default(now())
   updatedAt            DateTime         @updatedAt
 
@@ -239,6 +243,9 @@ model Place {
   // directory (closed venues, schools, etc.) are still listed on the
   // artist's profile, just not linked or shown on the Community page.
   inDirectory       Boolean  @default(true)
+  // Tucked out of the default admin list and always excluded from public
+  // pages, independent of inDirectory — mirrors Artist.isArchived.
+  isArchived        Boolean  @default(false)
   createdAt         DateTime @default(now())
 
   userId          String?          @unique
@@ -394,7 +401,11 @@ model SurveyResponse {
   source String? @default("website")
 
   // Admin
-  isTest Boolean @default(false) // flagged by admin to exclude from reporting
+  isTest     Boolean @default(false) // flagged by admin to exclude from reporting
+  // Tucked out of the default admin table, independent of isTest — for real
+  // responses you just want out of the way, not marked as test data. Unlike
+  // isTest this does NOT exclude the response from stats/funnel/charts.
+  isArchived Boolean @default(false)
 
   @@index([createdAt])
 }
