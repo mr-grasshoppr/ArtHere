@@ -32,10 +32,13 @@ export async function generateMetadata({
 
 export default async function ArtistPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ preview?: string }>;
 }) {
   const { slug } = await params;
+  const { preview } = await searchParams;
 
   const artist = await prisma.artist.findUnique({
     where: { slug },
@@ -62,6 +65,7 @@ export default async function ArtistPage({
       citySlug={artist.city?.slug}
       cityDisplayName={cityLabel(artist.city)}
       focals={focals}
+      preview={preview === '1'}
     />
   );
 }

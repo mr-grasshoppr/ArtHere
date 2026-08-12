@@ -36,6 +36,7 @@ export default async function OnboardingPage() {
     : {};
 
   const initialData = a ? {
+    slug: a.slug,
     firstName: a.firstName ?? "",
     lastName: a.lastName ?? "",
     medium: a.medium ?? "",

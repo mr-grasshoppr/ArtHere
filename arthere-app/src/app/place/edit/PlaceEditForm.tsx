@@ -399,7 +399,7 @@ export default function PlaceEditForm({
       {/* Bottom nav */}
       <div className="max-w-[980px] mx-auto px-5 sm:px-10 py-8 border-t border-[#f0f0f0]">
         <div className="flex justify-between items-center">
-          <a href={`/places/${placeSlug}`} className="text-[0.88rem] text-[#aaa] hover:text-[#1a1a1a] transition-colors no-underline">
+          <a href={`/places/${placeSlug}?preview=1`} className="text-[0.88rem] text-[#aaa] hover:text-[#1a1a1a] transition-colors no-underline">
             ← View my page
           </a>
           <div className="flex items-center gap-4">

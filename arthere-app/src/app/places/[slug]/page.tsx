@@ -31,10 +31,13 @@ export async function generateMetadata({
 
 export default async function PlacePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ preview?: string }>;
 }) {
   const { slug } = await params;
+  const { preview } = await searchParams;
 
   const place = await prisma.place.findUnique({
     where: { slug },
@@ -61,6 +64,7 @@ export default async function PlacePage({
       citySlug={cityForPlace?.slug}
       cityDisplayName={cityLabel(cityForPlace)}
       focals={focals}
+      preview={preview === '1'}
     />
   );
 }

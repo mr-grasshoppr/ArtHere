@@ -8,6 +8,7 @@ import type { FramingValue } from "@/components/FramingEditor";
 import { resizeImageForUpload } from "@/lib/client-image-resize";
 
 type InitialData = {
+  slug: string;
   firstName: string; lastName: string; medium: string; neighborhood: string; bio: string;
   quote: string;
   otherConnections: { name: string; relationship: string; relationshipLabel?: string }[];
@@ -156,6 +157,7 @@ export default function OnboardingForm({
   const [uploadError, setUploadError] = useState("");
 
   const [hasArtist, setHasArtist] = useState(!!initialData);
+  const [slug, setSlug] = useState(initialData?.slug ?? "");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [finishing, setFinishing] = useState(false);
@@ -217,7 +219,9 @@ export default function OnboardingForm({
         }),
       });
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? "Something went wrong.");
+      const { artist } = await res.json();
       setHasArtist(true);
+      if (artist?.slug) setSlug(artist.slug);
       setSaveStatus("saved");
       setErrorMsg("");
     } catch (err) {
@@ -757,7 +761,18 @@ export default function OnboardingForm({
       </div>
 
       <div className="pb-16">
-        <div className="flex justify-end items-center gap-4">
+        <div className="flex justify-between items-center gap-4">
+          {slug ? (
+            <a
+              href={`/artists/${slug}?preview=1`}
+              className="text-[0.88rem] text-[#aaa] hover:text-[#1a1a1a] transition-colors no-underline"
+            >
+              ← View my page
+            </a>
+          ) : (
+            <span />
+          )}
+          <div className="flex items-center gap-4">
           <button
             type="button"
             onClick={handleFinish}
@@ -783,6 +798,7 @@ export default function OnboardingForm({
               </button>
             )
           )}
+          </div>
         </div>
         {isPlaceholder && hasArtist && (
           <p className={`text-sm text-right mt-3 ${reviewSubmittedAt ? "text-[#00805a]" : "text-[#888]"}`}>

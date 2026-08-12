@@ -20,13 +20,17 @@ interface Props {
   cityDisplayName: string;
   /** url → object-position string, from auto-detected image focal points. */
   focals?: Map<string, CSSProperties>;
+  /** Self-service "view my page" mode — swaps site nav/footer for a minimal
+   *  bar back to the editor, so an org previewing their own page isn't one
+   *  click away from browsing the rest of the site. */
+  preview?: boolean;
 }
 
 /**
  * Full place page body — shared by /places/[slug] and
  * /cities/[slug]/places/[placeSlug] so the two routes can't drift apart.
  */
-export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals }: Props) {
+export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, preview }: Props) {
   const metaParts = [place.neighborhood].filter(Boolean) as string[];
   // Auto-detected focal point per image, falling back to center.
   const styleOf = (url: string, fallback: CSSProperties = { objectPosition: '50% 50%' }) =>
@@ -38,7 +42,16 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals }: P
 
   return (
     <div className="min-h-screen bg-white text-[#1a1a1a] pt-14 pb-14">
-      <NavBar activeCitySlug={citySlug} theme="light" />
+      {preview ? (
+        <div className="sticky top-0 z-50 flex items-center justify-between gap-3 bg-[#1a1a1a] text-white text-sm px-5 py-3">
+          <span>Previewing your page</span>
+          <Link href="/place/edit" className="underline underline-offset-2 hover:no-underline flex-shrink-0">
+            ← Back to editor
+          </Link>
+        </div>
+      ) : (
+        <NavBar activeCitySlug={citySlug} theme="light" />
+      )}
 
       {!place.inDirectory && (
         <div className="bg-[#f062a4]/10 border-b border-[#f062a4]/25 text-[#a84573] text-[0.82rem] text-center py-2 px-4">
@@ -151,7 +164,7 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals }: P
         </div>
       )}
 
-      {communityHref && (
+      {!preview && communityHref && (
         <Link
           href={communityHref}
           className="inline-block mx-5 sm:ml-10 my-10 text-[#888] text-[0.88rem] no-underline hover:text-[#1a1a1a] transition-colors"
@@ -160,10 +173,10 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals }: P
         </Link>
       )}
 
-      <SiteFooter />
+      {!preview && <SiteFooter />}
       <TechSupportLink />
 
-      {citySlug && <CityBottomBar citySlug={citySlug} cityDisplayName={cityDisplayName} />}
+      {!preview && citySlug && <CityBottomBar citySlug={citySlug} cityDisplayName={cityDisplayName} />}
     </div>
   );
 }

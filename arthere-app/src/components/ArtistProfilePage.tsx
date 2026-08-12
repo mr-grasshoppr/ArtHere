@@ -29,13 +29,17 @@ interface Props {
   cityDisplayName: string;
   /** url → object-position string, from auto-detected image focal points. */
   focals?: Map<string, CSSProperties>;
+  /** Self-service "view my page" mode — swaps site nav/footer for a minimal
+   *  bar back to the editor, so an artist previewing their own profile isn't
+   *  one click away from browsing the rest of the site. */
+  preview?: boolean;
 }
 
 /**
  * Full artist profile page body — shared by /artists/[slug] and
  * /cities/[slug]/artists/[artistSlug] so the two routes can't drift apart.
  */
-export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals }: Props) {
+export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals, preview }: Props) {
   const styleOf = (url: string, fallback: CSSProperties = { objectPosition: '50% 50%' }) =>
     focals?.get(url) ?? fallback;
   const heroUrl =
@@ -68,7 +72,16 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals }:
 
   return (
     <div className="min-h-screen bg-white text-[#1a1a1a] pt-14 pb-14">
-      <NavBar activeCitySlug={citySlug ?? artist.city?.slug} theme="light" />
+      {preview ? (
+        <div className="sticky top-0 z-50 flex items-center justify-between gap-3 bg-[#1a1a1a] text-white text-sm px-5 py-3">
+          <span>Previewing your profile</span>
+          <Link href="/onboarding" className="underline underline-offset-2 hover:no-underline flex-shrink-0">
+            ← Back to editor
+          </Link>
+        </div>
+      ) : (
+        <NavBar activeCitySlug={citySlug ?? artist.city?.slug} theme="light" />
+      )}
 
       {artist.isPlaceholder && (
         <div className="bg-[#f062a4]/10 border-b border-[#f062a4]/25 px-5 py-2.5 text-center text-[0.8rem] text-[#a84573]">
@@ -224,7 +237,7 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals }:
         </div>
       )}
 
-      {artistsHref && (
+      {!preview && artistsHref && (
         <Link
           href={artistsHref}
           className="inline-block mx-5 sm:ml-10 my-10 text-[#888] text-[0.88rem] no-underline hover:text-[#1a1a1a] transition-colors"
@@ -233,10 +246,10 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals }:
         </Link>
       )}
 
-      <SiteFooter />
+      {!preview && <SiteFooter />}
       <TechSupportLink />
 
-      {citySlug && <CityBottomBar citySlug={citySlug} cityDisplayName={cityDisplayName} />}
+      {!preview && citySlug && <CityBottomBar citySlug={citySlug} cityDisplayName={cityDisplayName} />}
     </div>
   );
 }
