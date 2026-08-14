@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import styles from './CityGrid.module.css';
+import { buildSpacedSequence, type RepeatItem } from '@/lib/grid-sequence';
 
 interface CropBox { x: number; y: number; w: number; h: number; }
 
@@ -18,15 +19,10 @@ interface Props {
 }
 
 const GAP = 5;
-
-function shuffle<T>(arr: T[]): T[] {
-  const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
+// Every image repeats this many times across the grid, never in the same
+// row and never within this many rows of its own last appearance.
+const REPEATS = 3;
+const MIN_ROW_GAP = 5;
 
 interface SequenceItem {
   src: string;
@@ -36,25 +32,14 @@ interface SequenceItem {
   name: string;
 }
 
-function buildSequence(artists: ArtistGridData[], spread: number): SequenceItem[] {
-  // Repeat enough times to include every image from every artist at least once,
-  // and always at least 3 passes so the scrolling grid has enough content.
-  const maxPerArtist = Math.max(...artists.map(a => a.images.length), 1);
-  const repeats = Math.max(3, maxPerArtist);
-  const seq: SequenceItem[] = [];
-  const recent: string[] = [];
-
-  for (let r = 0; r < repeats; r++) {
-    for (const artist of shuffle(artists)) {
-      const candidates = artist.images.filter(img => !recent.includes(img.src));
-      const pool = candidates.length > 0 ? candidates : artist.images;
-      const img = pool[Math.floor(Math.random() * pool.length)];
-      seq.push({ src: img.src, cropBox: img.cropBox, tall: img.isHero, url: artist.url, name: artist.name });
-      recent.push(img.src);
-      if (recent.length > spread) recent.shift();
-    }
-  }
-  return seq;
+function buildSequence(artists: ArtistGridData[], cols: number): SequenceItem[] {
+  const items: RepeatItem<SequenceItem>[] = artists.flatMap(artist =>
+    artist.images.map(img => ({
+      key: img.src,
+      payload: { src: img.src, cropBox: img.cropBox, tall: img.isHero, url: artist.url, name: artist.name },
+    }))
+  );
+  return buildSpacedSequence(items, { cols, repeats: REPEATS, minRowGap: MIN_ROW_GAP });
 }
 
 /**
@@ -118,8 +103,7 @@ export function CityGrid({ artists, overlayImageUrl, maskImageUrl }: Props) {
 
     const cols = window.innerWidth < 500 ? 3 : 4;
     const col = Math.floor((window.innerWidth - GAP * (cols + 1)) / cols);
-    const spread = cols * 5;
-    setLayout({ cols, col, row: col, sequence: buildSequence(artists, spread) });
+    setLayout({ cols, col, row: col, sequence: buildSequence(artists, cols) });
 
     const vp = vpRef.current;
     if (vp) vp.scrollTop = 0;

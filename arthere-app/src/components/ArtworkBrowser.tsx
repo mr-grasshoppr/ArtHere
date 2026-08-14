@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { FilterDropdown, MultiFilterDropdown, pillClass } from './FilterDropdown';
 import { parseNeighborhoodList } from '@/lib/neighborhoods';
+import { buildSpacedSequence, type RepeatItem } from '@/lib/grid-sequence';
 
 interface CropBox { x: number; y: number; w: number; h: number; }
 
@@ -44,37 +45,32 @@ interface SequenceItem {
 
 type DropdownKey = 'medium' | 'neighborhood' | 'community';
 
-function shuffle<T>(arr: T[]): T[] {
-  const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
+// Every image repeats this many times across the grid, never in the same
+// row and never within this many rows of its own last appearance. Planned
+// against 4 cols (the wider of the two responsive breakpoints, sm:grid-cols-4
+// vs the 3-col mobile default) so the position-based spacing still holds up
+// at 5+ true rows apart even when the narrower breakpoint is active.
+const REPEATS = 3;
+const MIN_ROW_GAP = 5;
+const PLANNING_COLS = 4;
 
 /**
- * Lay out every image from every artist in a shuffled, round-robin order so
- * the grid mixes everyone's work together instead of clustering one
- * artist's pieces. Avoids placing two "tall" (2-row) cells back to back.
+ * Lay out every image from every artist, each repeated REPEATS times and
+ * spaced so no two copies of the same image share a row or land within
+ * MIN_ROW_GAP rows of each other. Avoids placing two "tall" (2-row) cells
+ * back to back.
  */
 function buildSequence(artists: ArtworkArtistData[]): SequenceItem[] {
-  const queues = artists
+  const items: RepeatItem<SequenceItem>[] = artists
     .filter(a => a.images.length > 0)
-    .map(a => ({ url: `/artists/${a.slug}`, queue: shuffle(a.images) }));
+    .flatMap(a =>
+      a.images.map(img => ({
+        key: img.src,
+        payload: { src: img.src, cropBox: img.cropBox, alt: img.alt, tall: img.isHero, url: `/artists/${a.slug}` },
+      }))
+    );
 
-  const raw: SequenceItem[] = [];
-  let remaining = queues.length > 0;
-  while (remaining) {
-    remaining = false;
-    for (const q of shuffle(queues)) {
-      const img = q.queue.shift();
-      if (img) {
-        raw.push({ src: img.src, cropBox: img.cropBox, alt: img.alt, tall: img.isHero, url: q.url });
-        if (q.queue.length > 0) remaining = true;
-      }
-    }
-  }
+  const raw = buildSpacedSequence(items, { cols: PLANNING_COLS, repeats: REPEATS, minRowGap: MIN_ROW_GAP });
 
   let lastWasTall = false;
   return raw.map(item => {
