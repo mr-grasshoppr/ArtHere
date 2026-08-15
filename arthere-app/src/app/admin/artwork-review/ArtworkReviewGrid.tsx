@@ -5,7 +5,7 @@ import Link from "next/link";
 import { parseMediumList } from "@/lib/artist-options";
 import { MediumMultiSelect } from "@/components/MediumMultiSelect";
 import { setArtworkMedium } from "../artists/[id]/actions";
-import { setImagesReviewed } from "./actions";
+import { setImagesReviewed, setImagesExcluded } from "./actions";
 
 type Image = {
   id: string;
@@ -13,6 +13,7 @@ type Image = {
   altText: string | null;
   medium: string[];
   reviewed: boolean;
+  excluded: boolean;
   artist: { id: string; name: string; slug: string; medium: string | null; isPlaceholder: boolean; isArchived: boolean };
 };
 
@@ -49,9 +50,15 @@ function sortImages(images: Image[], sort: SortKey): Image[] {
 export default function ArtworkReviewGrid({
   images: initialImages,
   initialMediumOptions,
+  showingExcluded,
 }: {
   images: Image[];
   initialMediumOptions: string[];
+  /** Whether the current filter already includes excluded images. When it
+   *  doesn't, excluding an image here should make it vanish immediately
+   *  (matching what the server query will do on the next load) rather than
+   *  just dim in place. */
+  showingExcluded: boolean;
 }) {
   const [images, setImages] = useState(initialImages);
   const [mediumOptions, setMediumOptions] = useState(initialMediumOptions);
@@ -67,6 +74,16 @@ export default function ArtworkReviewGrid({
     const next = !image.reviewed;
     setImages((prev) => prev.map((img) => (img.id === image.id ? { ...img, reviewed: next } : img)));
     setImagesReviewed([image.id], next);
+  }
+
+  function toggleExcluded(image: Image) {
+    const next = !image.excluded;
+    setImagesExcluded([image.id], next);
+    if (next && !showingExcluded) {
+      setImages((prev) => prev.filter((img) => img.id !== image.id));
+    } else {
+      setImages((prev) => prev.map((img) => (img.id === image.id ? { ...img, excluded: next } : img)));
+    }
   }
 
   function markAllReviewed() {
@@ -114,13 +131,25 @@ export default function ArtworkReviewGrid({
           return (
             <div
               key={img.id}
-              className={`bg-white border border-[#e5e5e5] rounded-lg overflow-hidden transition-opacity ${
-                img.reviewed ? "opacity-50" : ""
-              }`}
+              className={`bg-white border rounded-lg overflow-hidden transition-opacity ${
+                img.excluded ? "border-[#f062a4]/40 opacity-60" : "border-[#e5e5e5]"
+              } ${img.reviewed && !img.excluded ? "opacity-50" : ""}`}
             >
-              <div className="relative aspect-square bg-[#f4f4f0]">
+              <div className="relative aspect-square bg-[#f4f4f0] group">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={img.url} alt={img.altText ?? ""} className="w-full h-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => toggleExcluded(img)}
+                  title={img.excluded ? "Include this image in the review grid" : "Exclude this image from the review grid"}
+                  className={`absolute top-1.5 right-1.5 z-10 text-[10px] font-medium px-2 py-1 rounded-full transition-colors cursor-pointer ${
+                    img.excluded
+                      ? "bg-[#f062a4] text-white"
+                      : "bg-black/40 text-white opacity-0 group-hover:opacity-100 hover:bg-black/60"
+                  }`}
+                >
+                  {img.excluded ? "↺ Include" : "✕ Exclude"}
+                </button>
               </div>
               <div className="p-3">
                 <div className="flex items-center justify-between gap-2 mb-1">
@@ -148,6 +177,11 @@ export default function ArtworkReviewGrid({
                   >
                     {isLive(img.artist) ? "Live" : "Hidden"}
                   </span>
+                  {img.excluded && (
+                    <span className="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-[#f062a4]/10 text-[#a84573]">
+                      Excluded
+                    </span>
+                  )}
                   {artistMedium.length > 0 && (
                     <span className="text-xs text-[#999] truncate">Reports: {artistMedium.join(", ")}</span>
                   )}

@@ -211,6 +211,10 @@ model ArtworkImage {
   // pass (see /admin/artwork-review) — distinct from aiTaggedAt, which just
   // means the AI ran, not that a human confirmed the result is correct.
   tagsReviewedAt DateTime?
+  // Set when an admin has hidden this image from the artwork-review grid —
+  // for pieces that aren't really "artwork" to tag (e.g. a hero image of a
+  // storefront). Doesn't affect where the image shows on the public site.
+  excludedFromReviewAt DateTime?
 
   artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
 
