@@ -840,6 +840,7 @@ function VenueNameField({
   useEffect(() => {
     const q = value.trim();
     if (linked || q.length < 2) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSuggestions([]);
       return;
     }

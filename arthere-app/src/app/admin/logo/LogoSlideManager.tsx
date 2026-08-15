@@ -15,6 +15,7 @@ export default function LogoSlideManager({ initialSlides }: { initialSlides: Log
   const [uploadingId, setUploadingId] = useState<string | null>(null);
   const saveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setSlides(initialSlides), [initialSlides]);
 
   function scheduleSave(id: string, data: { artistName?: string }) {

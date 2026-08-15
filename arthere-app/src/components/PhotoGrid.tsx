@@ -145,9 +145,12 @@ export function PhotoGrid({
   // Local order drives the live drag preview; resyncs whenever the parent's
   // own images array changes (upload, removal, or a save round-trip).
   const [order, setOrder] = useState(images);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setOrder(images), [images]);
   const orderRef = useRef(order);
-  orderRef.current = order;
+  useEffect(() => {
+    orderRef.current = order;
+  }, [order]);
 
   function handleDragMove(fromIndex: number, clientX: number, clientY: number) {
     const el = document.elementFromPoint(clientX, clientY);

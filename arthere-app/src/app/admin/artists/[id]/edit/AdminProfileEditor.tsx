@@ -407,7 +407,7 @@ export default function AdminProfileEditor({
       <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
         <div>
           <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Other Connections</h2>
-          <p className="text-xs text-[#aaa] mt-1">Affiliations outside the artist's local area.</p>
+          <p className="text-xs text-[#aaa] mt-1">Affiliations outside the artist&apos;s local area.</p>
         </div>
         {otherConnections.map((conn, i) => (
           <div key={i} className="flex flex-col gap-1.5">

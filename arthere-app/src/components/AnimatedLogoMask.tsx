@@ -61,6 +61,9 @@ export function AnimatedLogoMask({ width = 'min(60vw, 520px)', className = '', s
   const panRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
+    // window.matchMedia doesn't exist during SSR, so this can only run
+    // client-side post-mount — an effect is the only option here.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   }, []);
 
