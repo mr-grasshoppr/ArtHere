@@ -3,13 +3,13 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import styles from './CityGrid.module.css';
 import { buildSpacedSequence, type RepeatItem } from '@/lib/grid-sequence';
-
-interface CropBox { x: number; y: number; w: number; h: number; }
+import { focalStyle, type Focal } from '@/lib/focal-style';
 
 export interface ArtistGridData {
   url: string;   // e.g. /artists/kurtis-piltz
   name: string;
-  images: { src: string; cropBox?: CropBox | null; isHero: boolean }[];
+  /** focal — same framing/crop the artist profile page uses for this image. */
+  images: { src: string; focal?: Focal | null; isHero: boolean }[];
 }
 
 interface Props {
@@ -26,7 +26,7 @@ const MIN_ROW_GAP = 5;
 
 interface SequenceItem {
   src: string;
-  cropBox?: CropBox | null;
+  focal?: Focal | null;
   tall: boolean;
   url: string;
   name: string;
@@ -36,41 +36,10 @@ function buildSequence(artists: ArtistGridData[], cols: number): SequenceItem[] 
   const items: RepeatItem<SequenceItem>[] = artists.flatMap(artist =>
     artist.images.map(img => ({
       key: img.src,
-      payload: { src: img.src, cropBox: img.cropBox, tall: img.isHero, url: artist.url, name: artist.name },
+      payload: { src: img.src, focal: img.focal, tall: img.isHero, url: artist.url, name: artist.name },
     }))
   );
   return buildSpacedSequence(items, { cols, repeats: REPEATS, minRowGap: MIN_ROW_GAP });
-}
-
-/**
- * Positions an <img> inside its cell so that only the artwork region
- * (cropBox, in fractional coordinates) is visible.
- */
-function CroppedCellImage({ src, cropBox }: { src: string; cropBox: CropBox }) {
-  const ref = useRef<HTMLImageElement>(null);
-
-  const onLoad = () => {
-    const img = ref.current;
-    const cell = img?.parentElement;
-    if (!img || !cell) return;
-    const { naturalWidth: iw, naturalHeight: ih } = img;
-    const { offsetWidth: cw, offsetHeight: ch } = cell;
-    const { x, y, w, h } = cropBox;
-    const scale = Math.max(cw / (w * iw), ch / (h * ih));
-    Object.assign(img.style, {
-      position: 'absolute',
-      width: `${iw * scale}px`,
-      height: `${ih * scale}px`,
-      left: `${-x * iw * scale}px`,
-      top: `${-y * ih * scale}px`,
-      maxWidth: 'none',
-      display: 'block',
-      transition: 'transform 0.3s',
-    });
-  };
-
-  // eslint-disable-next-line @next/next/no-img-element
-  return <img ref={ref} src={src} alt="" onLoad={onLoad} loading="eager" />;
 }
 
 interface GridLayout {
@@ -240,11 +209,9 @@ export function CityGrid({ artists, overlayImageUrl, maskImageUrl }: Props) {
 
           {/* Artwork cells — plain tiles while ambient, links when frozen */}
           {cells.map((item, i) => {
-            const cellContent = item.cropBox ? (
-              <CroppedCellImage src={item.src} cropBox={item.cropBox} />
-            ) : (
+            const cellContent = (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={item.src} alt="" loading="eager" />
+              <img src={item.src} alt="" loading="eager" style={focalStyle(item.focal, '50% 35%')} />
             );
             const className = `${styles.cell}${item.tall ? ` ${styles.cellTall}` : ''}${frozen ? ` ${styles.cellClickable}` : ''}`;
             const height = item.tall ? layout.row * 2 + GAP : layout.row;

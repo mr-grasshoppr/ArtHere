@@ -46,7 +46,7 @@ function PlaceCard({ place, citySlug }: { place: CommunityPlaceData; citySlug?: 
       className="group block border border-[#f0f0f0] rounded-lg overflow-hidden no-underline text-inherit transition-shadow hover:shadow-[0_6px_20px_rgba(0,0,0,0.06)]"
     >
       {/* Image / placeholder */}
-      <div className="relative w-full aspect-[16/9] bg-[#f0ede8]">
+      <div className="relative w-full aspect-[16/9] overflow-hidden bg-[#f0ede8]">
         {place.heroImageUrl ? (
           <FadeImage
             src={place.heroImageUrl}

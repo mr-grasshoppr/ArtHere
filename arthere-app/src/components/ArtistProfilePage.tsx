@@ -147,6 +147,9 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals, p
             {artist.quote && (
               <blockquote className="italic border-l-2 border-[#ccc] pl-5 mb-[18px] text-[#888] text-[0.92rem]">
                 &ldquo;{artist.quote}&rdquo;
+                {artist.quoteAttribution && (
+                  <footer className="not-italic mt-1.5 text-[#aaa]">— {artist.quoteAttribution}</footer>
+                )}
               </blockquote>
             )}
             {bioParagraphs.map((p, i) => (

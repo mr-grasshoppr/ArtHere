@@ -1,17 +1,17 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FilterDropdown, MultiFilterDropdown, pillClass } from './FilterDropdown';
 import { parseNeighborhoodList } from '@/lib/neighborhoods';
 import { buildSpacedSequence, type RepeatItem } from '@/lib/grid-sequence';
-
-interface CropBox { x: number; y: number; w: number; h: number; }
+import { focalStyle, type Focal } from '@/lib/focal-style';
 
 export interface ArtworkImageData {
   src: string;
-  cropBox?: CropBox | null;
+  /** Same framing/crop the artist profile page uses for this image. */
+  focal?: Focal | null;
   alt: string;
   isHero: boolean;
   /** This specific piece's medium(s) — may differ from the artist's other work. */
@@ -37,7 +37,7 @@ interface Props {
 
 interface SequenceItem {
   src: string;
-  cropBox?: CropBox | null;
+  focal?: Focal | null;
   alt: string;
   tall: boolean;
   url: string;
@@ -55,22 +55,24 @@ const MIN_ROW_GAP = 5;
 const PLANNING_COLS = 4;
 
 /**
- * Lay out every image from every artist, each repeated REPEATS times and
+ * Lay out every image from every artist, each repeated `repeats` times and
  * spaced so no two copies of the same image share a row or land within
  * MIN_ROW_GAP rows of each other. Avoids placing two "tall" (2-row) cells
- * back to back.
+ * back to back. Callers pass repeats: 1 when a filter is active, so a
+ * filtered result shows each matching piece exactly once instead of the
+ * unfiltered feed's 3x repeats.
  */
-function buildSequence(artists: ArtworkArtistData[]): SequenceItem[] {
+function buildSequence(artists: ArtworkArtistData[], repeats: number): SequenceItem[] {
   const items: RepeatItem<SequenceItem>[] = artists
     .filter(a => a.images.length > 0)
     .flatMap(a =>
       a.images.map(img => ({
         key: img.src,
-        payload: { src: img.src, cropBox: img.cropBox, alt: img.alt, tall: img.isHero, url: `/artists/${a.slug}` },
+        payload: { src: img.src, focal: img.focal, alt: img.alt, tall: img.isHero, url: `/artists/${a.slug}` },
       }))
     );
 
-  const raw = buildSpacedSequence(items, { cols: PLANNING_COLS, repeats: REPEATS, minRowGap: MIN_ROW_GAP });
+  const raw = buildSpacedSequence(items, { cols: PLANNING_COLS, repeats, minRowGap: MIN_ROW_GAP });
 
   let lastWasTall = false;
   return raw.map(item => {
@@ -78,39 +80,6 @@ function buildSequence(artists: ArtworkArtistData[]): SequenceItem[] {
     lastWasTall = useTall;
     return { ...item, tall: useTall };
   });
-}
-
-/**
- * Renders an artwork image cropped to show only the artwork surface,
- * excluding any visible frame, wall, or mat. Uses onLoad to get natural
- * image dimensions and applies exact CSS positioning.
- */
-function CroppedTile({ src, alt, cropBox }: { src: string; alt: string; cropBox: CropBox }) {
-  const ref = useRef<HTMLImageElement>(null);
-
-  const onLoad = () => {
-    const img = ref.current;
-    if (!img?.parentElement) return;
-    const { naturalWidth: iw, naturalHeight: ih } = img;
-    const { offsetWidth: cw, offsetHeight: ch } = img.parentElement;
-    const { x, y, w, h } = cropBox;
-    const scale = Math.max(cw / (w * iw), ch / (h * ih));
-    Object.assign(img.style, {
-      position: 'absolute',
-      width: `${iw * scale}px`,
-      height: `${ih * scale}px`,
-      left: `${-x * iw * scale}px`,
-      top: `${-y * ih * scale}px`,
-      maxWidth: 'none',
-      transition: 'transform 300ms',
-    });
-  };
-
-  return (
-    <div className="absolute inset-0 overflow-hidden group-hover:scale-[1.04] transition-transform duration-300">
-      <img ref={ref} src={src} alt={alt} onLoad={onLoad} className="block" loading="eager" />
-    </div>
-  );
 }
 
 /**
@@ -144,7 +113,7 @@ export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, co
   // hydration mismatch — the first paint is intentionally empty.
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setSequence(buildSequence(filtered));
+    setSequence(buildSequence(filtered, hasFilter ? 1 : REPEATS));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mediumFilter, neighborhoodFilter, communityFilter, artists]);
 
@@ -214,24 +183,21 @@ export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, co
         />
       </div>
 
-      <div className="grid grid-cols-3 sm:grid-cols-4 gap-[5px] p-[5px] auto-rows-[calc((100vw-20px)/3)] sm:auto-rows-[calc((100vw-25px)/4)]">
+      <div className="grid grid-flow-row-dense grid-cols-3 sm:grid-cols-4 gap-[5px] p-[5px] auto-rows-[calc((100vw-20px)/3)] sm:auto-rows-[calc((100vw-25px)/4)]">
         {sequence.map((item, i) => (
           <Link
             key={`${item.url}-${item.src}-${i}`}
             href={item.url}
             className={`group relative block overflow-hidden rounded-md bg-[#111] ${item.tall ? 'row-span-2' : ''}`}
           >
-            {item.cropBox ? (
-              <CroppedTile src={item.src} alt={item.alt} cropBox={item.cropBox} />
-            ) : (
-              <Image
-                src={item.src}
-                alt={item.alt}
-                fill
-                sizes="(max-width: 640px) 33vw, 25vw"
-                className="object-cover object-[center_35%] transition-transform duration-300 group-hover:scale-[1.04]"
-              />
-            )}
+            <Image
+              src={item.src}
+              alt={item.alt}
+              fill
+              sizes="(max-width: 640px) 33vw, 25vw"
+              className="object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+              style={focalStyle(item.focal, '50% 35%')}
+            />
           </Link>
         ))}
       </div>

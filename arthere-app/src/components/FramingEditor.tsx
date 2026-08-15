@@ -44,10 +44,12 @@ export function FramingEditor({
   saving?: boolean;
 }) {
   const [value, setValue] = useState<FramingValue>(initial ?? DEFAULT_FRAMING);
+  const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   // Refs, not state, for the drag-in-progress bookkeeping — a drag is a fast,
   // high-frequency gesture and must never depend on a React re-render landing
-  // between one pointer event and the next.
+  // between one pointer event and the next. isDragging (state) exists only
+  // for the cursor style, which doesn't need to track every pointer move.
   const draggingRef = useRef(false);
   const lastPointRef = useRef({ x: 0, y: 0 });
 
@@ -63,6 +65,7 @@ export function FramingEditor({
       // ignore — dragging still works without capture
     }
     draggingRef.current = true;
+    setIsDragging(true);
     lastPointRef.current = { x: e.clientX, y: e.clientY };
   }
 
@@ -92,6 +95,7 @@ export function FramingEditor({
 
   function handlePointerUp() {
     draggingRef.current = false;
+    setIsDragging(false);
   }
 
   const position = `${value.x}% ${value.y}%`;
@@ -103,7 +107,10 @@ export function FramingEditor({
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        className="relative w-full overflow-hidden rounded-lg bg-[#f0f0f0] cursor-crosshair select-none touch-none"
+        onPointerCancel={handlePointerUp}
+        className={`relative w-full overflow-hidden rounded-lg bg-[#f0f0f0] select-none touch-none ${
+          isDragging ? "cursor-grabbing" : "cursor-grab"
+        }`}
         style={{ aspectRatio: aspect }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -117,11 +124,6 @@ export function FramingEditor({
             transform: value.scale > 1 ? `scale(${value.scale})` : undefined,
             transformOrigin: position,
           }}
-        />
-        {/* Focal point marker */}
-        <div
-          className="absolute w-4 h-4 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.4)] pointer-events-none -translate-x-1/2 -translate-y-1/2"
-          style={{ left: `${value.x}%`, top: `${value.y}%` }}
         />
       </div>
 

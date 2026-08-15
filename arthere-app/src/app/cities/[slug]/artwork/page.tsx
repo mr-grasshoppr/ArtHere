@@ -8,6 +8,7 @@ import { ArtworkBrowser, type ArtworkArtistData } from '@/components/ArtworkBrow
 import { CityBottomBar } from '@/components/CityBottomBar';
 import { parseMediumList } from '@/lib/artist-options';
 import { isCityLevelNeighborhood, parseNeighborhoodList } from '@/lib/neighborhoods';
+import { getFocals } from '@/lib/image-focus';
 
 // ISR: content is edited via admin + self-service; regenerate at most every 30s
 export const revalidate = 30;
@@ -50,6 +51,10 @@ export default async function CityArtworkPage({
     },
   });
 
+  // Same framing the artist profile page uses for these images, so the
+  // browse grid matches what visitors see when they click through.
+  const focals = await getFocals(cityArtists.flatMap(a => a.artworkImages.map(img => img.url)));
+
   const artists: ArtworkArtistData[] = cityArtists
     .filter(artist => artist.artworkImages.length > 0)
     .map(artist => ({
@@ -63,7 +68,7 @@ export default async function CityArtworkPage({
         .slice(0, 3)
         .map(img => ({
           src: img.url,
-          cropBox: img.cropBox as { x: number; y: number; w: number; h: number } | null,
+          focal: focals.get(img.url) ?? null,
           alt: img.altText ?? `Artwork by ${artist.name}`,
           isHero: img.isHero,
           // Per-artwork medium, from AI tagging. Deliberately NOT falling back

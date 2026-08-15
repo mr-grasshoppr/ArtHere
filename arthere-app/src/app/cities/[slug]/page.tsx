@@ -6,6 +6,7 @@ import type { Metadata } from 'next';
 import { NavBar } from '@/components/NavBar';
 import { CityGrid, type ArtistGridData } from '@/components/CityGrid';
 import { CityBottomBar } from '@/components/CityBottomBar';
+import { getFocals } from '@/lib/image-focus';
 
 export async function generateStaticParams() {
   return safeStaticParams(async () => {
@@ -41,6 +42,10 @@ export default async function CityPage({
     include: { artworkImages: { orderBy: { sortOrder: 'asc' } } },
   });
 
+  // Same framing the artist profile page uses for these images, so the
+  // ambient grid matches what visitors see when they click through.
+  const focals = await getFocals(cityArtists.flatMap(a => a.artworkImages.map(img => img.url)));
+
   const artists: ArtistGridData[] = cityArtists
     .filter(a => a.artworkImages.length > 0)
     .map(artist => ({
@@ -48,7 +53,7 @@ export default async function CityPage({
       name: artist.name,
       images: artist.artworkImages.map(img => ({
         src: img.url,
-        cropBox: img.cropBox as { x: number; y: number; w: number; h: number } | null,
+        focal: focals.get(img.url) ?? null,
         isHero: img.isHero,
       })),
     }));

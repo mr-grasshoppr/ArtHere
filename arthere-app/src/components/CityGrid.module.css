@@ -20,6 +20,10 @@
   left: 0;
   right: 0;
   display: grid;
+  /* Dense packing backfills the gaps sparse auto-placement leaves around the
+     row-spanning logo cell and "tall" cells, instead of leaving empty (black)
+     cells wherever a span couldn't be placed in its natural slot. */
+  grid-auto-flow: row dense;
   will-change: transform;
 }
 

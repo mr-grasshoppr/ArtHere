@@ -8,6 +8,8 @@ import { profileSchema, parseBody } from "@/lib/schemas";
 import { slugify } from "@/lib/slug";
 import { snapshotArtist } from "@/lib/profile-revision";
 import { normalizeNeighborhood } from "@/lib/neighborhoods";
+import { parseMediumList } from "@/lib/artist-options";
+import { registerMediumOptions } from "@/lib/medium-options";
 
 // GET — fetch current user's artist profile
 export async function GET() {
@@ -119,6 +121,12 @@ export async function POST(req: NextRequest) {
     ...(sizeRangeMin !== undefined ? { sizeRangeMin: num(sizeRangeMin) } : {}),
     ...(sizeRangeMax !== undefined ? { sizeRangeMax: num(sizeRangeMax) } : {}),
   };
+
+  // Any medium the artist typed that isn't a known option yet (via the
+  // free-text "Other" field) becomes a real, shared option going forward.
+  if (artistData.medium) {
+    await registerMediumOptions(parseMediumList(artistData.medium));
+  }
 
   let artist;
   if (existing) {

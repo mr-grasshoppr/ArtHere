@@ -5,7 +5,8 @@ import { LinkType, PlaceRelationship } from "@prisma/client";
 import { createArtistInvitePreview, sendArtistInviteEmail, artistGreetingName, type InvitePreview } from "@/lib/magic-link";
 import { requireAdmin } from "@/lib/admin";
 import { snapshotArtist } from "@/lib/profile-revision";
-import { buildHireForText } from "@/lib/artist-options";
+import { buildHireForText, parseMediumList } from "@/lib/artist-options";
+import { registerMediumOptions } from "@/lib/medium-options";
 import { normalizeNeighborhood } from "@/lib/neighborhoods";
 
 // Attaches (or reuses) an owner account for an artist that doesn't have one
@@ -61,6 +62,7 @@ type ProfileInput = {
   lastName: string;
   bio: string;
   quote: string;
+  quoteAttribution: string;
   otherConnections: { name: string; relationship: string; relationshipLabel?: string }[];
   medium: string;
   neighborhood: string;
@@ -77,6 +79,13 @@ export async function updateArtistProfile(artistId: string, data: ProfileInput) 
   // name stays in sync with firstName/lastName — everything else in the app
   // (display, slug, search, CSV) keeps reading this single field unchanged.
   const name = [firstName, lastName].filter(Boolean).join(" ");
+  const medium = data.medium.trim() || null;
+
+  // Any medium typed that isn't a known option yet (via the free-text
+  // "Other" field) becomes a real, shared option going forward.
+  if (medium) {
+    await registerMediumOptions(parseMediumList(medium));
+  }
 
   const artist = await prisma.artist.update({
     where: { id: artistId },
@@ -86,7 +95,8 @@ export async function updateArtistProfile(artistId: string, data: ProfileInput) 
       lastName: lastName || null,
       bio: data.bio.trim() || null,
       quote: data.quote.trim() || null,
-      medium: data.medium.trim() || null,
+      quoteAttribution: data.quoteAttribution.trim() || null,
+      medium,
       neighborhood: data.neighborhood.trim() ? normalizeNeighborhood(data.neighborhood.trim()) : null,
       offerings: data.offerings.map((o) => o.trim()).filter(Boolean),
       hireFor: buildHireForText(data.offerings),

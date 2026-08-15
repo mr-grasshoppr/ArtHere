@@ -368,7 +368,9 @@ export default function OnboardingForm({
       {/* ── Hero + bio photo ─────────────────────────────────────────── */}
       <div className="max-w-3xl mx-auto px-4 pt-8 mb-20 relative">
         {/* Hero image */}
-        <div className="rounded-lg overflow-hidden bg-[#f0ede9] relative" style={{ aspectRatio: "2.5 / 1" }}>
+        {/* 21:9 to match the live hero on the artist/place profile page exactly
+            (see ArtistProfilePage.tsx / PlaceProfilePage.tsx). */}
+        <div className="rounded-lg overflow-hidden bg-[#f0ede9] relative" style={{ aspectRatio: "21 / 9" }}>
           {heroImage ? (
             <>
               <label className="block w-full h-full cursor-pointer group absolute inset-0">
@@ -385,7 +387,7 @@ export default function OnboardingForm({
                 <FramingButton
                   imageUrl={heroImage.url}
                   endpoint="/api/image-focus"
-                  aspect="2.5 / 1"
+                  aspect="21 / 9"
                   onSaved={(v) => rememberFocal(heroImage.url, v)}
                 />
               </div>

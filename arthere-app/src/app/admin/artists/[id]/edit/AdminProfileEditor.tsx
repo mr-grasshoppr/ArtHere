@@ -17,6 +17,7 @@ type Artist = {
   lastName: string | null;
   bio: string | null;
   quote: string | null;
+  quoteAttribution: string | null;
   otherConnections: { name: string; relationship: string; relationshipLabel: string | null }[];
   medium: string | null;
   neighborhood: string | null;
@@ -68,6 +69,7 @@ export default function AdminProfileEditor({
   const [lastName, setLastName] = useState(artist.lastName ?? "");
   const [bio, setBio] = useState(artist.bio ?? "");
   const [quote, setQuote] = useState(artist.quote ?? "");
+  const [quoteAttribution, setQuoteAttribution] = useState(artist.quoteAttribution ?? "");
   const [otherConnections, setOtherConnections] = useState<OtherConnection[]>(
     artist.otherConnections.map((c) => ({ name: c.name, relationship: c.relationship, relationshipLabel: c.relationshipLabel ?? "" }))
   );
@@ -133,6 +135,7 @@ export default function AdminProfileEditor({
           lastName,
           bio,
           quote,
+          quoteAttribution,
           otherConnections,
           medium,
           neighborhood,
@@ -178,6 +181,14 @@ export default function AdminProfileEditor({
             rows={2}
             placeholder="A short quote shown above the bio"
             className={`${inputCls} resize-y`}
+          />
+          <p className="text-xs text-[#aaa] mt-1 mb-2">Optional attribution — who said it, if not the artist themselves.</p>
+          <input
+            type="text"
+            value={quoteAttribution}
+            onChange={(e) => setQuoteAttribution(e.target.value)}
+            placeholder="e.g. a collector's name"
+            className={inputCls}
           />
         </div>
 
