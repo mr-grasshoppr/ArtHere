@@ -224,6 +224,7 @@ export function NetworkGraph({ nodes, links }: Props) {
       .join('g')
       .style('cursor', d => (d.href ? 'pointer' : 'default'))
       .style('opacity', 0)
+      .style('transition', 'opacity 400ms ease')
       .call(
         d3
           .drag<SVGGElement, SimNode>()
@@ -339,11 +340,17 @@ export function NetworkGraph({ nodes, links }: Props) {
       .style('pointer-events', 'none')
       .text(d => d.label);
 
-    nodeSel
-      .transition()
-      .duration(400)
-      .delay((_d, i) => i * 30)
-      .style('opacity', 1);
+    // Fade in via plain setTimeout + CSS transition rather than d3's own
+    // `.transition()` — the latter is a JS-timer-driven animation that was
+    // observed getting silently interrupted a few dozen ms in (every node
+    // past the first one or two staggered slots stayed stuck at opacity 0
+    // forever, no console error) once the force simulation's per-tick DOM
+    // writes started competing for the same timer queue. A native CSS
+    // transition triggered by a plain timeout sidesteps that entirely.
+    const fadeInTimers: ReturnType<typeof setTimeout>[] = [];
+    nodeSel.nodes().forEach((el, i) => {
+      fadeInTimers.push(setTimeout(() => { el.style.opacity = '1'; }, i * 30));
+    });
 
     sim.on('tick', () => {
       linkSel
@@ -366,6 +373,7 @@ export function NetworkGraph({ nodes, links }: Props) {
     return () => {
       sim.stop();
       resizeObserver.disconnect();
+      fadeInTimers.forEach(clearTimeout);
     };
   }, [nodes, links, showArtists, showPlaces, selectedAreas, neighborhoods]);
 
