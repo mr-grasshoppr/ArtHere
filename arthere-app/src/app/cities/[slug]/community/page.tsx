@@ -117,7 +117,7 @@ export default async function CityCommunityPage({
           {city.name} Places
         </h1>
         <p className="text-[0.95rem] text-[#888] font-light">
-          The places and people that support {city.name}&rsquo;s artists.
+          The places &amp; organizations that support {city.name}&rsquo;s artists.
         </p>
       </div>
 

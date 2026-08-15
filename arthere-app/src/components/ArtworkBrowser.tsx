@@ -96,17 +96,19 @@ export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, co
 
   const hasFilter = !!(mediumFilter || neighborhoodFilter.length > 0 || communityFilter);
 
-  // Medium filters per artwork, not per artist — an artist who does both
-  // painting and sculpture shouldn't show sculpture photos when someone's
-  // filtering for painting. Neighborhood/community stay artist-level.
-  let filtered = artists
+  // Filters are additive (AND, not OR) — medium, neighborhood, and community
+  // all narrow the same result set, so e.g. Ceramics + Bridlemile means
+  // ceramicists in Bridlemile, not "everyone in either." Medium filters per
+  // artwork, not per artist — an artist who does both painting and sculpture
+  // shouldn't show sculpture photos when someone's filtering for painting.
+  // Neighborhood/community stay artist-level.
+  const filtered = artists
     .filter(a =>
       (neighborhoodFilter.length === 0 || parseNeighborhoodList(a.neighborhood).some(n => neighborhoodFilter.includes(n))) &&
       (!communityFilter || a.communities.includes(communityFilter))
     )
     .map(a => (mediumFilter ? { ...a, images: a.images.filter(img => img.medium.includes(mediumFilter)) } : a))
     .filter(a => a.images.length > 0);
-  if (filtered.length === 0) filtered = artists;
 
   // Re-shuffle the grid whenever the filters change. Built on the client
   // (not useMemo) so the randomized order can't cause a server/client
@@ -183,24 +185,30 @@ export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, co
         />
       </div>
 
-      <div className="grid grid-flow-row-dense grid-cols-3 sm:grid-cols-4 gap-[5px] p-[5px] auto-rows-[calc((100vw-20px)/3)] sm:auto-rows-[calc((100vw-25px)/4)]">
-        {sequence.map((item, i) => (
-          <Link
-            key={`${item.url}-${item.src}-${i}`}
-            href={item.url}
-            className={`group relative block overflow-hidden rounded-md bg-[#111] ${item.tall ? 'row-span-2' : ''}`}
-          >
-            <Image
-              src={item.src}
-              alt={item.alt}
-              fill
-              sizes="(max-width: 640px) 33vw, 25vw"
-              className="object-cover transition-transform duration-300 group-hover:scale-[1.04]"
-              style={focalStyle(item.focal, '50% 35%')}
-            />
-          </Link>
-        ))}
-      </div>
+      {filtered.length === 0 ? (
+        <div className="px-5 py-16 text-center text-[#666]">
+          No artwork matches these filters together — try clearing one.
+        </div>
+      ) : (
+        <div className="grid grid-flow-row-dense grid-cols-3 sm:grid-cols-4 gap-[5px] p-[5px] auto-rows-[calc((100vw-20px)/3)] sm:auto-rows-[calc((100vw-25px)/4)]">
+          {sequence.map((item, i) => (
+            <Link
+              key={`${item.url}-${item.src}-${i}`}
+              href={item.url}
+              className={`group relative block overflow-hidden rounded-md bg-[#111] ${item.tall ? 'row-span-2' : ''}`}
+            >
+              <Image
+                src={item.src}
+                alt={item.alt}
+                fill
+                sizes="(max-width: 640px) 33vw, 25vw"
+                className="object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+                style={focalStyle(item.focal, '50% 35%')}
+              />
+            </Link>
+          ))}
+        </div>
+      )}
     </>
   );
 }
