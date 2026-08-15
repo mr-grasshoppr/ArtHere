@@ -6,7 +6,6 @@ import {
   INVOLVEMENT_FEATURED,
   INVOLVEMENT_VOLUNTEER,
   INVOLVEMENT_NEWS,
-  INVOLVEMENT_PARADE,
   INVOLVEMENT_PARTNER,
   RAFFLE_OPTIONS,
   RAFFLE_YES,
@@ -23,7 +22,7 @@ describe("survey constants consistency", () => {
   });
 
   it("involvement sentinels are actual involvement options", () => {
-    for (const v of [INVOLVEMENT_FEATURED, INVOLVEMENT_VOLUNTEER, INVOLVEMENT_NEWS, INVOLVEMENT_PARADE, INVOLVEMENT_PARTNER]) {
+    for (const v of [INVOLVEMENT_FEATURED, INVOLVEMENT_VOLUNTEER, INVOLVEMENT_NEWS, INVOLVEMENT_PARTNER]) {
       expect(INVOLVEMENT_OPTIONS).toContain(v);
     }
   });

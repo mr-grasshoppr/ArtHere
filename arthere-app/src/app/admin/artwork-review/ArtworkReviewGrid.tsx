@@ -5,7 +5,7 @@ import Link from "next/link";
 import { parseMediumList } from "@/lib/artist-options";
 import { MediumMultiSelect } from "@/components/MediumMultiSelect";
 import { setArtworkMedium } from "../artists/[id]/actions";
-import { setImagesReviewed, setImagesExcluded } from "./actions";
+import { setImagesReviewed, setImagesExcluded, setImagesExcludedFromGrid } from "./actions";
 
 type Image = {
   id: string;
@@ -14,6 +14,9 @@ type Image = {
   medium: string[];
   reviewed: boolean;
   excluded: boolean;
+  /** Hidden from the public browse grids (city artwork page, city ambient
+   *  background) — distinct from `excluded`, which only hides it here. */
+  excludedFromGrid: boolean;
   artist: { id: string; name: string; slug: string; medium: string | null; isPlaceholder: boolean; isArchived: boolean };
 };
 
@@ -86,6 +89,15 @@ export default function ArtworkReviewGrid({
     }
   }
 
+  // Independent of `excluded` above — this hides the piece from the public
+  // site (city artwork page, city ambient background), not from this review
+  // list, so the card stays put either way.
+  function toggleExcludedFromGrid(image: Image) {
+    const next = !image.excludedFromGrid;
+    setImages((prev) => prev.map((img) => (img.id === image.id ? { ...img, excludedFromGrid: next } : img)));
+    setImagesExcludedFromGrid([image.id], next);
+  }
+
   function markAllReviewed() {
     const ids = images.filter((img) => !img.reviewed).map((img) => img.id);
     if (ids.length === 0) return;
@@ -140,6 +152,22 @@ export default function ArtworkReviewGrid({
                 <img src={img.url} alt={img.altText ?? ""} className="w-full h-full object-cover" />
                 <button
                   type="button"
+                  onClick={() => toggleExcludedFromGrid(img)}
+                  title={
+                    img.excludedFromGrid
+                      ? "Show this image in the public artwork/city grids again"
+                      : "Hide this image from the public artwork/city grids"
+                  }
+                  className={`absolute top-1.5 left-1.5 z-10 text-[10px] font-medium px-2 py-1 rounded-full transition-colors cursor-pointer ${
+                    img.excludedFromGrid
+                      ? "bg-[#e08a1e] text-white"
+                      : "bg-black/40 text-white opacity-0 group-hover:opacity-100 hover:bg-black/60"
+                  }`}
+                >
+                  {img.excludedFromGrid ? "↺ Show in grid" : "✕ Hide from grid"}
+                </button>
+                <button
+                  type="button"
                   onClick={() => toggleExcluded(img)}
                   title={img.excluded ? "Include this image in the review grid" : "Exclude this image from the review grid"}
                   className={`absolute top-1.5 right-1.5 z-10 text-[10px] font-medium px-2 py-1 rounded-full transition-colors cursor-pointer ${
@@ -180,6 +208,11 @@ export default function ArtworkReviewGrid({
                   {img.excluded && (
                     <span className="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-[#f062a4]/10 text-[#a84573]">
                       Excluded
+                    </span>
+                  )}
+                  {img.excludedFromGrid && (
+                    <span className="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-[#e08a1e]/10 text-[#a8681e]">
+                      Hidden from grid
                     </span>
                   )}
                   {artistMedium.length > 0 && (

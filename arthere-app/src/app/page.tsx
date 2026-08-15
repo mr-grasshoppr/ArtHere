@@ -37,6 +37,7 @@ export default async function Home() {
   const allCities = await getCachedCities();
   const cities = allCities.filter(c => !c.slug.endsWith('-demo'));
   const { slides: logoSlides, focals: logoFocals } = await getLogoSlides();
+  const pilotCitySlug = cities[0]?.slug;
 
   return (
     <div className="min-h-screen bg-white text-[#1a1a1a]">
@@ -55,7 +56,7 @@ export default async function Home() {
                   {label}
                 </span>
                 <span className="bg-[#1a1a1a] text-white text-[0.85rem] font-semibold tracking-[0.02em] px-3.5 py-1.5 rounded-full whitespace-nowrap">
-                  Launching August 2026!
+                  Pilot Launched!
                 </span>
               </div>
             );
@@ -127,21 +128,30 @@ export default async function Home() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               {[
-                { img: '/images/artist-directory.jpg',  alt: 'Artist Directory',  title: 'Artist Directory',  body: 'Discover local artists, artwork that you love, and the galleries and organizations that support them.' },
+                { img: '/images/artist-directory.jpg',  alt: 'Artist Directory',  title: 'Artist Directory',  body: 'Discover local artists, artwork that you love, and the galleries and organizations that support them.', href: pilotCitySlug ? `/cities/${pilotCitySlug}` : undefined },
                 { img: '/images/Community_voices.png',  alt: 'Community Voices',  title: 'Community Voices',  body: 'With our partners, we’re conducting interviews and surveys to help the community better understand how to support the arts. Stay tuned for stories and insights.' },
-                { img: '/images/Art_Here_Network.png',  alt: 'Art Here Network',  title: 'Art Here Network', body: 'A visualization of galleries, studios, and organizations supporting artists in your area.' },
-              ].map(({ img, alt, title, body }) => (
-                <div key={title} className="rounded-2xl border border-[#dedad4] bg-white overflow-hidden">
-                  <div className="w-full aspect-[3/2] overflow-hidden bg-[#e8e8e4]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={img} alt={alt} className="w-full h-full object-cover" />
+                { img: '/images/Art_Here_Network.png',  alt: 'Art Here Network',  title: 'Art Here Network', body: 'A visualization of galleries, studios, and organizations supporting artists in your area.', href: pilotCitySlug ? `/cities/${pilotCitySlug}/network` : undefined },
+              ].map(({ img, alt, title, body, href }) => {
+                const card = (
+                  <div className="rounded-2xl border border-[#dedad4] bg-white overflow-hidden h-full">
+                    <div className="w-full aspect-[3/2] overflow-hidden bg-[#e8e8e4]">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={img} alt={alt} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="px-5 py-5">
+                      <h3 className="font-heading text-[1.05rem] font-bold mb-2">{title}</h3>
+                      <p className="text-[0.85rem] text-[#666] font-light leading-[1.7]">{body}</p>
+                    </div>
                   </div>
-                  <div className="px-5 py-5">
-                    <h3 className="font-heading text-[1.05rem] font-bold mb-2">{title}</h3>
-                    <p className="text-[0.85rem] text-[#666] font-light leading-[1.7]">{body}</p>
-                  </div>
-                </div>
-              ))}
+                );
+                return href ? (
+                  <Link key={title} href={href} className="block hover:opacity-90 transition-opacity">
+                    {card}
+                  </Link>
+                ) : (
+                  <div key={title}>{card}</div>
+                );
+              })}
             </div>
           </div>
         </section>

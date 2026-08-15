@@ -107,6 +107,7 @@ export default async function ArtworkReviewPage({
           medium: img.medium,
           reviewed: img.tagsReviewedAt != null,
           excluded: img.excludedFromReviewAt != null,
+          excludedFromGrid: img.excludedFromGridAt != null,
           artist: img.artist,
         }))}
         initialMediumOptions={mediumOptions}

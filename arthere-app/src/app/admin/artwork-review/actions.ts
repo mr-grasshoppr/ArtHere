@@ -28,3 +28,30 @@ export async function setImagesExcluded(imageIds: string[], excluded: boolean) {
   });
   revalidatePath("/admin/artwork-review");
 }
+
+// Hides an image from the PUBLIC browse grids (city artwork page, city
+// ambient background) — unlike setImagesExcluded, this does affect the
+// public site, so it also revalidates the affected cities' pages. The
+// image stays visible on the artist's own profile page and is still
+// editable here; this only pulls it out of the grids.
+export async function setImagesExcludedFromGrid(imageIds: string[], excluded: boolean) {
+  await requireAdmin();
+  if (imageIds.length === 0) return;
+
+  const affected = await prisma.artworkImage.findMany({
+    where: { id: { in: imageIds } },
+    select: { artist: { select: { city: { select: { slug: true } } } } },
+  });
+
+  await prisma.artworkImage.updateMany({
+    where: { id: { in: imageIds } },
+    data: { excludedFromGridAt: excluded ? new Date() : null },
+  });
+
+  revalidatePath("/admin/artwork-review");
+  const citySlugs = new Set(affected.map((img) => img.artist.city?.slug).filter((s): s is string => !!s));
+  for (const slug of citySlugs) {
+    revalidatePath(`/cities/${slug}`);
+    revalidatePath(`/cities/${slug}/artwork`);
+  }
+}

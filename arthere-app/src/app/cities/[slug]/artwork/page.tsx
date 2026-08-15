@@ -46,7 +46,9 @@ export default async function CityArtworkPage({
     where: artistScopeWhere(scope),
     orderBy: { name: 'asc' },
     include: {
-      artworkImages: { orderBy: { sortOrder: 'asc' } },
+      // excludedFromGridAt: an admin can pull a specific piece out of the
+      // public browse grids without touching the artist's own profile page.
+      artworkImages: { where: { excludedFromGridAt: null }, orderBy: { sortOrder: 'asc' } },
       placeRelations: { include: { place: true } },
     },
   });

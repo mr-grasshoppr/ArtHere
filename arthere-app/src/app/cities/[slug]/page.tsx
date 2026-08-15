@@ -39,7 +39,11 @@ export default async function CityPage({
 
   const cityArtists = await prisma.artist.findMany({
     where: artistScopeWhere(scope),
-    include: { artworkImages: { orderBy: { sortOrder: 'asc' } } },
+    include: {
+      // excludedFromGridAt: an admin can pull a specific piece out of the
+      // public browse grids without touching the artist's own profile page.
+      artworkImages: { where: { excludedFromGridAt: null }, orderBy: { sortOrder: 'asc' } },
+    },
   });
 
   // Same framing the artist profile page uses for these images, so the

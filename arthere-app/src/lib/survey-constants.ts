@@ -162,13 +162,13 @@ export const INVOLVEMENT_NONE = NONE_OF_THE_ABOVE;
 export const INVOLVEMENT_FEATURED = 'Showcase my work on the Art Here platform';
 export const INVOLVEMENT_NEWS = 'Keep me posted on Art Here news';
 export const INVOLVEMENT_VOLUNTEER = 'Volunteer to help Art Here';
+/** Retired as a form option (parade day has passed); kept for historical export/display of past responses. */
 export const INVOLVEMENT_PARADE = 'Join the parade at Multnomah Days 2026 (August 15, Portland)';
 export const INVOLVEMENT_PARTNER = 'Partner or collaborate';
 export const INVOLVEMENT_OPTIONS = [
   INVOLVEMENT_NEWS,
   INVOLVEMENT_FEATURED,
   INVOLVEMENT_VOLUNTEER,
-  INVOLVEMENT_PARADE,
   INVOLVEMENT_PARTNER,
   INVOLVEMENT_OTHER,
   INVOLVEMENT_NONE,

@@ -217,6 +217,12 @@ model ArtworkImage {
   // for pieces that aren't really "artwork" to tag (e.g. a hero image of a
   // storefront). Doesn't affect where the image shows on the public site.
   excludedFromReviewAt DateTime?
+  // Set when an admin has hidden this image from the PUBLIC browse grids
+  // (city artwork page, city ambient background) — e.g. a piece that's
+  // correctly tagged but not something to feature. Unlike
+  // excludedFromReviewAt, this does affect the public site; the image still
+  // shows on the artist's own profile page and stays editable here.
+  excludedFromGridAt   DateTime?
 
   artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
 
