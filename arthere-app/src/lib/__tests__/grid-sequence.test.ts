@@ -31,6 +31,17 @@ describe("buildSpacedSequence", () => {
     }
   });
 
+  it("never duplicates or pads when repeats is 1 (a filtered result)", () => {
+    // A filtered view must show each matching piece exactly once — even if
+    // that leaves a short trailing row, padding it out would duplicate a
+    // piece the user just filtered for, which is worse than a ragged row.
+    for (let n = 1; n <= 9; n++) {
+      const result = buildSpacedSequence(items(n), { cols: 4, repeats: 1, minRowGap: 5 });
+      expect(result.length).toBe(n);
+      expect(new Set(result).size).toBe(n);
+    }
+  });
+
   it("keeps repeats of the same key at least minRowGap rows apart when there's enough variety", () => {
     const cols = 4;
     const minRowGap = 5;

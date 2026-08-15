@@ -26,12 +26,16 @@ function shuffle<T>(arr: T[]): T[] {
  * `floor(position / cols)` — close enough for spacing purposes even where a
  * "tall" (row-spanning) cell nudges the true visual row by one.
  *
- * The result is always padded out to a full multiple of `cols` — a trailing
- * row with fewer than `cols` items would otherwise render as empty grid
- * cells (visible blank space) rather than more artwork. Padding picks are
- * plain random extra repeats, still subject to the same spacing check as
- * everything else, so a piece can end up appearing more than `repeats`
- * times only when needed to fill out the last row.
+ * When `repeats > 1`, the result is padded out to a full multiple of `cols`
+ * — a trailing row with fewer than `cols` items would otherwise render as
+ * empty grid cells (visible blank space) rather than more artwork. Padding
+ * picks are plain random extra repeats, still subject to the same spacing
+ * check as everything else, so a piece can end up appearing more than
+ * `repeats` times only when needed to fill out the last row.
+ *
+ * `repeats === 1` is treated as a hard cap instead — used for a filtered
+ * result where every distinct piece must appear exactly once, never
+ * duplicated to pad out a short trailing row.
  *
  * Uses a greedy forward-scan: at each position, picks a random not-yet-placed
  * item whose key is out of its cooldown window. If every remaining item is
@@ -49,7 +53,7 @@ export function buildSpacedSequence<T>(
   for (const item of items) {
     for (let r = 0; r < repeats; r++) pool.push(item);
   }
-  const targetLength = Math.ceil(pool.length / cols) * cols;
+  const targetLength = repeats > 1 ? Math.ceil(pool.length / cols) * cols : pool.length;
   while (pool.length < targetLength) {
     pool.push(items[Math.floor(Math.random() * items.length)]);
   }
