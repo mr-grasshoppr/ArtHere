@@ -11,12 +11,18 @@ interface Props {
 export async function NavBar({ activeCitySlug, theme }: Props) {
   const rawCities = await getCachedCities();
 
-  const cities: CityEntry[] = rawCities.map(c => ({
-    slug: c.slug,
-    name: c.name,
-    state: c.state,
-    displayName: c.displayName,
-  }));
+  // Demo cities (slug ending "-demo", see lib/city-scope.ts) are a gated
+  // preview variant of their paired real city, not a public destination —
+  // same displayName as the real city, so leaving them in would just show
+  // e.g. "Portland, OR" twice in this menu.
+  const cities: CityEntry[] = rawCities
+    .filter(c => !c.slug.endsWith('-demo'))
+    .map(c => ({
+      slug: c.slug,
+      name: c.name,
+      state: c.state,
+      displayName: c.displayName,
+    }));
 
   return <NavBarClient cities={cities} activeCitySlug={activeCitySlug} theme={theme} />;
 }

@@ -115,8 +115,10 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark' }: Props) 
               >
                 Join Us
               </Link>
-              {/* Cities submenu */}
-              <div>
+              {/* Cities submenu — flies out to the left of the main panel,
+                  since the panel itself is anchored to the right edge of
+                  the screen (a rightward flyout would run off-viewport). */}
+              <div className="relative">
                 <button
                   className={`w-full flex justify-between items-center px-5 py-[13px] text-[0.9rem] transition-colors bg-transparent border-none border-b cursor-pointer font-[inherit] ${
                     isLight
@@ -127,26 +129,29 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark' }: Props) 
                   aria-expanded={citiesOpen}
                 >
                   Cities
-                  <span
-                    className={`text-[0.65rem] transition-transform duration-200 ${isLight ? 'text-[#ccc]' : 'text-[#555]'}`}
-                    style={citiesOpen ? { transform: 'rotate(90deg)' } : undefined}
-                  >
-                    &#9654;
+                  <span className={`text-[0.65rem] ${isLight ? 'text-[#ccc]' : 'text-[#555]'}`}>
+                    &#9664;
                   </span>
                 </button>
 
                 {citiesOpen && (
-                  <div className={isLight ? 'bg-[#fafafa] border-b border-[#f0f0f0]' : 'bg-[#111] border-b border-[#222]'}>
+                  <div
+                    className={`absolute top-0 right-full mr-1 rounded-md min-w-[160px] ${
+                      isLight
+                        ? 'bg-white border border-[#eee] shadow-[0_4px_20px_rgba(0,0,0,0.08)]'
+                        : 'bg-[#1a1a1a] border border-[#333] shadow-[0_4px_20px_rgba(0,0,0,0.5)]'
+                    }`}
+                  >
                     {cities.map(city => {
                       const label = city.displayName ?? `${city.name}${city.state ? `, ${city.state}` : ''}`;
                       return (
                         <Link
                           key={city.slug}
                           href={`/cities/${city.slug}`}
-                          className={`flex items-baseline gap-2 px-7 py-[9px] text-[0.85rem] transition-colors no-underline ${
+                          className={`block px-5 py-[13px] text-[0.9rem] transition-colors no-underline ${
                             isLight
-                              ? 'text-[#1a1a1a] hover:bg-[#f0f0f0]'
-                              : 'text-[#ccc] hover:bg-[#1a1a1a] hover:text-white'
+                              ? 'text-[#444] hover:bg-[#fafafa] hover:text-[#1a1a1a]'
+                              : 'text-[#ccc] hover:bg-[#222] hover:text-white'
                           }`}
                           onClick={closeAll}
                         >
