@@ -63,21 +63,23 @@ export default async function CityArtworkPage({
       medium: artist.medium,
       neighborhood: artist.neighborhood,
       communities: artist.placeRelations.map(r => r.place?.name ?? r.venueName).filter((n): n is string => !!n),
-      images: artist.artworkImages
-        .filter(img => !img.isHero && img.url !== artist.heroImageUrl)
-        .slice(0, 3)
-        .map(img => ({
-          src: img.url,
-          focal: focals.get(img.url) ?? null,
-          alt: img.altText ?? `Artwork by ${artist.name}`,
-          isHero: img.isHero,
-          // Per-artwork medium, from AI tagging. Deliberately NOT falling back
-          // to the artist's overall mediums — an illustrator's painting photo
-          // shouldn't match a search/filter for "Illustration" just because
-          // it hasn't been AI-tagged yet. Untagged pieces simply don't match
-          // any specific medium filter until tagging completes.
-          medium: img.medium,
-        })),
+      // Every image, unfiltered — including the hero. ArtworkBrowser curates
+      // (excludes the hero, caps per artist) for the default ambient view,
+      // but a medium filter needs the full set or "N pieces match X" would
+      // silently undercount whenever the matching piece happens to be an
+      // artist's hero image.
+      images: artist.artworkImages.map(img => ({
+        src: img.url,
+        focal: focals.get(img.url) ?? null,
+        alt: img.altText ?? `Artwork by ${artist.name}`,
+        isHero: img.isHero,
+        // Per-artwork medium, from AI tagging. Deliberately NOT falling back
+        // to the artist's overall mediums — an illustrator's painting photo
+        // shouldn't match a search/filter for "Illustration" just because
+        // it hasn't been AI-tagged yet. Untagged pieces simply don't match
+        // any specific medium filter until tagging completes.
+        medium: img.medium,
+      })),
     }))
     .filter(artist => artist.images.length > 0);
 
@@ -103,7 +105,7 @@ export default async function CityArtworkPage({
           {city.name} Artwork
         </h1>
         <p className="text-[0.88rem] text-[#666] font-light">
-          Browse work from {city.name} metro artists.
+          Browse work from {city.name} area artists.
         </p>
       </div>
 

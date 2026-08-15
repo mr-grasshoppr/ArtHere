@@ -96,6 +96,15 @@ export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, co
 
   const hasFilter = !!(mediumFilter || neighborhoodFilter.length > 0 || communityFilter);
 
+  // Default ambient view: skip each artist's hero (already showcased on
+  // their own page) and cap to a few pieces so no one artist dominates the
+  // feed. Dropped as soon as a medium filter is active — filtering must
+  // show every matching piece (hero included) or "N pieces match X" would
+  // silently undercount whenever the match happens to be someone's hero.
+  function curate(images: ArtworkImageData[]): ArtworkImageData[] {
+    return images.filter(img => !img.isHero).slice(0, 3);
+  }
+
   // Filters are additive (AND, not OR) — medium, neighborhood, and community
   // all narrow the same result set, so e.g. Ceramics + Bridlemile means
   // ceramicists in Bridlemile, not "everyone in either." Medium filters per
@@ -107,7 +116,10 @@ export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, co
       (neighborhoodFilter.length === 0 || parseNeighborhoodList(a.neighborhood).some(n => neighborhoodFilter.includes(n))) &&
       (!communityFilter || a.communities.includes(communityFilter))
     )
-    .map(a => (mediumFilter ? { ...a, images: a.images.filter(img => img.medium.includes(mediumFilter)) } : a))
+    .map(a => ({
+      ...a,
+      images: mediumFilter ? a.images.filter(img => img.medium.includes(mediumFilter)) : curate(a.images),
+    }))
     .filter(a => a.images.length > 0);
 
   // Re-shuffle the grid whenever the filters change. Built on the client

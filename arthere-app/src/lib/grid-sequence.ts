@@ -26,6 +26,13 @@ function shuffle<T>(arr: T[]): T[] {
  * `floor(position / cols)` — close enough for spacing purposes even where a
  * "tall" (row-spanning) cell nudges the true visual row by one.
  *
+ * The result is always padded out to a full multiple of `cols` — a trailing
+ * row with fewer than `cols` items would otherwise render as empty grid
+ * cells (visible blank space) rather than more artwork. Padding picks are
+ * plain random extra repeats, still subject to the same spacing check as
+ * everything else, so a piece can end up appearing more than `repeats`
+ * times only when needed to fill out the last row.
+ *
  * Uses a greedy forward-scan: at each position, picks a random not-yet-placed
  * item whose key is out of its cooldown window. If every remaining item is
  * still cooling down (only possible with very few distinct keys relative to
@@ -36,10 +43,17 @@ export function buildSpacedSequence<T>(
   items: RepeatItem<T>[],
   { cols, repeats, minRowGap }: { cols: number; repeats: number; minRowGap: number }
 ): T[] {
+  if (items.length === 0) return [];
+
   const pool: RepeatItem<T>[] = [];
   for (const item of items) {
     for (let r = 0; r < repeats; r++) pool.push(item);
   }
+  const targetLength = Math.ceil(pool.length / cols) * cols;
+  while (pool.length < targetLength) {
+    pool.push(items[Math.floor(Math.random() * items.length)]);
+  }
+
   const remaining = shuffle(pool);
 
   const lastRow = new Map<string, number>();
