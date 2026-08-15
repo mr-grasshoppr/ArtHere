@@ -5,6 +5,7 @@ import Link from 'next/link';
 import PlaceEditForm from './PlaceEditForm';
 import { getFocals } from '@/lib/image-focus';
 import { getKnownNeighborhoods } from '@/lib/neighborhoods';
+import { placeAccessWhere } from '@/lib/place-access';
 
 export default async function PlaceEditPage() {
   const session = await auth();
@@ -14,13 +15,14 @@ export default async function PlaceEditPage() {
   // email — surface a way back to the other one instead of it being
   // reachable only if they happen to already know the URL.
   const [place, artist] = await Promise.all([
-    prisma.place.findUnique({
-      where: { userId: session.user.id },
+    prisma.place.findFirst({
+      where: placeAccessWhere(session.user.id),
       include: {
         artists: {
           orderBy: { createdAt: 'asc' },
           include: { artist: true },
         },
+        links: { orderBy: { sortOrder: 'asc' } },
       },
     }),
     prisma.artist.findUnique({ where: { userId: session.user.id }, select: { name: true } }),
@@ -50,7 +52,7 @@ export default async function PlaceEditPage() {
           description: place.description ?? '',
           quote: place.quote ?? '',
           quoteAttribution: place.quoteAttribution ?? '',
-          website: place.website ?? '',
+          links: place.links.map((l) => ({ type: l.type, url: l.url, label: l.label ?? '' })),
           heroImageUrl: place.heroImageUrl ?? null,
           thumbnailImageUrl: place.thumbnailImageUrl ?? null,
           galleryImages: place.galleryImages,

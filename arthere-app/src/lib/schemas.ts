@@ -124,7 +124,16 @@ export const placeProfileSchema = z
     description: longText.nullish(),
     quote: longText.nullish(),
     quoteAttribution: shortText.nullish(),
-    website: z.string().max(500).nullish(),
+    links: z
+      .array(
+        z.object({
+          type: z.string().max(50),
+          url: z.string().max(500),
+          label: shortText.nullish(),
+        })
+      )
+      .max(3)
+      .nullish(),
     heroImageUrl: z.string().max(1000).nullish(),
     thumbnailImageUrl: z.string().max(1000).nullish(),
     galleryImages: z.array(z.string().max(1000)).max(3).nullish(),

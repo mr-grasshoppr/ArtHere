@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { resend } from "@/lib/resend";
 import { AdminNotificationEmail } from "@/emails/AdminNotificationEmail";
 import { renderEmail } from "@/lib/render-email";
+import { placeAccessWhere } from "@/lib/place-access";
 
 // POST — the org owner's deliberate "I'm done, please look at this" signal.
 // Mirrors /api/profile/submit-for-review exactly. Only meaningful pre-publish:
@@ -15,7 +16,7 @@ export async function POST() {
   const session = await auth();
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const place = await prisma.place.findUnique({ where: { userId: session.user.id } });
+  const place = await prisma.place.findFirst({ where: placeAccessWhere(session.user.id) });
   if (!place) return NextResponse.json({ error: "No page found" }, { status: 404 });
 
   await prisma.place.update({

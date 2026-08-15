@@ -57,10 +57,11 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts Account[]
-  sessions Session[]
-  artist   Artist?
-  place    Place?
+  accounts         Account[]
+  sessions         Session[]
+  artist           Artist?
+  place            Place?
+  placeMemberships PlaceMember[]
 }
 
 model Artist {
@@ -82,6 +83,7 @@ model Artist {
   bio                  String?          @db.Text
   // Optional pull quote shown above the bio on the public profile.
   quote                String?          @db.Text
+  quoteAttribution     String?
   bioPhotoUrl          String?
   heroImageUrl         String?
   website              String?
@@ -199,14 +201,14 @@ model ArtworkImage {
 
   // AI-generated tags stored as JSON
   // Shape: { medium, colors, scale, style, subjects, indoor_outdoor, mood }
-  aiTags     Json?
-  aiTaggedAt DateTime?
+  aiTags         Json?
+  aiTaggedAt     DateTime?
   // Structured, per-artwork medium — a normalized subset of aiTags.medium
   // (values restricted to MEDIUM_OPTIONS, see lib/artist-options.ts) so this
   // specific piece can be filtered/grouped by medium independently of the
   // artist's overall list of mediums. An admin can hand-correct this if the
   // AI mistags a piece.
-  medium     String[]  @default([])
+  medium         String[]  @default([])
   // Set when an admin has eyeballed this piece's tags during a manual audit
   // pass (see /admin/artwork-review) — distinct from aiTaggedAt, which just
   // means the AI ran, not that a human confirmed the result is correct.
@@ -237,41 +239,89 @@ model MediumOption {
 // ─── Places ───────────────────────────────────────────────────────────────────
 
 model Place {
-  id                String   @id @default(cuid())
-  slug              String   @unique
-  name              String
-  neighborhood      String?
-  description       String?  @db.Text
+  id                   String    @id @default(cuid())
+  slug                 String    @unique
+  name                 String
+  neighborhood         String?
+  description          String?   @db.Text
   // Optional pull quote shown on the page (e.g. a customer or community
   // testimonial), with its speaker credited separately.
-  quote             String?  @db.Text
-  quoteAttribution  String?
-  website           String?
-  websiteLabel      String?
+  quote                String?   @db.Text
+  quoteAttribution     String?
+  // Superseded by PlaceLink (one of several per place, matching Artist's
+  // website/instagram -> ArtistLink cutover) — kept, no longer written to,
+  // so historical values aren't lost.
+  website              String?
+  websiteLabel         String?
   // heroImageUrl heads the org's own page; thumbnailImageUrl is the card shown
   // in the Community directory. When no thumbnail is set the hero is used.
-  heroImageUrl      String?
-  thumbnailImageUrl String?
+  heroImageUrl         String?
+  thumbnailImageUrl    String?
   // A few extra photos shown in a gallery on the place's page.
-  galleryImages     String[] @default([])
+  galleryImages        String[]  @default([])
   // Whether this place appears in the city Community directory page.
   // Places an artist is connected to but that aren't part of the curated
   // directory (closed venues, schools, etc.) are still listed on the
   // artist's profile, just not linked or shown on the Community page.
-  inDirectory       Boolean  @default(true)
+  inDirectory          Boolean   @default(true)
   // Tucked out of the default admin list and always excluded from public
   // pages, independent of inDirectory — mirrors Artist.isArchived.
-  isArchived        Boolean  @default(false)
+  isArchived           Boolean   @default(false)
   // Set when the org owner clicks "Submit" on their edit page — mirrors
   // Artist.submittedForReviewAt exactly, including being cleared on publish.
   submittedForReviewAt DateTime?
-  createdAt         DateTime @default(now())
+  createdAt            DateTime  @default(now())
 
+  // The place's own city — independent of any artist connection (a place
+  // with no connected artists still needs to know which city's directory it
+  // belongs to). Mirrors Artist.cityId.
+  cityId          String?
+  city            City?            @relation(fields: [cityId], references: [id])
   userId          String?          @unique
   user            User?            @relation(fields: [userId], references: [id])
   artists         ArtistPlace[]
   magicLinkTokens MagicLinkToken[]
   adminNotes      AdminNote[]
+  members         PlaceMember[]
+  links           PlaceLink[]
+
+  @@index([cityId])
+}
+
+// A social/portfolio/shop link, one of several per place — mirrors
+// ArtistLink exactly (see LINK_TYPE_OPTIONS/linkTypeLabel in
+// lib/artist-options.ts, shared by both).
+model PlaceLink {
+  id        String   @id @default(cuid())
+  placeId   String
+  type      LinkType
+  url       String
+  // Custom label — mainly for type OTHER, where "Website"/"Instagram" etc.
+  // wouldn't mean anything.
+  label     String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@index([placeId])
+}
+
+// Additional editors beyond the primary owner (Place.userId/User.place) —
+// lets an org share edit access across a team. The owner isn't duplicated
+// here; "who can edit this place" is userId OR a PlaceMember row (see
+// placeAccessWhere in lib/place-access.ts).
+model PlaceMember {
+  id        String   @id @default(cuid())
+  placeId   String
+  userId    String
+  createdAt DateTime @default(now())
+
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([placeId, userId])
+  @@index([userId])
 }
 
 model ArtistPlace {
@@ -334,6 +384,7 @@ model City {
   createdAt           DateTime @default(now())
 
   artists Artist[]
+  places  Place[]
 }
 
 // ─── Community Survey ─────────────────────────────────────────────────────────

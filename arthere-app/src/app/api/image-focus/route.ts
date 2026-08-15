@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { placeAccessWhere } from "@/lib/place-access";
 
 // Self-service manual framing override — lets a signed-in artist or place
 // owner adjust the crop of one of THEIR OWN images. Sets manual=true so
@@ -13,8 +14,8 @@ async function ownsUrl(userId: string, url: string): Promise<boolean> {
       where: { userId },
       select: { heroImageUrl: true, bioPhotoUrl: true, artworkImages: { select: { url: true } } },
     }),
-    prisma.place.findUnique({
-      where: { userId },
+    prisma.place.findFirst({
+      where: placeAccessWhere(userId),
       select: { heroImageUrl: true, thumbnailImageUrl: true, galleryImages: true },
     }),
   ]);

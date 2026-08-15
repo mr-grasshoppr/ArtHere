@@ -15,24 +15,13 @@ export async function generateStaticParams() {
       where: { inDirectory: true, isArchived: false },
       select: {
         slug: true,
-        artists: { select: { artist: { select: { city: { select: { slug: true } } } } } },
+        city: { select: { slug: true } },
       },
     });
 
-    const params: { slug: string; placeSlug: string }[] = [];
-    for (const place of places) {
-      const citySlugs = [
-        ...new Set(
-          place.artists
-            .map(r => r.artist.city?.slug)
-            .filter((s): s is string => !!s)
-        ),
-      ];
-      for (const citySlug of citySlugs) {
-        params.push({ slug: citySlug, placeSlug: place.slug });
-      }
-    }
-    return params;
+    return places
+      .filter((place): place is typeof place & { city: { slug: string } } => !!place.city)
+      .map(place => ({ slug: place.city.slug, placeSlug: place.slug }));
   });
 }
 
@@ -69,6 +58,7 @@ export default async function CityPlacePage({
           orderBy: { createdAt: 'asc' },
           include: { artist: true },
         },
+        links: { orderBy: { sortOrder: 'asc' } },
       },
     }),
     prisma.city.findUnique({ where: { slug: citySlug } }),

@@ -14,11 +14,16 @@ export async function DELETE(req: NextRequest) {
 
   const connection = await prisma.artistPlace.findUnique({
     where: { id },
-    include: { place: { select: { userId: true } } },
+    include: {
+      place: {
+        select: { userId: true, members: { where: { userId: session.user.id }, select: { id: true } } },
+      },
+    },
   });
 
   if (!connection) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  if (connection.place?.userId !== session.user.id) return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+  const hasAccess = connection.place?.userId === session.user.id || (connection.place?.members.length ?? 0) > 0;
+  if (!hasAccess) return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
 
   await prisma.artistPlace.delete({ where: { id } });
 

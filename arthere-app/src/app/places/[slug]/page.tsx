@@ -47,14 +47,14 @@ export default async function PlacePage({
         orderBy: { createdAt: 'asc' },
         include: { artist: { include: { city: true } } },
       },
+      links: { orderBy: { sortOrder: 'asc' } },
+      city: true,
     },
   });
 
   if (!place) notFound();
 
-  // Derive the city to link back to from the first connected artist that has
-  // one — places themselves aren't tied to a city directly.
-  const cityForPlace = place.artists.find(rel => rel.artist.city)?.artist.city ?? null;
+  const cityForPlace = place.city;
 
   const focals = await getFocalStyles([place.heroImageUrl, ...place.galleryImages]);
 

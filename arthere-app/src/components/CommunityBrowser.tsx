@@ -27,7 +27,6 @@ export interface CommunityPlaceData {
   name: string;
   neighborhood: string | null;
   description: string | null;
-  website: string | null;
   heroImageUrl: string | null;
   /** Auto-detected/manual framing style for the card image; falls back to a default. */
   focus?: CSSProperties;

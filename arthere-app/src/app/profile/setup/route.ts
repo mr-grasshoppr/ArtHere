@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyMagicLinkToken } from '@/lib/magic-link';
 import { createSessionForUser } from '@/lib/auth';
+import { prisma } from '@/lib/db';
 
 export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get('token');
@@ -20,14 +21,19 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(`${base}/profile/link-error?msg=${encodeURIComponent(msg)}`);
   }
 
-  const userId = result.artist?.userId ?? result.place?.userId;
-  if (!userId) {
+  // Resolve the session to whoever the link was actually sent to (the
+  // token's own email), not the artist/place's primary owner — a token
+  // minted for an invited teammate must log that teammate in, not the
+  // original owner. The invite flow always upserts this User row before
+  // minting the token, so it's guaranteed to exist here.
+  const user = await prisma.user.findUnique({ where: { email: result.email } });
+  if (!user) {
     return NextResponse.redirect(
       `${base}/profile/link-error?msg=${encodeURIComponent('This link is not associated with a valid account.')}`
     );
   }
 
-  const cookie = await createSessionForUser(userId);
+  const cookie = await createSessionForUser(user.id);
 
   const destination = result.place ? '/place/edit' : '/profile';
   const response = NextResponse.redirect(`${base}${destination}`);

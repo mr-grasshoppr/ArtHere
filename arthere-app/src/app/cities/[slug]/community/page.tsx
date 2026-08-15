@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db';
 import { safeStaticParams } from '@/lib/static-params';
-import { getCityScope, artistScopeWhere } from '@/lib/city-scope';
+import { getCityScope } from '@/lib/city-scope';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -44,51 +44,40 @@ export default async function CityCommunityPage({
   if (!scope) notFound();
   const { city, cityDisplayName } = scope;
 
-  const cityArtists = await prisma.artist.findMany({
-    where: artistScopeWhere(scope),
-    orderBy: { name: 'asc' },
+  // A place's own cityId is what puts it in this directory — independent
+  // of whether any artist happens to be connected to it yet (a place with
+  // no artists still needs to show up once it's Live). Connected artists
+  // are included only for display on the card, still scoped to this city.
+  const directoryPlaces = await prisma.place.findMany({
+    where: { inDirectory: true, isArchived: false, cityId: { in: scope.cityIds } },
     include: {
-      placeRelations: {
+      artists: {
+        where: { artist: { isPlaceholder: false, cityId: { in: scope.cityIds } } },
         orderBy: { createdAt: 'asc' },
-        include: { place: true },
+        include: { artist: true },
       },
     },
   });
 
-  // Collect every place connected to one of this city's artists, along with
-  // who's connected to it and how.
-  const placeMap = new Map<string, CommunityPlaceData>();
-
-  for (const artist of cityArtists) {
-    for (const rel of artist.placeRelations) {
-      const { place } = rel;
-
-      // Skip name-only venues (no page) and places that aren't part of the
-      // curated Community directory (closed venues, schools, etc.) — they still
-      // appear as plain-text mentions on the artist's own profile.
-      if (!place || !place.inDirectory || place.isArchived) continue;
-
-      if (!placeMap.has(place.id)) {
-        placeMap.set(place.id, {
-          slug: place.slug,
-          name: place.name,
-          neighborhood: place.neighborhood,
-          description: place.description,
-          website: place.website,
-          // The directory card uses the dedicated thumbnail, falling back to
-          // the hero when none is set.
-          heroImageUrl: place.thumbnailImageUrl ?? place.heroImageUrl,
-          artists: [],
-        });
-      }
-
-      placeMap.get(place.id)!.artists.push({
-        slug: artist.slug,
-        name: artist.name,
-        relationship: rel.relationship,
-      });
-    }
-  }
+  const placeMap = new Map<string, CommunityPlaceData>(
+    directoryPlaces.map(place => [
+      place.id,
+      {
+        slug: place.slug,
+        name: place.name,
+        neighborhood: place.neighborhood,
+        description: place.description,
+        // The directory card uses the dedicated thumbnail, falling back to
+        // the hero when none is set.
+        heroImageUrl: place.thumbnailImageUrl ?? place.heroImageUrl,
+        artists: place.artists.map(rel => ({
+          slug: rel.artist.slug,
+          name: rel.artist.name,
+          relationship: rel.relationship,
+        })),
+      },
+    ])
+  );
 
   const PLACE_ORDER = [
     'multnomah-arts-center',

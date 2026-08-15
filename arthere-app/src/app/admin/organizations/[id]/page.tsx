@@ -6,6 +6,8 @@ import PlaceNotes from "./PlaceNotes";
 import { SendPlaceInviteButton } from "./SendPlaceInviteButton";
 import { getFocalStyles } from "@/lib/image-focus";
 import OrgVisibilityToggle from "../OrgVisibilityToggle";
+import PlaceTeam from "./PlaceTeam";
+import { linkTypeLabel } from "@/lib/artist-options";
 
 export default async function AdminOrgDetailPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdminPage();
@@ -18,10 +20,17 @@ export default async function AdminOrgDetailPage({ params }: { params: Promise<{
       user: { select: { email: true } },
       artists: { include: { artist: { select: { slug: true, name: true } } }, orderBy: { createdAt: "asc" } },
       adminNotes: { where: { placeId: id }, orderBy: { createdAt: "desc" } },
+      members: { select: { userId: true, user: { select: { email: true } } }, orderBy: { createdAt: "asc" } },
+      links: { orderBy: { sortOrder: "asc" } },
     },
   });
 
   if (!place) notFound();
+
+  const team = [
+    ...(place.userId && place.user ? [{ userId: place.userId, email: place.user.email, role: "owner" as const }] : []),
+    ...place.members.map((m) => ({ userId: m.userId, email: m.user.email, role: "member" as const })),
+  ];
 
   // Match the header's 21:9 crop (and its auto-detected/manual focal point)
   // so this thumbnail previews the same framing as the live page.
@@ -96,9 +105,24 @@ export default async function AdminOrgDetailPage({ params }: { params: Promise<{
             <div className="text-sm space-y-1 pt-2 border-t border-[#f0f0f0]">
               <Row label="Owner email" value={place.user?.email} />
               <Row label="Neighborhood" value={place.neighborhood} />
-              <Row label="Website" value={place.website} link />
               <Row label="Directory" value={place.inDirectory ? "Live" : "Hidden"} />
             </div>
+
+            {place.links.length > 0 && (
+              <div className="pt-2 border-t border-[#f0f0f0]">
+                <p className="text-xs text-[#999] mb-2 uppercase tracking-wide">Links</p>
+                <div className="space-y-1">
+                  {place.links.map((l) => (
+                    <div key={l.id} className="text-sm">
+                      <span className="text-[#999] mr-1">{l.label ?? linkTypeLabel(l.type)}:</span>
+                      <a href={l.url} target="_blank" rel="noopener noreferrer" className="text-[#1a1a1a] hover:underline truncate">
+                        {l.url}
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {place.description && (
               <div className="pt-2 border-t border-[#f0f0f0]">
@@ -134,9 +158,10 @@ export default async function AdminOrgDetailPage({ params }: { params: Promise<{
           </div>
         </div>
 
-        {/* Right: notes */}
+        {/* Right: notes + team */}
         <div className="md:col-span-2 space-y-8">
           <PlaceNotes placeId={place.id} initialNotes={place.adminNotes} />
+          <PlaceTeam placeId={place.id} initialTeam={team} />
         </div>
       </div>
     </div>

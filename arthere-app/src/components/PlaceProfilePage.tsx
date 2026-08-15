@@ -1,16 +1,17 @@
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
-import type { Place, ArtistPlace, Artist } from '@prisma/client';
+import type { Place, ArtistPlace, Artist, PlaceLink } from '@prisma/client';
 import { NavBar } from '@/components/NavBar';
 import { CityBottomBar } from '@/components/CityBottomBar';
 import { SiteFooter } from '@/components/SiteFooter';
 import { TechSupportLink } from '@/components/TechSupportLink';
 import { FadeImage } from '@/components/FadeImage';
 import { Lightbox } from '@/components/Lightbox';
-import { RELATIONSHIP_LABELS } from '@/lib/artist-options';
+import { RELATIONSHIP_LABELS, linkTypeLabel } from '@/lib/artist-options';
 
 export type PlaceWithArtists = Place & {
   artists: (ArtistPlace & { artist: Artist })[];
+  links: PlaceLink[];
 };
 
 interface Props {
@@ -39,6 +40,8 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
   const artistHref = (slug: string) =>
     citySlug ? `/cities/${citySlug}/artists/${slug}` : `/artists/${slug}`;
   const communityHref = citySlug ? `/cities/${citySlug}/community` : null;
+  const linkCls =
+    'text-[#999] underline underline-offset-4 decoration-[#ddd] hover:text-[#1a1a1a] hover:decoration-[#aaa] transition-colors';
 
   return (
     <div className="min-h-screen bg-white text-[#1a1a1a] pt-14 pb-14">
@@ -88,8 +91,8 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
         )}
       </div>
 
-      {/* Description + quote + website */}
-      {(place.description || place.quote || place.website) && (
+      {/* Description + quote + links */}
+      {(place.description || place.quote || place.links.length > 0) && (
         <section className="max-w-[980px] mx-auto px-5 sm:px-10 pt-7 pb-10">
           <div className="max-w-[680px] text-[1.05rem] text-[#444] font-light leading-[1.8]">
             {place.quote && (
@@ -101,16 +104,16 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
               </blockquote>
             )}
             {place.description && <p className="mb-[18px]">{place.description}</p>}
-            {place.website && (
+            {place.links.length > 0 && (
               <p className="text-[#999] text-[0.9rem]">
-                <a
-                  href={place.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[#999] underline underline-offset-4 decoration-[#ddd] hover:text-[#1a1a1a] hover:decoration-[#aaa] transition-colors"
-                >
-                  {place.websiteLabel ?? place.website.replace(/^https?:\/\//, '')}
-                </a>
+                {place.links.map((link, i) => (
+                  <span key={link.id}>
+                    {i > 0 && ' · '}
+                    <a href={link.url} target="_blank" rel="noopener noreferrer" className={linkCls}>
+                      {link.label ?? linkTypeLabel(link.type)}
+                    </a>
+                  </span>
+                ))}
               </p>
             )}
           </div>

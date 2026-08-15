@@ -63,7 +63,7 @@ export async function sendMagicLink({
   variant = 'welcome',
 }: SendArtistLinkParams) {
   await prisma.magicLinkToken.updateMany({
-    where: { artistId, used: false },
+    where: { artistId, email, used: false },
     data: { used: true },
   });
 
@@ -116,8 +116,12 @@ export async function sendPlaceMagicLink({
   placeName,
   variant = 'welcome',
 }: SendPlaceLinkParams) {
+  // Scoped to this email, not just this placeId — a place can now have
+  // several editors (see PlaceMember), each with their own pending token.
+  // Minting/resending a link for one shouldn't invalidate someone else's
+  // still-unused invite to the same place.
   await prisma.magicLinkToken.updateMany({
-    where: { placeId, used: false },
+    where: { placeId, email, used: false },
     data: { used: true },
   });
 
@@ -166,7 +170,8 @@ export interface InvitePreview {
 }
 
 async function mintToken(scope: { artistId: string } | { placeId: string }, email: string): Promise<string> {
-  await prisma.magicLinkToken.updateMany({ where: { ...scope, used: false }, data: { used: true } });
+  // Scoped to this email — see the comment in sendPlaceMagicLink.
+  await prisma.magicLinkToken.updateMany({ where: { ...scope, email, used: false }, data: { used: true } });
   const expiresAt = new Date(Date.now() + TOKEN_TTL_HOURS * 60 * 60 * 1000);
   const { token } = await prisma.magicLinkToken.create({
     data: { token: newToken(), email, ...scope, expiresAt },
@@ -273,5 +278,9 @@ export async function verifyMagicLinkToken(token: string) {
     throw new Error('This link has already been used. Request a new one below.');
   }
 
-  return { artist: record.artist, place: record.place };
+  // The token's own email — not necessarily record.artist.user.email /
+  // record.place.user.email, which is the PRIMARY owner. A token minted for
+  // an invited teammate (see addPlaceTeamMember) is sent to a different
+  // address, and callers need to resolve the session to *that* person.
+  return { artist: record.artist, place: record.place, email: record.email };
 }

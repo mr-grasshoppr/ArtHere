@@ -11,6 +11,9 @@ import { focalStyle, type Focal } from "@/lib/focal-style";
 import { parseNeighborhoodList, joinNeighborhoodList } from "@/lib/neighborhoods";
 import type { FramingValue } from "@/components/FramingEditor";
 import { resizeImageForUpload } from "@/lib/client-image-resize";
+import { LINK_TYPE_OPTIONS } from "@/lib/artist-options";
+
+type Link = { type: string; url: string; label?: string };
 
 type Org = {
   id: string;
@@ -19,7 +22,7 @@ type Org = {
   description: string;
   quote: string;
   quoteAttribution: string;
-  website: string;
+  links: Link[];
   email: string;
   heroImageUrl: string | null;
   thumbnailImageUrl: string | null;
@@ -68,7 +71,7 @@ export default function OrgEditor({
   const [description, setDescription] = useState(place.description);
   const [quote, setQuote] = useState(place.quote);
   const [quoteAttribution, setQuoteAttribution] = useState(place.quoteAttribution);
-  const [website, setWebsite] = useState(place.website);
+  const [links, setLinks] = useState<Link[]>(place.links.map((l) => ({ type: l.type, url: l.url, label: l.label ?? "" })));
   const [email, setEmail] = useState(place.email);
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(place.heroImageUrl);
   const [thumbnailImageUrl, setThumbnailImageUrl] = useState<string | null>(place.thumbnailImageUrl);
@@ -130,7 +133,7 @@ export default function OrgEditor({
           description,
           quote,
           quoteAttribution,
-          website,
+          links,
           email,
           heroImageUrl,
           thumbnailImageUrl,
@@ -229,13 +232,62 @@ export default function OrgEditor({
           </div>
         </div>
         <div>
-          <label className={labelCls}>Website</label>
-          <input type="text" value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://" className={inputCls} />
-        </div>
-        <div>
           <label className={labelCls}>About</label>
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={5} className={`${inputCls} resize-y`} />
         </div>
+      </section>
+
+      {/* Links */}
+      <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
+        <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide mb-1">Links</h2>
+        {links.map((link, i) => {
+          const meta = LINK_TYPE_OPTIONS.find((t) => t.value === link.type) ?? LINK_TYPE_OPTIONS[0];
+          return (
+            <div key={i} className="flex flex-col gap-1.5">
+              <div className="flex items-center gap-2">
+                <select
+                  value={link.type}
+                  onChange={(e) => setLinks((prev) => prev.map((l, idx) => (idx === i ? { ...l, type: e.target.value } : l)))}
+                  className={inputCls}
+                >
+                  {LINK_TYPE_OPTIONS.map((t) => (
+                    <option key={t.value} value={t.value}>{t.label}</option>
+                  ))}
+                </select>
+                <input
+                  type="text"
+                  value={link.url}
+                  onChange={(e) => setLinks((prev) => prev.map((l, idx) => (idx === i ? { ...l, url: e.target.value } : l)))}
+                  placeholder={meta.placeholder}
+                  className={`flex-1 ${inputCls}`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setLinks((prev) => prev.filter((_, idx) => idx !== i))}
+                  className="text-[#ccc] hover:text-red-400 text-lg leading-none transition-colors"
+                >
+                  ×
+                </button>
+              </div>
+              {link.type === "OTHER" && (
+                <input
+                  type="text"
+                  value={link.label ?? ""}
+                  onChange={(e) => setLinks((prev) => prev.map((l, idx) => (idx === i ? { ...l, label: e.target.value } : l)))}
+                  placeholder="Label, e.g. Etsy shop"
+                  className={`${inputCls} text-sm`}
+                />
+              )}
+            </div>
+          );
+        })}
+        <button
+          type="button"
+          onClick={() => setLinks((prev) => [...prev, { type: "WEBSITE", url: "" }])}
+          className="text-sm text-[#888] border border-dashed border-[#e5e5e5] px-4 py-2 rounded-lg hover:border-[#999] transition-colors"
+        >
+          + Add link
+        </button>
       </section>
 
       {/* Quote — optional pull quote, e.g. a testimonial */}

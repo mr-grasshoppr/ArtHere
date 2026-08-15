@@ -13,7 +13,10 @@ export default async function AdminOrgEditPage({ params }: { params: Promise<{ i
 
   const place = await prisma.place.findUnique({
     where: { id },
-    include: { user: { select: { email: true } } },
+    include: {
+      user: { select: { email: true } },
+      links: { orderBy: { sortOrder: "asc" } },
+    },
   });
 
   if (!place) notFound();
@@ -42,7 +45,7 @@ export default async function AdminOrgEditPage({ params }: { params: Promise<{ i
           description: place.description ?? "",
           quote: place.quote ?? "",
           quoteAttribution: place.quoteAttribution ?? "",
-          website: place.website ?? "",
+          links: place.links.map((l) => ({ type: l.type, url: l.url, label: l.label ?? "" })),
           email: place.user?.email ?? "",
           heroImageUrl: place.heroImageUrl,
           thumbnailImageUrl: place.thumbnailImageUrl,

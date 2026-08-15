@@ -6,12 +6,13 @@ import Image from 'next/image';
 import { FramingButton } from '@/components/FramingButton';
 import { PhotoGrid } from '@/components/PhotoGrid';
 import { NeighborhoodPicker } from '@/components/NeighborhoodPicker';
+import { PlaceTeamManager } from '@/components/PlaceTeamManager';
 import { focalStyle, type Focal } from '@/lib/focal-style';
 import { parseNeighborhoodList, joinNeighborhoodList } from '@/lib/neighborhoods';
 import type { FramingValue } from '@/components/FramingEditor';
 import { resizeImageForUpload } from '@/lib/client-image-resize';
 import type { PlaceRelationship } from '@prisma/client';
-import { RELATIONSHIP_LABELS } from '@/lib/artist-options';
+import { RELATIONSHIP_LABELS, LINK_TYPE_OPTIONS } from '@/lib/artist-options';
 
 interface Artist {
   connectionId: string;
@@ -27,7 +28,7 @@ interface InitialData {
   description: string;
   quote: string;
   quoteAttribution: string;
-  website: string;
+  links: { type: string; url: string; label?: string }[];
   heroImageUrl: string | null;
   thumbnailImageUrl: string | null;
   galleryImages: string[];
@@ -73,7 +74,13 @@ export default function PlaceEditForm({
   const [description, setDescription] = useState(initialData.description);
   const [quote, setQuote] = useState(initialData.quote);
   const [quoteAttribution, setQuoteAttribution] = useState(initialData.quoteAttribution);
-  const [website, setWebsite] = useState(initialData.website);
+  // Links: 3 fixed rows, each typed via dropdown — mirrors OnboardingForm.
+  // Blank rows (no url) are dropped on save.
+  const [links, setLinks] = useState<{ type: string; url: string; label: string }[]>(() => {
+    const rows = initialData.links.slice(0, 3).map((l) => ({ type: l.type, url: l.url, label: l.label ?? '' }));
+    while (rows.length < 3) rows.push({ type: 'WEBSITE', url: '', label: '' });
+    return rows;
+  });
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(initialData.heroImageUrl);
   const [thumbnailImageUrl, setThumbnailImageUrl] = useState<string | null>(initialData.thumbnailImageUrl);
   const [galleryImages, setGalleryImages] = useState<string[]>(initialData.galleryImages);
@@ -106,7 +113,7 @@ export default function PlaceEditForm({
           description,
           quote,
           quoteAttribution,
-          website,
+          links,
           heroImageUrl: 'heroImageUrl' in overrides ? overrides.heroImageUrl : heroImageUrl,
           thumbnailImageUrl: 'thumbnailImageUrl' in overrides ? overrides.thumbnailImageUrl : thumbnailImageUrl,
           galleryImages: 'galleryImages' in overrides ? overrides.galleryImages : galleryImages,
@@ -125,7 +132,7 @@ export default function PlaceEditForm({
     saveTimer.current = setTimeout(() => persistAll(), 1200);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, neighborhoods, description, quote, quoteAttribution, website]);
+  }, [name, neighborhoods, description, quote, quoteAttribution, JSON.stringify(links)]);
 
   async function handleHeroSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -312,13 +319,41 @@ export default function PlaceEditForm({
             placeholder="Attribution, e.g. Helen Keller"
             className={`${FIELD} mb-6`}
           />
-          <div className={LABEL}>Website</div>
-          <input
-            value={website}
-            onChange={e => setWebsite(e.target.value)}
-            placeholder="https://yoursite.com"
-            className={FIELD}
-          />
+          <div className={LABEL}>Links</div>
+          <div className="flex flex-col gap-2">
+            {links.map((link, i) => {
+              const meta = LINK_TYPE_OPTIONS.find((t) => t.value === link.type) ?? LINK_TYPE_OPTIONS[0];
+              return (
+                <div key={i} className="flex flex-col gap-1.5">
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={link.type}
+                      onChange={(e) => setLinks((prev) => prev.map((l, idx) => (idx === i ? { ...l, type: e.target.value } : l)))}
+                      className="px-3 py-3 rounded-lg border border-[#e8e8e8] text-sm text-[#555] bg-white focus:outline-none focus:border-[#1a1a1a] transition-colors cursor-pointer"
+                    >
+                      {LINK_TYPE_OPTIONS.map((t) => (
+                        <option key={t.value} value={t.value}>{t.label}</option>
+                      ))}
+                    </select>
+                    <input
+                      value={link.url}
+                      onChange={(e) => setLinks((prev) => prev.map((l, idx) => (idx === i ? { ...l, url: e.target.value } : l)))}
+                      placeholder={meta.placeholder}
+                      className={`${FIELD} flex-1`}
+                    />
+                  </div>
+                  {link.type === 'OTHER' && (
+                    <input
+                      value={link.label}
+                      onChange={(e) => setLinks((prev) => prev.map((l, idx) => (idx === i ? { ...l, label: e.target.value } : l)))}
+                      placeholder="Label, e.g. Etsy shop"
+                      className={`${FIELD} text-sm`}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -350,6 +385,11 @@ export default function PlaceEditForm({
           </p>
         </div>
       )}
+
+      {/* Team */}
+      <div className="max-w-[980px] mx-auto px-5 sm:px-10 py-8 border-b border-[#f0f0f0]">
+        <PlaceTeamManager />
+      </div>
 
       {/* Gallery */}
       <div className="max-w-[1200px] mx-auto px-5 py-10">
