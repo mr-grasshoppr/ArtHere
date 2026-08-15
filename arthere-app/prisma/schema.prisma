@@ -528,6 +528,16 @@ model ContactSubmission {
   invitedArtist   Artist? @relation(fields: [invitedArtistId], references: [id], onDelete: SetNull)
 }
 
+// ─── Newsletter ─────────────────────────────────────────────────────────────
+
+// Quick single-field "stay in touch" signups from the homepage — separate
+// from ContactSubmission since there's no name/message, just an email.
+model NewsletterSignup {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  email     String   @unique
+}
+
 // ─── Admin Notes ──────────────────────────────────────────────────────────────
 
 model AdminNote {

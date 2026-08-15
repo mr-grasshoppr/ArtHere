@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { NavBar } from '@/components/NavBar';
 import { UsMap } from '@/components/UsMap';
 import { SiteFooter } from '@/components/SiteFooter';
+import { StayInTouchForm } from '@/components/StayInTouchForm';
 import { AnimatedLogoMask } from '@/components/AnimatedLogoMask';
 import { getLogoSlides } from '@/lib/logo-slides';
 
@@ -183,6 +184,7 @@ export default async function Home() {
                   hello@artishere.org
                 </Link>
               </div>
+              <StayInTouchForm />
             </div>
           </div>
         </section>

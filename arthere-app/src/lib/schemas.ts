@@ -81,6 +81,13 @@ export const contactSchema = z
   })
   .loose();
 
+export const stayInTouchSchema = z
+  .object({
+    email: z.string().min(3).max(254),
+    website: z.string().max(500).nullish(), // honeypot
+  })
+  .loose();
+
 export const surveySchema = z
   .object({
     zipCode: z.string().max(10).nullish(),
