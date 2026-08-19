@@ -57,14 +57,14 @@ export default async function Home() {
             {cities.map(city => {
               const label = city.displayName ?? `${city.name}${city.state ? `, ${city.state}` : ''}`;
               return (
-                <div key={city.slug} className="flex items-center gap-3">
+                <div key={city.slug} className="flex items-center gap-2.5">
                   <Link
                     href={`/cities/${city.slug}`}
-                    className="font-heading text-[1.25rem] sm:text-[1.35rem] font-bold text-[#1a1a1a] hover:opacity-60 transition-opacity"
+                    className="px-4 py-[7px] rounded-full bg-[#1a1a1a] font-heading text-[0.95rem] font-bold text-white whitespace-nowrap hover:opacity-80 transition-opacity"
                   >
                     {label}
                   </Link>
-                  <span className="bg-[#1a1a1a] text-white text-[0.85rem] font-semibold tracking-[0.02em] px-3.5 py-1.5 rounded-full whitespace-nowrap">
+                  <span className="text-[0.7rem] text-[#888] font-light tracking-[0.06em] uppercase">
                     Pilot Launched!
                   </span>
                 </div>
