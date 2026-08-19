@@ -186,7 +186,7 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark' }: Props) 
               </Link>
 
               <Link
-                href="/#contact"
+                href="/#get-in-touch"
                 className={`block px-5 py-[13px] text-[0.9rem] transition-colors ${
                   isLight
                     ? 'text-[#444] hover:bg-[#fafafa] hover:text-[#1a1a1a]'

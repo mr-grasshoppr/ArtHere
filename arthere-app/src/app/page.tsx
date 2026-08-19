@@ -47,31 +47,38 @@ export default async function Home() {
 
       {/* Hero: logo shape with artwork sliding behind it, plus cities list */}
       <section className="min-h-[80vh] sm:min-h-0 flex flex-col items-center justify-center px-5 pt-24 pb-16">
-        <AnimatedLogoMask width="min(60vw, 520px)" slides={logoSlides} focals={logoFocals} />
+        <div style={{ width: 'min(60vw, 520px)' }}>
+          <AnimatedLogoMask width="100%" slides={logoSlides} focals={logoFocals} />
 
-        <div className="mt-9 flex flex-col items-start gap-1">
-          {cities.map(city => {
-            const label = city.displayName ?? `${city.name}${city.state ? `, ${city.state}` : ''}`;
-            return (
-              <div key={city.slug} className="flex items-center gap-3">
-                <Link
-                  href={`/cities/${city.slug}`}
-                  className="font-heading text-[1.25rem] sm:text-[1.35rem] font-bold text-[#1a1a1a] hover:opacity-60 transition-opacity"
-                >
+          <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mt-9 mb-4">
+            Cities
+          </div>
+          <div className="flex flex-col items-start gap-3">
+            {cities.map(city => {
+              const label = city.displayName ?? `${city.name}${city.state ? `, ${city.state}` : ''}`;
+              return (
+                <div key={city.slug} className="flex items-center gap-3">
+                  <Link
+                    href={`/cities/${city.slug}`}
+                    className="font-heading text-[1.25rem] sm:text-[1.35rem] font-bold text-[#1a1a1a] hover:opacity-60 transition-opacity"
+                  >
+                    {label}
+                  </Link>
+                  <span className="bg-[#1a1a1a] text-white text-[0.85rem] font-semibold tracking-[0.02em] px-3.5 py-1.5 rounded-full whitespace-nowrap">
+                    Pilot Launched!
+                  </span>
+                </div>
+              );
+            })}
+            {COMING_SOON_CITY_DATA.map(({ label }) => (
+              <div key={label} className="flex items-center gap-2.5">
+                <span className="px-4 py-[7px] rounded-full border border-[#e5e5e5] font-heading text-[0.95rem] font-bold text-[#bbb] whitespace-nowrap">
                   {label}
-                </Link>
-                <span className="bg-[#1a1a1a] text-white text-[0.85rem] font-semibold tracking-[0.02em] px-3.5 py-1.5 rounded-full whitespace-nowrap">
-                  Pilot Launched!
                 </span>
+                <span className="text-[0.7rem] text-[#bbb] font-light tracking-[0.06em] uppercase">coming soon</span>
               </div>
-            );
-          })}
-          {COMING_SOON_CITY_DATA.map(({ label }) => (
-            <div key={label} className="flex items-baseline gap-2.5">
-              <span className="font-heading text-[1.25rem] sm:text-[1.35rem] font-bold text-[#ccc]">{label}</span>
-              <span className="text-[0.7rem] text-[#bbb] font-light tracking-[0.06em] uppercase">coming soon</span>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
@@ -163,8 +170,8 @@ export default async function Home() {
 
         {/* Contact — black bg to match survey CTA */}
         <section id="contact" className="bg-[#1a1a1a] scroll-mt-[70px]">
-          <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-14 sm:py-24">
-            <h2 className="font-heading text-[clamp(2.2rem,5vw,3.5rem)] font-bold tracking-[-0.02em] text-white mb-10">
+          <div className="max-w-[900px] mx-auto px-6 sm:px-10 pt-14 sm:pt-16 pb-8 sm:pb-10">
+            <h2 className="font-heading text-[clamp(2.2rem,5vw,3.5rem)] font-bold tracking-[-0.02em] text-white mb-6">
               Join Us!
             </h2>
             <div className="flex flex-col gap-4">
@@ -187,8 +194,8 @@ export default async function Home() {
         {/* Follow Us — separate from Join Us since this is about staying
             connected (social + email), not getting involved. */}
         <section className="bg-[#1a1a1a] border-t border-[#333]">
-          <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-14 sm:py-20">
-            <h2 className="font-heading text-[clamp(2.2rem,5vw,3.5rem)] font-bold tracking-[-0.02em] text-white mb-10">
+          <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-8 sm:py-10">
+            <h2 className="font-heading text-[clamp(2.2rem,5vw,3.5rem)] font-bold tracking-[-0.02em] text-white mb-6">
               Follow Us!
             </h2>
             <div className="flex flex-col sm:flex-row sm:items-center gap-8 sm:gap-12">
@@ -207,8 +214,8 @@ export default async function Home() {
         </section>
 
         {/* Get in Touch */}
-        <section className="bg-[#1a1a1a] border-t border-[#333]">
-          <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-14 sm:py-20">
+        <section id="get-in-touch" className="bg-[#1a1a1a] border-t border-[#333] scroll-mt-[70px]">
+          <div className="max-w-[900px] mx-auto px-6 sm:px-10 pt-8 sm:pt-10 pb-14 sm:pb-16">
             <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#666] mb-5">Get in Touch</div>
             <div className="font-heading text-[clamp(1.4rem,3vw,2rem)] font-bold">
               <Link href="/contact" className="text-white no-underline border-b-2 border-white pb-0.5 hover:opacity-50 transition-opacity">
