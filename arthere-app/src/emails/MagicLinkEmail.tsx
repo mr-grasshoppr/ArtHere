@@ -60,7 +60,7 @@ export function MagicLinkEmail({ artistName, link, bodyText }: MagicLinkEmailPro
         and we&rsquo;ll send you a fresh sign-in link.
       </Text>
       <Text style={styles.footnote}>
-        If you didn&rsquo;t fill out the Art Here survey, you can safely ignore this email.
+        If you weren&rsquo;t expecting this invitation, you can safely ignore this email.
       </Text>
     </EmailLayout>
   );
