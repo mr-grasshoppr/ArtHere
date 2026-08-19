@@ -27,6 +27,7 @@ export const MEDIUM_OPTIONS = [
   'New Media',
   'Illustration',
   'Installation',
+  'Printmaking',
 ];
 
 export const OFFERING_OPTIONS = [

@@ -35,12 +35,21 @@ export default async function AdminArtistEditPage({ params }: { params: Promise<
 
   return (
     <div className="max-w-2xl">
-      <Link
-        href={`/admin/artists/${id}`}
-        className="text-sm text-[#999] hover:text-[#1a1a1a] transition-colors mb-6 inline-block"
-      >
-        ← Back to {artist.name}
-      </Link>
+      <div className="flex items-center justify-between mb-6">
+        <Link
+          href={`/admin/artists/${id}`}
+          className="text-sm text-[#999] hover:text-[#1a1a1a] transition-colors"
+        >
+          ← Back to {artist.name}
+        </Link>
+        <Link
+          href={`/artists/${artist.slug}`}
+          target="_blank"
+          className="inline-flex items-center justify-center px-4 py-2 rounded-full border border-[#e0e0e0] text-xs font-medium text-[#444] hover:border-[#1a1a1a] hover:text-[#1a1a1a] transition-colors"
+        >
+          View public profile ↗
+        </Link>
+      </div>
       <h1 className="text-2xl font-medium mb-8">Edit Profile — {artist.name}</h1>
 
       {/* Images */}
