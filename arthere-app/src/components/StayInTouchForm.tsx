@@ -25,7 +25,7 @@ export function StayInTouchForm() {
 
   if (status === 'sent') {
     return (
-      <div className="mt-5">
+      <div>
         <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#666] mb-3">
           Sign up for our email updates
         </div>
@@ -37,7 +37,7 @@ export function StayInTouchForm() {
   }
 
   return (
-    <div className="mt-5">
+    <div>
       <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#666] mb-3">
         Sign up for our email updates
       </div>

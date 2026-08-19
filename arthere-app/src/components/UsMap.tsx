@@ -20,7 +20,7 @@ const CITIES: CityDef[] = [
     lat: 45.52,
     lon: -122.68,
     active: true,
-    tooltip: ['Launched August 2026!', 'Find us at Multnomah Days, August 15!'],
+    tooltip: ['Launched August 2026!'],
   },
   {
     code: 'San Jose',

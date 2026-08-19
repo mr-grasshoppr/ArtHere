@@ -1,0 +1,42 @@
+/* Instagram glyph, masked to the same green/pink gradient photo used behind
+   the hero wordmark (see AnimatedLogoMask.module.css) — mask-image approach
+   here rather than an SVG <pattern> fill, since CSS-animating content nested
+   inside an SVG <pattern> is unreliable across browsers; a plain masked div
+   with an animated repeating background is the same technique the hero
+   wordmark already relies on, just applied to a small icon instead of the
+   wordmark shape. */
+.igMask {
+  overflow: hidden;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='2' y='2' width='20' height='20' rx='5' ry='5' fill='none' stroke='%23000' stroke-width='2'/%3E%3Cpath d='M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z' fill='none' stroke='%23000' stroke-width='2'/%3E%3Ccircle cx='17.5' cy='6.5' r='1.15' fill='%23000'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='2' y='2' width='20' height='20' rx='5' ry='5' fill='none' stroke='%23000' stroke-width='2'/%3E%3Cpath d='M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z' fill='none' stroke='%23000' stroke-width='2'/%3E%3Ccircle cx='17.5' cy='6.5' r='1.15' fill='%23000'/%3E%3C/svg%3E");
+}
+
+/* Source image is 2321x634 (~3.66:1); at this icon's fixed 56px height one
+   tile renders ~205px wide. background-repeat: repeat-x tiles the same
+   image seamlessly, so animating exactly one tile-width of
+   background-position gives a perfect loop with no visible seam/jump. */
+.igGradient {
+  width: 100%;
+  height: 100%;
+  background-image: url('/images/logo-gradient-background.jpg');
+  background-repeat: repeat-x;
+  background-size: auto 100%;
+  animation: igPan 16s linear infinite;
+}
+
+@keyframes igPan {
+  from { background-position-x: 0; }
+  to   { background-position-x: -205px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .igGradient {
+    animation: none;
+  }
+}

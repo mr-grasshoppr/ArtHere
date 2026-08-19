@@ -5,6 +5,7 @@ import { NavBar } from '@/components/NavBar';
 import { UsMap } from '@/components/UsMap';
 import { SiteFooter } from '@/components/SiteFooter';
 import { StayInTouchForm } from '@/components/StayInTouchForm';
+import { InstagramIcon } from '@/components/InstagramIcon';
 import { AnimatedLogoMask } from '@/components/AnimatedLogoMask';
 import { getLogoSlides } from '@/lib/logo-slides';
 
@@ -187,6 +188,27 @@ export default async function Home() {
                   hello@artishere.org
                 </Link>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Follow Us — separate from Join Us since this is about staying
+            connected (social + email), not getting involved. */}
+        <section className="bg-[#1a1a1a] border-t border-[#333]">
+          <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-14 sm:py-20">
+            <h2 className="font-heading text-[clamp(2.2rem,5vw,3.5rem)] font-bold tracking-[-0.02em] text-white mb-10">
+              Follow Us!
+            </h2>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-8 sm:gap-12">
+              <a
+                href="https://www.instagram.com/arthereproject"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Art Here on Instagram"
+                className="shrink-0 hover:opacity-80 transition-opacity"
+              >
+                <InstagramIcon />
+              </a>
               <StayInTouchForm />
             </div>
           </div>
