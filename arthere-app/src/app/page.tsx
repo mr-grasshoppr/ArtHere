@@ -124,11 +124,11 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* What's coming */}
+        {/* How it works */}
         <section className="border-t border-[#f0f0f0] bg-[#f7f6f3]">
           <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-14 sm:py-[72px]">
             <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-10">
-              What&rsquo;s coming
+              How it works
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               {[
@@ -177,7 +177,7 @@ export default async function Home() {
               </div>
               <div className="flex items-baseline gap-4">
                 <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#555] w-36 shrink-0">Cities &amp; Neighborhoods</span>
-                <Link href="/contact?type=bring" className="text-[0.9rem] text-white underline underline-offset-[3px] decoration-[#555] hover:opacity-60 transition-opacity">Bring Art Here →</Link>
+                <Link href="/contact?type=bring" className="text-[0.9rem] text-white underline underline-offset-[3px] decoration-[#555] hover:opacity-60 transition-opacity">Invite Art Here →</Link>
               </div>
             </div>
             <div className="border-t border-[#333] pt-8">
