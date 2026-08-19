@@ -29,7 +29,7 @@ export const MAGIC_LINK_DEFAULT_BODY_TEXT =
 // than an individual artist — kept separate so the two never drift onto
 // each other's copy again (see lib/magic-link.ts createPlaceInvitePreview).
 export const PLACE_MAGIC_LINK_DEFAULT_BODY_TEXT =
-  "Thanks for expressing interest in joining Art Here as a featured community space! We're excited to have you.\n\nClick the button below to set up your page. After we launch, your page will appear in our Community directory alongside other Portland-area galleries, studios, and creative spaces.";
+  "Thanks for expressing interest in joining Art Here as a featured community space! We're excited to have you.\n\nClick the button below to edit your page. After you submit, your page will appear in our arts community directory alongside other organizations and places that support local artists.";
 
 const DEFAULT_BODY_TEXT = MAGIC_LINK_DEFAULT_BODY_TEXT;
 
