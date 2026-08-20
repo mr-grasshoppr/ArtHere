@@ -157,8 +157,8 @@ export default async function Home() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               {[
-                { img: '/images/artist-directory.jpg',  alt: 'Artist Directory',  title: 'Artist Directory',  body: 'Discover local artists, artwork that you love, and the galleries and organizations that support them.', href: pilotCitySlug ? `/cities/${pilotCitySlug}` : undefined },
-                { img: '/images/Community_voices.png',  alt: 'Community Voices',  title: 'Community Voices',  body: 'With our partners, we’re conducting interviews and surveys to help the community better understand how to support the arts. Stay tuned for stories and insights.' },
+                { img: '/images/artist_directory_Aug20.png',  alt: 'Artist Directory',  title: 'Artist Directory',  body: 'Discover local artists, artwork that you love, and the galleries and organizations that support them.', href: pilotCitySlug ? `/cities/${pilotCitySlug}` : undefined },
+                { img: '/images/community_voices_aug20.png',  alt: 'Community Voices',  title: 'Community Voices',  body: 'With our partners, we’re conducting interviews and surveys to help the community better understand how to support the arts. Stay tuned for stories and insights.' },
                 { img: '/images/Art_Here_Network.png',  alt: 'Art Here Network',  title: 'Art Here Network', body: 'A visualization of the places and organizations that support artists in your area.', href: pilotCitySlug ? `/cities/${pilotCitySlug}/network` : undefined },
               ].map(({ img, alt, title, body, href }) => {
                 const card = (

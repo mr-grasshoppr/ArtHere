@@ -31,14 +31,43 @@ describe("buildSpacedSequence", () => {
     }
   });
 
-  it("never duplicates or pads when repeats is 1 (a filtered result)", () => {
-    // A filtered view must show each matching piece exactly once — even if
-    // that leaves a short trailing row, padding it out would duplicate a
-    // piece the user just filtered for, which is worse than a ragged row.
+  it("shows every piece at least once when repeats is 1 (a filtered result)", () => {
+    // Filtered views used to be left ragged on purpose, to avoid repeating a
+    // piece the user had just filtered for. That was reversed deliberately:
+    // a flush bottom edge is wanted even at the cost of duplicates.
     for (let n = 1; n <= 9; n++) {
       const result = buildSpacedSequence(items(n), { cols: 4, repeats: 1, minRowGap: 5 });
-      expect(result.length).toBe(n);
       expect(new Set(result).size).toBe(n);
+      expect(result.length).toBeGreaterThanOrEqual(n);
+    }
+  });
+
+  it("leaves no gaps in the final row, with or without tall cells", () => {
+    const cols = 4;
+    for (const repeats of [1, 3]) {
+      for (const n of [3, 5, 7, 11]) {
+        // Every third piece is a 2-row "tall" cell, as heroes render.
+        const withSpans = items(n).map((it, i) => ({ ...it, span: i % 3 === 0 ? 2 : 1 }));
+        const result = buildSpacedSequence(withSpans, { cols, repeats, minRowGap: 5 });
+        // Re-simulate dense placement to confirm the bottom edge is flush.
+        const spanFor = new Map(withSpans.map(it => [it.payload, it.span ?? 1]));
+        const rows: boolean[][] = [];
+        const ensure = (r: number) => { while (rows.length <= r) rows.push(new Array(cols).fill(false)); };
+        for (const payload of result) {
+          const span = spanFor.get(payload) ?? 1;
+          outer: for (let r = 0; ; r++) {
+            ensure(r + span - 1);
+            for (let c = 0; c < cols; c++) {
+              if (Array.from({ length: span }, (_, k) => rows[r + k][c]).every(v => !v)) {
+                for (let k = 0; k < span; k++) rows[r + k][c] = true;
+                break outer;
+              }
+            }
+          }
+        }
+        const occupied = rows.filter(r => r.some(Boolean));
+        for (const row of occupied) expect(row.every(Boolean)).toBe(true);
+      }
     }
   });
 

@@ -38,6 +38,9 @@ function buildSequence(artists: ArtistGridData[], cols: number): SequenceItem[] 
       // Spacing is per-artist, not per-image, so two different pieces by the
       // same artist can't land in the same row either.
       key: artist.url,
+      // Hero images render as tall (2-row) cells; the planner needs the span
+      // so its spacing is measured against real placement.
+      span: img.isHero ? 2 : 1,
       payload: { src: img.src, focal: img.focal, tall: img.isHero, url: artist.url, name: artist.name },
     }))
   );
@@ -154,16 +157,10 @@ export function CityGrid({ artists, overlayImageUrl, maskImageUrl }: Props) {
     return { dist: `-${dist}px`, dur: `${totalRows * 5}s` };
   }, [layout]);
 
-  // Tall flags with the "no two consecutive tall cells" rule applied.
-  const cells = useMemo(() => {
-    if (!layout) return [];
-    let lastWasTall = false;
-    return layout.sequence.slice(1).map(item => {
-      const useTall = item.tall && !lastWasTall;
-      lastWasTall = useTall;
-      return { ...item, tall: useTall };
-    });
-  }, [layout]);
+  // Tall flags are left exactly as planned: the sequence builder simulates
+  // grid placement using these spans, so demoting one here would shift every
+  // following tile off the rows its spacing was calculated against.
+  const cells = useMemo(() => (layout ? layout.sequence.slice(1) : []), [layout]);
 
   if (!layout || layout.sequence.length === 0) {
     return (

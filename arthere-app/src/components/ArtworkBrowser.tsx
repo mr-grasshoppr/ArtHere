@@ -45,24 +45,28 @@ interface SequenceItem {
 
 type DropdownKey = 'medium' | 'neighborhood' | 'community';
 
-// Every image repeats this many times across the grid, never in the same
-// row and never within this many rows of its own last appearance. Planned
-// against 4 cols (the wider of the two responsive breakpoints, sm:grid-cols-4
-// vs the 3-col mobile default) so the position-based spacing still holds up
-// at 5+ true rows apart even when the narrower breakpoint is active.
+// Every image repeats this many times across the grid, spaced so no two
+// pieces by the same artist share a row or land within this many rows of
+// each other.
 const REPEATS = 3;
 const MIN_ROW_GAP = 5;
-const PLANNING_COLS = 4;
+
+/** Matches the grid's own breakpoint: grid-cols-3, sm:grid-cols-4. */
+function currentCols(): number {
+  return typeof window !== 'undefined' && window.innerWidth < 640 ? 3 : 4;
+}
 
 /**
  * Lay out every image from every artist, each repeated `repeats` times and
- * spaced so no two copies of the same image share a row or land within
- * MIN_ROW_GAP rows of each other. Avoids placing two "tall" (2-row) cells
- * back to back. Callers pass repeats: 1 when a filter is active, so a
- * filtered result shows each matching piece exactly once instead of the
- * unfiltered feed's 3x repeats.
+ * spaced so no two pieces by the same artist share a row or land within
+ * MIN_ROW_GAP rows of each other. Hero images render as tall (2-row) cells,
+ * and their spans are handed to the planner so its spacing is measured
+ * against real placement rather than a flat index/cols estimate.
+ *
+ * Callers pass repeats: 1 when a filter is active, so a filtered result
+ * shows each matching piece once before any tail padding.
  */
-function buildSequence(artists: ArtworkArtistData[], repeats: number): SequenceItem[] {
+function buildSequence(artists: ArtworkArtistData[], repeats: number, cols: number): SequenceItem[] {
   const items: RepeatItem<SequenceItem>[] = artists
     .filter(a => a.images.length > 0)
     .flatMap(a =>
@@ -70,18 +74,12 @@ function buildSequence(artists: ArtworkArtistData[], repeats: number): SequenceI
         // Spacing is per-artist, not per-image, so two different pieces by
         // the same artist can't land in the same row either.
         key: a.slug,
+        span: img.isHero ? 2 : 1,
         payload: { src: img.src, focal: img.focal, alt: img.alt, tall: img.isHero, url: `/artists/${a.slug}` },
       }))
     );
 
-  const raw = buildSpacedSequence(items, { cols: PLANNING_COLS, repeats, minRowGap: MIN_ROW_GAP });
-
-  let lastWasTall = false;
-  return raw.map(item => {
-    const useTall = item.tall && !lastWasTall;
-    lastWasTall = useTall;
-    return { ...item, tall: useTall };
-  });
+  return buildSpacedSequence(items, { cols, repeats, minRowGap: MIN_ROW_GAP });
 }
 
 /**
@@ -128,8 +126,22 @@ export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, co
   // (not useMemo) so the randomized order can't cause a server/client
   // hydration mismatch — the first paint is intentionally empty.
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setSequence(buildSequence(filtered, hasFilter ? 1 : REPEATS));
+    // Plan against the column count actually in effect — the grid is
+    // 3 columns below the sm breakpoint and 4 above it, and planning for the
+    // wrong one throws every row boundary off.
+    const rebuild = () =>
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSequence(buildSequence(filtered, hasFilter ? 1 : REPEATS, currentCols()));
+    rebuild();
+    let lastCols = currentCols();
+    const onResize = () => {
+      if (currentCols() !== lastCols) {
+        lastCols = currentCols();
+        rebuild();
+      }
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mediumFilter, neighborhoodFilter, communityFilter, artists]);
 
