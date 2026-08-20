@@ -1,0 +1,42 @@
+.revealOnHover {
+  transition: opacity 260ms ease, transform 260ms ease;
+}
+
+/* Pointer devices: reveal on hover (or keyboard focus). */
+@media (hover: hover) {
+  .revealOnHover {
+    opacity: 0;
+    transform: translateX(-8px);
+    pointer-events: none;
+  }
+
+  .band:hover .revealOnHover,
+  .revealOnHover:focus-visible {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+}
+
+/* Touch devices have no hover, so the button instead fades in while the
+   band is scrolled into view and fades back out once it leaves. */
+@media (hover: none) {
+  .revealOnHover {
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+  }
+
+  .band[data-inview='true'] .revealOnHover {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .revealOnHover {
+    transition: opacity 260ms ease;
+    transform: none;
+  }
+}

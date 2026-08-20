@@ -9,8 +9,8 @@ import { InstagramIcon } from '@/components/InstagramIcon';
 import { InstagramPostsRow, type InstagramPost } from '@/components/InstagramPostsRow';
 import { AnimatedLogoMask } from '@/components/AnimatedLogoMask';
 import { getLogoSlides } from '@/lib/logo-slides';
+import { StatementBand } from '@/components/StatementBand';
 import gradientStyles from './AnimatedGradient.module.css';
-import bandStyles from './StatementBand.module.css';
 
 export const dynamic = 'force-dynamic';
 
@@ -59,14 +59,18 @@ export default async function Home() {
           </div>
         )}
 
-        <h1 className="font-display text-[1.15rem] sm:text-[1.4rem] tracking-[0.06em] text-[#1a1a1a] mt-9 mb-6">
-          Art Here puts local artists on the map
-        </h1>
+        {/* Sized in cqw against a wrapper matching the logo's own width, so
+            the tagline always spans exactly the mark above it. */}
+        <div className="[container-type:inline-size] mt-1 mb-7" style={{ width: 'min(60vw, 520px)' }}>
+          <h1 className="font-display text-[6.5cqw] tracking-[0.06em] leading-[1.1] text-[#1a1a1a] whitespace-nowrap">
+            Art Here puts local artists on the map
+          </h1>
+        </div>
 
         {pilotCityHref && (
           <Link
             href={pilotCityHref}
-            className={`${gradientStyles.gradientPan} inline-block px-7 py-2.5 rounded-full font-display text-white text-[1rem] sm:text-[1.15rem] tracking-[0.05em] whitespace-nowrap hover:opacity-90 transition-opacity`}
+            className={`${gradientStyles.gradientPan} ${gradientStyles.launchPill} inline-block px-7 py-2.5 rounded-full font-display text-white text-[1rem] sm:text-[1.15rem] tracking-[0.05em] whitespace-nowrap`}
             style={{ textShadow: '0 1px 3px rgba(0,0,0,0.35)' }}
           >
             Art Here just launched in {pilotCityLabel}!
@@ -100,24 +104,11 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Statement band — hovering it reveals a link through to the pilot
-            city. The animated gradient also breaks up what would otherwise
-            be a long run of black sections further down. */}
-        <section className={`${gradientStyles.gradientPan} ${bandStyles.band}`}>
-          <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-12 sm:py-16 flex flex-col sm:flex-row sm:items-center gap-6 sm:gap-10">
-            <h2 className="font-display text-[clamp(1.35rem,3vw,2rem)] tracking-[0.04em] leading-[1.2] text-[#1a1a1a] max-w-[600px]">
-              What if we could understand a place by the art that is created there?
-            </h2>
-            {pilotCityHref && (
-              <Link
-                href={pilotCityHref}
-                className={`${bandStyles.revealOnHover} shrink-0 self-start sm:self-auto inline-block px-6 py-2.5 rounded-full bg-[#1a1a1a] font-display text-white text-[1rem] sm:text-[1.1rem] tracking-[0.05em] whitespace-nowrap hover:opacity-85`}
-              >
-                See art in {pilotCityLabel}!
-              </Link>
-            )}
-          </div>
-        </section>
+        {/* Statement band — reveals a link through to the pilot city on
+            hover (pointer) or on scroll-into-view (touch). The animated
+            gradient also breaks up what would otherwise be a long run of
+            black sections further down. */}
+        <StatementBand cityHref={pilotCityHref} cityLabel={pilotCityLabel} />
 
         {/* How it works */}
         <section className="bg-[#f7f6f3]">

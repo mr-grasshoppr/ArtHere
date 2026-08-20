@@ -22,3 +22,15 @@
     animation: none;
   }
 }
+
+/* Launch pill: on hover the panning gradient is replaced by solid brand
+   pink, so the rollover reads clearly instead of being a subtle fade. */
+.launchPill {
+  transition: background-color 180ms ease;
+}
+
+.launchPill:hover {
+  background-image: none;
+  background-color: #f062a4;
+  animation: none;
+}
