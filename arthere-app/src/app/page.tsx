@@ -9,6 +9,7 @@ import { InstagramIcon } from '@/components/InstagramIcon';
 import { AnimatedLogoMask } from '@/components/AnimatedLogoMask';
 import { getLogoSlides } from '@/lib/logo-slides';
 import gradientStyles from './AnimatedGradient.module.css';
+import bandStyles from './StatementBand.module.css';
 
 export const dynamic = 'force-dynamic';
 
@@ -91,16 +92,24 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Survey CTA — the whole gradient band is the link (no separate
-            button), and the animated gradient breaks up what would
-            otherwise be a long run of black sections further down. */}
-        <a href="/survey?src=homepage_button" className={`${gradientStyles.gradientPan} block group`}>
-          <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-12 sm:py-16">
-            <h2 className="font-heading text-[clamp(1rem,2.3vw,1.4rem)] font-bold uppercase tracking-[0.03em] leading-[1.55] text-[#1a1a1a] max-w-[600px] group-hover:opacity-65 transition-opacity">
+        {/* Statement band — hovering it reveals a link through to the pilot
+            city. The animated gradient also breaks up what would otherwise
+            be a long run of black sections further down. */}
+        <section className={`${gradientStyles.gradientPan} ${bandStyles.band}`}>
+          <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-12 sm:py-16 flex flex-col sm:flex-row sm:items-center gap-6 sm:gap-10">
+            <h2 className="font-display text-[clamp(1.35rem,3vw,2rem)] tracking-[0.04em] leading-[1.2] text-[#1a1a1a] max-w-[600px]">
               What if we could understand a place by the art that is created there?
             </h2>
+            {pilotCityHref && (
+              <Link
+                href={pilotCityHref}
+                className={`${bandStyles.revealOnHover} shrink-0 self-start sm:self-auto inline-block px-6 py-2.5 rounded-full bg-[#1a1a1a] font-display text-white text-[1rem] sm:text-[1.1rem] tracking-[0.05em] whitespace-nowrap hover:opacity-85`}
+              >
+                See art in {pilotCityLabel}!
+              </Link>
+            )}
           </div>
-        </a>
+        </section>
 
         {/* How it works */}
         <section className="bg-[#f7f6f3]">
