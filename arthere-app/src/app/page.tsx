@@ -118,7 +118,7 @@ export default async function Home() {
                 <p>
                   Art Here celebrates and highlights local artists. We partner with local organizations
                   to host artist celebrations, capture artist stories, and build a living directory of
-                  artists and the institutions that support them.
+                  artists and the places that support them.
                 </p>
                 <p>
                   Great neighborhoods are shaped by the artists who live in them. Art Here helps
