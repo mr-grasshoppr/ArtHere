@@ -7,7 +7,9 @@ import { SiteFooter } from '@/components/SiteFooter';
 import { StayInTouchForm } from '@/components/StayInTouchForm';
 import { InstagramIcon } from '@/components/InstagramIcon';
 import { AnimatedLogoMask } from '@/components/AnimatedLogoMask';
+import { CityCycleLabel } from '@/components/CityCycleLabel';
 import { getLogoSlides } from '@/lib/logo-slides';
+import gradientStyles from './AnimatedGradient.module.css';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,80 +42,60 @@ export default async function Home() {
   const cities = allCities.filter(c => !c.slug.endsWith('-demo'));
   const { slides: logoSlides, focals: logoFocals } = await getLogoSlides();
   const pilotCitySlug = cities[0]?.slug;
+  const pilotCityHref = pilotCitySlug ? `/cities/${pilotCitySlug}` : null;
+
+  const cycleCities = [
+    ...cities.map(c => ({ label: c.displayName ?? `${c.name}${c.state ? `, ${c.state}` : ''}`, active: true })),
+    ...COMING_SOON_CITY_DATA.map(c => ({ label: c.label, active: false })),
+  ];
 
   return (
     <div className="min-h-screen bg-white text-[#1a1a1a]">
       <NavBar theme="light" />
 
-      {/* Hero: logo shape with artwork sliding behind it, plus cities list */}
-      <section className="min-h-[80vh] sm:min-h-0 flex flex-col items-center justify-center px-5 pt-24 pb-16">
-        <div style={{ width: 'min(60vw, 520px)' }}>
-          <AnimatedLogoMask width="100%" slides={logoSlides} focals={logoFocals} />
+      {/* Hero: logo shape (clickable through to the pilot city) with artwork
+          sliding behind it and a cycling city-name label overlaid, plus the
+          tagline and "just launched" gradient pill underneath. */}
+      <section className="min-h-[80vh] sm:min-h-0 flex flex-col items-center justify-center text-center px-5 pt-24 pb-16">
+        {pilotCityHref ? (
+          <Link
+            href={pilotCityHref}
+            className="relative block [container-type:inline-size] hover:opacity-90 transition-opacity"
+            style={{ width: 'min(60vw, 520px)' }}
+          >
+            <AnimatedLogoMask width="100%" slides={logoSlides} focals={logoFocals} />
+            <CityCycleLabel cities={cycleCities} />
+          </Link>
+        ) : (
+          <div className="relative [container-type:inline-size]" style={{ width: 'min(60vw, 520px)' }}>
+            <AnimatedLogoMask width="100%" slides={logoSlides} focals={logoFocals} />
+            <CityCycleLabel cities={cycleCities} />
+          </div>
+        )}
 
-          <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mt-9 mb-4">
-            Cities
-          </div>
-          <div className="flex flex-col items-start gap-3">
-            {cities.map(city => {
-              const label = city.displayName ?? `${city.name}${city.state ? `, ${city.state}` : ''}`;
-              return (
-                <div key={city.slug} className="flex items-center gap-2.5">
-                  <Link
-                    href={`/cities/${city.slug}`}
-                    className="px-4 py-[7px] rounded-full bg-[#1a1a1a] font-heading text-[0.95rem] font-bold text-white whitespace-nowrap hover:opacity-80 transition-opacity"
-                  >
-                    {label}
-                  </Link>
-                  <span className="text-[0.7rem] text-[#888] font-light tracking-[0.06em] uppercase">
-                    Pilot Launched!
-                  </span>
-                </div>
-              );
-            })}
-            {COMING_SOON_CITY_DATA.map(({ label }) => (
-              <div key={label} className="flex items-center gap-2.5">
-                <span className="px-4 py-[7px] rounded-full border border-[#e5e5e5] font-heading text-[0.95rem] font-bold text-[#bbb] whitespace-nowrap">
-                  {label}
-                </span>
-                <span className="text-[0.7rem] text-[#bbb] font-light tracking-[0.06em] uppercase">coming soon</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <h1 className="font-heading text-[0.85rem] sm:text-[0.95rem] font-bold tracking-[0.08em] uppercase text-[#1a1a1a] mt-8 mb-6 max-w-[380px]">
+          Art Here puts local artists on the map.
+        </h1>
+
+        {pilotCityHref && (
+          <Link
+            href={pilotCityHref}
+            className={`${gradientStyles.gradientPan} inline-block px-6 py-3 rounded-full text-white text-[0.9rem] font-semibold tracking-[0.01em] whitespace-nowrap hover:opacity-90 transition-opacity`}
+            style={{ textShadow: '0 1px 3px rgba(0,0,0,0.35)' }}
+          >
+            Art Here, Portland &mdash; Just Launched!
+          </Link>
+        )}
       </section>
 
       {/* Below the fold: redesigned to match the main-site landing page */}
       <div className="border-t border-[#f0f0f0]">
-
-        {/* Survey CTA */}
-        <section className="bg-[#1a1a1a] text-white">
-          <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-14 sm:py-20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-8">
-            <div className="max-w-[480px]">
-              <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#888] mb-4">Portland, 2026</div>
-              <h2 className="font-heading text-[clamp(1.5rem,3vw,2rem)] font-bold tracking-[-0.02em] leading-[1.2] mb-4">
-                Help support the arts &mdash; take our community survey.
-              </h2>
-              <p className="text-[0.95rem] text-[#aaa] font-light leading-[1.75]">
-                Tell us about your experiences with the arts in Portland. It takes just a few minutes and you&rsquo;ll have the chance to win a $25 gift card while benefitting local artists.
-              </p>
-            </div>
-            <a
-              href="/survey?src=homepage_button"
-              className="shrink-0 inline-block px-7 py-3.5 rounded-full border border-white text-[0.9rem] font-medium text-white hover:bg-white hover:text-[#1a1a1a] transition-colors whitespace-nowrap"
-            >
-              Take the survey →
-            </a>
-          </div>
-        </section>
 
         {/* About + Map side by side */}
         <section id="about" className="border-t border-[#f0f0f0] scroll-mt-[70px]">
           <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-16 sm:py-24 flex flex-col sm:flex-row gap-12 sm:gap-16 items-center">
             <div className="flex-1 min-w-0">
               <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-6">About</div>
-              <h2 className="font-heading text-[clamp(1.7rem,3.5vw,2.4rem)] font-bold tracking-[-0.02em] leading-[1.2] mb-7">
-                Art Here puts local artists on the map.
-              </h2>
               <div className="text-[1.05rem] text-[#555] font-light leading-[1.85] [&>p]:mb-[18px]">
                 <p>
                   Art Here celebrates and highlights local artists. We partner with local organizations
@@ -129,6 +111,26 @@ export default async function Home() {
             <div className="w-full sm:w-[340px] shrink-0">
               <UsMap />
             </div>
+          </div>
+        </section>
+
+        {/* Survey CTA — animated gradient band instead of solid black, so it
+            doesn't stack up with the other black sections lower on the page. */}
+        <section className={`${gradientStyles.gradientPan} text-white`}>
+          <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-14 sm:py-16 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-8">
+            <h2
+              className="font-heading text-[clamp(1.3rem,3.2vw,1.9rem)] font-bold tracking-[-0.01em] leading-[1.3] max-w-[520px]"
+              style={{ textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}
+            >
+              What if we could understand a place by the art that is created there?
+            </h2>
+            <a
+              href="/survey?src=homepage_button"
+              className="shrink-0 inline-block px-7 py-3.5 rounded-full border border-white text-[0.9rem] font-medium text-white hover:bg-white hover:text-[#1a1a1a] transition-colors whitespace-nowrap"
+              style={{ textShadow: '0 1px 3px rgba(0,0,0,0.3)' }}
+            >
+              Take the survey →
+            </a>
           </div>
         </section>
 
@@ -168,8 +170,44 @@ export default async function Home() {
           </div>
         </section>
 
+        {/* Follow Us — separate from Join Us since this is about staying
+            connected (social + email), not getting involved. First of the
+            black sections, so no top border needed here. */}
+        <section className="bg-[#1a1a1a]">
+          <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-14 sm:py-16">
+            <h2 className="font-heading text-[clamp(2.2rem,5vw,3.5rem)] font-bold tracking-[-0.02em] text-white mb-6">
+              Follow Us!
+            </h2>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-8 sm:gap-12">
+              <a
+                href="https://www.instagram.com/arthereproject"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Art Here on Instagram"
+                className="shrink-0 hover:opacity-80 transition-opacity"
+              >
+                <InstagramIcon />
+              </a>
+              <StayInTouchForm />
+            </div>
+
+            {/* Placeholder tiles — will become live Instagram post thumbnails. */}
+            <div className="grid grid-cols-3 gap-3 mt-10 max-w-[420px]">
+              {[0, 1, 2].map(i => (
+                <div key={i} className="aspect-square rounded-lg bg-[#242424] border border-[#333] flex items-center justify-center">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#555" strokeWidth="1.5" aria-hidden="true">
+                    <rect x="3" y="5" width="18" height="14" rx="2" />
+                    <circle cx="9" cy="11" r="2" />
+                    <path d="M21 16l-5-4-4 3-3-2-6 5" />
+                  </svg>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Contact — black bg to match survey CTA */}
-        <section id="contact" className="bg-[#1a1a1a] scroll-mt-[70px]">
+        <section id="contact" className="bg-[#1a1a1a] border-t border-[#333] scroll-mt-[70px]">
           <div className="max-w-[900px] mx-auto px-6 sm:px-10 pt-14 sm:pt-16 pb-8 sm:pb-10">
             <h2 className="font-heading text-[clamp(2.2rem,5vw,3.5rem)] font-bold tracking-[-0.02em] text-white mb-6">
               Join Us!
@@ -187,28 +225,6 @@ export default async function Home() {
                 <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#555] w-36 shrink-0">Cities &amp; Neighborhoods</span>
                 <Link href="/contact?type=bring" className="text-[0.9rem] text-white underline underline-offset-[3px] decoration-[#555] hover:opacity-60 transition-opacity">Invite Art Here →</Link>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Follow Us — separate from Join Us since this is about staying
-            connected (social + email), not getting involved. */}
-        <section className="bg-[#1a1a1a] border-t border-[#333]">
-          <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-8 sm:py-10">
-            <h2 className="font-heading text-[clamp(2.2rem,5vw,3.5rem)] font-bold tracking-[-0.02em] text-white mb-6">
-              Follow Us!
-            </h2>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-8 sm:gap-12">
-              <a
-                href="https://www.instagram.com/arthereproject"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Art Here on Instagram"
-                className="shrink-0 hover:opacity-80 transition-opacity"
-              >
-                <InstagramIcon />
-              </a>
-              <StayInTouchForm />
             </div>
           </div>
         </section>
