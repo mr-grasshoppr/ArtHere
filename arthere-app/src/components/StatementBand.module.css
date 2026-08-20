@@ -1,3 +1,45 @@
+.band {
+  position: relative;
+  overflow: hidden;
+  /* Shows through before the artwork decodes. */
+  background-color: #1a9b6f;
+}
+
+/* Animated gradient wash.
+ *
+ * The artwork is blown up so each tile spans four times the band's width —
+ * the band therefore reveals only about a quarter of the image at a time,
+ * which reads as a soft continuous gradient rather than whole pink blooms
+ * drifting past.
+ *
+ * The layer is two tiles wide (800% = 2 x 400%) and translates by exactly
+ * -50%, i.e. one whole tile, so the loop is seamless at any viewport size
+ * without a hardcoded pixel offset that would only match one screen. */
+.band::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 800%;
+  background-image: url('/images/arthere_logo_green_pink_background_for_animated_logo.png');
+  background-repeat: repeat-x;
+  background-size: 50% 100%;
+  animation: bandPan 90s linear infinite;
+  z-index: 0;
+}
+
+/* Keep the headline and CTA above the wash. */
+.band > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes bandPan {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
 .revealOnHover {
   transition: opacity 260ms ease, transform 260ms ease;
 }
@@ -35,6 +77,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .band::before {
+    animation: none;
+  }
+
   .revealOnHover {
     transition: opacity 260ms ease;
     transform: none;

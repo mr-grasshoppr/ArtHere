@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import gradientStyles from '@/app/AnimatedGradient.module.css';
 import styles from './StatementBand.module.css';
 
 interface Props {
@@ -41,7 +40,7 @@ export function StatementBand({ cityHref, cityLabel }: Props) {
     <section
       ref={bandRef}
       data-inview={inView}
-      className={`${gradientStyles.gradientPan} ${styles.band}`}
+      className={styles.band}
     >
       <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-12 sm:py-16 flex flex-col sm:flex-row sm:items-center gap-6 sm:gap-10">
         <h2 className="font-display text-[clamp(1.35rem,3vw,2rem)] tracking-[0.04em] leading-[1.2] text-[#1a1a1a] text-balance">

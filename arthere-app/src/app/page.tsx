@@ -19,12 +19,34 @@ export const metadata: Metadata = {
   description: 'Art Here puts local artists on the map.',
 };
 
-// Recent @arthereproject posts for the homepage row. Empty for now, which
-// makes the whole row render nothing — deliberately, so the page never ships
-// empty placeholder tiles. To turn it on, either drop the images under
-// public/images and list them here, or swap this constant for a fetch once
-// there's an Instagram access token (Meta Graph API) or third-party feed key.
-const INSTAGRAM_POSTS: InstagramPost[] = [];
+const INSTAGRAM_URL = 'https://www.instagram.com/arthereproject';
+
+// Curated @arthereproject posts. Hand-maintained for now — swap this for a
+// fetch once there's an Instagram access token (Meta Graph API) or a
+// third-party feed key, and give each entry its own `permalink` at that
+// point so tiles deep-link to the post instead of the profile.
+const INSTAGRAM_POSTS: InstagramPost[] = [
+  {
+    imageUrl: '/images/arthere_IG4.png',
+    alt: 'Two young children drawing at an Art Here booth, beside wooden panels displaying circular artwork.',
+  },
+  {
+    imageUrl: '/images/arthere_IG5.png',
+    alt: 'A person smiling beside a wooden display panel showing circular artwork by David Trowbridge of ComeUnity PDX.',
+  },
+  {
+    imageUrl: '/images/arthere_IG3.png',
+    alt: '“Join us to tell your Portland art story!” over a watercolour map illustration.',
+  },
+  {
+    imageUrl: '/images/arthere_IG2.png',
+    alt: 'Art Here Portland poster inviting people to take the community survey for a chance to win a $25 gift card, with a QR code.',
+  },
+  {
+    imageUrl: '/images/arthere_IG1.png',
+    alt: 'The Art Here logo mark above the artishere.org web address.',
+  },
+];
 
 export default async function Home() {
   const allCities = await getCachedCities();
@@ -61,20 +83,28 @@ export default async function Home() {
 
         {/* Sized in cqw against a wrapper matching the logo's own width, so
             the tagline always spans exactly the mark above it. */}
-        <div className="[container-type:inline-size] mt-1 mb-7" style={{ width: 'min(60vw, 520px)' }}>
+        <div className="[container-type:inline-size] mt-4" style={{ width: 'min(60vw, 520px)' }}>
           <h1 className="font-display text-[6.5cqw] tracking-[0.06em] leading-[1.1] text-[#1a1a1a] whitespace-nowrap">
             Art Here puts local artists on the map
           </h1>
         </div>
 
+        {/* Same logo-width container, so the pill can be held to ~2/3 of the
+            mark (and never wider than it) with its type scaling to match. */}
         {pilotCityHref && (
-          <Link
-            href={pilotCityHref}
-            className={`${gradientStyles.gradientPan} ${gradientStyles.launchPill} inline-block px-7 py-2.5 rounded-full font-display text-white text-[1rem] sm:text-[1.15rem] tracking-[0.05em] whitespace-nowrap`}
-            style={{ textShadow: '0 1px 3px rgba(0,0,0,0.35)' }}
-          >
-            Art Here just launched in {pilotCityLabel}!
-          </Link>
+          <div className="[container-type:inline-size] mt-[4.5rem] sm:mt-20" style={{ width: 'min(60vw, 520px)' }}>
+            {/* Type stays one size; the wording shortens instead, so the pill
+                never has to wrap to a second line as the frame narrows. */}
+            <Link
+              href={pilotCityHref}
+              className={`${gradientStyles.gradientPan} ${gradientStyles.launchPill} mx-auto flex items-center justify-center text-center w-[66.7cqw] max-w-full px-4 py-3 rounded-full font-display text-white text-[1.15rem] tracking-[0.05em] leading-[1.15] whitespace-nowrap`}
+              style={{ textShadow: '0 1px 3px rgba(0,0,0,0.35)' }}
+            >
+              <span className="hidden min-[800px]:inline">Art Here just launched in {pilotCityLabel}!</span>
+              <span className="hidden min-[540px]:inline min-[800px]:hidden">Art Here in {pilotCityLabel}</span>
+              <span className="min-[540px]:hidden">{pilotCityLabel}</span>
+            </Link>
+          </div>
         )}
       </section>
 
@@ -89,8 +119,8 @@ export default async function Home() {
               <div className="text-[1.05rem] text-[#555] font-light leading-[1.85] [&>p]:mb-[18px]">
                 <p>
                   Art Here highlights and celebrates local artists. We partner with local organizations
-                  and community leaders to host events, capture artist stories, and build a living
-                  directory of artists and the places that support them.
+                  and community leaders to host events, capture residents&rsquo; art stories, and build
+                  a living directory of artists and the places that support them.
                 </p>
                 <p>
                   Great neighborhoods are shaped by the artists who live in them. Art Here helps
@@ -156,7 +186,7 @@ export default async function Home() {
                 Follow Us!
               </h2>
               <a
-                href="https://www.instagram.com/arthereproject"
+                href={INSTAGRAM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Art Here on Instagram"
@@ -174,7 +204,7 @@ export default async function Home() {
         {INSTAGRAM_POSTS.length > 0 && (
           <section className="bg-white">
             <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-12 sm:py-14">
-              <InstagramPostsRow posts={INSTAGRAM_POSTS} />
+              <InstagramPostsRow posts={INSTAGRAM_POSTS} profileUrl={INSTAGRAM_URL} />
             </div>
           </section>
         )}

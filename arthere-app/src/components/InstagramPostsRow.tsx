@@ -1,18 +1,20 @@
 'use client';
 
 import { useRef } from 'react';
+import Image from 'next/image';
 
 export interface InstagramPost {
-  /** Square-ish thumbnail. A path under /public (e.g. "/images/parade-1.jpg") or an absolute URL. */
+  /** Portrait image — a path under /public or an absolute URL. */
   imageUrl: string;
-  /** Where clicking the tile goes — the post's permalink, or the profile as a fallback. */
-  permalink: string;
-  /** Describe the photo for screen readers; leave blank only if the image is purely decorative. */
-  alt?: string;
+  alt: string;
+  /** Optional per-post permalink. Falls back to the profile URL. */
+  permalink?: string;
 }
 
 interface Props {
   posts: InstagramPost[];
+  /** Where a tile goes when the post has no permalink of its own. */
+  profileUrl: string;
 }
 
 /**
@@ -20,13 +22,12 @@ interface Props {
  * sections. Renders nothing when there are no posts — the homepage should
  * never show empty placeholder tiles.
  *
- * The arrows genuinely scroll the row rather than being decorative, so this
- * still behaves correctly once there are more posts than fit on screen.
+ * Tiles are 3:4 portrait to match Instagram's portrait crop. The arrows
+ * genuinely scroll the row rather than being decorative, so this keeps
+ * working as more posts are added.
  */
-export function InstagramPostsRow({ posts }: Props) {
+export function InstagramPostsRow({ posts, profileUrl }: Props) {
   const scrollerRef = useRef<HTMLDivElement>(null);
-
-  if (posts.length === 0) return null;
 
   function scrollByTile(direction: -1 | 1) {
     const el = scrollerRef.current;
@@ -34,6 +35,8 @@ export function InstagramPostsRow({ posts }: Props) {
     // Roughly one tile plus its gap, so each click lands on a tile boundary.
     el.scrollBy({ left: (el.clientWidth / 3) * direction, behavior: 'smooth' });
   }
+
+  if (posts.length === 0) return null;
 
   return (
     <div className="flex items-center gap-3 sm:gap-5">
@@ -45,14 +48,21 @@ export function InstagramPostsRow({ posts }: Props) {
       >
         {posts.map(post => (
           <a
-            key={post.permalink}
-            href={post.permalink}
+            key={post.imageUrl}
+            href={post.permalink ?? profileUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="shrink-0 w-[70%] sm:w-[calc((100%-2*1.25rem)/3)] aspect-square rounded-lg overflow-hidden bg-[#f0ede9] hover:opacity-90 transition-opacity"
+            className="relative shrink-0 w-[62%] sm:w-[calc((100%-2*1.25rem)/3)] aspect-[3/4] rounded-lg overflow-hidden bg-[#f0ede9] hover:opacity-90 transition-opacity"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={post.imageUrl} alt={post.alt ?? ''} className="w-full h-full object-cover" />
+            {/* Slight upscale crops the stray black screenshot edges on a
+                few of these off the tile. */}
+            <Image
+              src={post.imageUrl}
+              alt={post.alt}
+              fill
+              sizes="(max-width: 640px) 62vw, 260px"
+              className="object-cover scale-[1.08]"
+            />
           </a>
         ))}
       </div>
