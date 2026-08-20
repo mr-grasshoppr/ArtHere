@@ -81,7 +81,9 @@ export function UsMap() {
           .data(states.features)
           .join('path')
           .attr('d', pathGen)
-          .attr('fill', '#eeede9')
+          // White rather than grey: the About section it sits on is now
+          // #f7f6f3, which a grey landmass would sink into.
+          .attr('fill', '#ffffff')
           .attr('stroke', 'none');
 
 

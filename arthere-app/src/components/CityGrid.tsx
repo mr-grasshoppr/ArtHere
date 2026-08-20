@@ -35,7 +35,9 @@ interface SequenceItem {
 function buildSequence(artists: ArtistGridData[], cols: number): SequenceItem[] {
   const items: RepeatItem<SequenceItem>[] = artists.flatMap(artist =>
     artist.images.map(img => ({
-      key: img.src,
+      // Spacing is per-artist, not per-image, so two different pieces by the
+      // same artist can't land in the same row either.
+      key: artist.url,
       payload: { src: img.src, focal: img.focal, tall: img.isHero, url: artist.url, name: artist.name },
     }))
   );

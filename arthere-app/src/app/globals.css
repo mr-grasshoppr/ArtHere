@@ -13,4 +13,7 @@
   /* Heading font for /cities pages — set by app/cities/layout.tsx via the
      --font-nunito CSS variable. Use the `font-heading` utility class. */
   --font-heading: var(--font-nunito), 'Arial Rounded MT Bold', Arial, sans-serif;
+  /* Condensed all-caps display face (Bebas Neue) — homepage tagline and
+     launch pill. Use the `font-display` utility class. */
+  --font-display: var(--font-bebas), 'Arial Narrow', Arial, sans-serif;
 }

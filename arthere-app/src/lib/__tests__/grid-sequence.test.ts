@@ -42,6 +42,23 @@ describe("buildSpacedSequence", () => {
     }
   });
 
+  it("never repeats a key within a single row, even when there are far fewer keys than the gap needs", () => {
+    // The real case: a city with ~10 artists on a 6-col grid. A 5-row window
+    // holds 30 tiles, so full minRowGap separation is impossible and the
+    // fallback path runs constantly. Same-row repeats must still never happen
+    // while there are at least `cols` distinct keys to draw from.
+    const cols = 6;
+    for (const n of [6, 8, 10, 12]) {
+      for (let attempt = 0; attempt < 25; attempt++) {
+        const result = buildSpacedSequence(items(n), { cols, repeats: 3, minRowGap: 5 });
+        for (let start = 0; start < result.length; start += cols) {
+          const row = result.slice(start, start + cols);
+          expect(new Set(row).size).toBe(row.length);
+        }
+      }
+    }
+  });
+
   it("keeps repeats of the same key at least minRowGap rows apart when there's enough variety", () => {
     const cols = 4;
     const minRowGap = 5;

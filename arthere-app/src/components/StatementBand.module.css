@@ -1,0 +1,73 @@
+/* Animated gradient wash.
+ *
+ * Sized in px with `auto` height so the artwork keeps its natural aspect
+ * ratio — forcing it to the band's height instead both distorted it and
+ * pulled its own dark bottom edge row into view as a hairline stroke along
+ * the bottom of the band.
+ *
+ * At 3000px wide the image stands far taller than the band, so
+ * `background-position: center` shows only a slice through its middle: the
+ * gradient reads as a soft wash, well away from any edge artefacts, and the
+ * band reveals well under half the image at any realistic viewport.
+ *
+ * One tile is exactly 3000px, so panning by that distance loops seamlessly. */
+.band {
+  background-color: #1a9b6f;
+  background-image: url('/images/arthere_logo_green_pink_background_for_animated_logo.png');
+  background-repeat: repeat-x;
+  background-size: 3000px auto;
+  background-position: center;
+  animation: bandPan 60s linear infinite;
+}
+
+@keyframes bandPan {
+  from { background-position-x: 0; }
+  to   { background-position-x: -3000px; }
+}
+
+.revealOnHover {
+  transition: opacity 260ms ease, transform 260ms ease;
+}
+
+/* Pointer devices: reveal on hover (or keyboard focus). */
+@media (hover: hover) {
+  .revealOnHover {
+    opacity: 0;
+    transform: translateX(-8px);
+    pointer-events: none;
+  }
+
+  .band:hover .revealOnHover,
+  .revealOnHover:focus-visible {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+}
+
+/* Touch devices have no hover, so the button instead fades in while the
+   band is scrolled into view and fades back out once it leaves. */
+@media (hover: none) {
+  .revealOnHover {
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+  }
+
+  .band[data-inview='true'] .revealOnHover {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .band::before {
+    animation: none;
+  }
+
+  .revealOnHover {
+    transition: opacity 260ms ease;
+    transform: none;
+  }
+}
