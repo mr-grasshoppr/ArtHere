@@ -5,7 +5,11 @@
 // of each other.
 
 export interface RepeatItem<T> {
-  /** Identity used for spacing — typically the image src. */
+  /**
+   * Identity used for spacing. Callers pass the *artist*, not the image src:
+   * spacing by src still let two different pieces by the same artist sit
+   * side by side, which is what the grids are trying to avoid.
+   */
   key: string;
   payload: T;
 }
@@ -60,38 +64,58 @@ export function buildSpacedSequence<T>(
 
   const remaining = shuffle(pool);
 
+  // How many copies of each key are still unplaced. Used to break ties
+  // toward the most plentiful key, which keeps variety available for the
+  // later rows instead of burning through some keys early and leaving a
+  // stretch at the end with nothing left but duplicates.
+  const counts = new Map<string, number>();
+  for (const item of remaining) counts.set(item.key, (counts.get(item.key) ?? 0) + 1);
+
   const lastRow = new Map<string, number>();
   const result: T[] = [];
 
   for (let i = 0; i < remaining.length; i++) {
     const row = Math.floor(i / cols);
-    const validIdxs: number[] = [];
+
+    // Candidates fall into three tiers, best first:
+    //   0 — fully spaced (>= minRowGap rows since this key last appeared)
+    //   1 — inside the cooldown window, but not already in this row
+    //   2 — already in this row (only when nothing else is left)
+    // Tier 1 is the normal case whenever there are fewer distinct keys than
+    // a `minRowGap`-row window can hold (cols * minRowGap tiles), which is
+    // the usual situation for a city with a handful of artists.
+    const spaced: number[] = [];
+    let bestJ = -1;
+    let bestTier = 3;
+    let bestCount = -1;
+    let bestLast = Infinity;
+
     for (let j = i; j < remaining.length; j++) {
-      const last = lastRow.get(remaining[j].key);
-      if (last === undefined || row - last >= minRowGap) validIdxs.push(j);
+      const key = remaining[j].key;
+      const last = lastRow.get(key);
+      const tier = last === undefined || row - last >= minRowGap ? 0 : last === row ? 2 : 1;
+      if (tier === 0) {
+        spaced.push(j);
+        continue;
+      }
+      const count = counts.get(key) ?? 0;
+      const lastVal = last ?? -1;
+      if (tier < bestTier || (tier === bestTier && (count > bestCount || (count === bestCount && lastVal < bestLast)))) {
+        bestTier = tier;
+        bestCount = count;
+        bestLast = lastVal;
+        bestJ = j;
+      }
     }
 
-    let chosenIdx: number;
-    if (validIdxs.length > 0) {
-      chosenIdx = validIdxs[Math.floor(Math.random() * validIdxs.length)];
-    } else {
-      // Deadlock fallback: every remaining key is still cooling down (only
-      // happens with very few distinct images) — take whichever was placed
-      // longest ago to minimize the violation.
-      let bestJ = i;
-      let bestLast = Infinity;
-      for (let j = i; j < remaining.length; j++) {
-        const last = lastRow.get(remaining[j].key) ?? -Infinity;
-        if (last < bestLast) {
-          bestLast = last;
-          bestJ = j;
-        }
-      }
-      chosenIdx = bestJ;
-    }
+    // Pick at random among fully-spaced candidates so the grid stays varied
+    // run to run; only fall through to the tiered choice when there are none.
+    const chosenIdx = spaced.length > 0 ? spaced[Math.floor(Math.random() * spaced.length)] : bestJ;
 
     [remaining[i], remaining[chosenIdx]] = [remaining[chosenIdx], remaining[i]];
-    lastRow.set(remaining[i].key, row);
+    const chosenKey = remaining[i].key;
+    counts.set(chosenKey, (counts.get(chosenKey) ?? 1) - 1);
+    lastRow.set(chosenKey, row);
     result.push(remaining[i].payload);
   }
 

@@ -21,18 +21,23 @@ export const metadata: Metadata = {
 
 const INSTAGRAM_URL = 'https://www.instagram.com/arthereproject';
 
+// Airport-style short codes, used where a city label won't fit.
+const CITY_CODES: Record<string, string> = {
+  portland: 'PDX',
+};
+
 // Curated @arthereproject posts. Hand-maintained for now — swap this for a
 // fetch once there's an Instagram access token (Meta Graph API) or a
 // third-party feed key, and give each entry its own `permalink` at that
 // point so tiles deep-link to the post instead of the profile.
 const INSTAGRAM_POSTS: InstagramPost[] = [
   {
-    imageUrl: '/images/arthere_IG4.png',
-    alt: 'Two young children drawing at an Art Here booth, beside wooden panels displaying circular artwork.',
-  },
-  {
     imageUrl: '/images/arthere_IG5.png',
     alt: 'A person smiling beside a wooden display panel showing circular artwork by David Trowbridge of ComeUnity PDX.',
+  },
+  {
+    imageUrl: '/images/arthere_IG4.png',
+    alt: 'Two young children drawing at an Art Here booth, beside wooden panels displaying circular artwork.',
   },
   {
     imageUrl: '/images/arthere_IG3.png',
@@ -138,7 +143,11 @@ export default async function Home() {
             hover (pointer) or on scroll-into-view (touch). The animated
             gradient also breaks up what would otherwise be a long run of
             black sections further down. */}
-        <StatementBand cityHref={pilotCityHref} cityLabel={pilotCityLabel} />
+        <StatementBand
+          cityHref={pilotCityHref}
+          cityLabel={pilotCityLabel}
+          cityCode={pilotCitySlug ? CITY_CODES[pilotCitySlug] : undefined}
+        />
 
         {/* How it works */}
         <section className="bg-[#f7f6f3]">

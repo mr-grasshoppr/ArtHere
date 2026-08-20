@@ -67,7 +67,9 @@ function buildSequence(artists: ArtworkArtistData[], repeats: number): SequenceI
     .filter(a => a.images.length > 0)
     .flatMap(a =>
       a.images.map(img => ({
-        key: img.src,
+        // Spacing is per-artist, not per-image, so two different pieces by
+        // the same artist can't land in the same row either.
+        key: a.slug,
         payload: { src: img.src, focal: img.focal, alt: img.alt, tall: img.isHero, url: `/artists/${a.slug}` },
       }))
     );
