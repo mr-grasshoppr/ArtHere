@@ -59,12 +59,12 @@ export function StayInTouchForm() {
           onChange={e => setEmail(e.target.value)}
           required
           placeholder="you@example.com"
-          className="w-[220px] max-w-[45%] px-4 py-2.5 rounded-full border border-[#444] bg-transparent text-[0.85rem] text-white placeholder-[#777] focus:outline-none focus:border-white transition-colors"
+          className="w-[260px] sm:w-[320px] px-5 py-3 rounded-full border border-[#444] bg-transparent text-[0.85rem] text-white placeholder-[#777] focus:outline-none focus:border-white transition-colors"
         />
         <button
           type="submit"
           disabled={status === 'submitting' || !email}
-          className="shrink-0 px-6 py-2.5 rounded-full bg-white text-[#1a1a1a] text-[0.9rem] font-medium transition-opacity hover:opacity-80 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+          className="shrink-0 px-7 py-3 rounded-full bg-white text-[#1a1a1a] text-[0.9rem] font-medium transition-opacity hover:opacity-80 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
         >
           {status === 'submitting' ? 'Sending…' : 'Sign up'}
         </button>
