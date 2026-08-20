@@ -54,14 +54,15 @@ export function InstagramPostsRow({ posts, profileUrl }: Props) {
             rel="noopener noreferrer"
             className="relative shrink-0 w-[62%] sm:w-[calc((100%-2*1.25rem)/3)] aspect-[3/4] rounded-lg overflow-hidden bg-[#f0ede9] hover:opacity-90 transition-opacity"
           >
-            {/* Slight upscale crops the stray black screenshot edges on a
-                few of these off the tile. */}
+            {/* ~1% upscale trims the couple of stray black screenshot pixels
+                at the edges. Kept deliberately small: any more and it starts
+                clipping the multi-photo badge in the top-right corner. */}
             <Image
               src={post.imageUrl}
               alt={post.alt}
               fill
               sizes="(max-width: 640px) 62vw, 260px"
-              className="object-cover scale-[1.08]"
+              className="object-cover scale-[1.01]"
             />
           </a>
         ))}

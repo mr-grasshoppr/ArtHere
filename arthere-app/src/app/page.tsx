@@ -112,7 +112,7 @@ export default async function Home() {
       <div>
 
         {/* About + Map side by side */}
-        <section id="about" className="scroll-mt-[70px]">
+        <section id="about" className="bg-[#f7f6f3] scroll-mt-[70px]">
           <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-16 sm:py-24 flex flex-col sm:flex-row gap-12 sm:gap-16 items-center">
             <div className="flex-1 min-w-0">
               <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-6">About</div>

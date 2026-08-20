@@ -1,43 +1,28 @@
-.band {
-  position: relative;
-  overflow: hidden;
-  /* Shows through before the artwork decodes. */
-  background-color: #1a9b6f;
-}
-
 /* Animated gradient wash.
  *
- * The artwork is blown up so each tile spans four times the band's width —
- * the band therefore reveals only about a quarter of the image at a time,
- * which reads as a soft continuous gradient rather than whole pink blooms
- * drifting past.
+ * Sized in px with `auto` height so the artwork keeps its natural aspect
+ * ratio — forcing it to the band's height instead both distorted it and
+ * pulled its own dark bottom edge row into view as a hairline stroke along
+ * the bottom of the band.
  *
- * The layer is two tiles wide (800% = 2 x 400%) and translates by exactly
- * -50%, i.e. one whole tile, so the loop is seamless at any viewport size
- * without a hardcoded pixel offset that would only match one screen. */
-.band::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 800%;
+ * At 3000px wide the image stands far taller than the band, so
+ * `background-position: center` shows only a slice through its middle: the
+ * gradient reads as a soft wash, well away from any edge artefacts, and the
+ * band reveals well under half the image at any realistic viewport.
+ *
+ * One tile is exactly 3000px, so panning by that distance loops seamlessly. */
+.band {
+  background-color: #1a9b6f;
   background-image: url('/images/arthere_logo_green_pink_background_for_animated_logo.png');
   background-repeat: repeat-x;
-  background-size: 50% 100%;
-  animation: bandPan 90s linear infinite;
-  z-index: 0;
-}
-
-/* Keep the headline and CTA above the wash. */
-.band > * {
-  position: relative;
-  z-index: 1;
+  background-size: 3000px auto;
+  background-position: center;
+  animation: bandPan 60s linear infinite;
 }
 
 @keyframes bandPan {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+  from { background-position-x: 0; }
+  to   { background-position-x: -3000px; }
 }
 
 .revealOnHover {
