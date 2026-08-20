@@ -6,6 +6,7 @@ import { UsMap } from '@/components/UsMap';
 import { SiteFooter } from '@/components/SiteFooter';
 import { StayInTouchForm } from '@/components/StayInTouchForm';
 import { InstagramIcon } from '@/components/InstagramIcon';
+import { InstagramPostsRow, type InstagramPost } from '@/components/InstagramPostsRow';
 import { AnimatedLogoMask } from '@/components/AnimatedLogoMask';
 import { getLogoSlides } from '@/lib/logo-slides';
 import gradientStyles from './AnimatedGradient.module.css';
@@ -17,6 +18,13 @@ export const metadata: Metadata = {
   title: 'Art Here',
   description: 'Art Here puts local artists on the map.',
 };
+
+// Recent @arthereproject posts for the homepage row. Empty for now, which
+// makes the whole row render nothing — deliberately, so the page never ships
+// empty placeholder tiles. To turn it on, either drop the images under
+// public/images and list them here, or swap this constant for a fetch once
+// there's an Instagram access token (Meta Graph API) or third-party feed key.
+const INSTAGRAM_POSTS: InstagramPost[] = [];
 
 export default async function Home() {
   const allCities = await getCachedCities();
@@ -169,6 +177,16 @@ export default async function Home() {
             <StayInTouchForm />
           </div>
         </section>
+
+        {/* Recent Instagram posts — light band between the two dark
+            sections. Renders nothing until INSTAGRAM_POSTS is populated. */}
+        {INSTAGRAM_POSTS.length > 0 && (
+          <section className="bg-white">
+            <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-12 sm:py-14">
+              <InstagramPostsRow posts={INSTAGRAM_POSTS} />
+            </div>
+          </section>
+        )}
 
         {/* Join Us + Get in Touch — one continuous black block. */}
         <section id="contact" className="bg-[#1a1a1a] border-t border-[#2c2c2c] scroll-mt-[70px]">
