@@ -7,7 +7,6 @@ import { SiteFooter } from '@/components/SiteFooter';
 import { StayInTouchForm } from '@/components/StayInTouchForm';
 import { InstagramIcon } from '@/components/InstagramIcon';
 import { AnimatedLogoMask } from '@/components/AnimatedLogoMask';
-import { CityCycleLabel } from '@/components/CityCycleLabel';
 import { getLogoSlides } from '@/lib/logo-slides';
 import gradientStyles from './AnimatedGradient.module.css';
 
@@ -17,25 +16,6 @@ export const metadata: Metadata = {
   title: 'Art Here',
   description: 'Art Here puts local artists on the map.',
 };
-
-// Cities we're planning to bring Art Here to next, but that don't have a
-// directory in the app yet.
-
-// Short blurbs for the "2026 Pilot" section, keyed by city slug. Cities
-// with a live directory but no entry here just show the status line with
-// no extra description.
-const PILOT_DESCRIPTIONS: Record<string, string> = {
-  portland: 'Piloting the Art Here interview booth and platform at the Multnomah Days Festival on August 15.',
-};
-
-const CITY_CODES: Record<string, string> = {
-  portland: 'PDX',
-};
-
-const COMING_SOON_CITY_DATA: { label: string; code: string }[] = [
-  { label: 'Biloxi, MS', code: 'BLX' },
-  { label: 'San Jose, CA', code: 'SJC' },
-];
 
 export default async function Home() {
   const allCities = await getCachedCities();
@@ -47,52 +27,40 @@ export default async function Home() {
     ? (cities[0].displayName ?? `${cities[0].name}${cities[0].state ? `, ${cities[0].state}` : ''}`)
     : null;
 
-  // Live cities first (dark label), then the not-yet-launched ones (gray).
-  const cycleCities = [
-    ...cities.map(c => ({ label: c.displayName ?? `${c.name}${c.state ? `, ${c.state}` : ''}`, active: true })),
-    ...COMING_SOON_CITY_DATA.map(c => ({ label: c.label, active: false })),
-  ];
-
-  const heroLogo = (
-    <>
-      <AnimatedLogoMask width="100%" slides={logoSlides} focals={logoFocals} />
-      <CityCycleLabel cities={cycleCities} />
-    </>
-  );
+  const heroLogo = <AnimatedLogoMask width="100%" slides={logoSlides} focals={logoFocals} />;
 
   return (
     <div className="min-h-screen bg-white text-[#1a1a1a]">
       <NavBar theme="light" />
 
-      {/* Hero: logo shape with artwork sliding behind it and a cycling city
-          label set into the empty wedge beside the "A"; the whole mark links
-          through to the pilot city. */}
+      {/* Hero: logo shape with artwork sliding behind it; the whole mark
+          links through to the pilot city. */}
       <section className="min-h-[80vh] sm:min-h-0 flex flex-col items-center justify-center text-center px-5 pt-24 pb-20">
         {pilotCityHref ? (
           <Link
             href={pilotCityHref}
-            className="relative block [container-type:inline-size] hover:opacity-90 transition-opacity"
+            className="block [container-type:inline-size] hover:opacity-90 transition-opacity"
             style={{ width: 'min(60vw, 520px)' }}
           >
             {heroLogo}
           </Link>
         ) : (
-          <div className="relative [container-type:inline-size]" style={{ width: 'min(60vw, 520px)' }}>
+          <div className="[container-type:inline-size]" style={{ width: 'min(60vw, 520px)' }}>
             {heroLogo}
           </div>
         )}
 
-        <h1 className="font-heading text-[0.72rem] sm:text-[0.92rem] font-bold uppercase tracking-[0.1em] text-[#1a1a1a] mt-10 mb-7">
+        <h1 className="font-display text-[1.15rem] sm:text-[1.4rem] tracking-[0.06em] text-[#1a1a1a] mt-9 mb-6">
           Art Here puts local artists on the map
         </h1>
 
         {pilotCityHref && (
           <Link
             href={pilotCityHref}
-            className={`${gradientStyles.gradientPan} inline-block px-6 py-2.5 rounded-full font-heading text-white text-[0.68rem] sm:text-[0.78rem] font-bold uppercase tracking-[0.07em] whitespace-nowrap hover:opacity-90 transition-opacity`}
+            className={`${gradientStyles.gradientPan} inline-block px-7 py-2.5 rounded-full font-display text-white text-[1rem] sm:text-[1.15rem] tracking-[0.05em] whitespace-nowrap hover:opacity-90 transition-opacity`}
             style={{ textShadow: '0 1px 3px rgba(0,0,0,0.35)' }}
           >
-            Art Here, {pilotCityLabel?.split(',')[0]} &mdash; Just Launched!
+            Art Here just launched in {pilotCityLabel}!
           </Link>
         )}
       </section>
@@ -107,9 +75,9 @@ export default async function Home() {
               <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-6">About</div>
               <div className="text-[1.05rem] text-[#555] font-light leading-[1.85] [&>p]:mb-[18px]">
                 <p>
-                  Art Here celebrates and highlights local artists. We partner with local organizations
-                  to host artist celebrations, capture artist stories, and build a living directory of
-                  artists and the places that support them.
+                  Art Here highlights and celebrates local artists. We partner with local organizations
+                  and community leaders to host events, capture artist stories, and build a living
+                  directory of artists and the places that support them.
                 </p>
                 <p>
                   Great neighborhoods are shaped by the artists who live in them. Art Here helps
@@ -144,7 +112,7 @@ export default async function Home() {
               {[
                 { img: '/images/artist-directory.jpg',  alt: 'Artist Directory',  title: 'Artist Directory',  body: 'Discover local artists, artwork that you love, and the galleries and organizations that support them.', href: pilotCitySlug ? `/cities/${pilotCitySlug}` : undefined },
                 { img: '/images/Community_voices.png',  alt: 'Community Voices',  title: 'Community Voices',  body: 'With our partners, we’re conducting interviews and surveys to help the community better understand how to support the arts. Stay tuned for stories and insights.' },
-                { img: '/images/Art_Here_Network.png',  alt: 'Art Here Network',  title: 'Art Here Network', body: 'A visualization of galleries, studios, and organizations supporting artists in your area.', href: pilotCitySlug ? `/cities/${pilotCitySlug}/network` : undefined },
+                { img: '/images/Art_Here_Network.png',  alt: 'Art Here Network',  title: 'Art Here Network', body: 'A visualization of the places and organizations that support artists in your area.', href: pilotCitySlug ? `/cities/${pilotCitySlug}/network` : undefined },
               ].map(({ img, alt, title, body, href }) => {
                 const card = (
                   <div className="rounded-2xl border border-[#dedad4] bg-white overflow-hidden h-full">
