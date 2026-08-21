@@ -6,7 +6,8 @@ import { UsMap } from '@/components/UsMap';
 import { SiteFooter } from '@/components/SiteFooter';
 import { StayInTouchForm } from '@/components/StayInTouchForm';
 import { InstagramIcon } from '@/components/InstagramIcon';
-import { InstagramPostsRow, type InstagramPost } from '@/components/InstagramPostsRow';
+import { InstagramPostsRow } from '@/components/InstagramPostsRow';
+import { getInstagramPosts } from '@/lib/instagram-posts';
 import { AnimatedLogoMask } from '@/components/AnimatedLogoMask';
 import { getLogoSlides } from '@/lib/logo-slides';
 import { StatementBand } from '@/components/StatementBand';
@@ -26,37 +27,11 @@ const CITY_CODES: Record<string, string> = {
   portland: 'PDX',
 };
 
-// Curated @arthereproject posts. Hand-maintained for now — swap this for a
-// fetch once there's an Instagram access token (Meta Graph API) or a
-// third-party feed key, and give each entry its own `permalink` at that
-// point so tiles deep-link to the post instead of the profile.
-const INSTAGRAM_POSTS: InstagramPost[] = [
-  {
-    imageUrl: '/images/arthere_IG5.png',
-    alt: 'A person smiling beside a wooden display panel showing circular artwork by David Trowbridge of ComeUnity PDX.',
-  },
-  {
-    imageUrl: '/images/arthere_IG4.png',
-    alt: 'Two young children drawing at an Art Here booth, beside wooden panels displaying circular artwork.',
-  },
-  {
-    imageUrl: '/images/arthere_IG3.png',
-    alt: '“Join us to tell your Portland art story!” over a watercolour map illustration.',
-  },
-  {
-    imageUrl: '/images/arthere_IG2.png',
-    alt: 'Art Here Portland poster inviting people to take the community survey for a chance to win a $25 gift card, with a QR code.',
-  },
-  {
-    imageUrl: '/images/arthere_IG1.png',
-    alt: 'The Art Here logo mark above the artishere.org web address.',
-  },
-];
-
 export default async function Home() {
   const allCities = await getCachedCities();
   const cities = allCities.filter(c => !c.slug.endsWith('-demo'));
   const { slides: logoSlides, focals: logoFocals } = await getLogoSlides();
+  const instagramPosts = await getInstagramPosts();
   const pilotCitySlug = cities[0]?.slug;
   const pilotCityHref = pilotCitySlug ? `/cities/${pilotCitySlug}` : null;
   const pilotCityLabel = cities[0]
@@ -209,11 +184,12 @@ export default async function Home() {
         </section>
 
         {/* Recent Instagram posts — light band between the two dark
-            sections. Renders nothing until INSTAGRAM_POSTS is populated. */}
-        {INSTAGRAM_POSTS.length > 0 && (
+            sections. Curated at /admin/instagram; renders nothing while
+            there are no posts. */}
+        {instagramPosts.length > 0 && (
           <section className="bg-white">
             <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-12 sm:py-14">
-              <InstagramPostsRow posts={INSTAGRAM_POSTS} profileUrl={INSTAGRAM_URL} />
+              <InstagramPostsRow posts={instagramPosts} profileUrl={INSTAGRAM_URL} />
             </div>
           </section>
         )}
