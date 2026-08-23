@@ -3,15 +3,20 @@
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin";
 
+/**
+ * New posts go to the *front* of the carousel — the newest thing posted is
+ * the one worth showing first. sortOrder just steps below the current
+ * minimum rather than renumbering every row.
+ */
 export async function createInstagramPost(): Promise<string> {
   await requireAdmin();
-  const last = await prisma.instagramPost.findFirst({
-    orderBy: { sortOrder: "desc" },
+  const first = await prisma.instagramPost.findFirst({
+    orderBy: { sortOrder: "asc" },
     select: { sortOrder: true },
   });
   const post = await prisma.instagramPost.create({
     data: {
-      sortOrder: (last?.sortOrder ?? -1) + 1,
+      sortOrder: (first?.sortOrder ?? 1) - 1,
       imageUrl: "",
       alt: "",
       permalink: "",

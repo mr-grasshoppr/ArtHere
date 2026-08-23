@@ -73,6 +73,17 @@ export default function InstagramPostManager({ initialPosts }: { initialPosts: I
 
   return (
     <div className="space-y-4">
+      <button
+        type="button"
+        onClick={handleAdd}
+        className="text-sm px-4 py-2 rounded-full bg-[#1a1a1a] text-white hover:opacity-80 transition-opacity"
+      >
+        + Add post
+      </button>
+      <p className="text-xs text-[#888] -mt-1">
+        New posts are added to the front of the carousel.
+      </p>
+
       {posts.map((post, i) => (
         <div key={post.id} className="bg-white border border-[#e5e5e5] rounded-lg p-4 flex gap-4 items-start">
           {/* 3:4 preview — the same portrait crop the carousel renders. */}
@@ -92,7 +103,7 @@ export default function InstagramPostManager({ initialPosts }: { initialPosts: I
               Alt text <span className="text-[#bbb]">(describes the photo for screen readers)</span>
               <input
                 type="text"
-                defaultValue={post.alt}
+                value={post.alt}
                 onChange={(e) => {
                   patchLocal(post.id, { alt: e.target.value });
                   scheduleSave(post.id, { alt: e.target.value });
@@ -153,14 +164,6 @@ export default function InstagramPostManager({ initialPosts }: { initialPosts: I
           </div>
         </div>
       ))}
-
-      <button
-        type="button"
-        onClick={handleAdd}
-        className="text-sm px-4 py-2 rounded-full bg-[#1a1a1a] text-white hover:opacity-80 transition-opacity"
-      >
-        + Add post
-      </button>
     </div>
   );
 }
