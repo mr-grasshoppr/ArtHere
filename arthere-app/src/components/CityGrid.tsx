@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import Image from 'next/image';
 import styles from './CityGrid.module.css';
 import { buildSpacedSequence, type RepeatItem } from '@/lib/grid-sequence';
 import { focalStyle, type Focal } from '@/lib/focal-style';
@@ -208,9 +209,23 @@ export function CityGrid({ artists, overlayImageUrl, maskImageUrl }: Props) {
 
           {/* Artwork cells — plain tiles while ambient, links when frozen */}
           {cells.map((item, i) => {
+            // Through next/image rather than a bare <img>: this grid renders
+            // ~100 tiles per page view, and serving each one as a full-size
+            // original was pulling the whole Blob store's worth of bytes on
+            // every visit. next/image fetches each source once, caches the
+            // optimised copy on the CDN, and hands the browser something
+            // sized for the cell instead of for print.
             const cellContent = (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={item.src} alt="" loading="eager" style={focalStyle(item.focal, '50% 35%')} />
+              <Image
+                src={item.src}
+                alt=""
+                fill
+                sizes={`${layout.col}px`}
+                // Only the first couple of rows are on screen at load; the
+                // rest stream in as the grid scrolls them into view.
+                loading={i < layout.cols * 2 ? 'eager' : 'lazy'}
+                style={focalStyle(item.focal, '50% 35%')}
+              />
             );
             const className = `${styles.cell}${item.tall ? ` ${styles.cellTall}` : ''}${frozen ? ` ${styles.cellClickable}` : ''}`;
             const height = item.tall ? layout.row * 2 + GAP : layout.row;
