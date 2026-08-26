@@ -6,7 +6,11 @@
 // A neighborhood value that's really just the city (or "Portland, OR" etc.)
 // rather than an actual neighborhood — filtered out of neighborhood lists.
 export function isCityLevelNeighborhood(value: string): boolean {
-  return /^(Portland(,?\s*(OR|Oregon))?|Vancouver(,?\s*WA)?)$/i.test(value.trim());
+  const v = value.trim();
+  if (/^(Portland(,?\s*(OR|Oregon))?|Vancouver(,?\s*WA)?)$/i.test(v)) return true;
+  // Splitting "Portland, OR" on the comma leaves a bare "OR" behind, which
+  // is not a neighborhood. Same for the city's own nickname.
+  return /^(OR|Oregon|WA|Washington|PDX)$/i.test(v);
 }
 
 // Any "Multnomah..." variant (Multnomah, Multnomah Village, Multnomah
@@ -26,7 +30,10 @@ export function normalizeNeighborhood(raw: string): string {
 // helpers rather than touching the raw string directly.
 export function parseNeighborhoodList(raw: string | null | undefined): string[] {
   const seen = new Set<string>();
-  for (const part of (raw ?? '').split(',')) {
+  // Split on commas *and* on "and"/"&": people write "NW Portland and
+  // Beaverton" as a single answer, and they mean both, so it should surface
+  // under each rather than becoming its own one-off filter option.
+  for (const part of (raw ?? '').split(/,|\s+(?:and|&)\s+/i)) {
     const trimmed = part.trim();
     if (!trimmed) continue;
     seen.add(normalizeNeighborhood(trimmed));
@@ -56,4 +63,55 @@ export async function getKnownNeighborhoods(): Promise<string[]> {
     }
   }
   return [...all].sort();
+}
+
+// ─── Grouping ────────────────────────────────────────────────────────────────
+
+export interface NeighborhoodGroup {
+  /** Area name, e.g. "SW Portland". Null for values not yet filed. */
+  area: string | null;
+  neighborhoods: string[];
+}
+
+/**
+ * Every neighborhood actually in use, grouped under its curated area and
+ * ordered as arranged in /admin/neighborhoods.
+ *
+ * Only returns values that appear on a real profile — the curated tables can
+ * hold names nobody uses any more, and showing those as filter options that
+ * match nothing is worse than omitting them. Anything marked hidden (test
+ * data, typos) is dropped, and anything not yet filed lands in a trailing
+ * group with a null area.
+ */
+export async function getGroupedNeighborhoods(): Promise<NeighborhoodGroup[]> {
+  const { prisma } = await import('@/lib/db');
+  const [inUse, areas, curated] = await Promise.all([
+    getKnownNeighborhoods(),
+    prisma.neighborhoodArea.findMany({ orderBy: { sortOrder: 'asc' } }),
+    prisma.neighborhood.findMany({ orderBy: { sortOrder: 'asc' } }),
+  ]);
+
+  const inUseSet = new Set(inUse);
+  const byName = new Map(curated.map((n) => [n.name, n]));
+
+  const groups: NeighborhoodGroup[] = [];
+  for (const area of areas) {
+    const members = curated
+      .filter((n) => n.areaId === area.id && !n.hidden && inUseSet.has(n.name))
+      .map((n) => n.name);
+    if (members.length > 0) groups.push({ area: area.name, neighborhoods: members });
+  }
+
+  const filed = new Set(groups.flatMap((g) => g.neighborhoods));
+  const unfiled = inUse
+    .filter((n) => !filed.has(n) && !byName.get(n)?.hidden)
+    .sort();
+  if (unfiled.length > 0) groups.push({ area: null, neighborhoods: unfiled });
+
+  return groups;
+}
+
+/** Flat, group-ordered list — for callers that only need the option order. */
+export async function getOrderedNeighborhoods(): Promise<string[]> {
+  return (await getGroupedNeighborhoods()).flatMap((g) => g.neighborhoods);
 }

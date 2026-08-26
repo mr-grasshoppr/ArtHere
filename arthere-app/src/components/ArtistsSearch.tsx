@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ArtistsGrid, type ArtistCardData } from './ArtistsGrid';
-import { FilterDropdown, MultiFilterDropdown, pillClass } from './FilterDropdown';
+import { FilterDropdown, MultiFilterDropdown, pillClass , type OptionGroup} from './FilterDropdown';
 import { mediumMatches } from '@/lib/artist-options';
 import { parseNeighborhoodList } from '@/lib/neighborhoods';
 
@@ -11,6 +11,8 @@ interface Props {
   artists: ArtistCardData[];
   mediumOptions: string[];
   neighborhoodOptions: string[];
+  /** Optional area grouping for the neighborhood menu. */
+  neighborhoodGroups?: OptionGroup[];
   communityOptions: string[];
 }
 
@@ -28,7 +30,7 @@ type DropdownKey = 'medium' | 'neighborhood' | 'community';
  * looking for in plain language (e.g. "sw portland metal sculptors for
  * outdoor pieces"); the dropdowns narrow the grid to an exact match.
  */
-export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOptions, communityOptions }: Props) {
+export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOptions, neighborhoodGroups, communityOptions }: Props) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<ArtistCardData[] | null>(null);
   const [explanation, setExplanation] = useState('');
@@ -131,6 +133,7 @@ export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOp
             label="Neighborhood"
             pluralLabel="neighborhoods"
             options={neighborhoodOptions}
+          optionGroups={neighborhoodGroups}
             value={neighborhoodFilter}
             onChange={setNeighborhoodFilter}
             isOpen={openDropdown === 'neighborhood'}

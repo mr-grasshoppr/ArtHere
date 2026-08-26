@@ -60,9 +60,20 @@ function filterIdForNeighborhood(neighborhood: string | null, neighborhoods: str
   return `duotone-${i}`;
 }
 
+export interface NeighborhoodOptionGroup {
+  label: string | null;
+  options: string[];
+}
+
 interface Props {
   nodes: NetworkNode[];
   links: NetworkLink[];
+  /**
+   * Neighborhood areas as arranged in /admin/neighborhoods. Controls both the
+   * order colours are assigned in and how the key below is grouped; falls
+   * back to alphabetical when absent.
+   */
+  neighborhoodGroups?: NeighborhoodOptionGroup[];
 }
 
 interface HoverState {
@@ -77,7 +88,7 @@ interface HoverState {
  * which neighborhood each one belongs to. Drag dots around, scroll/pinch to
  * zoom, hover for details, click to visit.
  */
-export function NetworkGraph({ nodes, links }: Props) {
+export function NetworkGraph({ nodes, links, neighborhoodGroups }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const [showArtists, setShowArtists] = useState(true);
@@ -92,7 +103,26 @@ export function NetworkGraph({ nodes, links }: Props) {
   // dependency) would think the data changed on every mouse movement and
   // tear down + rebuild the entire graph from scratch, causing the violent
   // "flip out" / restart-the-simulation behavior on hover.
-  const neighborhoods = useMemo(() => getNeighborhoods(nodes), [nodes]);
+  const neighborhoods = useMemo(() => {
+    const present = new Set(getNeighborhoods(nodes));
+    if (!neighborhoodGroups) return [...present].sort();
+    // Curated order first, then anything present but not yet filed.
+    const ordered = neighborhoodGroups.flatMap(g => g.options).filter(n => present.has(n));
+    const seen = new Set(ordered);
+    return [...ordered, ...[...present].filter(n => !seen.has(n)).sort()];
+  }, [nodes, neighborhoodGroups]);
+
+  // The key below mirrors that order, split back into its areas.
+  const keyGroups = useMemo(() => {
+    const present = new Set(neighborhoods);
+    if (!neighborhoodGroups) return [{ label: null as string | null, options: neighborhoods }];
+    const groups = neighborhoodGroups
+      .map(g => ({ label: g.label, options: g.options.filter(n => present.has(n)) }))
+      .filter(g => g.options.length > 0);
+    const filed = new Set(groups.flatMap(g => g.options));
+    const rest = neighborhoods.filter(n => !filed.has(n));
+    return rest.length > 0 ? [...groups, { label: null as string | null, options: rest }] : groups;
+  }, [neighborhoods, neighborhoodGroups]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -492,7 +522,14 @@ export function NetworkGraph({ nodes, links }: Props) {
               />
               All
             </button>
-            {neighborhoods.map(n => {
+            {keyGroups.map((group, gi) => (
+              <div key={group.label ?? `g-${gi}`} className="flex flex-col gap-2">
+                {group.label && (
+                  <div className="text-[0.65rem] font-semibold uppercase tracking-[0.08em] text-[#555] mt-1">
+                    {group.label}
+                  </div>
+                )}
+                {group.options.map(n => {
               const color = colorForNeighborhood(n, neighborhoods);
               const on = selectedAreas.has(n);
               return (
@@ -518,7 +555,9 @@ export function NetworkGraph({ nodes, links }: Props) {
                   {n}
                 </button>
               );
-            })}
+                })}
+              </div>
+            ))}
           </div>
         )}
       </div>

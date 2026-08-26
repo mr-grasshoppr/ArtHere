@@ -101,6 +101,12 @@ export function FilterDropdown({
   );
 }
 
+export interface OptionGroup {
+  /** Heading shown above the group. Null renders the options with no heading. */
+  label: string | null;
+  options: string[];
+}
+
 interface MultiProps {
   label: string;
   pluralLabel: string;
@@ -110,6 +116,12 @@ interface MultiProps {
   isOpen: boolean;
   onToggle: () => void;
   theme?: FilterTheme;
+  /**
+   * Optional grouping for the menu (e.g. neighborhoods under their Portland
+   * area). When given, `options` is still the flat source of truth for what
+   * is selectable; this only controls how the menu is laid out.
+   */
+  optionGroups?: OptionGroup[];
 }
 
 /**
@@ -127,6 +139,7 @@ export function MultiFilterDropdown({
   isOpen,
   onToggle,
   theme = 'light',
+  optionGroups,
 }: MultiProps) {
   const t = MENU_THEME[theme];
   const buttonLabel =
@@ -158,24 +171,39 @@ export function MultiFilterDropdown({
             All {pluralLabel}
           </button>
           {options.length === 0 && <div className={t.empty}>Nothing tagged yet</div>}
-          {options.map(opt => {
-            const on = value.includes(opt);
-            return (
-              <button
-                key={opt}
-                type="button"
-                onClick={e => { e.stopPropagation(); toggleOption(opt); }}
-                className={`${t.item} ${on ? t.itemOn : t.itemOff} flex items-center gap-2`}
-              >
-                <span
-                  className={`inline-block w-3 h-3 rounded-sm border flex-shrink-0 ${
-                    on ? 'bg-current border-current' : 'border-current opacity-40'
+          {(optionGroups ?? [{ label: null, options }]).map((group, gi) => (
+            <div key={group.label ?? `group-${gi}`}>
+              {group.label && (
+                <div
+                  className={`px-[18px] pt-2.5 pb-1 text-[0.7rem] font-semibold uppercase tracking-[0.08em] ${
+                    theme === 'dark' ? 'text-[#666]' : 'text-[#aaa]'
                   }`}
-                />
-                {opt}
-              </button>
-            );
-          })}
+                >
+                  {group.label}
+                </div>
+              )}
+              {group.options.map(opt => {
+                const on = value.includes(opt);
+                return (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={e => { e.stopPropagation(); toggleOption(opt); }}
+                    className={`${t.item} ${on ? t.itemOn : t.itemOff} flex items-center gap-2${
+                      group.label ? ' pl-[26px]' : ''
+                    }`}
+                  >
+                    <span
+                      className={`inline-block w-3 h-3 rounded-sm border flex-shrink-0 ${
+                        on ? 'bg-current border-current' : 'border-current opacity-40'
+                      }`}
+                    />
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
         </div>
       )}
     </div>

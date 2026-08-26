@@ -8,7 +8,7 @@ import { ArtistsSearch } from '@/components/ArtistsSearch';
 import type { ArtistCardData } from '@/components/ArtistsGrid';
 import { CityBottomBar } from '@/components/CityBottomBar';
 import { parseMediumList } from '@/lib/artist-options';
-import { isCityLevelNeighborhood, parseNeighborhoodList } from '@/lib/neighborhoods';
+import { isCityLevelNeighborhood, parseNeighborhoodList, getGroupedNeighborhoods } from '@/lib/neighborhoods';
 
 // ISR: content is edited via admin + self-service; regenerate at most every 30s
 export const revalidate = 30;
@@ -61,13 +61,15 @@ export default async function CityArtistsPage({
   // as a comma-joined list per artist (they can work in more than one), so
   // split before deduping — otherwise each combination becomes its own pill.
   const mediumOptions = [...new Set(artists.flatMap(a => parseMediumList(a.medium)))].sort();
-  const neighborhoodOptions = [
-    ...new Set(
-      artists
-        .flatMap(a => parseNeighborhoodList(a.neighborhood))
-        .filter(v => !isCityLevelNeighborhood(v))
-    ),
-  ].sort();
+  // Grouped and ordered as arranged in /admin/neighborhoods, then narrowed to
+  // the values this city's artists actually use.
+  const inUse = new Set(
+    artists.flatMap(a => parseNeighborhoodList(a.neighborhood)).filter(v => !isCityLevelNeighborhood(v))
+  );
+  const neighborhoodGroups = (await getGroupedNeighborhoods())
+    .map(g => ({ label: g.area, options: g.neighborhoods.filter(n => inUse.has(n)) }))
+    .filter(g => g.options.length > 0);
+  const neighborhoodOptions = neighborhoodGroups.flatMap(g => g.options);
   const communityOptions = [...new Set(artists.flatMap(a => a.communities))].sort();
 
   return (
@@ -88,6 +90,7 @@ export default async function CityArtistsPage({
         artists={artists}
         mediumOptions={mediumOptions}
         neighborhoodOptions={neighborhoodOptions}
+        neighborhoodGroups={neighborhoodGroups}
         communityOptions={communityOptions}
       />
 

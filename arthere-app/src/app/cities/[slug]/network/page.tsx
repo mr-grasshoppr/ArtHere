@@ -6,7 +6,7 @@ import type { Metadata } from 'next';
 import { NavBar } from '@/components/NavBar';
 import { CityBottomBar } from '@/components/CityBottomBar';
 import { NetworkGraph, type NetworkNode, type NetworkLink } from '@/components/NetworkGraph';
-import { parseNeighborhoodList } from '@/lib/neighborhoods';
+import { parseNeighborhoodList, getGroupedNeighborhoods } from '@/lib/neighborhoods';
 
 // ISR: content is edited via admin + self-service; regenerate at most every 30s
 export const revalidate = 30;
@@ -103,6 +103,11 @@ export default async function CityNetworkPage({
     }
   }
 
+  // Same curated areas the artwork/artists filters use, so the colour key
+  // here is grouped and ordered identically.
+  const neighborhoodGroups = (await getGroupedNeighborhoods())
+    .map(g => ({ label: g.area, options: g.neighborhoods }));
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white pt-14 pb-14">
       <NavBar activeCitySlug={slug} />
@@ -117,7 +122,7 @@ export default async function CityNetworkPage({
           </p>
         </div>
 
-        <NetworkGraph nodes={nodes} links={links} />
+        <NetworkGraph nodes={nodes} links={links} neighborhoodGroups={neighborhoodGroups} />
       </div>
 
       <CityBottomBar citySlug={slug} cityDisplayName={cityDisplayName} />

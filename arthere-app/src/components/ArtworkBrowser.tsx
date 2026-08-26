@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FilterDropdown, MultiFilterDropdown, pillClass } from './FilterDropdown';
+import { FilterDropdown, MultiFilterDropdown, pillClass, type OptionGroup } from './FilterDropdown';
 import { parseNeighborhoodList } from '@/lib/neighborhoods';
 import { buildSpacedSequence, type RepeatItem } from '@/lib/grid-sequence';
 import { focalStyle, type Focal } from '@/lib/focal-style';
@@ -32,6 +32,8 @@ interface Props {
   artists: ArtworkArtistData[];
   mediumOptions: string[];
   neighborhoodOptions: string[];
+  /** Optional area grouping for the neighborhood menu. */
+  neighborhoodGroups?: OptionGroup[];
   communityOptions: string[];
 }
 
@@ -87,7 +89,7 @@ function buildSequence(artists: ArtworkArtistData[], repeats: number, cols: numb
  * grid of artwork images for a city. Every image links back to the artist
  * who made it.
  */
-export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, communityOptions }: Props) {
+export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, neighborhoodGroups, communityOptions }: Props) {
   const [mediumFilter, setMediumFilter] = useState('');
   const [neighborhoodFilter, setNeighborhoodFilter] = useState<string[]>([]);
   const [communityFilter, setCommunityFilter] = useState('');
@@ -194,6 +196,7 @@ export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, co
           label="Neighborhood"
           pluralLabel="neighborhoods"
           options={neighborhoodOptions}
+          optionGroups={neighborhoodGroups}
           value={neighborhoodFilter}
           onChange={setNeighborhoodFilter}
           isOpen={openDropdown === 'neighborhood'}

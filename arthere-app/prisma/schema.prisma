@@ -588,6 +588,36 @@ model LogoSlide {
   updatedAt  DateTime @updatedAt
 }
 
+// Portland is usually described in quadrants (plus N Portland and the
+// surrounding cities), so neighborhoods are grouped under an area for the
+// filters on the artwork / artists / network pages. Curated at
+// /admin/neighborhoods; new values typed by artists show up there ungrouped
+// until someone files them.
+model NeighborhoodArea {
+  id            String         @id @default(cuid())
+  name          String         @unique
+  sortOrder     Int            @default(0)
+  neighborhoods Neighborhood[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Neighborhood {
+  id        String            @id @default(cuid())
+  /// Canonical name, matching what parseNeighborhoodList() produces.
+  name      String            @unique
+  areaId    String?
+  area      NeighborhoodArea? @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  sortOrder Int               @default(0)
+  /// Kept out of public filters without touching the artist profiles that
+  /// reference it — used for test data and one-off typos.
+  hidden    Boolean           @default(false)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@index([areaId])
+}
+
 // Tiles in the homepage "Follow Us" Instagram carousel. Curated by hand via
 // /admin/instagram rather than pulled from Instagram, which has no public
 // read endpoint without an access token.
