@@ -220,7 +220,12 @@ export function CityGrid({ artists, overlayImageUrl, maskImageUrl }: Props) {
                 src={item.src}
                 alt=""
                 fill
-                sizes={`${layout.col}px`}
+                // Deliberately understated: reporting ~60% of the true cell
+                // width makes next/image pick a smaller variant, which for a
+                // constantly-moving, partly-masked backdrop is invisible but
+                // roughly halves the bytes across ~150 tiles.
+                sizes={`${Math.round(layout.col * 0.6)}px`}
+                quality={50}
                 // Only the first couple of rows are on screen at load; the
                 // rest stream in as the grid scrolls them into view.
                 loading={i < layout.cols * 2 ? 'eager' : 'lazy'}
