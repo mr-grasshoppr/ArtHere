@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import OnboardingForm from "@/components/OnboardingForm";
 import { getFocals } from "@/lib/image-focus";
+import { getMediumOptions } from "@/lib/medium-options";
 
 export default async function OnboardingPage() {
   const session = await auth();
@@ -35,6 +36,8 @@ export default async function OnboardingPage() {
       )
     : {};
 
+  const mediumOptions = await getMediumOptions();
+
   const initialData = a ? {
     slug: a.slug,
     firstName: a.firstName ?? "",
@@ -47,7 +50,7 @@ export default async function OnboardingPage() {
     links: a.links.map((l) => ({ type: l.type, url: l.url, label: l.label ?? undefined })),
     bioPhotoUrl: a.bioPhotoUrl ?? null,
     hireFor: a.hireFor ?? "",
-    images: a.artworkImages.map((img) => ({ id: img.id, url: img.url, isHero: img.isHero })),
+    images: a.artworkImages.map((img) => ({ id: img.id, url: img.url, isHero: img.isHero, medium: img.medium })),
     placeRelations: a.placeRelations.map((r) => ({ placeName: r.place?.name ?? r.venueName ?? '', relationship: r.relationship })),
     isPlaceholder: a.isPlaceholder,
     submittedForReviewAt: a.submittedForReviewAt?.toISOString() ?? null,
@@ -55,7 +58,7 @@ export default async function OnboardingPage() {
 
   return (
     <main className="min-h-screen bg-white text-[#1a1a1a]" style={{ colorScheme: "light" }}>
-      <OnboardingForm initialData={initialData} initialFocals={initialFocals} />
+      <OnboardingForm initialData={initialData} initialFocals={initialFocals} mediumOptions={mediumOptions} />
       <div className="max-w-[980px] mx-auto px-4 sm:px-10 pb-10 text-center">
         <p className="text-[0.82rem] text-[#aaa] font-light">
           Experiencing tech issues?{' '}

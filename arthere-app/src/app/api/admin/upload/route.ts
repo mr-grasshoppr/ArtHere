@@ -65,12 +65,20 @@ export async function POST(req: NextRequest) {
     (async () => {
       const mediumOptions = await getMediumOptions();
       const tags = await tagArtworkImage(blob.url, parseMediumList(artist.medium), mediumOptions);
+      // Tagging runs after the response, so the uploader can have picked a
+      // medium by hand in the meantime. Theirs wins: only fill a blank.
+      const current = await prisma.artworkImage.findUnique({
+        where: { id: image.id },
+        select: { medium: true },
+      });
       await prisma.artworkImage.update({
         where: { id: image.id },
         data: {
           aiTags: tags as unknown as Prisma.InputJsonValue,
           aiTaggedAt: new Date(),
-          medium: normalizeMediumTags(tags.medium, mediumOptions),
+          ...(current && current.medium.length > 0
+            ? {}
+            : { medium: normalizeMediumTags(tags.medium, mediumOptions) }),
         },
       });
     })().catch((err) => {

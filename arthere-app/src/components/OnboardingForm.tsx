@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FramingButton } from "@/components/FramingButton";
+import { ArtworkMediumSelect } from "@/components/ArtworkMediumSelect";
 import { focalStyle, type Focal } from "@/lib/focal-style";
 import type { FramingValue } from "@/components/FramingEditor";
 import { resizeImageForUpload } from "@/lib/client-image-resize";
@@ -14,7 +15,7 @@ type InitialData = {
   otherConnections: { name: string; relationship: string; relationshipLabel?: string }[];
   links: { type: string; url: string; label?: string }[];
   bioPhotoUrl: string | null; hireFor: string;
-  images: { id: string; url: string; isHero: boolean }[];
+  images: { id: string; url: string; isHero: boolean; medium: string[] }[];
   placeRelations: { placeName: string; relationship: string }[];
   isPlaceholder: boolean;
   submittedForReviewAt: string | null;
@@ -68,10 +69,13 @@ const BTN =
 export default function OnboardingForm({
   initialData,
   initialFocals,
+  mediumOptions,
 }: {
   initialData: InitialData;
   /** url → stored framing, keyed by image url; absent = default centered framing. */
   initialFocals?: Record<string, Focal>;
+  /** Shared medium vocabulary, for tagging each piece. */
+  mediumOptions: string[];
 }) {
   const [focals, setFocals] = useState<Record<string, Focal>>(initialFocals ?? {});
   const styleFor = (url?: string | null) => focalStyle(url ? focals[url] : undefined);
@@ -151,7 +155,7 @@ export default function OnboardingForm({
   const [offeringsOther, setOfferingsOther] = useState("");
 
   // Images
-  const [images, setImages] = useState<{ id: string; url: string; isHero: boolean }[]>(initialData?.images ?? []);
+  const [images, setImages] = useState<{ id: string; url: string; isHero: boolean; medium: string[] }[]>(initialData?.images ?? []);
   const [bioPhotoUrl, setBioPhotoUrl] = useState<string | null>(initialData?.bioPhotoUrl ?? null);
   const [uploading, setUploading] = useState(false);
   const [uploadingBio, setUploadingBio] = useState(false);
@@ -259,7 +263,7 @@ export default function OnboardingForm({
       const data = await res.json();
       setImages((prev) => [
         ...prev.map((img) => ({ ...img, isHero: false })),
-        { id: data.id, url: data.url, isHero: true },
+        { id: data.id, url: data.url, isHero: true, medium: [] },
       ]);
     } catch (err) { setUploadError(err instanceof Error ? err.message : "Upload failed."); }
     setUploading(false);
@@ -279,7 +283,7 @@ export default function OnboardingForm({
         const data = await res.json();
         setImages((prev) => {
           const base = first ? prev.map((img) => ({ ...img, isHero: false })) : prev;
-          return [...base, { id: data.id, url: data.url, isHero: data.isHero }];
+          return [...base, { id: data.id, url: data.url, isHero: data.isHero, medium: [] }];
         });
       } catch (err) { setUploadError(err instanceof Error ? err.message : "Upload failed."); }
     }
@@ -300,6 +304,23 @@ export default function OnboardingForm({
     e.target.value = "";
   }
 
+  // Saved per piece as it's toggled rather than with the rest of the profile:
+  // artwork rows are created by the upload endpoint, so they already exist and
+  // there's nothing to batch them with.
+  async function updateImageMedium(id: string, next: string[]) {
+    setImages((prev) => prev.map((img) => (img.id === id ? { ...img, medium: next } : img)));
+    try {
+      const res = await fetch(`/api/images?id=${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ medium: next }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error ?? "Could not save medium");
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Could not save medium.");
+    }
+  }
+
   async function handleGalleryReplace(oldId: string, e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -310,7 +331,7 @@ export default function OnboardingForm({
       const res = await uploadFile(file, { isHero: "false" });
       if (!res.ok) throw new Error((await res.json()).error ?? "Upload failed");
       const data = await res.json();
-      setImages((prev) => prev.map((img) => img.id === oldId ? { id: data.id, url: data.url, isHero: false } : img));
+      setImages((prev) => prev.map((img) => img.id === oldId ? { id: data.id, url: data.url, isHero: false, medium: [] } : img));
     } catch (err) { setUploadError(err instanceof Error ? err.message : "Upload failed."); }
     setUploading(false);
     e.target.value = "";
@@ -400,6 +421,15 @@ export default function OnboardingForm({
             </label>
           )}
         </div>
+        {heroImage && (
+          <div className="mt-2 max-w-[240px]">
+            <ArtworkMediumSelect
+              value={heroImage.medium}
+              options={mediumOptions}
+              onChange={(next) => updateImageMedium(heroImage.id, next)}
+            />
+          </div>
+        )}
 
         {/* Bio photo — overlaps hero bottom-left */}
         <div className="absolute -bottom-14 left-8">
@@ -678,11 +708,15 @@ export default function OnboardingForm({
           <h2 className="text-[0.7rem] font-semibold text-[#aaa] uppercase tracking-widest">My Gallery</h2>
           <span className="text-[0.7rem] text-[#bbb]">up to 3 photos</span>
         </div>
+        <p className="text-[0.75rem] text-[#999] mb-3">
+          Tag each piece with its medium so visitors can find it when they filter by medium.
+        </p>
         <div className="grid grid-cols-3 gap-3">
           {[0, 1, 2].map((slot) => {
             const img = galleryImages[slot];
             return img ? (
-              <div key={img.id} className="rounded-lg overflow-hidden bg-[#f0ede9] aspect-square relative group">
+              <div key={img.id}>
+              <div className="rounded-lg overflow-hidden bg-[#f0ede9] aspect-square relative group">
                 <label className="absolute inset-0 cursor-pointer block">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={img.url} alt="" className="w-full h-full object-cover" style={styleFor(img.url)} />
@@ -701,6 +735,14 @@ export default function OnboardingForm({
                     onSaved={(v) => rememberFocal(img.url, v)}
                   />
                 </div>
+              </div>
+              <div className="mt-1.5">
+                <ArtworkMediumSelect
+                  value={img.medium}
+                  options={mediumOptions}
+                  onChange={(next) => updateImageMedium(img.id, next)}
+                />
+              </div>
               </div>
             ) : (
               <label

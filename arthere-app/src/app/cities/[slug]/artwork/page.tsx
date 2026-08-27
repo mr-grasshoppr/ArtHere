@@ -6,7 +6,6 @@ import type { Metadata } from 'next';
 import { NavBar } from '@/components/NavBar';
 import { ArtworkBrowser, type ArtworkArtistData } from '@/components/ArtworkBrowser';
 import { CityBottomBar } from '@/components/CityBottomBar';
-import { parseMediumList } from '@/lib/artist-options';
 import { isCityLevelNeighborhood, parseNeighborhoodList, getGroupedNeighborhoods } from '@/lib/neighborhoods';
 import { getFocals } from '@/lib/image-focus';
 
@@ -85,10 +84,13 @@ export default async function CityArtworkPage({
     }))
     .filter(artist => artist.images.length > 0);
 
-  // Distinct, sorted option lists for the filter dropdowns. medium is stored
-  // as a comma-joined list per artist (they can work in more than one), so
-  // split before deduping — otherwise each combination becomes its own pill.
-  const mediumOptions = [...new Set(artists.flatMap(a => parseMediumList(a.medium)))].sort();
+  // Medium options come from the pieces themselves, not from the artists'
+  // profile medium, because the filter matches per artwork. Building the list
+  // from artist medium offered options nothing could match (one artist typed
+  // "Multimedia" as free text and no piece is tagged that) while hiding real
+  // ones (Daria Loi's work is tagged Mixed Media but her profile medium is
+  // blank, so the option never appeared).
+  const mediumOptions = [...new Set(artists.flatMap(a => a.images.flatMap(img => img.medium)))].sort();
   // Grouped and ordered as arranged in /admin/neighborhoods, then narrowed to
   // the values this city's artists actually use.
   const inUse = new Set(
