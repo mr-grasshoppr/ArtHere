@@ -1,6 +1,7 @@
 import { getCachedCities } from '@/lib/cities';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { NavBar } from '@/components/NavBar';
 import { UsMap } from '@/components/UsMap';
 import { SiteFooter } from '@/components/SiteFooter';
@@ -132,15 +133,22 @@ export default async function Home() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               {[
-                { img: '/images/artist_directory_Aug20.png',  alt: 'Artist Directory',  title: 'Artist Directory',  body: 'Discover local artists, artwork that you love, and the galleries and organizations that support them.', href: pilotCitySlug ? `/cities/${pilotCitySlug}` : undefined },
-                { img: '/images/community_voices_aug20.png',  alt: 'Community Voices',  title: 'Community Voices',  body: 'With our partners, we’re conducting interviews and surveys to help the community better understand how to support the arts. Stay tuned for stories and insights.' },
-                { img: '/images/Art_Here_Network.png',  alt: 'Art Here Network',  title: 'Art Here Network', body: 'A visualization of the places and organizations that support artists in your area.', href: pilotCitySlug ? `/cities/${pilotCitySlug}/network` : undefined },
-              ].map(({ img, alt, title, body, href }) => {
+                // Top-aligned: a center crop cuts off the top row of artwork.
+                { img: '/images/artist_directory_Aug20.webp',  alt: 'Artist Directory',  title: 'Artist Directory',  body: 'Discover local artists, artwork that you love, and the galleries and organizations that support them.', href: pilotCitySlug ? `/cities/${pilotCitySlug}` : undefined, objectPosition: 'top' },
+                { img: '/images/community_voices_aug26.webp',  alt: 'Community Voices',  title: 'Community Voices',  body: 'With our partners, we’re conducting interviews and surveys to help the community better understand how to support the arts. Stay tuned for stories and insights.' },
+                { img: '/images/Art_Here_Network.webp',  alt: 'Art Here Network',  title: 'Art Here Network', body: 'A visualization of the places and organizations that support artists in your area.', href: pilotCitySlug ? `/cities/${pilotCitySlug}/network` : undefined },
+              ].map(({ img, alt, title, body, href, objectPosition }) => {
                 const card = (
                   <div className="rounded-2xl border border-[#dedad4] bg-white overflow-hidden h-full">
-                    <div className="w-full aspect-[3/2] overflow-hidden bg-[#e8e8e4]">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={img} alt={alt} className="w-full h-full object-cover" />
+                    <div className="relative w-full aspect-[3/2] overflow-hidden bg-[#e8e8e4]">
+                      <Image
+                        src={img}
+                        alt={alt}
+                        fill
+                        sizes="(max-width: 639px) 100vw, 280px"
+                        className="object-cover"
+                        style={{ objectPosition: objectPosition ?? undefined }}
+                      />
                     </div>
                     <div className="px-5 py-5">
                       <h3 className="font-heading text-[1.05rem] font-bold mb-2">{title}</h3>
