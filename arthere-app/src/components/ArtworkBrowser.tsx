@@ -230,7 +230,10 @@ export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, ne
                 src={item.src}
                 alt={item.alt}
                 fill
-                sizes="(max-width: 640px) 33vw, 25vw"
+                // Tall cells span two rows, so object-cover has to scale a
+                // landscape source to twice the height — and therefore twice
+                // the width — of a square cell.
+                sizes={item.tall ? '(max-width: 640px) 66vw, 50vw' : '(max-width: 640px) 33vw, 25vw'}
                 className="object-cover transition-transform duration-300 group-hover:scale-[1.04]"
                 style={focalStyle(item.focal, '50% 35%')}
               />

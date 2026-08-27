@@ -220,12 +220,13 @@ export function CityGrid({ artists, overlayImageUrl, maskImageUrl }: Props) {
                 src={item.src}
                 alt=""
                 fill
-                // Deliberately understated: reporting ~60% of the true cell
-                // width makes next/image pick a smaller variant, which for a
-                // constantly-moving, partly-masked backdrop is invisible but
-                // roughly halves the bytes across ~150 tiles.
-                sizes={`${Math.round(layout.col * 0.6)}px`}
-                quality={50}
+                // A tall cell is one column wide but two rows high, and
+                // object-cover scales a landscape source to fill that height —
+                // so it needs roughly twice the pixels across that a square
+                // cell does. Reporting the plain column width here left tall
+                // tiles visibly soft.
+                sizes={`${Math.round(layout.col * (item.tall ? 2 : 1))}px`}
+                quality={75}
                 // Only the first couple of rows are on screen at load; the
                 // rest stream in as the grid scrolls them into view.
                 loading={i < layout.cols * 2 ? 'eager' : 'lazy'}
