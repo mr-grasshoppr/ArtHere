@@ -18,6 +18,23 @@ describe("buildSpacedSequence", () => {
     expect(result.length % 4).toBe(0);
   });
 
+  it("never repeats a piece when padding is off", () => {
+    // The filtered artwork view: every matching piece appears exactly once,
+    // even when that leaves the bottom row ragged. Padding it out would mean
+    // showing the same image twice under a medium filter, which reads as a
+    // bug — and did.
+    for (const n of [1, 2, 3, 5, 7, 9]) {
+      const result = buildSpacedSequence(items(n), {
+        cols: 4,
+        repeats: 1,
+        minRowGap: 5,
+        padToFullRows: false,
+      });
+      expect(result.length).toBe(n);
+      expect(new Set(result).size).toBe(n);
+    }
+  });
+
   it("leaves an already-even pool alone", () => {
     const result = buildSpacedSequence(items(4), { cols: 4, repeats: 3, minRowGap: 5 });
     expect(result.length).toBe(12);

@@ -65,10 +65,18 @@ function currentCols(): number {
  * and their spans are handed to the planner so its spacing is measured
  * against real placement rather than a flat index/cols estimate.
  *
- * Callers pass repeats: 1 when a filter is active, so a filtered result
- * shows each matching piece once before any tail padding.
+ * Callers pass repeats: 1 and padToFullRows: false when a filter is active.
+ * A filtered view is a set of results, so every matching piece must appear
+ * exactly once — squaring off the bottom edge there would mean repeating
+ * pieces, which reads as a bug rather than as texture. The unfiltered
+ * ambient grid still pads, because there it is texture.
  */
-function buildSequence(artists: ArtworkArtistData[], repeats: number, cols: number): SequenceItem[] {
+function buildSequence(
+  artists: ArtworkArtistData[],
+  repeats: number,
+  cols: number,
+  padToFullRows: boolean
+): SequenceItem[] {
   const items: RepeatItem<SequenceItem>[] = artists
     .filter(a => a.images.length > 0)
     .flatMap(a =>
@@ -81,7 +89,7 @@ function buildSequence(artists: ArtworkArtistData[], repeats: number, cols: numb
       }))
     );
 
-  return buildSpacedSequence(items, { cols, repeats, minRowGap: MIN_ROW_GAP });
+  return buildSpacedSequence(items, { cols, repeats, minRowGap: MIN_ROW_GAP, padToFullRows });
 }
 
 /**
@@ -133,7 +141,7 @@ export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, ne
     // wrong one throws every row boundary off.
     const rebuild = () =>
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSequence(buildSequence(filtered, hasFilter ? 1 : REPEATS, currentCols()));
+      setSequence(buildSequence(filtered, hasFilter ? 1 : REPEATS, currentCols(), !hasFilter));
     rebuild();
     let lastCols = currentCols();
     const onResize = () => {

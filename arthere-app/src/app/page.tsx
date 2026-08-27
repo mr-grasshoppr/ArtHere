@@ -135,7 +135,7 @@ export default async function Home() {
               {[
                 // Top-aligned: a center crop cuts off the top row of artwork.
                 { img: '/images/artist_directory_Aug20.webp',  alt: 'Artist Directory',  title: 'Artist Directory',  body: 'Discover local artists, artwork that you love, and the galleries and organizations that support them.', href: pilotCitySlug ? `/cities/${pilotCitySlug}` : undefined, objectPosition: 'top' },
-                { img: '/images/community_voices_aug26.webp',  alt: 'Community Voices',  title: 'Community Voices',  body: 'With our partners, we’re conducting interviews and surveys to help the community better understand how to support the arts. Stay tuned for stories and insights.' },
+                { img: '/images/Community_voices_MD.webp',  alt: 'Community Voices',  title: 'Community Voices',  body: 'With our partners, we’re conducting interviews and surveys to help the community better understand how to support the arts. Stay tuned for stories and insights.' },
                 { img: '/images/Art_Here_Network.webp',  alt: 'Art Here Network',  title: 'Art Here Network', body: 'A visualization of the places and organizations that support artists in your area.', href: pilotCitySlug ? `/cities/${pilotCitySlug}/network` : undefined },
               ].map(({ img, alt, title, body, href, objectPosition }) => {
                 const card = (
