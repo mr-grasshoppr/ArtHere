@@ -651,3 +651,41 @@ model ProfileRevision {
 
   @@index([entityType, entityId, createdAt])
 }
+
+// ─── Admin Outreach ───────────────────────────────────────────────────────────
+// A message composed and sent from /admin/contact-tracking. Kept so the
+// contact list can show what was said to whom and when, rather than relying on
+// the admin's memory of their own sent folder.
+
+model OutreachMessage {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  subject   String
+  // Body as the admin typed it — plain text, blank-line separated paragraphs.
+  body      String   @db.Text
+  // Admin who sent it, for the audit trail if there's ever more than one.
+  sentBy    String
+
+  recipients OutreachRecipient[]
+
+  @@index([createdAt])
+}
+
+// One row per addressee. Recipients are stored as plain emails rather than
+// relations because a contact may exist only as a survey response or a
+// newsletter signup, with no Artist/User record to point at.
+model OutreachRecipient {
+  id        String   @id @default(cuid())
+  messageId String
+  message   OutreachMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  email String
+  name  String?
+  // "sent" or "failed" — a partial failure must not hide the rest of the send.
+  status String
+  error  String?
+  sentAt DateTime?
+
+  @@index([messageId])
+  @@index([email])
+}
