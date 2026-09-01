@@ -19,6 +19,15 @@ legacy-static/   The retired 2026 static-site prototype (see its README).
 .github/         CI: typecheck, lint, unit tests, build on every push/PR.
 ```
 
+## Required design features
+
+[`REQUIRED-DESIGN-FEATURES.md`](REQUIRED-DESIGN-FEATURES.md) lists the design
+decisions that are requirements rather than preferences — currently the
+artwork and city grid spacing rules. **Check every change to the site against
+it**, and run `npm test`: the rules are enforced by
+`arthere-app/src/lib/__tests__/required-design-features.test.ts` and CI runs
+them on every push and pull request.
+
 ## Working on the app
 
 ```bash

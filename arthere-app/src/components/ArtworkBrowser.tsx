@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { FilterDropdown, MultiFilterDropdown, pillClass, type OptionGroup } from './FilterDropdown';
 import { parseNeighborhoodList } from '@/lib/neighborhoods';
 import { buildSpacedSequence, type RepeatItem } from '@/lib/grid-sequence';
+import { GRID_REPEATS, GRID_MIN_ROW_GAP, ARTWORK_CURATED_PER_ARTIST } from '@/lib/grid-design';
 import { focalStyle, type Focal } from '@/lib/focal-style';
 
 export interface ArtworkImageData {
@@ -47,12 +48,6 @@ interface SequenceItem {
 
 type DropdownKey = 'medium' | 'neighborhood' | 'community';
 
-// Every image repeats this many times across the grid, spaced so no two
-// pieces by the same artist share a row or land within this many rows of
-// each other.
-const REPEATS = 3;
-const MIN_ROW_GAP = 5;
-
 /** Matches the grid's own breakpoint: grid-cols-3, sm:grid-cols-4. */
 function currentCols(): number {
   return typeof window !== 'undefined' && window.innerWidth < 640 ? 3 : 4;
@@ -61,7 +56,7 @@ function currentCols(): number {
 /**
  * Lay out every image from every artist, each repeated `repeats` times and
  * spaced so no two pieces by the same artist share a row or land within
- * MIN_ROW_GAP rows of each other. Hero images render as tall (2-row) cells,
+ * GRID_MIN_ROW_GAP rows of each other. Hero images render as tall (2-row) cells,
  * and their spans are handed to the planner so its spacing is measured
  * against real placement rather than a flat index/cols estimate.
  *
@@ -81,15 +76,17 @@ function buildSequence(
     .filter(a => a.images.length > 0)
     .flatMap(a =>
       a.images.map(img => ({
-        // Spacing is per-artist, not per-image, so two different pieces by
-        // the same artist can't land in the same row either.
+        // Two identities: the artist (so two different pieces by one artist
+        // can't land in the same row) and the piece itself (so one image
+        // never repeats near itself, even when artists are scarce).
         key: a.slug,
+        id: img.src,
         span: img.isHero ? 2 : 1,
         payload: { src: img.src, focal: img.focal, alt: img.alt, tall: img.isHero, url: `/artists/${a.slug}` },
       }))
     );
 
-  return buildSpacedSequence(items, { cols, repeats, minRowGap: MIN_ROW_GAP, padToFullRows });
+  return buildSpacedSequence(items, { cols, repeats, minRowGap: GRID_MIN_ROW_GAP, padToFullRows });
 }
 
 /**
@@ -112,7 +109,7 @@ export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, ne
   // show every matching piece (hero included) or "N pieces match X" would
   // silently undercount whenever the match happens to be someone's hero.
   function curate(images: ArtworkImageData[]): ArtworkImageData[] {
-    return images.filter(img => !img.isHero).slice(0, 3);
+    return images.filter(img => !img.isHero).slice(0, ARTWORK_CURATED_PER_ARTIST);
   }
 
   // Filters are additive (AND, not OR) — medium, neighborhood, and community
@@ -141,7 +138,7 @@ export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, ne
     // wrong one throws every row boundary off.
     const rebuild = () =>
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSequence(buildSequence(filtered, hasFilter ? 1 : REPEATS, currentCols(), !hasFilter));
+      setSequence(buildSequence(filtered, hasFilter ? 1 : GRID_REPEATS, currentCols(), !hasFilter));
     rebuild();
     let lastCols = currentCols();
     const onResize = () => {

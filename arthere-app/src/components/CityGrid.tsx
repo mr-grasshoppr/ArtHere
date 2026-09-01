@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import Image from 'next/image';
 import styles from './CityGrid.module.css';
 import { buildSpacedSequence, type RepeatItem } from '@/lib/grid-sequence';
+import { GRID_REPEATS, GRID_MIN_ROW_GAP, CITY_LOGO_CELL } from '@/lib/grid-design';
 import { focalStyle, type Focal } from '@/lib/focal-style';
 
 export interface ArtistGridData {
@@ -20,10 +21,6 @@ interface Props {
 }
 
 const GAP = 5;
-// Every image repeats this many times across the grid, never in the same
-// row and never within this many rows of its own last appearance.
-const REPEATS = 3;
-const MIN_ROW_GAP = 5;
 
 interface SequenceItem {
   src: string;
@@ -36,16 +33,26 @@ interface SequenceItem {
 function buildSequence(artists: ArtistGridData[], cols: number): SequenceItem[] {
   const items: RepeatItem<SequenceItem>[] = artists.flatMap(artist =>
     artist.images.map(img => ({
-      // Spacing is per-artist, not per-image, so two different pieces by the
-      // same artist can't land in the same row either.
+      // Two identities: the artist (so two different pieces by one artist
+      // can't crowd each other) and the piece itself (so a single image
+      // never repeats near itself, even in a city with few artists).
       key: artist.url,
+      id: img.src,
       // Hero images render as tall (2-row) cells; the planner needs the span
       // so its spacing is measured against real placement.
       span: img.isHero ? 2 : 1,
       payload: { src: img.src, focal: img.focal, tall: img.isHero, url: artist.url, name: artist.name },
     }))
   );
-  return buildSpacedSequence(items, { cols, repeats: REPEATS, minRowGap: MIN_ROW_GAP });
+  return buildSpacedSequence(items, {
+    cols,
+    repeats: GRID_REPEATS,
+    minRowGap: GRID_MIN_ROW_GAP,
+    // sequence[0] is rendered below as the 2-col x 2-row logo cell. The
+    // planner has to model that footprint or every row boundary after it
+    // drifts from the one the browser actually lays out.
+    leadCell: CITY_LOGO_CELL,
+  });
 }
 
 interface GridLayout {

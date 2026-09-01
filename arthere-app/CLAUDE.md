@@ -1,5 +1,19 @@
 # Claude Code notes — arthere-app
 
+## ⚠️ Read this first: REQUIRED DESIGN FEATURES
+
+[`../REQUIRED-DESIGN-FEATURES.md`](../REQUIRED-DESIGN-FEATURES.md) lists the
+design decisions on this site that are requirements, not preferences —
+starting with the artwork/city grid spacing rules, which have been broken
+several times by changes that looked unrelated (image sizing, filter work, a
+per-artist cap).
+
+**Check every change to the site against that file before shipping it**, and
+run `npm test` — the rules are enforced by
+`src/lib/__tests__/required-design-features.test.ts`, which CI runs on every
+push and pull request. If a rule genuinely has to change, change the document
+and its test in the same commit, deliberately.
+
 ## Stack & project layout
 
 - **Next.js 16 / React 19 / TypeScript / Tailwind 4**, with **Prisma 5 +
