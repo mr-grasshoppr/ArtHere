@@ -2,13 +2,14 @@
 
 import { useState, useTransition } from "react";
 import { INVOLVEMENT_FEATURED, INVOLVEMENT_VOLUNTEER, RAFFLE_YES } from "@/lib/survey-constants";
-import { setResponseIsTest, setResponsesArchived } from "./actions";
+import { setResponseIsTest, setResponsesArchived, setResponseRaffleWinner } from "./actions";
 
 type SurveyResponse = {
   id: string;
   createdAt: Date;
   email: string | null;
   raffleOptIn: string | null;
+  raffleWinnerAt: Date | null;
   artistStatus: string | null;
   artistStatusOther: string | null;
   zipCode: string | null;
@@ -64,18 +65,21 @@ function Row({
   r,
   onTestToggle,
   onArchiveToggle,
+  onWinnerToggle,
   selected,
   onSelectChange,
 }: {
   r: SurveyResponse;
   onTestToggle: (id: string, isTest: boolean) => void;
   onArchiveToggle: (id: string, isArchived: boolean) => void;
+  onWinnerToggle: (id: string, isWinner: boolean) => void;
   selected: boolean;
   onSelectChange: (id: string, selected: boolean) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [archivePending, startArchiveTransition] = useTransition();
+  const [winnerPending, startWinnerTransition] = useTransition();
 
   function handleMarkTest(e: React.MouseEvent) {
     e.stopPropagation();
@@ -90,6 +94,15 @@ function Row({
     startArchiveTransition(async () => {
       await setResponsesArchived([r.id], !r.isArchived);
       onArchiveToggle(r.id, !r.isArchived);
+    });
+  }
+
+  function handleToggleWinner(e: React.MouseEvent) {
+    e.stopPropagation();
+    const next = !r.raffleWinnerAt;
+    startWinnerTransition(async () => {
+      await setResponseRaffleWinner(r.id, next);
+      onWinnerToggle(r.id, next);
     });
   }
 
@@ -137,7 +150,14 @@ function Row({
             ? <span className="text-[#a84573] font-medium">Yes</span>
             : <span className="text-[#bbb]">—</span>}
         </td>
-        <td className="px-4 py-3 text-sm">{r.raffleOptIn ?? <span className="text-[#bbb]">—</span>}</td>
+        <td className="px-4 py-3 text-sm">
+          {r.raffleOptIn ?? <span className="text-[#bbb]">—</span>}
+          {r.raffleWinnerAt && (
+            <span className="ml-1.5 text-[10px] uppercase tracking-wide bg-[#00ae7a]/10 text-[#00805a] px-1.5 py-0.5 rounded">
+              winner
+            </span>
+          )}
+        </td>
         <td className="px-4 py-3 text-[#bbb] text-xs">{open ? "▲" : "▼"}</td>
       </tr>
       {open && (
@@ -185,6 +205,19 @@ function Row({
               </div>
             </div>
             <div className="mt-4 pt-3 border-t border-[#e5e5e5] flex gap-2">
+              {r.raffleOptIn === RAFFLE_YES && (
+                <button
+                  onClick={handleToggleWinner}
+                  disabled={winnerPending}
+                  className={`text-xs px-3 py-1.5 rounded border transition-colors ${
+                    r.raffleWinnerAt
+                      ? "border-[#00ae7a]/40 bg-[#00ae7a]/10 text-[#00805a] hover:bg-[#00ae7a]/15"
+                      : "border-[#e5e5e5] text-[#888] hover:border-[#00ae7a]/40 hover:text-[#00805a]"
+                  }`}
+                >
+                  {winnerPending ? "Saving…" : r.raffleWinnerAt ? "Unmark as winner" : "Mark as raffle winner"}
+                </button>
+              )}
               <button
                 onClick={handleMarkTest}
                 disabled={pending}
@@ -223,6 +256,8 @@ function applyCategoryFilter(responses: SurveyResponse[], category: string): Sur
       return responses.filter(wantsToBeFeatured);
     case "raffle":
       return responses.filter((r) => r.raffleOptIn === RAFFLE_YES);
+    case "winners":
+      return responses.filter((r) => r.raffleWinnerAt != null);
     default:
       return responses;
   }
@@ -262,6 +297,7 @@ export default function SurveyTable({
   const [showArchived, setShowArchived] = useState(false);
   const [localIsTest, setLocalIsTest] = useState<Record<string, boolean>>({});
   const [localIsArchived, setLocalIsArchived] = useState<Record<string, boolean>>({});
+  const [localIsWinner, setLocalIsWinner] = useState<Record<string, boolean>>({});
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkPending, startBulkTransition] = useTransition();
 
@@ -271,6 +307,10 @@ export default function SurveyTable({
 
   function handleArchiveToggle(id: string, isArchived: boolean) {
     setLocalIsArchived((prev) => ({ ...prev, [id]: isArchived }));
+  }
+
+  function handleWinnerToggle(id: string, isWinner: boolean) {
+    setLocalIsWinner((prev) => ({ ...prev, [id]: isWinner }));
   }
 
   function handleSelectChange(id: string, isSelected: boolean) {
@@ -300,6 +340,7 @@ export default function SurveyTable({
     ...r,
     isTest: r.id in localIsTest ? localIsTest[r.id] : r.isTest,
     isArchived: r.id in localIsArchived ? localIsArchived[r.id] : r.isArchived,
+    raffleWinnerAt: r.id in localIsWinner ? (localIsWinner[r.id] ? new Date() : null) : r.raffleWinnerAt,
   }));
 
   const visibleResponses = responsesWithLocal.filter(
@@ -417,6 +458,7 @@ export default function SurveyTable({
                 r={r}
                 onTestToggle={handleTestToggle}
                 onArchiveToggle={handleArchiveToggle}
+                onWinnerToggle={handleWinnerToggle}
                 selected={selected.has(r.id)}
                 onSelectChange={handleSelectChange}
               />

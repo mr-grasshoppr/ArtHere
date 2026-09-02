@@ -21,6 +21,7 @@ export const INTEREST_INVITE = "Request invite";
 export const INTEREST_NEWS = "News";
 export const INTEREST_VOLUNTEER = "Volunteer";
 export const INTEREST_PARADE = "Parade (past)";
+export const INTEREST_RAFFLE_WINNER = "Raffle winner";
 export const INTEREST_OTHER = "Other";
 
 /** Display order for filters and columns; also the canonical tag list. */
@@ -30,6 +31,7 @@ export const INTEREST_TAGS = [
   INTEREST_BRING,
   INTEREST_INVITE,
   INTEREST_VOLUNTEER,
+  INTEREST_RAFFLE_WINNER,
   INTEREST_NEWS,
   INTEREST_OTHER,
   INTEREST_PARADE,
@@ -110,6 +112,7 @@ export async function getContacts(): Promise<Contact[]> {
         createdAt: true,
         involvementInterests: true,
         involvementInterestsOther: true,
+        raffleWinnerAt: true,
       },
       orderBy: { createdAt: "asc" },
     }),
@@ -158,6 +161,7 @@ export async function getContacts(): Promise<Contact[]> {
     const interests = s.involvementInterests
       .map((i) => SURVEY_INTEREST[i])
       .filter((i): i is string => !!i);
+    if (s.raffleWinnerAt) interests.push(INTEREST_RAFFLE_WINNER);
     addTouch(email, {
       source: "survey",
       at: s.createdAt.toISOString(),

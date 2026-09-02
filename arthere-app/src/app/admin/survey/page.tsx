@@ -113,6 +113,7 @@ export default async function AdminSurveyPage({
     volunteer: realResponses.filter(wantsToVolunteer).length,
     featured: realResponses.filter(wantsToBeFeatured).length,
     raffle: realResponses.filter((r) => r.raffleOptIn === RAFFLE_YES).length,
+    winners: realResponses.filter((r) => r.raffleWinnerAt != null).length,
   };
 
   const cards = [
@@ -147,6 +148,17 @@ export default async function AdminSurveyPage({
       href: "/admin/survey?filter=raffle",
       color: "bg-green-50",
     },
+    ...(stats.winners > 0
+      ? [
+          {
+            key: "winners",
+            label: "Raffle winners",
+            value: stats.winners,
+            href: "/admin/survey?filter=winners",
+            color: "bg-[#00ae7a]/10",
+          },
+        ]
+      : []),
   ];
 
   return (

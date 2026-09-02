@@ -464,6 +464,10 @@ model SurveyResponse {
 
   // Raffle + Email
   raffleOptIn String?
+  // Set when an admin marks this entrant as having won the raffle — distinct
+  // from raffleOptIn (entered) so "won" can be filtered/messaged separately
+  // via the Contact Tracking "Raffle winner" tag.
+  raffleWinnerAt DateTime?
   email       String?
 
   // Referral

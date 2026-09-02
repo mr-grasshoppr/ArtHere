@@ -22,3 +22,16 @@ export async function setResponsesArchived(ids: string[], isArchived: boolean) {
   await prisma.surveyResponse.updateMany({ where: { id: { in: ids } }, data: { isArchived } });
   revalidatePath("/admin/survey");
 }
+
+// Marks a raffle entrant as having won — separate from raffleOptIn (entered)
+// so winners can be filtered and messaged on their own via the Contact
+// Tracking "Raffle winner" tag.
+export async function setResponseRaffleWinner(id: string, isWinner: boolean) {
+  await requireAdmin();
+  await prisma.surveyResponse.update({
+    where: { id },
+    data: { raffleWinnerAt: isWinner ? new Date() : null },
+  });
+  revalidatePath("/admin/survey");
+  revalidatePath("/admin/contact-tracking");
+}
