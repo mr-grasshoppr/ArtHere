@@ -128,11 +128,30 @@ Every one of these was a real regression:
 
 ## LOGO — the Art Here brand mark
 
-**Implemented by**
-- [`arthere-app/public/images/arthere_logo_green_pink.png`](arthere-app/public/images/arthere_logo_green_pink.png) — the master asset, a transparent PNG
-- [`arthere-app/src/components/NavBarClient.tsx`](arthere-app/src/components/NavBarClient.tsx) — renders the master asset directly
-- [`arthere-app/src/app/login/LoginPageClient.tsx`](arthere-app/src/app/login/LoginPageClient.tsx) — renders the master asset directly
-- [`arthere-app/src/emails/EmailLayout.tsx`](arthere-app/src/emails/EmailLayout.tsx) — renders a **separately generated** email-specific derivative, not the master asset
+**Implemented by** — there are **two independent source assets** for this
+wordmark, which is itself a known inconsistency (see "Two wordmark shapes"
+below):
+- [`arthere-app/public/images/arthere_color_logo_update_Sept1.png`](arthere-app/public/images/arthere_color_logo_update_Sept1.png) — the current colored (pink/green) master, wider letter spacing, used only as the source for the email logo (see `EmailLayout.tsx`'s comment)
+- [`arthere-app/public/images/arthere_logo_green_pink.png`](arthere-app/public/images/arthere_logo_green_pink.png) — the **superseded** colored master (tight letter spacing); no longer referenced by code, kept for history
+- [`arthere-app/public/images/arthere-logo-dark.png`](arthere-app/public/images/arthere-logo-dark.png) / [`arthere-logo-white.png`](arthere-app/public/images/arthere-logo-white.png) — solid monochrome derivatives of the **old, tight-spacing** shape, rendered directly by [`NavBarClient.tsx`](arthere-app/src/components/NavBarClient.tsx) and [`LoginPageClient.tsx`](arthere-app/src/app/login/LoginPageClient.tsx)
+- [`arthere-app/public/images/arthere-mask.png`](arthere-app/public/images/arthere-mask.png) — a CSS mask-image of the same **old, tight-spacing** shape (rasterized from `arthere_logo_website_Aug7.svg`), used by [`AnimatedLogoMask.tsx`](arthere-app/src/components/AnimatedLogoMask.tsx) for the animated hero on the homepage and login page
+- [`arthere-app/src/emails/EmailLayout.tsx`](arthere-app/src/emails/EmailLayout.tsx) — renders a **separately generated** email-specific derivative of the new-spacing master, not any of the site assets above
+
+### Two wordmark shapes — known inconsistency, not yet resolved
+
+As of the Sept 1 2026 art update, the email logo and the on-site logo are
+**different shapes** — the email version has wider letter spacing; the
+NavBar/login solid logos and the animated hero mask still use the old,
+tighter spacing, because they're derived from a different source file that
+was not regenerated. Regenerating them isn't a simple recolor: `arthere-mask.png`
+backs `AnimatedLogoMask.tsx`'s CSS mask, and other commits (e.g. "Scale logo
+credit text with the mask's own rendered size") show positioning elsewhere
+has been tuned against this exact shape's proportions — swapping it risks a
+visual regression in the animated hero, not just a shape update. Whoever
+resolves this should regenerate `arthere-logo-dark.png`, `arthere-logo-white.png`,
+and `arthere-mask.png` (and its SVG source) from the new artwork's silhouette,
+then re-check the hero animation and credit-text positioning on both the
+homepage and login page before calling it done.
 
 **Guarded by:** nothing automated yet. Email-client dark-mode image handling
 can't be simulated in CI — verifying this means actually sending a test email
@@ -144,11 +163,12 @@ and opening it in at least Gmail (Android/iOS, dark mode) and Apple Mail
 **LOGO-1.** The logo must never render as a stray colored rectangle against
 a mismatched background, on the site or in an email, in light mode or dark.
 
-- **On the site** (NavBar, login) this is already satisfied: the master PNG
-  is transparent, and every context it renders in controls its own
-  background via CSS, so a transparent PNG is simply correct. If a change
-  ever flattens the master asset onto a solid color, that's a regression —
-  the master asset must stay transparent.
+- **On the site** (NavBar, login, animated hero) this is already satisfied:
+  the dark/white logo PNGs and the mask PNG are all transparent, and every
+  context they render in controls its own background via CSS or a solid
+  `backgroundColor` behind the mask, so a transparent PNG is simply correct.
+  If a change ever flattens one of these onto a solid color, that's a
+  regression — they must stay transparent.
 - **In email** this is *not* simply "make it transparent" without thought —
   it already went wrong once. A genuinely transparent PNG in the email logo
   was tried, then reverted in commit `400f0f2`, because Gmail's dark-mode
@@ -159,16 +179,20 @@ a mismatched background, on the site or in an email, in light mode or dark.
   specific quirk, which is exactly the "white bg... looks like shite on a
   dark screen" complaint this rule exists to stop from recurring again.
 
-### Current state — v3, pending live verification
+### Current state — v5, pending live verification
 
-As of the `arthere-logo-email-color-v3.png` asset (referenced from
-`EmailLayout.tsx`), the email logo is genuinely transparent again — resized
-from the master PNG with sharp (lanczos3), alpha channel intact, not
-flattened onto any color. This directly fixes the white-box complaint, and
-composites cleanly with no visible fringe when checked locally. **What it
-does not do is confirm the original Gmail dark-mode halo won't reappear** —
-that can only be seen in a real Gmail dark-mode render, which nothing in
-this repo or CI can simulate.
+As of the `arthere-logo-email-color-v5.png` asset (referenced from
+`EmailLayout.tsx`), the email logo is genuinely transparent — resized from
+`arthere_color_logo_update_Sept1.png` with sharp (lanczos3) to 240px (3x
+the 80px display size), alpha channel intact, not flattened onto any color.
+v3 first restored transparency but shipped at 480px/146KB, slow enough on
+some connections that the logo visibly flashed a broken-image icon before
+popping in — v4/v5 cut that to 240px/~58KB. v5 also switched the source art
+to the wider-letter-spacing wordmark (see "Two wordmark shapes" above).
+This directly fixes the white-box complaint, and composites cleanly with no
+visible fringe when checked locally. **What it does not do is confirm the
+original Gmail dark-mode halo won't reappear** — that can only be seen in a
+real Gmail dark-mode render, which nothing in this repo or CI can simulate.
 
 - **If a live check in Gmail dark mode looks clean:** the halo in `400f0f2`
   was likely a symptom of that specific export (bad edge matting), not an

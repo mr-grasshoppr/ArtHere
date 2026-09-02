@@ -8,21 +8,23 @@ import * as React from 'react';
 // with the site) before.
 
 // Colored (pink/green gradient) version — the plain black mark doesn't read
-// against a dark background in clients rendered with dark mode. Generated
-// directly from public/images/arthere_logo_green_pink.png, resized with
-// sharp (lanczos3) but NOT flattened — this asset keeps its real alpha
-// channel. v2 composited it onto opaque white instead, specifically to
-// dodge a reported Gmail dark-mode halo on transparent PNGs — but that
-// traded the halo for a plain white box behind the logo in dark-mode
-// clients, which is a worse and more visible defect. v3 (this one) goes
-// back to genuine transparency. If a dark halo reappears in real Gmail
-// dark mode, that regression needs a different fix (e.g. a
-// prefers-color-scheme logo swap) — not a reflex return to opaque white,
-// which is what created the v2 problem in the first place. See
-// REQUIRED-DESIGN-FEATURES.md's LOGO section. Regenerate + re-upload (see
-// git history) if the source logo ever changes.
+// against a dark background in clients rendered with dark mode. v5 (this
+// one) is generated from public/images/arthere_color_logo_update_Sept1.png
+// — the wordmark's letter spacing was widened on that date; the old master
+// (public/images/arthere_logo_green_pink.png, still used as the mask shape
+// for the site's dark/white logo and the animated hero — see
+// REQUIRED-DESIGN-FEATURES.md's LOGO section) has the old tight spacing.
+// Resized with sharp (lanczos3) to 240px (3x the 80px display size —
+// comfortably retina-sharp without the slow-load flash a 480px/146KB
+// version caused, see git history) and NOT flattened — this asset keeps
+// its real alpha channel. Do not flatten it onto opaque white to "fix" a
+// Gmail dark-mode halo, even if one turns up — that trade was already
+// made once (v2) and produced a worse, more visible defect: a plain white
+// box behind the logo in dark-mode clients that don't share Gmail's
+// specific quirk. Regenerate + re-upload (see git history) if the source
+// logo ever changes.
 export const LOGO_URL =
-  'https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/brand/arthere-logo-email-color-v3.png';
+  'https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/brand/arthere-logo-email-color-v5.png';
 
 const NUNITO_WOFF2_URL =
   'https://fonts.gstatic.com/s/nunito/v32/XRXI3I6Li01BKofiOc5wtlZ2di8HDFwmdTQ3j6zbXWjgeg.woff2';
