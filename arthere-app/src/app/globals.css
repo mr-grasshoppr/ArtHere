@@ -17,3 +17,22 @@
      launch pill. Use the `font-display` utility class. */
   --font-display: var(--font-bebas), 'Arial Narrow', Arial, sans-serif;
 }
+
+/*
+ * Optical vertical centring for Bebas Neue buttons.
+ *
+ * Bebas is an all-caps face, but its line box still reserves the descender
+ * space its capitals never occupy: measured, the ascent sits 0.214em above
+ * the cap line while the descent runs 0.326em below the baseline. Centring
+ * the line box therefore centres that empty space, not the letters, and the
+ * caps end up ~0.11em high — small in absolute terms, plainly visible on a
+ * short pill.
+ *
+ * Shift the glyphs down by half the imbalance to sit them on their optical
+ * centre. Expressed in em and applied to the text rather than the box, so it
+ * holds at any font-size or line-height and changes no layout.
+ */
+.caps-optical-center > span {
+  position: relative;
+  top: 0.056em;
+}

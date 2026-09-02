@@ -78,8 +78,7 @@ export default async function Home() {
                 never has to wrap to a second line as the frame narrows. */}
             <Link
               href={pilotCityHref}
-              className={`${gradientStyles.gradientPan} ${gradientStyles.launchPill} mx-auto flex items-center justify-center text-center w-[66.7cqw] max-w-full px-4 py-3 rounded-full font-display text-white text-[1.15rem] tracking-[0.05em] leading-[1.15] whitespace-nowrap`}
-              style={{ textShadow: '0 1px 3px rgba(0,0,0,0.35)' }}
+              className={`${gradientStyles.gradientPan} ${gradientStyles.launchPill} caps-optical-center mx-auto flex items-center justify-center text-center w-[66.7cqw] max-w-full px-4 py-3 rounded-full font-display text-white text-[1.15rem] tracking-[0.05em] leading-[1.15] whitespace-nowrap`}
             >
               <span className="hidden min-[800px]:inline">Art Here just launched in {pilotCityLabel}!</span>
               <span className="hidden min-[540px]:inline min-[800px]:hidden">Art Here in {pilotCityLabel}</span>

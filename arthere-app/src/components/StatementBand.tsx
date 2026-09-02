@@ -56,7 +56,7 @@ export function StatementBand({ cityHref, cityLabel, cityCode }: Props) {
         {cityHref && (
           <Link
             href={cityHref}
-            className={`${styles.revealOnHover} shrink-0 inline-block px-5 sm:px-6 py-2.5 rounded-full bg-[#1a1a1a] font-display text-white text-[1rem] sm:text-[1.1rem] tracking-[0.05em] whitespace-nowrap hover:opacity-85`}
+            className={`${styles.revealOnHover} caps-optical-center shrink-0 inline-block px-5 sm:px-6 py-2.5 rounded-full bg-[#1a1a1a] font-display text-white text-[1rem] sm:text-[1.1rem] tracking-[0.05em] whitespace-nowrap hover:opacity-85`}
           >
             {/* Label shortens rather than wrapping as the row tightens. */}
             <span className="hidden min-[900px]:inline">See art from {cityLabel}</span>
