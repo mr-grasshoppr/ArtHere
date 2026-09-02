@@ -9,13 +9,20 @@ import * as React from 'react';
 
 // Colored (pink/green gradient) version — the plain black mark doesn't read
 // against a dark background in clients rendered with dark mode. Generated
-// directly from public/images/arthere_logo_green_pink.png (composited onto
-// white, since transparent PNGs render with a dark halo in Gmail dark mode)
-// — the previous uploaded asset had drifted to a washed-out pink that no
-// longer matched the site's actual brand color. Regenerate + re-upload
-// (see git history) if the source logo ever changes.
+// directly from public/images/arthere_logo_green_pink.png, resized with
+// sharp (lanczos3) but NOT flattened — this asset keeps its real alpha
+// channel. v2 composited it onto opaque white instead, specifically to
+// dodge a reported Gmail dark-mode halo on transparent PNGs — but that
+// traded the halo for a plain white box behind the logo in dark-mode
+// clients, which is a worse and more visible defect. v3 (this one) goes
+// back to genuine transparency. If a dark halo reappears in real Gmail
+// dark mode, that regression needs a different fix (e.g. a
+// prefers-color-scheme logo swap) — not a reflex return to opaque white,
+// which is what created the v2 problem in the first place. See
+// REQUIRED-DESIGN-FEATURES.md's LOGO section. Regenerate + re-upload (see
+// git history) if the source logo ever changes.
 export const LOGO_URL =
-  'https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/brand/arthere-logo-email-color-v2.png';
+  'https://gdrwkpxdxohbq3gn.public.blob.vercel-storage.com/brand/arthere-logo-email-color-v3.png';
 
 const NUNITO_WOFF2_URL =
   'https://fonts.gstatic.com/s/nunito/v32/XRXI3I6Li01BKofiOc5wtlZ2di8HDFwmdTQ3j6zbXWjgeg.woff2';

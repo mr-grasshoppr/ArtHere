@@ -149,35 +149,40 @@ a mismatched background, on the site or in an email, in light mode or dark.
   background via CSS, so a transparent PNG is simply correct. If a change
   ever flattens the master asset onto a solid color, that's a regression —
   the master asset must stay transparent.
-- **In email** this is *not* simply "make it transparent." A genuinely
-  transparent PNG in the email logo has already been tried and reverted
-  (commit `400f0f2`) because Gmail's dark-mode image handling puts a visible
-  dark halo around the anti-aliased edges of transparent PNGs. The fix at
-  the time — compositing the logo onto opaque white — traded that halo for
-  a different defect: the logo now renders as a plain white box in any
-  dark-mode email client that doesn't match Gmail's specific quirk, which is
-  exactly the "white bg... looks like shite on a dark screen" complaint this
-  rule exists to stop from recurring a third time.
+- **In email** this is *not* simply "make it transparent" without thought —
+  it already went wrong once. A genuinely transparent PNG in the email logo
+  was tried, then reverted in commit `400f0f2`, because Gmail's dark-mode
+  image handling reportedly put a visible dark halo around the transparent
+  PNG's anti-aliased edges. The fix at the time — compositing the logo onto
+  opaque white — traded that halo for a different defect: the logo rendered
+  as a plain white box in dark-mode email clients that don't share Gmail's
+  specific quirk, which is exactly the "white bg... looks like shite on a
+  dark screen" complaint this rule exists to stop from recurring again.
 
-### What this means for the next fix
+### Current state — v3, pending live verification
 
-Do not just flip the email logo back to a plain transparent PNG — that
-reintroduces the Gmail halo this asset was built to avoid. The email logo
-needs to read correctly on **both** a white-background client and a
-dark-background client, which a single flattened raster can't do on its own.
-Real options, not yet decided between:
+As of the `arthere-logo-email-color-v3.png` asset (referenced from
+`EmailLayout.tsx`), the email logo is genuinely transparent again — resized
+from the master PNG with sharp (lanczos3), alpha channel intact, not
+flattened onto any color. This directly fixes the white-box complaint, and
+composites cleanly with no visible fringe when checked locally. **What it
+does not do is confirm the original Gmail dark-mode halo won't reappear** —
+that can only be seen in a real Gmail dark-mode render, which nothing in
+this repo or CI can simulate.
 
-- A deliberate small backing (e.g. a rounded card behind the mark) so the
-  background reads as designed rather than as a stray box in either mode.
-- A light/dark pair of the asset swapped via a `prefers-color-scheme: dark`
-  media query in the email's `<style>`, with the `color-scheme`/
-  `supported-color-schemes` meta tags Gmail and Apple Mail look for.
-- A properly matted transparent export (correct, un-premultiplied alpha at
-  the edges) — the halo may be a symptom of how the previous transparent
-  version's edges were exported, not an unconditional Gmail limitation, but
-  this has not been re-tested since `400f0f2`.
+- **If a live check in Gmail dark mode looks clean:** the halo in `400f0f2`
+  was likely a symptom of that specific export (bad edge matting), not an
+  unconditional Gmail limitation. Update this section to say so, and this
+  rule is simply "the email logo must be a transparent PNG" from here on.
+- **If the dark halo reappears:** do not reflexively flatten it back onto
+  opaque white — that's the v2 mistake, and the white-box complaint is worse
+  than the halo. Instead, either give the mark a deliberate small backing
+  (e.g. a rounded card) so the background reads as designed in both modes,
+  or ship a light/dark pair of the asset swapped via a
+  `prefers-color-scheme: dark` media query in the email's `<style>` (with
+  the `color-scheme`/`supported-color-schemes` meta tags Gmail and Apple
+  Mail look for).
 
-Whichever approach is chosen, it must be verified in real Gmail and Apple
-Mail dark mode before being called fixed — this file existing didn't stop
-this from breaking twice already; only actually checking the rendered email
-will.
+Whichever state this ends up in, it must be confirmed against a real,
+received email — this file existing hasn't stopped this from breaking
+twice already; only actually checking the rendered email will.
