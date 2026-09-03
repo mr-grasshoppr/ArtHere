@@ -3,7 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { sendOutreach, type SendResult } from "./actions";
-import type { Contact } from "@/lib/contact-tracking";
+import type { Contact, ContactSource } from "@/lib/contact-tracking";
 
 const PILL =
   "px-3 py-1.5 rounded-full border text-xs transition-colors whitespace-nowrap";
@@ -15,6 +15,13 @@ const SOURCE_STYLE: Record<string, string> = {
   "contact form": "bg-[#f062a4]/10 text-[#a84573]",
   newsletter: "bg-[#f3f3f0] text-[#777]",
 };
+
+const SOURCE_LABELS: Record<ContactSource, string> = {
+  survey: "Survey",
+  "contact form": "Contact form",
+  newsletter: "Newsletter",
+};
+const SOURCE_ORDER: ContactSource[] = ["survey", "contact form", "newsletter"];
 
 function fmt(iso: string) {
   if (!iso) return "";
@@ -30,6 +37,7 @@ export default function ContactTracker({
 }) {
   const router = useRouter();
   const [interestFilter, setInterestFilter] = useState<string | null>(null);
+  const [sourceFilter, setSourceFilter] = useState<ContactSource | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [expanded, setExpanded] = useState<string | null>(null);
   const [composing, setComposing] = useState(false);
@@ -46,9 +54,22 @@ export default function ContactTracker({
     return interestTags.filter((t) => used.has(t));
   }, [contacts, interestTags]);
 
+  const usedSources = useMemo(() => {
+    const used = new Set(contacts.flatMap((c) => c.sources));
+    return SOURCE_ORDER.filter((s) => used.has(s));
+  }, [contacts]);
+
+  // Interest and source are independent filters, applied together — e.g.
+  // "Raffle winner" + "Survey" narrows to winners specifically reached via
+  // the survey, not also anyone who separately emailed in as a winner.
   const visible = useMemo(
-    () => (interestFilter ? contacts.filter((c) => c.interests.includes(interestFilter)) : contacts),
-    [contacts, interestFilter]
+    () =>
+      contacts.filter(
+        (c) =>
+          (!interestFilter || c.interests.includes(interestFilter)) &&
+          (!sourceFilter || c.sources.includes(sourceFilter))
+      ),
+    [contacts, interestFilter, sourceFilter]
   );
 
   // Selection survives a filter change on purpose — picking a few Partner
@@ -137,6 +158,24 @@ export default function ContactTracker({
           Export CSV
         </a>
       </div>
+
+      {usedSources.length > 1 && (
+        <div className="mb-5 flex items-center gap-2 flex-wrap">
+          <span className="text-xs text-[#999]">Source:</span>
+          <button className={pillCls(!sourceFilter)} onClick={() => setSourceFilter(null)}>
+            All sources
+          </button>
+          {usedSources.map((s) => (
+            <button
+              key={s}
+              className={pillCls(sourceFilter === s)}
+              onClick={() => setSourceFilter(sourceFilter === s ? null : s)}
+            >
+              {SOURCE_LABELS[s]} ({contacts.filter((c) => c.sources.includes(s)).length})
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="mb-3 flex items-center gap-3">
         <button onClick={toggleAllVisible} className="text-xs text-[#888] hover:text-[#1a1a1a] underline">
