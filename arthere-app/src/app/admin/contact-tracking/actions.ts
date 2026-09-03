@@ -100,3 +100,21 @@ export async function sendOutreach(
   revalidatePath("/admin/contact-tracking");
   return { messageId: message.id, sent, failed };
 }
+
+/**
+ * Flags (or unflags) every row across all three sources for this email as
+ * test data — a merged Contact can be built from a survey response, a
+ * contact-form submission, and a newsletter signup at once, so marking just
+ * one wouldn't fully remove the person from view.
+ */
+export async function setContactTest(email: string, isTest: boolean) {
+  await requireAdmin();
+  const where = { email: { equals: email, mode: "insensitive" as const } };
+  await Promise.all([
+    prisma.surveyResponse.updateMany({ where, data: { isTest } }),
+    prisma.contactSubmission.updateMany({ where, data: { isTest } }),
+    prisma.newsletterSignup.updateMany({ where, data: { isTest } }),
+  ]);
+  revalidatePath("/admin/contact-tracking");
+  revalidatePath("/admin/survey");
+}

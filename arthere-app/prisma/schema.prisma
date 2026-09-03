@@ -523,6 +523,9 @@ model ContactSubmission {
   social    String?
   message   String?  @db.Text
   intent    String?
+  // Mirrors SurveyResponse.isTest — lets an admin flag a submission as their
+  // own test/QA data so it stops appearing in Contact Tracking.
+  isTest    Boolean  @default(false)
 
   // Set once an admin converts this submission into a placeholder Artist via
   // the admin/artists "Interested" tab — the tab uses this to know the
@@ -540,6 +543,9 @@ model NewsletterSignup {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   email     String   @unique
+  // Mirrors SurveyResponse.isTest — lets an admin flag a signup as their own
+  // test/QA data so it stops appearing in Contact Tracking.
+  isTest    Boolean  @default(false)
 }
 
 // ─── Admin Notes ──────────────────────────────────────────────────────────────

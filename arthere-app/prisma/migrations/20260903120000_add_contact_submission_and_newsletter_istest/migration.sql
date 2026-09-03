@@ -1,0 +1,2 @@
+ALTER TABLE "ContactSubmission" ADD COLUMN "isTest" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "NewsletterSignup" ADD COLUMN "isTest" BOOLEAN NOT NULL DEFAULT false;

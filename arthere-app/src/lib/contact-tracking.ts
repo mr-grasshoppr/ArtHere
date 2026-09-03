@@ -61,6 +61,8 @@ export interface ContactTouch {
   /** The contact form's free-text message; absent for the other sources. */
   message?: string | null;
   interests: string[];
+  /** Whether the underlying row (survey response / submission / signup) is flagged as test data. */
+  isTest: boolean;
 }
 
 export interface OutreachRecord {
@@ -85,6 +87,8 @@ export interface Contact {
   outreach: OutreachRecord[];
   /** Other addresses whose name matches this one — a possible duplicate person. */
   possibleDuplicateOf: string[];
+  /** True if any underlying touch is flagged as test data — see setContactTest. */
+  isTest: boolean;
 }
 
 function normalizeEmail(value: string | null | undefined): string | null {
@@ -102,17 +106,19 @@ function normalizeEmail(value: string | null | undefined): string | null {
  */
 export async function getContacts(): Promise<Contact[]> {
   const [surveys, submissions, signups, outreach] = await Promise.all([
-    // Test rows are excluded to match what the Survey tab reports; archived
-    // rows are NOT, since archiving there means "out of the way", not "not a
-    // real person", and these are real people to contact.
+    // Test rows are included but flagged (isTest), not excluded — the admin
+    // can review/unmark them here rather than only from the Survey tab.
+    // Archived rows ARE included too, since archiving there means "out of
+    // the way", not "not a real person", and these are real people to contact.
     prisma.surveyResponse.findMany({
-      where: { completedAt: { not: null }, isTest: false, email: { not: null } },
+      where: { completedAt: { not: null }, email: { not: null } },
       select: {
         email: true,
         createdAt: true,
         involvementInterests: true,
         involvementInterestsOther: true,
         raffleWinnerAt: true,
+        isTest: true,
       },
       orderBy: { createdAt: "asc" },
     }),
@@ -139,6 +145,7 @@ export async function getContacts(): Promise<Contact[]> {
         lastSeen: "",
         outreach: [],
         possibleDuplicateOf: [],
+        isTest: false,
       };
       byEmail.set(email, c);
     }
@@ -167,6 +174,7 @@ export async function getContacts(): Promise<Contact[]> {
       at: s.createdAt.toISOString(),
       message: s.involvementInterestsOther?.trim() || null,
       interests,
+      isTest: s.isTest,
     });
   }
 
@@ -181,6 +189,7 @@ export async function getContacts(): Promise<Contact[]> {
         at: s.createdAt.toISOString(),
         message: s.message,
         interests: mapped ? [mapped] : [],
+        isTest: s.isTest,
       },
       s.name
     );
@@ -193,6 +202,7 @@ export async function getContacts(): Promise<Contact[]> {
       source: "newsletter",
       at: s.createdAt.toISOString(),
       interests: [INTEREST_NEWS],
+      isTest: s.isTest,
     });
   }
 
@@ -216,6 +226,9 @@ export async function getContacts(): Promise<Contact[]> {
     c.firstSeen = c.touches[0]?.at ?? "";
     c.lastSeen = c.touches[c.touches.length - 1]?.at ?? "";
     c.interests.sort((a, b) => INTEREST_TAGS.indexOf(a) - INTEREST_TAGS.indexOf(b));
+    // A person is treated as test if any of their touches are — one QA pass
+    // through the contact form shouldn't need to be re-flagged per source.
+    c.isTest = c.touches.some((t) => t.isTest);
   }
 
   // Email is the only join key, so someone who used a personal address one

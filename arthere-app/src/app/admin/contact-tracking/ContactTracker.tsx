@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { sendOutreach, type SendResult } from "./actions";
+import { sendOutreach, setContactTest, type SendResult } from "./actions";
 import type { Contact, ContactSource } from "@/lib/contact-tracking";
 
 const PILL =
@@ -38,6 +38,9 @@ export default function ContactTracker({
   const router = useRouter();
   const [interestFilter, setInterestFilter] = useState<string | null>(null);
   const [sourceFilter, setSourceFilter] = useState<ContactSource | null>(null);
+  const [showTests, setShowTests] = useState(false);
+  const [localIsTest, setLocalIsTest] = useState<Record<string, boolean>>({});
+  const [testPending, setTestPending] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [expanded, setExpanded] = useState<string | null>(null);
   const [composing, setComposing] = useState(false);
@@ -48,36 +51,56 @@ export default function ContactTracker({
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
 
+  const contactsWithLocal = useMemo(
+    () => contacts.map((c) => ({ ...c, isTest: c.email in localIsTest ? localIsTest[c.email] : c.isTest })),
+    [contacts, localIsTest]
+  );
+
+  const testCount = useMemo(() => contactsWithLocal.filter((c) => c.isTest).length, [contactsWithLocal]);
+
+  async function handleToggleTest(email: string, isTest: boolean) {
+    setTestPending(email);
+    setLocalIsTest((prev) => ({ ...prev, [email]: isTest }));
+    try {
+      await setContactTest(email, isTest);
+    } finally {
+      setTestPending(null);
+    }
+  }
+
   // Only tags someone actually has — an empty filter is just a dead end.
   const usedTags = useMemo(() => {
-    const used = new Set(contacts.flatMap((c) => c.interests));
+    const used = new Set(contactsWithLocal.flatMap((c) => c.interests));
     return interestTags.filter((t) => used.has(t));
-  }, [contacts, interestTags]);
+  }, [contactsWithLocal, interestTags]);
 
   const usedSources = useMemo(() => {
-    const used = new Set(contacts.flatMap((c) => c.sources));
+    const used = new Set(contactsWithLocal.flatMap((c) => c.sources));
     return SOURCE_ORDER.filter((s) => used.has(s));
-  }, [contacts]);
+  }, [contactsWithLocal]);
 
   // Interest and source are independent filters, applied together — e.g.
   // "Raffle winner" + "Survey" narrows to winners specifically reached via
   // the survey, not also anyone who separately emailed in as a winner.
+  // Test contacts are hidden by default, same as the Survey/Artwork Review
+  // admin views, with a toggle to bring them back for review.
   const visible = useMemo(
     () =>
-      contacts.filter(
+      contactsWithLocal.filter(
         (c) =>
+          (showTests || !c.isTest) &&
           (!interestFilter || c.interests.includes(interestFilter)) &&
           (!sourceFilter || c.sources.includes(sourceFilter))
       ),
-    [contacts, interestFilter, sourceFilter]
+    [contactsWithLocal, interestFilter, sourceFilter, showTests]
   );
 
   // Selection survives a filter change on purpose — picking a few Partner
   // contacts, switching to Featured, and adding a few more is a normal way to
   // build a list. The confirm step always shows the full set before sending.
   const selectedContacts = useMemo(
-    () => contacts.filter((c) => selected.has(c.email)),
-    [contacts, selected]
+    () => contactsWithLocal.filter((c) => selected.has(c.email)),
+    [contactsWithLocal, selected]
   );
 
   const allVisibleSelected = visible.length > 0 && visible.every((c) => selected.has(c.email));
@@ -140,7 +163,7 @@ export default function ContactTracker({
 
       <div className="mb-5 flex items-center gap-2 flex-wrap">
         <button className={pillCls(!interestFilter)} onClick={() => setInterestFilter(null)}>
-          All ({contacts.length})
+          All ({contactsWithLocal.filter((c) => showTests || !c.isTest).length})
         </button>
         {usedTags.map((tag) => (
           <button
@@ -148,7 +171,7 @@ export default function ContactTracker({
             className={pillCls(interestFilter === tag)}
             onClick={() => setInterestFilter(interestFilter === tag ? null : tag)}
           >
-            {tag} ({contacts.filter((c) => c.interests.includes(tag)).length})
+            {tag} ({contactsWithLocal.filter((c) => (showTests || !c.isTest) && c.interests.includes(tag)).length})
           </button>
         ))}
         <a
@@ -171,7 +194,7 @@ export default function ContactTracker({
               className={pillCls(sourceFilter === s)}
               onClick={() => setSourceFilter(sourceFilter === s ? null : s)}
             >
-              {SOURCE_LABELS[s]} ({contacts.filter((c) => c.sources.includes(s)).length})
+              {SOURCE_LABELS[s]} ({contactsWithLocal.filter((c) => (showTests || !c.isTest) && c.sources.includes(s)).length})
             </button>
           ))}
         </div>
@@ -181,6 +204,18 @@ export default function ContactTracker({
         <button onClick={toggleAllVisible} className="text-xs text-[#888] hover:text-[#1a1a1a] underline">
           {allVisibleSelected ? "Clear these" : `Select all ${visible.length} shown`}
         </button>
+        {testCount > 0 && (
+          <button
+            onClick={() => setShowTests((s) => !s)}
+            className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+              showTests
+                ? "border-[#f062a4]/40 bg-[#f062a4]/10 text-[#a84573]"
+                : "border-[#e5e5e5] text-[#999] hover:border-[#ccc]"
+            }`}
+          >
+            {showTests ? `Hide ${testCount} test${testCount !== 1 ? "s" : ""}` : `Show ${testCount} test${testCount !== 1 ? "s" : ""}`}
+          </button>
+        )}
         {selected.size > 0 && (
           <>
             <span className="text-xs text-[#888]">{selected.size} selected</span>
@@ -202,7 +237,7 @@ export default function ContactTracker({
       <div className="bg-white border border-[#e5e5e5] rounded-lg divide-y divide-[#f0f0f0]">
         {visible.length === 0 && <p className="px-5 py-6 text-sm text-[#999]">Nobody matches this filter.</p>}
         {visible.map((c) => (
-          <div key={c.email} className="px-4 py-3">
+          <div key={c.email} className={`px-4 py-3 ${c.isTest ? "opacity-50" : ""}`}>
             <div className="flex items-start gap-3">
               <input
                 type="checkbox"
@@ -216,6 +251,11 @@ export default function ContactTracker({
                   <a href={`mailto:${c.email}`} className="text-[0.85rem] text-[#666] underline underline-offset-2 decoration-[#ddd]">
                     {c.email}
                   </a>
+                  {c.isTest && (
+                    <span className="text-[10px] uppercase tracking-wide bg-[#f062a4]/15 text-[#a84573] px-1.5 py-0.5 rounded">
+                      test
+                    </span>
+                  )}
                   {c.interests.map((i) => (
                     <span key={i} className="text-[0.7rem] bg-[#1a1a1a]/[0.06] text-[#555] px-2 py-0.5 rounded-full">
                       {i}
@@ -270,6 +310,17 @@ export default function ContactTracker({
                         <p className="text-[#555] whitespace-pre-wrap mt-0.5 leading-[1.6]">{o.body}</p>
                       </div>
                     ))}
+                    <button
+                      onClick={() => handleToggleTest(c.email, !c.isTest)}
+                      disabled={testPending === c.email}
+                      className={`text-xs px-3 py-1.5 rounded border transition-colors ${
+                        c.isTest
+                          ? "border-[#f062a4]/40 bg-[#f062a4]/10 text-[#a84573] hover:bg-[#f062a4]/15"
+                          : "border-[#e5e5e5] text-[#888] hover:border-[#f062a4]/40 hover:text-[#a84573]"
+                      }`}
+                    >
+                      {testPending === c.email ? "Saving…" : c.isTest ? "Unmark as test" : "Mark as test"}
+                    </button>
                   </div>
                 )}
               </div>
