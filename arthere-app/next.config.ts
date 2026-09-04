@@ -1,6 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Friendly short links for outbound email/social — nicer than pasting the
+  // full /contact?type=featured URL into a message. Add more here as other
+  // intents need one.
+  async redirects() {
+    return [
+      { source: "/featured", destination: "/contact?type=featured", permanent: false },
+      { source: "/getfeatured", destination: "/contact?type=featured", permanent: false },
+    ];
+  },
   images: {
     // Next 16 rejects any quality not listed here (400). 75 is the default
     // used for content images; 50 is for the city page's ambient artwork
