@@ -158,7 +158,7 @@ export function ContactForm() {
               value={affiliations}
               onChange={e => setAffiliations(e.target.value)}
               rows={2}
-              placeholder="Multnomah Arts Center, Maplewood Coffee and Tea"
+              placeholder="Multnomah Arts Center, Maplewood Coffee and Tea, Ford Gallery"
               className={`${INPUT} resize-none`}
             />
           </div>
