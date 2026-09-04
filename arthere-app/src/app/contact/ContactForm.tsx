@@ -39,6 +39,7 @@ export function ContactForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [social, setSocial] = useState('');
+  const [affiliations, setAffiliations] = useState('');
   const [message, setMessage] = useState(intent.opening);
   const [honeypot, setHoneypot] = useState(''); // hidden anti-bot field
   const [status, setStatus] = useState<'idle' | 'submitting' | 'sent' | 'error'>('idle');
@@ -50,7 +51,7 @@ export function ContactForm() {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, social, message, intent: intentKey, website: honeypot }),
+        body: JSON.stringify({ name, email, social, affiliations, message, intent: intentKey, website: honeypot }),
       });
       if (!res.ok) throw new Error();
       setStatus('sent');
@@ -142,6 +143,23 @@ export function ContactForm() {
               onChange={e => setSocial(e.target.value)}
               placeholder="https://yoursite.com or @yourhandle"
               className={INPUT}
+            />
+          </div>
+
+          <div>
+            <label className="block text-[0.72rem] font-semibold text-[#aaa] mb-1.5 uppercase tracking-widest">
+              Places you&rsquo;re affiliated with <span className="normal-case font-normal text-[#ccc]">(optional)</span>
+            </label>
+            <p className="text-[0.78rem] text-[#ccc] font-light mb-2">
+              Galleries, studios, collectives, shops, or organizations &mdash; anywhere your work
+              shows or you&rsquo;re involved.
+            </p>
+            <textarea
+              value={affiliations}
+              onChange={e => setAffiliations(e.target.value)}
+              rows={2}
+              placeholder="Multnomah Arts Center, Sequoia Gallery + Studios"
+              className={`${INPUT} resize-none`}
             />
           </div>
 

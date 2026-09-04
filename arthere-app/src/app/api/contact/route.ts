@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   const body = parseBody(contactSchema, raw);
   if (!body) return NextResponse.json({ error: 'Invalid request.' }, { status: 400 });
 
-  const { name, email, social, message, intent, website } = body;
+  const { name, email, social, affiliations, message, intent, website } = body;
 
   // Honeypot: the visible form never fills this field — bots do.
   if (website?.trim()) return NextResponse.json({ ok: true });
@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
     { label: 'Name', value: submitterName },
     { label: 'Email', value: submitterEmail },
     ...(social?.trim() ? [{ label: 'Website / Social', value: social.trim() }] : []),
+    ...(affiliations?.trim() ? [{ label: 'Affiliated with', value: messageNode(affiliations.trim()) }] : []),
     ...(message?.trim() ? [{ label: 'Message', value: messageNode(message.trim()) }] : []),
   ];
 
@@ -64,6 +65,7 @@ export async function POST(req: NextRequest) {
       name: submitterName,
       email: submitterEmail,
       social: social?.trim() || null,
+      affiliations: affiliations?.trim() || null,
       message: message?.trim() || null,
       intent: intent?.trim() || null,
     },
@@ -78,6 +80,7 @@ export async function POST(req: NextRequest) {
       text: [
         `From: ${submitterName} <${submitterEmail}>`,
         `Intent: ${subject}`,
+        ...(affiliations?.trim() ? [`Affiliated with: ${affiliations.trim()}`] : []),
         '',
         message?.trim() ? message.trim() : '(No additional message)',
       ].join('\n'),

@@ -75,6 +75,7 @@ export const contactSchema = z
     name: z.string().min(1).max(200),
     email: z.string().min(3).max(254),
     social: shortText.nullish(),
+    affiliations: z.string().max(2000).nullish(),
     message: z.string().max(5000).nullish(),
     intent: z.string().max(50).nullish(),
     website: z.string().max(500).nullish(), // honeypot

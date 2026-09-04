@@ -523,6 +523,11 @@ model ContactSubmission {
   social    String?
   message   String?  @db.Text
   intent    String?
+  // Galleries, studios, collectives, shops or organisations the sender named
+  // on the contact form. Free text: an artist reaching out has no way to pick
+  // from our Place records, and half of what they name won't exist as one yet.
+  // Structured ArtistPlace relations are established later, in onboarding.
+  affiliations String? @db.Text
   // Mirrors SurveyResponse.isTest — lets an admin flag a submission as their
   // own test/QA data so it stops appearing in Contact Tracking.
   isTest    Boolean  @default(false)

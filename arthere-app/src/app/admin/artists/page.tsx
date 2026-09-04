@@ -212,6 +212,11 @@ export default async function AdminArtistsPage({
                       <span className="text-xs text-[#bbb]">{new Date(s.createdAt).toLocaleDateString()}</span>
                     </div>
                     {s.social && <p className="text-sm text-[#888] truncate">{s.social}</p>}
+                    {s.affiliations && (
+                      <p className="text-sm text-[#555] mt-0.5">
+                        <span className="text-[#bbb]">Affiliated with:</span> {s.affiliations}
+                      </p>
+                    )}
                     {s.message && <p className="text-sm text-[#aaa] truncate">{s.message}</p>}
                   </div>
                   <InviteInterestedButton submissionId={s.id} />
