@@ -55,7 +55,7 @@ export default async function AdminContactsPage() {
               )}
               {s.affiliations && (
                 <p className="text-[0.82rem] text-[#555] mb-1">
-                  <span className="text-[#bbb]">Affiliated with:</span> {s.affiliations}
+                  <span className="text-[#bbb]">Local affiliations:</span> {s.affiliations}
                 </p>
               )}
               {s.message && (

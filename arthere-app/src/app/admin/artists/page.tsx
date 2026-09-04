@@ -214,7 +214,7 @@ export default async function AdminArtistsPage({
                     {s.social && <p className="text-sm text-[#888] truncate">{s.social}</p>}
                     {s.affiliations && (
                       <p className="text-sm text-[#555] mt-0.5">
-                        <span className="text-[#bbb]">Affiliated with:</span> {s.affiliations}
+                        <span className="text-[#bbb]">Local affiliations:</span> {s.affiliations}
                       </p>
                     )}
                     {s.message && <p className="text-sm text-[#aaa] truncate">{s.message}</p>}

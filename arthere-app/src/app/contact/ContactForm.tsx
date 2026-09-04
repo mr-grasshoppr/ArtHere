@@ -148,11 +148,10 @@ export function ContactForm() {
 
           <div>
             <label className="block text-[0.72rem] font-semibold text-[#aaa] mb-1.5 uppercase tracking-widest">
-              Places you&rsquo;re affiliated with <span className="normal-case font-normal text-[#ccc]">(optional)</span>
+              Local Affiliations <span className="normal-case font-normal text-[#ccc]">(optional)</span>
             </label>
             <p className="text-[0.78rem] text-[#ccc] font-light mb-2">
-              Galleries, studios, collectives, shops, or organizations &mdash; anywhere your work
-              shows or you&rsquo;re involved.
+              Local galleries, studios, collectives, shops, or organizations where you&rsquo;re involved
             </p>
             <textarea
               value={affiliations}

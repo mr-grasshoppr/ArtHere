@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     { label: 'Name', value: submitterName },
     { label: 'Email', value: submitterEmail },
     ...(social?.trim() ? [{ label: 'Website / Social', value: social.trim() }] : []),
-    ...(affiliations?.trim() ? [{ label: 'Affiliated with', value: messageNode(affiliations.trim()) }] : []),
+    ...(affiliations?.trim() ? [{ label: 'Local affiliations', value: messageNode(affiliations.trim()) }] : []),
     ...(message?.trim() ? [{ label: 'Message', value: messageNode(message.trim()) }] : []),
   ];
 
@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
       text: [
         `From: ${submitterName} <${submitterEmail}>`,
         `Intent: ${subject}`,
-        ...(affiliations?.trim() ? [`Affiliated with: ${affiliations.trim()}`] : []),
+        ...(affiliations?.trim() ? [`Local affiliations: ${affiliations.trim()}`] : []),
         '',
         message?.trim() ? message.trim() : '(No additional message)',
       ].join('\n'),
