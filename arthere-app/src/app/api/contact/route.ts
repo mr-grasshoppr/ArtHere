@@ -40,7 +40,6 @@ export async function POST(req: NextRequest) {
 
   const submitterEmail = email.trim();
   const submitterName = name.trim();
-  const firstName = submitterName.split(' ')[0];
 
   // Turns a multi-line message into <br>-separated React children — safe by
   // default (React escapes text nodes), no manual HTML-escaping needed here.
@@ -57,7 +56,7 @@ export async function POST(req: NextRequest) {
 
   const [{ html: notificationHtml }, { html: confirmationHtml }] = await Promise.all([
     renderEmail(React.createElement(AdminNotificationEmail, { preview: subject, heading: subject, rows: notificationRows })),
-    renderEmail(React.createElement(ContactConfirmationEmail, { firstName })),
+    renderEmail(React.createElement(ContactConfirmationEmail)),
   ]);
 
   await prisma.contactSubmission.create({
@@ -92,7 +91,7 @@ export async function POST(req: NextRequest) {
       bcc: 'hello@artishere.org',
       subject: `We got your message — ${subject}`,
       html: confirmationHtml,
-      text: `Thanks for reaching out, ${firstName}. We received your message and will be in touch soon.\n\n— The Art Here Team`,
+      text: `Thanks for reaching out! We received your message and will be in touch soon.\n\n— The Art Here Team`,
     }),
   ]);
 
