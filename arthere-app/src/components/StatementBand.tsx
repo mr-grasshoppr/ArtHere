@@ -49,9 +49,12 @@ export function StatementBand({ cityHref, cityLabel, cityCode }: Props) {
       {/* Always a row, vertically centred: stacking the CTA underneath left
           the headline sitting high with the hidden button still reserving a
           block of empty space below it. */}
-      <div className="relative z-10 max-w-[900px] mx-auto px-6 sm:px-10 py-20 sm:py-28 flex flex-row items-center justify-between gap-4 sm:gap-10">
-        <h2 className="font-display text-[clamp(1.35rem,3vw,2rem)] tracking-[0.04em] leading-[1.2] text-[#1a1a1a] text-balance">
-          What if we could understand a place by the art that is created there?
+      <div className="relative z-10 max-w-[900px] mx-auto px-6 sm:px-10 py-24 sm:py-36 flex flex-row items-center justify-between gap-4 sm:gap-10">
+        <h2 className="font-display text-[clamp(1.35rem,3vw,2rem)] tracking-[0.04em] leading-[1.2] text-[#1a1a1a]">
+          {/* Broken by hand rather than left to text-balance, which split it
+              after "place" — the mockup breaks after "understand". */}
+          <span className="block">What if we could understand</span>
+          <span className="block">a place by the art that is made there?</span>
         </h2>
         {cityHref && (
           <Link
@@ -59,8 +62,7 @@ export function StatementBand({ cityHref, cityLabel, cityCode }: Props) {
             className={`${styles.revealOnHover} caps-optical-center shrink-0 inline-block px-5 sm:px-6 py-2.5 rounded-full bg-[#1a1a1a] font-display text-white text-[1rem] sm:text-[1.1rem] tracking-[0.05em] whitespace-nowrap hover:opacity-85`}
           >
             {/* Label shortens rather than wrapping as the row tightens. */}
-            <span className="hidden min-[900px]:inline">See art from {cityLabel}</span>
-            <span className="hidden min-[620px]:inline min-[900px]:hidden">{cityLabel}</span>
+            <span className="hidden min-[620px]:inline">Explore {shortCode}</span>
             <span className="min-[620px]:hidden">{shortCode}</span>
           </Link>
         )}

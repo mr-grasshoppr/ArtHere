@@ -1,51 +1,54 @@
-/* Animated gradient wash, feathered into the page.
+/* Soft colour wash with no edges at all.
  *
- * The wash lives on a ::before rather than on the section itself so it can
- * carry a mask without taking the headline and button with it — a mask on
- * the section would fade the text out at the same rate as the artwork.
+ * Built from radial gradients rather than the tiled photograph. The
+ * photograph gave the band four hard sides; feathering it with a mask helped
+ * the top and bottom but still left a faint line where the fade met the solid
+ * core, and an image feathered on all four sides can't tile, so the pan would
+ * have shown its seams marching across.
  *
- * Sized in px with `auto` height so the artwork keeps its natural aspect
- * ratio — forcing it to the band's height instead both distorted it and
- * pulled its own dark bottom edge row into view as a hairline stroke along
- * the bottom of the band.
+ * Gradients have none of those problems: nothing to tile, nothing to band at
+ * 8-bit, and the shape scales with the section instead of being fixed to an
+ * image's pixels. Every falloff is eased (smoothstep) so alpha reaches zero
+ * with zero slope — a straight ramp leaves a visible ring or line at the stop
+ * even though the value itself is continuous.
  *
- * At 3000px wide the image stands far taller than the band, so
- * `background-position: center` shows only a slice through its middle: the
- * gradient reads as a soft wash, well away from any edge artefacts, and the
- * band reveals well under half the image at any realistic viewport.
- *
- * One tile is exactly 3000px, so panning by that distance loops seamlessly. */
+ * The wash lives on a ::before so it can be positioned and animated
+ * independently of the headline and button. It bleeds past the section on the
+ * left and right, so the colour runs off both edges of the viewport as in the
+ * mockup rather than stopping at a boundary. */
 .band {
   position: relative;
   isolation: isolate;
-  /* The same off-white as the sections above and below. The wash fades into
-     this, so the soft edges read as the gradient dissolving into the page
-     rather than as a gap. */
+  overflow: hidden;
+  /* Same off-white as the sections above and below, so the wash dissolves
+     into the page rather than into a gap. */
   background-color: #f7f6f3;
 }
 
 .band::before {
   content: '';
   position: absolute;
-  inset: 0;
-  /* Above the section's own background, below the headline and button. */
+  /* Wider than the section so the left and right masses are already at full
+     strength where they cross the viewport edge. */
+  inset: 0 -12%;
   z-index: -1;
-  background-color: #1a9b6f;
-  background-image: url('/images/arthere_logo_green_pink_background_for_animated_logo.png');
-  background-repeat: repeat-x;
-  background-size: 3000px auto;
-  background-position: center;
-  animation: bandPan 60s linear infinite;
-  /* Feathered top and bottom instead of cut edges, tilted a couple of degrees
-     off horizontal so the fade lines run with the diagonal transitions inside
-     the artwork rather than slicing straight across them. */
-  -webkit-mask-image: linear-gradient(183deg, transparent 0%, #000 34%, #000 66%, transparent 100%);
-  mask-image: linear-gradient(183deg, transparent 0%, #000 34%, #000 66%, transparent 100%);
+  background-image:
+    radial-gradient(64% 46% at 4% 50%, rgba(26,155,111,0.920) 0%, rgba(26,155,111,0.894) 10%, rgba(26,155,111,0.824) 20%, rgba(26,155,111,0.721) 30%, rgba(26,155,111,0.596) 40%, rgba(26,155,111,0.460) 50%, rgba(26,155,111,0.324) 60%, rgba(26,155,111,0.199) 70%, rgba(26,155,111,0.096) 80%, rgba(26,155,111,0.026) 90%, rgba(26,155,111,0) 100%),
+    radial-gradient(58% 44% at 96% 47%, rgba(240,98,164,0.900) 0%, rgba(240,98,164,0.875) 10%, rgba(240,98,164,0.806) 20%, rgba(240,98,164,0.706) 30%, rgba(240,98,164,0.583) 40%, rgba(240,98,164,0.450) 50%, rgba(240,98,164,0.317) 60%, rgba(240,98,164,0.194) 70%, rgba(240,98,164,0.094) 80%, rgba(240,98,164,0.025) 90%, rgba(240,98,164,0) 100%),
+    radial-gradient(30% 26% at 28% 74%, rgba(163,205,74,0.400) 0%, rgba(163,205,74,0.389) 10%, rgba(163,205,74,0.358) 20%, rgba(163,205,74,0.314) 30%, rgba(163,205,74,0.259) 40%, rgba(163,205,74,0.200) 50%, rgba(163,205,74,0.141) 60%, rgba(163,205,74,0.086) 70%, rgba(163,205,74,0.042) 80%, rgba(163,205,74,0.011) 90%, rgba(163,205,74,0) 100%),
+    radial-gradient(26% 24% at 74% 78%, rgba(26,155,111,0.280) 0%, rgba(26,155,111,0.272) 10%, rgba(26,155,111,0.251) 20%, rgba(26,155,111,0.220) 30%, rgba(26,155,111,0.181) 40%, rgba(26,155,111,0.140) 50%, rgba(26,155,111,0.099) 60%, rgba(26,155,111,0.060) 70%, rgba(26,155,111,0.029) 80%, rgba(26,155,111,0.008) 90%, rgba(26,155,111,0) 100%);
+  /* Horizontal only. Scaling the layer vertically would push the faded top
+     and bottom back outside the section, where overflow:hidden clips them
+     into the straight edges this is meant to get rid of. */
+  animation: bandDrift 48s ease-in-out infinite alternate;
 }
 
-@keyframes bandPan {
-  from { background-position-x: 0; }
-  to   { background-position-x: -3000px; }
+/* A slow horizontal drift rather than a pan. Stretching and sliding one
+   continuous layer has no seam to reveal, which is what forced the old tiled
+   image to loop on an exact tile width. */
+@keyframes bandDrift {
+  from { transform: translateX(0) scaleX(1); }
+  to   { transform: translateX(-3%) scaleX(1.1); }
 }
 
 .revealOnHover {
