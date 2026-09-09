@@ -1,31 +1,23 @@
-/* Soft colour wash with no edges at all.
+/* Soft colour wash with no edges at all — the artwork from Figma, whose
+ * transparency does the work that a CSS mask and then layered gradients were
+ * both standing in for.
  *
- * The two sides are deliberately not symmetric. Green holds full strength
- * across the inner third of its radius and then falls away over a shorter
- * run; pink starts falling almost immediately across a much wider radius, so
- * its edge is far more gradual. That difference is from the mockup, where it
- * came from a progressive blur — don't "fix" it into a matching pair.
+ * The wash lives on a ::before rather than on the section so it sits behind
+ * the headline and button without affecting them.
  *
- * Built from radial gradients rather than the tiled photograph. The
- * photograph gave the band four hard sides; feathering it with a mask helped
- * the top and bottom but still left a faint line where the fade met the solid
- * core, and an image feathered on all four sides can't tile, so the pan would
- * have shown its seams marching across.
+ * Stretched to the section's box (100% 100%) rather than cover or contain.
+ * The art is 409x229 and the band is far wider than that ratio: cover would
+ * crop the soft top and bottom away, and contain would leave the sides bare.
+ * Distorting an abstract gradient costs nothing and keeps all four faded
+ * edges where they were composed to be. For the same reason the layer is
+ * inset: 0 — no overscale — so the framing is exactly as drawn.
  *
- * Gradients have none of those problems: nothing to tile, nothing to band at
- * 8-bit, and the shape scales with the section instead of being fixed to an
- * image's pixels. Every falloff is eased (smoothstep) so alpha reaches zero
- * with zero slope — a straight ramp leaves a visible ring or line at the stop
- * even though the value itself is continuous.
- *
- * The wash lives on a ::before so it can be positioned and animated
- * independently of the headline and button. It bleeds past the section on the
- * left and right, so the colour runs off both edges of the viewport as in the
- * mockup rather than stopping at a boundary. */
+ * Not animated. A single non-repeating image can only drift by pulling its
+ * own transparent edge inward, which shows as the colour peeling away from
+ * one side. */
 .band {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
   /* Same off-white as the sections above and below, so the wash dissolves
      into the page rather than into a gap. */
   background-color: #f7f6f3;
@@ -34,26 +26,12 @@
 .band::before {
   content: '';
   position: absolute;
-  /* Wider than the section so the left and right masses are already at full
-     strength where they cross the viewport edge. */
-  inset: 0 -12%;
+  inset: 0;
   z-index: -1;
-  background-image:
-    radial-gradient(52% 44% at 2% 50%, rgba(13,166,106,1.000) 0%, rgba(13,166,106,1.000) 8%, rgba(13,166,106,1.000) 17%, rgba(13,166,106,1.000) 25%, rgba(13,166,106,1.000) 33%, rgba(13,166,106,0.963) 42%, rgba(13,166,106,0.852) 50%, rgba(13,166,106,0.692) 58%, rgba(13,166,106,0.508) 67%, rgba(13,166,106,0.322) 75%, rgba(13,166,106,0.159) 83%, rgba(13,166,106,0.044) 92%, rgba(13,166,106,0) 100%),
-    radial-gradient(74% 46% at 99% 47%, rgba(236,64,153,1.000) 0%, rgba(236,64,153,0.994) 8%, rgba(236,64,153,0.952) 17%, rgba(236,64,153,0.877) 25%, rgba(236,64,153,0.777) 33%, rgba(236,64,153,0.659) 42%, rgba(236,64,153,0.531) 50%, rgba(236,64,153,0.402) 58%, rgba(236,64,153,0.278) 67%, rgba(236,64,153,0.168) 75%, rgba(236,64,153,0.080) 83%, rgba(236,64,153,0.021) 92%, rgba(236,64,153,0) 100%),
-    radial-gradient(28% 24% at 26% 76%, rgba(150,208,64,0.550) 0%, rgba(150,208,64,0.550) 8%, rgba(150,208,64,0.541) 17%, rgba(150,208,64,0.509) 25%, rgba(150,208,64,0.458) 33%, rgba(150,208,64,0.394) 42%, rgba(150,208,64,0.321) 50%, rgba(150,208,64,0.245) 58%, rgba(150,208,64,0.170) 67%, rgba(150,208,64,0.104) 75%, rgba(150,208,64,0.050) 83%, rgba(150,208,64,0.013) 92%, rgba(150,208,64,0) 100%);
-  /* Horizontal only. Scaling the layer vertically would push the faded top
-     and bottom back outside the section, where overflow:hidden clips them
-     into the straight edges this is meant to get rid of. */
-  animation: bandDrift 48s ease-in-out infinite alternate;
-}
-
-/* A slow horizontal drift rather than a pan. Stretching and sliding one
-   continuous layer has no seam to reveal, which is what forced the old tiled
-   image to loop on an exact tile width. */
-@keyframes bandDrift {
-  from { transform: translateX(0) scaleX(1); }
-  to   { transform: translateX(-3%) scaleX(1.1); }
+  background-image: url('/images/pink_green_section.png');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-position: center;
 }
 
 .revealOnHover {
@@ -93,10 +71,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .band::before {
-    animation: none;
-  }
-
   .revealOnHover {
     transition: opacity 260ms ease;
     transform: none;
