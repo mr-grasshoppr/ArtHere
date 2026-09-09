@@ -1,4 +1,8 @@
-/* Animated gradient wash.
+/* Animated gradient wash, feathered into the page.
+ *
+ * The wash lives on a ::before rather than on the section itself so it can
+ * carry a mask without taking the headline and button with it — a mask on
+ * the section would fade the text out at the same rate as the artwork.
  *
  * Sized in px with `auto` height so the artwork keeps its natural aspect
  * ratio — forcing it to the band's height instead both distorted it and
@@ -12,12 +16,31 @@
  *
  * One tile is exactly 3000px, so panning by that distance loops seamlessly. */
 .band {
+  position: relative;
+  isolation: isolate;
+  /* The same off-white as the sections above and below. The wash fades into
+     this, so the soft edges read as the gradient dissolving into the page
+     rather than as a gap. */
+  background-color: #f7f6f3;
+}
+
+.band::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* Above the section's own background, below the headline and button. */
+  z-index: -1;
   background-color: #1a9b6f;
   background-image: url('/images/arthere_logo_green_pink_background_for_animated_logo.png');
   background-repeat: repeat-x;
   background-size: 3000px auto;
   background-position: center;
   animation: bandPan 60s linear infinite;
+  /* Feathered top and bottom instead of cut edges, tilted a couple of degrees
+     off horizontal so the fade lines run with the diagonal transitions inside
+     the artwork rather than slicing straight across them. */
+  -webkit-mask-image: linear-gradient(183deg, transparent 0%, #000 34%, #000 66%, transparent 100%);
+  mask-image: linear-gradient(183deg, transparent 0%, #000 34%, #000 66%, transparent 100%);
 }
 
 @keyframes bandPan {
