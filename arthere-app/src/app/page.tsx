@@ -93,7 +93,7 @@ export default async function Home() {
 
         {/* About + Map side by side */}
         <section id="about" className="bg-[#f7f6f3] scroll-mt-[70px]">
-          <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-16 sm:py-24 flex flex-col sm:flex-row gap-12 sm:gap-16 items-center">
+          <div className="max-w-[900px] mx-auto px-6 sm:px-10 pt-16 sm:pt-24 pb-8 sm:pb-10 flex flex-col sm:flex-row gap-12 sm:gap-16 items-center">
             <div className="flex-1 min-w-0">
               <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-6">About</div>
               <div className="text-[1.05rem] text-[#555] font-light leading-[1.85] [&>p]:mb-[18px]">
@@ -126,7 +126,7 @@ export default async function Home() {
 
         {/* How it works */}
         <section className="bg-[#f7f6f3]">
-          <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-14 sm:py-[72px]">
+          <div className="max-w-[900px] mx-auto px-6 sm:px-10 pt-8 sm:pt-10 pb-14 sm:pb-[72px]">
             <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-10">
               How it works
             </div>
