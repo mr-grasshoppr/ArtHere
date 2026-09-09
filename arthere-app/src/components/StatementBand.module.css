@@ -6,7 +6,7 @@
  * the headline and button without affecting them.
  *
  * Stretched to the section's box (100% 100%) rather than cover or contain.
- * The art is 409x229 and the band is far wider than that ratio: cover would
+ * The art is 409x273 and the band is far wider than that ratio: cover would
  * crop the soft top and bottom away, and contain would leave the sides bare.
  * Distorting an abstract gradient costs nothing and keeps all four faded
  * edges where they were composed to be. For the same reason the layer is
@@ -28,7 +28,7 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background-image: url('/images/pink_green_section.png');
+  background-image: url('/images/pink_green_section_wide.png');
   background-repeat: no-repeat;
   background-size: 100% 100%;
   background-position: center;
