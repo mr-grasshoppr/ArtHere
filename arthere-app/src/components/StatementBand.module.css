@@ -44,8 +44,14 @@
   z-index: -1;
   background-image: url('/images/pink_green_section_v3.png');
   background-repeat: no-repeat;
-  background-size: 100% 100%;
-  background-position: center;
+  /* Drawn 9% wider than the box and pinned right, so the overhang falls off
+     the left edge and is clipped away by the background box. The artwork
+     carries a fully transparent 8.1% strip down its left side; without this
+     the green stopped short of the viewport instead of running off it. What
+     gets cropped is that dead strip — the first live pixel sits at 8.1%, and
+     alpha there is still under 10/255. */
+  background-size: 109% 100%;
+  background-position: right center;
 }
 
 .revealOnHover {
