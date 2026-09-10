@@ -69,9 +69,10 @@ interface Props {
   nodes: NetworkNode[];
   links: NetworkLink[];
   /**
-   * Neighborhood areas as arranged in /admin/neighborhoods. Controls both the
-   * order colours are assigned in and how the key below is grouped; falls
-   * back to alphabetical when absent.
+   * Neighborhood areas as arranged in /admin/neighborhoods. With the colour
+   * key gone this only fixes the order colours are assigned in, so a given
+   * neighborhood keeps the same colour run to run; falls back to alphabetical
+   * when absent.
    */
   neighborhoodGroups?: NeighborhoodOptionGroup[];
 }
@@ -91,11 +92,10 @@ interface HoverState {
 export function NetworkGraph({ nodes, links, neighborhoodGroups }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
-  const [showArtists, setShowArtists] = useState(true);
-  const [showPlaces, setShowPlaces] = useState(true);
-  const [selectedAreas, setSelectedAreas] = useState<Set<string>>(new Set());
+  // Fits every node into view; assigned inside the effect, where the zoom
+  // behaviour and the simulation's node list live.
+  const resetRef = useRef<(() => void) | null>(null);
   const [hover, setHover] = useState<HoverState | null>(null);
-  const [neighborhoodsOpen, setNeighborhoodsOpen] = useState(false);
 
   // Memoized so this array keeps the same identity across re-renders that
   // don't change the underlying data (e.g. every time the hover tooltip
@@ -112,57 +112,18 @@ export function NetworkGraph({ nodes, links, neighborhoodGroups }: Props) {
     return [...ordered, ...[...present].filter(n => !seen.has(n)).sort()];
   }, [nodes, neighborhoodGroups]);
 
-  // The key below mirrors that order, split back into its areas.
-  const keyGroups = useMemo(() => {
-    const present = new Set(neighborhoods);
-    if (!neighborhoodGroups) return [{ label: null as string | null, options: neighborhoods }];
-    const groups = neighborhoodGroups
-      .map(g => ({ label: g.label, options: g.options.filter(n => present.has(n)) }))
-      .filter(g => g.options.length > 0);
-    const filed = new Set(groups.flatMap(g => g.options));
-    const rest = neighborhoods.filter(n => !filed.has(n));
-    return rest.length > 0 ? [...groups, { label: null as string | null, options: rest }] : groups;
-  }, [neighborhoods, neighborhoodGroups]);
-
   useEffect(() => {
     const container = containerRef.current;
     const svgEl = svgRef.current;
     if (!container || !svgEl) return;
 
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    const svgBox = svgEl.getBoundingClientRect();
+    const width = container.clientWidth || Math.round(svgBox.width) || 1000;
+    const height = container.clientHeight || Math.round(svgBox.height) || 700;
 
-    // Artists visible when their type toggle is on and they match one of the
-    // selected neighborhoods (any number can be selected at once).
-    const visibleArtists = new Set(
-      nodes
-        .filter(n => n.type === 'artist' && showArtists)
-        .filter(n => selectedAreas.size === 0 || (n.neighborhood !== null && selectedAreas.has(n.neighborhood)))
-        .map(n => n.id)
-    );
-
-    // Places visible only when their type toggle is on AND they are linked to
-    // at least one visible artist (or their own neighborhood matches).
-    const visiblePlaces = new Set<string>();
-    if (showPlaces) {
-      for (const l of links) {
-        const src = l.source as string;
-        const tgt = l.target as string;
-        if (visibleArtists.has(src)) visiblePlaces.add(tgt);
-        if (visibleArtists.has(tgt)) visiblePlaces.add(src);
-      }
-      // Also include places whose own neighborhood matches one of the
-      // selected neighborhoods.
-      if (selectedAreas.size > 0) {
-        nodes
-          .filter(n => n.type === 'place' && n.neighborhood !== null && selectedAreas.has(n.neighborhood))
-          .forEach(n => visiblePlaces.add(n.id));
-      }
-    }
-
-    const visibleNodes = nodes.filter(n =>
-      n.type === 'artist' ? visibleArtists.has(n.id) : visiblePlaces.has(n.id)
-    );
+    // No filtering: every node and link is drawn. The filter controls were
+    // removed, so there is nothing to narrow by.
+    const visibleNodes = nodes;
     const visibleIds = new Set(visibleNodes.map(n => n.id));
     const visibleLinks = links.filter(l => visibleIds.has(l.source as string) && visibleIds.has(l.target as string));
 
@@ -214,12 +175,66 @@ export function NetworkGraph({ nodes, links, neighborhoodGroups }: Props) {
 
     const zoomG = svg.append('g');
     const zoom = d3.zoom<SVGSVGElement, unknown>()
-      .scaleExtent([0.3, 4])
+      .scaleExtent([0.08, 4])
       .on('zoom', e => zoomG.attr('transform', e.transform));
     svg.call(zoom);
     svg.on('dblclick.zoom', () => {
-      svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity);
+      svg.call(zoom.transform, d3.zoomIdentity);
     });
+
+    /**
+     * Frame every node.
+     *
+     * Not zoomIdentity — that only returns the camera to its starting point,
+     * which is no help once the layout itself has drifted wider than the
+     * viewport. This measures where the nodes actually are and picks the
+     * scale and offset that fit that box, so "all visible" is true regardless
+     * of how far anything has wandered.
+     */
+    const fitToNodes = () => {
+      // Measured from the live DOM, not from the simNodes array this closure
+      // captured. In dev the effect can run more than once, and a reset that
+      // measured its own captured array framed a set of nodes that were not
+      // the ones on screen — it centred on the origin, where an un-ticked
+      // simulation starts, and pushed the whole graph off to one side.
+      //
+      // getBBox on the zoom group also gives exactly the right box for free:
+      // it is in simulation coordinates (the group's own transform is the
+      // zoom, which getBBox excludes) and it already covers the labels, which
+      // stick out well past the circles.
+      const liveZoomG = svgEl.querySelector('g');
+      if (!liveZoomG) return;
+
+      let bb: DOMRect;
+      try {
+        bb = (liveZoomG as SVGGElement).getBBox();
+      } catch {
+        return; // getBBox throws if the element isn't rendered yet
+      }
+      if (bb.width === 0 || bb.height === 0) return;
+
+      const box = svgEl.getBoundingClientRect();
+      const w = Math.round(box.width) || width;
+      const h = Math.round(box.height) || height;
+
+      const PAD = 48;
+      const boxW = bb.width + PAD * 2;
+      const boxH = bb.height + PAD * 2;
+      // Capped at 1: fitting should only zoom out to bring things into view,
+      // never magnify. Uncapped, a tight cluster fits at the extent's 4x
+      // maximum, which fills the screen with a couple of nodes and pushes the
+      // rest off it.
+      const k = Math.min(Math.max(Math.min(w / boxW, h / boxH), 0.08), 1);
+      const cx = bb.x + bb.width / 2;
+      const cy = bb.y + bb.height / 2;
+
+      // Applied straight to the selection, not through svg.transition().
+      // d3 transitions do not survive in this component — the force
+      // simulation's per-tick work interrupts them, the same reason the node
+      // enter animation had to be rewritten as a CSS transition. Routed
+      // through a transition the zoom never moved at all.
+      svg.call(zoom.transform, d3.zoomIdentity.translate(w / 2 - k * cx, h / 2 - k * cy).scale(k));
+    };
 
     const sim = d3
       .forceSimulation<SimNode>(simNodes)
@@ -234,9 +249,31 @@ export function NetworkGraph({ nodes, links, neighborhoodGroups }: Props) {
           })
           .strength(0.4)
       )
-      .force('charge', d3.forceManyBody().strength(-380))
+      // distanceMax matters: an uncapped many-body force has every node
+      // repelling every other one at any separation, and forceCenter only
+      // recentres the centroid — it applies no inward pull. Together those let
+      // unconnected nodes drift apart indefinitely, which is why loners ended
+      // up far out on their own and the layout grew wider than the viewport.
+      .force('charge', d3.forceManyBody().strength(-380).distanceMax(700))
       .force('center', d3.forceCenter(width / 2, height / 2))
+      // The tether that actually bounds things. Deliberately weak: it only
+      // has to beat charge repulsion out at the fringe, where that force has
+      // fallen off. Turned up to 0.055 it overwhelmed charge and collide at
+      // close range too and collapsed the whole graph into one clump.
+      .force('x', d3.forceX<SimNode>(width / 2).strength(0.012))
+      .force('y', d3.forceY<SimNode>(height / 2).strength(0.012))
       .force('collide', d3.forceCollide<SimNode>().radius(d => radius(d) + 20));
+
+    // Frame every node. Also run once from the simulation's own 'end' event,
+    // so the first view a visitor gets is framed too, without guessing at a
+    // settle time with a timer.
+    resetRef.current = () => {
+      for (const n of simNodes) {
+        n.fx = null;
+        n.fy = null;
+      }
+      fitToNodes();
+    };
 
     const linkSel = zoomG
       .append('g')
@@ -395,17 +432,22 @@ export function NetworkGraph({ nodes, links, neighborhoodGroups }: Props) {
       const w = container.clientWidth;
       const h = container.clientHeight;
       sim.force('center', d3.forceCenter(w / 2, h / 2));
+      sim.force('x', d3.forceX<SimNode>(w / 2).strength(0.012));
+      sim.force('y', d3.forceY<SimNode>(h / 2).strength(0.012));
       sim.alpha(0.3).restart();
     };
+    const initialFrame = window.setTimeout(() => fitToNodes(), 2200);
+
     const resizeObserver = new ResizeObserver(handleResize);
     resizeObserver.observe(container);
 
     return () => {
+      window.clearTimeout(initialFrame);
       sim.stop();
       resizeObserver.disconnect();
       fadeInTimers.forEach(clearTimeout);
     };
-  }, [nodes, links, showArtists, showPlaces, selectedAreas, neighborhoods]);
+  }, [nodes, links, neighborhoods]);
 
   return (
     <div ref={containerRef} className="absolute inset-0 overflow-hidden">
@@ -459,108 +501,19 @@ export function NetworkGraph({ nodes, links, neighborhoodGroups }: Props) {
         </div>
       ) : null}
 
-      {/* Controls, top-left — same corner the filter bars on the other city
-          pages sit in. Type toggles (Artists/Places) stay visible since
-          there are only ever two — the neighborhood color key lives in its
-          own expandable panel below, since that list keeps growing as more
-          cities/neighborhoods are added. */}
+      {/* Reset, in the same top-left corner the filter bar used to occupy.
+          Nudges the layout back together and then frames every node, which is
+          the way back from having dragged or zoomed somewhere unrecoverable. */}
       <div className="absolute top-[90px] left-5 z-10 text-[0.72rem]">
-        <div className="flex items-center gap-2.5">
-          <button
-            type="button"
-            onClick={() => setShowArtists(s => !s)}
-            className={pillClass('dark', showArtists)}
-          >
-            Artists
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowPlaces(s => !s)}
-            className={pillClass('dark', showPlaces)}
-          >
-            Places
-          </button>
-
-          <span className="w-px h-3 bg-[#2a2a2a]" />
-
-          <button
-            type="button"
-            onClick={() => setNeighborhoodsOpen(o => !o)}
-            className="flex items-center gap-1.5 text-[#bbb] hover:text-white transition-colors select-none cursor-pointer"
-          >
-            {selectedAreas.size === 1 ? [...selectedAreas][0] : 'Neighborhoods'}
-            {selectedAreas.size > 0 && (
-              <span className="flex items-center justify-center min-w-[15px] h-[15px] px-1 rounded-full bg-[#333] text-[0.6rem] text-[#bbb]">
-                {selectedAreas.size}
-              </span>
-            )}
-            <span
-              className="text-[0.6rem] text-[#666] transition-transform duration-200"
-              style={!neighborhoodsOpen ? { transform: 'rotate(180deg)' } : undefined}
-            >
-              &#9650;
-            </span>
-          </button>
-        </div>
-
-        {neighborhoodsOpen && (
-          <div className="mt-2 w-[200px] max-h-[40vh] overflow-y-auto flex flex-col gap-2 bg-[#111]/95 backdrop-blur-sm border border-[#222] rounded-lg p-3 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
-            {/* All — clears every selected neighborhood */}
-            <button
-              type="button"
-              onClick={() => setSelectedAreas(new Set())}
-              className={`flex items-center gap-2 text-left transition-colors select-none cursor-pointer ${
-                selectedAreas.size === 0 ? 'text-[#bbb]' : 'text-[#555]'
-              }`}
-            >
-              <span
-                className="w-2.5 h-2.5 rounded-full border flex-shrink-0 transition-colors"
-                style={{
-                  borderColor: selectedAreas.size === 0 ? '#bbb' : '#555',
-                  backgroundColor: selectedAreas.size === 0 ? '#bbb' : 'transparent',
-                }}
-              />
-              All
-            </button>
-            {keyGroups.map((group, gi) => (
-              <div key={group.label ?? `g-${gi}`} className="flex flex-col gap-2">
-                {group.label && (
-                  <div className="text-[0.65rem] font-semibold uppercase tracking-[0.08em] text-[#555] mt-1">
-                    {group.label}
-                  </div>
-                )}
-                {group.options.map(n => {
-              const color = colorForNeighborhood(n, neighborhoods);
-              const on = selectedAreas.has(n);
-              return (
-                <button
-                  key={n}
-                  type="button"
-                  onClick={() =>
-                    setSelectedAreas(prev => {
-                      const next = new Set(prev);
-                      if (next.has(n)) next.delete(n);
-                      else next.add(n);
-                      return next;
-                    })
-                  }
-                  className={`flex items-center gap-2 text-left transition-colors select-none cursor-pointer ${
-                    on ? 'text-[#bbb]' : 'text-[#555]'
-                  }`}
-                >
-                  <span
-                    className="w-2.5 h-2.5 rounded-full border flex-shrink-0 transition-colors"
-                    style={{ borderColor: color, backgroundColor: on ? color : 'transparent' }}
-                  />
-                  {n}
-                </button>
-              );
-                })}
-              </div>
-            ))}
-          </div>
-        )}
+        <button
+          type="button"
+          onClick={() => resetRef.current?.()}
+          className={pillClass('dark', false)}
+        >
+          Reset view
+        </button>
       </div>
+
     </div>
   );
 }
