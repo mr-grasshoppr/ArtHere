@@ -49,7 +49,7 @@ export function StatementBand({ cityHref, cityLabel, cityCode }: Props) {
       {/* Always a row, vertically centred: stacking the CTA underneath left
           the headline sitting high with the hidden button still reserving a
           block of empty space below it. */}
-      <div className="relative z-10 max-w-[900px] mx-auto px-6 sm:px-10 py-34 sm:py-50 flex flex-row items-center justify-between gap-4 sm:gap-10">
+      <div className="relative z-10 max-w-[900px] mx-auto px-6 sm:px-10 py-47 sm:py-68 flex flex-row items-center justify-between gap-4 sm:gap-10">
         <h2 className="font-display text-[clamp(1.35rem,3vw,2rem)] tracking-[0.04em] leading-[1.2] text-[#1a1a1a]">
           {/* Broken by hand rather than left to text-balance, which split it
               after "place" — the mockup breaks after "understand". */}
