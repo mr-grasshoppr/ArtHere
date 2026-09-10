@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
-import { feature } from 'topojson-client';
+import { feature, mesh } from 'topojson-client';
 import type { Topology, GeometryCollection } from 'topojson-specification';
 import type { FeatureCollection, Geometry } from 'geojson';
 
@@ -85,6 +85,25 @@ export function UsMap() {
           // #f7f6f3, which a grey landmass would sink into.
           .attr('fill', '#ffffff')
           .attr('stroke', 'none');
+
+        // Outline. A white landmass on the section's #f7f6f3 barely reads as
+        // a shape at all, so the silhouette needs an edge. #dedad4 is the
+        // border tone already used by the cards further down this page — a
+        // step darker than the ground, not a drawn-on line.
+        //
+        // Exterior only: mesh with a === b keeps the arcs that belong to a
+        // single state, which is the coastline and the national border. The
+        // interior state lines (a !== b) are deliberately left out — this
+        // reads as a shape with three cities on it, not an atlas.
+        root
+          .append('path')
+          .datum(mesh(topo, topo.objects.states as GeometryCollection, (a, b) => a === b))
+          .attr('d', pathGen)
+          .attr('fill', 'none')
+          .attr('stroke', '#dedad4')
+          .attr('stroke-width', 1)
+          .attr('stroke-linejoin', 'round')
+          .attr('stroke-linecap', 'round');
 
 
         // City markers
