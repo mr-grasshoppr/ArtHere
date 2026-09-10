@@ -18,6 +18,20 @@
 .band {
   position: relative;
   isolation: isolate;
+  /* Height follows width instead of being a fixed pixel value.
+   *
+   * The wash is stretched to the section box, so a constant height meant the
+   * artwork was squashed or pulled to a different degree at every viewport:
+   * a 3:1 ribbon at 1920px and very nearly a square at 640px, where it also
+   * took up two-thirds of the screen. 48.5vw is the ratio that reproduces the
+   * height this was tuned to at 1280px; the clamp stops it from becoming a
+   * wall on an ultrawide monitor or a sliver on a phone.
+   *
+   * min-height rather than height, so the content still wins if it wraps to
+   * more lines than the band would otherwise allow for. */
+  display: flex;
+  align-items: center;
+  min-height: clamp(300px, 48.5vw, 640px);
   /* Same off-white as the sections above and below, so the wash dissolves
      into the page rather than into a gap. */
   background-color: #f7f6f3;
