@@ -50,6 +50,13 @@ interface Props {
   isOpen: boolean;
   onToggle: () => void;
   theme?: FilterTheme;
+  /** Open the menu above the button instead of below — for a bar pinned to the bottom edge. */
+  openUp?: boolean;
+}
+
+/** Menu placement relative to its button. */
+function menuPosition(openUp: boolean | undefined): string {
+  return openUp ? 'bottom-[calc(100%+6px)]' : 'top-[calc(100%+6px)]';
 }
 
 export function FilterDropdown({
@@ -61,6 +68,7 @@ export function FilterDropdown({
   isOpen,
   onToggle,
   theme = 'light',
+  openUp,
 }: Props) {
   const t = MENU_THEME[theme];
   const buttonLabel = value ? `${value} ▾` : `${label} ▾`;
@@ -76,7 +84,7 @@ export function FilterDropdown({
       </button>
 
       {isOpen && (
-        <div className={`absolute top-[calc(100%+6px)] left-0 ${t.menu}`}>
+        <div className={`absolute ${menuPosition(openUp)} left-0 ${t.menu}`}>
           <button
             type="button"
             onClick={e => { e.stopPropagation(); onChange(''); }}
@@ -122,6 +130,8 @@ interface MultiProps {
    * is selectable; this only controls how the menu is laid out.
    */
   optionGroups?: OptionGroup[];
+  /** Open the menu above the button instead of below — for a bar pinned to the bottom edge. */
+  openUp?: boolean;
 }
 
 /**
@@ -140,6 +150,7 @@ export function MultiFilterDropdown({
   onToggle,
   theme = 'light',
   optionGroups,
+  openUp,
 }: MultiProps) {
   const t = MENU_THEME[theme];
   const buttonLabel =
@@ -162,7 +173,7 @@ export function MultiFilterDropdown({
       </button>
 
       {isOpen && (
-        <div className={`absolute top-[calc(100%+6px)] left-0 ${t.menu}`}>
+        <div className={`absolute ${menuPosition(openUp)} left-0 ${t.menu}`}>
           <button
             type="button"
             onClick={e => { e.stopPropagation(); onChange([]); }}

@@ -18,6 +18,8 @@ interface Props {
   artists: ArtistGridData[];
   overlayImageUrl: string;
   maskImageUrl: string;
+  /** Fires when the grid freezes into its browsable state, or resumes. */
+  onFrozenChange?: (frozen: boolean) => void;
 }
 
 const GAP = 5;
@@ -68,7 +70,7 @@ interface GridLayout {
  * the cells into links, Escape or the resume button restarts it. Rendered
  * declaratively — layout lives in state, not hand-built DOM.
  */
-export function CityGrid({ artists, overlayImageUrl, maskImageUrl }: Props) {
+export function CityGrid({ artists, overlayImageUrl, maskImageUrl, onFrozenChange }: Props) {
   const vpRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [layout, setLayout] = useState<GridLayout | null>(null);
@@ -79,9 +81,17 @@ export function CityGrid({ artists, overlayImageUrl, maskImageUrl }: Props) {
   // (Re)build the randomized layout — on mount, on resume, and on resize.
   // Runs client-side only so the random order can't cause a hydration
   // mismatch (first render shows an empty track).
-  const buildGrid = useCallback(() => {
-    frozenRef.current = false;
-    setFrozen(false);
+  //
+  // keepFrozen: when the artist list changes while the grid is frozen (a
+  // filter was applied), rebuild the layout in place but stay frozen. Without
+  // it every filter change restarted the ambient scroll, which reads as the
+  // page resetting itself under you.
+  const buildGrid = useCallback((opts?: { keepFrozen?: boolean }) => {
+    const stayFrozen = !!opts?.keepFrozen && frozenRef.current;
+    if (!stayFrozen) {
+      frozenRef.current = false;
+      setFrozen(false);
+    }
 
     const cols = window.innerWidth < 500 ? 3 : 4;
     const col = Math.floor((window.innerWidth - GAP * (cols + 1)) / cols);
@@ -95,8 +105,12 @@ export function CityGrid({ artists, overlayImageUrl, maskImageUrl }: Props) {
     // Building in a mount effect is deliberate: the randomized layout must
     // be produced client-side so it can't cause a hydration mismatch.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    buildGrid();
+    buildGrid({ keepFrozen: true });
   }, [buildGrid]);
+
+  useEffect(() => {
+    onFrozenChange?.(frozen);
+  }, [frozen, onFrozenChange]);
 
   const freeze = useCallback(() => {
     if (frozenRef.current) return;
