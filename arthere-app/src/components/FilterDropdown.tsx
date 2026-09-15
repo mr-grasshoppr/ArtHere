@@ -182,39 +182,55 @@ export function MultiFilterDropdown({
             All {pluralLabel}
           </button>
           {options.length === 0 && <div className={t.empty}>Nothing tagged yet</div>}
-          {(optionGroups ?? [{ label: null, options }]).map((group, gi) => (
-            <div key={group.label ?? `group-${gi}`}>
-              {group.label && (
-                <div
-                  className={`px-[18px] pt-2.5 pb-1 text-[0.7rem] font-semibold uppercase tracking-[0.08em] ${
-                    theme === 'dark' ? 'text-[#666]' : 'text-[#aaa]'
+          {(optionGroups ?? [{ label: null, options }]).map((group, gi) => {
+            // An area whose only option is itself ("Beaverton" → ["Beaverton"])
+            // has nothing to group, so it renders as one top-level row rather
+            // than a heading over a single child. An area that does have
+            // sub-neighborhoods renders its heading as a checkbox: ticking it
+            // selects every neighborhood in the area (the area's own name
+            // included, when that is itself a tag), so "SW Portland" means all
+            // of SW, and the area name is not repeated as a child underneath.
+            const children = group.label ? group.options.filter(o => o !== group.label) : group.options;
+            const whole = group.options;
+            const allOn = whole.length > 0 && whole.every(o => value.includes(o));
+            const someOn = !allOn && whole.some(o => value.includes(o));
+
+            const toggleWhole = () => {
+              onChange(allOn ? value.filter(v => !whole.includes(v)) : [...new Set([...value, ...whole])]);
+            };
+
+            const row = (label: string, on: boolean, partial: boolean, onClick: () => void, indent: boolean, heading: boolean) => (
+              <button
+                key={`${group.label ?? 'g'}:${label}`}
+                type="button"
+                onClick={e => { e.stopPropagation(); onClick(); }}
+                className={`${t.item} ${on ? t.itemOn : t.itemOff} flex items-center gap-2${indent ? ' pl-[26px]' : ''}${
+                  heading ? ' font-semibold' : ''
+                }`}
+              >
+                <span
+                  className={`inline-block w-3 h-3 rounded-sm border flex-shrink-0 ${
+                    on ? 'bg-current border-current' : partial ? 'border-current' : 'border-current opacity-40'
                   }`}
-                >
-                  {group.label}
-                </div>
-              )}
-              {group.options.map(opt => {
-                const on = value.includes(opt);
-                return (
-                  <button
-                    key={opt}
-                    type="button"
-                    onClick={e => { e.stopPropagation(); toggleOption(opt); }}
-                    className={`${t.item} ${on ? t.itemOn : t.itemOff} flex items-center gap-2${
-                      group.label ? ' pl-[26px]' : ''
-                    }`}
-                  >
-                    <span
-                      className={`inline-block w-3 h-3 rounded-sm border flex-shrink-0 ${
-                        on ? 'bg-current border-current' : 'border-current opacity-40'
-                      }`}
-                    />
-                    {opt}
-                  </button>
-                );
-              })}
-            </div>
-          ))}
+                  style={partial ? { backgroundImage: 'linear-gradient(currentColor, currentColor)', backgroundSize: '50% 2px', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' } : undefined}
+                />
+                {label}
+              </button>
+            );
+
+            if (!group.label) {
+              return <div key={`group-${gi}`}>{group.options.map(opt => row(opt, value.includes(opt), false, () => toggleOption(opt), false, false))}</div>;
+            }
+            if (children.length === 0) {
+              return <div key={group.label}>{row(group.label, allOn, false, toggleWhole, false, false)}</div>;
+            }
+            return (
+              <div key={group.label}>
+                {row(group.label, allOn, someOn, toggleWhole, false, true)}
+                {children.map(opt => row(opt, value.includes(opt), false, () => toggleOption(opt), true, false))}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

@@ -1,12 +1,25 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { CityGrid, type ArtistGridData } from './CityGrid';
 import { FilterDropdown, MultiFilterDropdown, pillClass, type OptionGroup } from './FilterDropdown';
 import type { ArtworkArtistData } from './ArtworkBrowser';
 import { parseNeighborhoodList } from '@/lib/neighborhoods';
 
+/**
+ * The two placements under test.
+ *
+ * 'tabs-top'    — the city tabs (artwork / artists / places / network) move up
+ *                 under the site nav, and the filter bar owns the bottom edge.
+ * 'filters-top' — the tabs stay at the bottom where they are today, and the
+ *                 filter bar drops in under the site nav once the grid freezes.
+ */
+export type CombinedLayout = 'tabs-top' | 'filters-top';
+
 interface Props {
+  layout: CombinedLayout;
+  citySlug: string;
   artists: ArtworkArtistData[];
   overlayImageUrl: string;
   maskImageUrl: string;
@@ -23,26 +36,22 @@ type DropdownKey = 'medium' | 'neighborhood' | 'community';
  *
  * The grid runs as it does on the city page. Clicking freezes it into the
  * browsable state it already had, and that freeze is what brings the filter
- * bar in: it rises from the bottom edge, above the city tab bar, and sinks
- * away again on resume.
+ * bar in. Where the bar comes in from is the `layout` prop — see
+ * CombinedLayout above. Both are kept side by side so they can be compared
+ * on the same data at the same URL, with a switch in the corner.
  *
- * Why the bottom, and why on freeze rather than on scroll-stop:
- *
- * - The logo cell sits top-left of the grid and the site nav sits above it.
- *   A bar anchored to the top would cover one or the other whenever the grid
- *   is scrolled to its start. The bottom edge is the one place on this page
- *   that never has anything important under it.
- * - The grid never stops scrolling on its own, so "when scrolling stops" has
- *   no clean meaning here. The freeze is an explicit gesture the page already
- *   teaches ("click to browse"), which makes it a far better trigger than
- *   inferring intent from scroll velocity.
+ * The trigger is the freeze, not "when scrolling stops": the grid never
+ * stops scrolling on its own, so that has no clean meaning here, whereas the
+ * freeze is a gesture the page already teaches.
  *
  * Filtering reuses the artwork page's rules exactly: neighborhood and place
  * narrow by artist, medium narrows by individual piece. The grid rebuilds in
- * place and stays frozen, so applying a filter doesn't restart the ambient
- * scroll underneath you.
+ * place and stays frozen, and under a filter every piece appears once
+ * (GRID-6) rather than tiling the way the ambient scroll does.
  */
 export function CombinedCityView({
+  layout,
+  citySlug,
   artists,
   overlayImageUrl,
   maskImageUrl,
@@ -58,6 +67,7 @@ export function CombinedCityView({
   const [openDropdown, setOpenDropdown] = useState<DropdownKey | null>(null);
 
   const hasFilter = !!(mediumFilter || neighborhoodFilter.length > 0 || communityFilter);
+  const filtersAtTop = layout === 'filters-top';
 
   // Same additive filter as ArtworkBrowser, then projected down to the shape
   // CityGrid wants. Memoised on the filter values so the grid's artists prop
@@ -102,6 +112,17 @@ export function CombinedCityView({
 
   const matchCount = gridArtists.reduce((n, a) => n + a.images.length, 0);
 
+  // Where the bar lives and which way it travels while hidden. With the tabs
+  // at the top the bar owns the bottom edge outright; with the tabs left at
+  // the bottom it comes in under the site nav, the way the artwork page's own
+  // sticky bar does.
+  const barPlacement = filtersAtTop
+    ? 'top-14 border-b'
+    : 'bottom-0 border-t';
+  const barHidden = filtersAtTop
+    ? '-translate-y-full opacity-0 pointer-events-none'
+    : 'translate-y-full opacity-0 pointer-events-none';
+
   return (
     <>
       <CityGrid
@@ -109,6 +130,7 @@ export function CombinedCityView({
         overlayImageUrl={overlayImageUrl}
         maskImageUrl={maskImageUrl}
         onFrozenChange={onFrozenChange}
+        filtered={hasFilter}
       />
 
       {/* Click-outside catcher for an open menu. Sits under the bar itself. */}
@@ -116,12 +138,9 @@ export function CombinedCityView({
         <div className="fixed inset-0 z-[90]" onClick={() => setOpenDropdown(null)} aria-hidden />
       )}
 
-      {/* Filter bar — anchored just above the 56px city tab bar, so the two
-          read as one control strip. Hidden below the fold until the grid
-          freezes. Menus open upward, since there's no room below. */}
       <div
-        className={`fixed left-0 right-0 bottom-14 z-[95] bg-[#0a0a0a]/[0.97] backdrop-blur-[8px] border-t border-[#222] px-3.5 py-2.5 flex items-center gap-2 flex-wrap transition-[transform,opacity] duration-300 ease-out ${
-          frozen ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 pointer-events-none'
+        className={`fixed left-0 right-0 ${barPlacement} z-[95] bg-[#0a0a0a]/[0.97] backdrop-blur-[8px] border-[#222] px-3.5 py-2.5 flex items-center gap-2 flex-wrap transition-[transform,opacity] duration-300 ease-out ${
+          frozen ? 'translate-y-0 opacity-100' : barHidden
         }`}
         aria-hidden={!frozen}
       >
@@ -138,7 +157,7 @@ export function CombinedCityView({
           onChange={setMediumFilter}
           isOpen={openDropdown === 'medium'}
           onToggle={() => toggleDropdown('medium')}
-          openUp
+          openUp={!filtersAtTop}
         />
         <MultiFilterDropdown
           theme="dark"
@@ -150,7 +169,7 @@ export function CombinedCityView({
           onChange={setNeighborhoodFilter}
           isOpen={openDropdown === 'neighborhood'}
           onToggle={() => toggleDropdown('neighborhood')}
-          openUp
+          openUp={!filtersAtTop}
         />
         <FilterDropdown
           theme="dark"
@@ -161,12 +180,35 @@ export function CombinedCityView({
           onChange={setCommunityFilter}
           isOpen={openDropdown === 'community'}
           onToggle={() => toggleDropdown('community')}
-          openUp
+          openUp={!filtersAtTop}
         />
 
         <span className="ml-auto text-[0.72rem] text-[#666] tabular-nums">
           {hasFilter ? `${matchCount} ${matchCount === 1 ? 'piece' : 'pieces'}` : 'Browsing all'}
         </span>
+      </div>
+
+      {/* Prototype-only switch between the two placements. Bottom-right,
+          just above whichever bar owns the bottom edge in that layout —
+          the one spot neither layout puts a control in. */}
+      <div className="fixed bottom-[66px] right-4 z-[110] flex items-center gap-1 text-[0.68rem] bg-[#111]/90 border border-[#2a2a2a] rounded-full px-1 py-0.5">
+        <span className="px-2 text-[#666] uppercase tracking-[0.08em]">Layout</span>
+        {(
+          [
+            ['tabs-top', 'A · tabs top'],
+            ['filters-top', 'B · filters top'],
+          ] as const
+        ).map(([key, label]) => (
+          <Link
+            key={key}
+            href={`/cities/${citySlug}/combined?layout=${key}`}
+            className={`px-2.5 py-1 rounded-full no-underline transition-colors ${
+              layout === key ? 'bg-white text-black' : 'text-[#999] hover:text-white'
+            }`}
+          >
+            {label}
+          </Link>
+        ))}
       </div>
     </>
   );

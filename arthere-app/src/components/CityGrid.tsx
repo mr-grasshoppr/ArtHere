@@ -20,6 +20,14 @@ interface Props {
   maskImageUrl: string;
   /** Fires when the grid freezes into its browsable state, or resumes. */
   onFrozenChange?: (frozen: boolean) => void;
+  /**
+   * True when the artist list is a filtered result set. Every piece then
+   * appears exactly once and the last row is left ragged — REQUIRED DESIGN
+   * FEATURES GRID-6. The ambient default repeats and pads so the endless
+   * scroll never shows an edge; under a filter that repetition reads as the
+   * same four pieces over and over.
+   */
+  filtered?: boolean;
 }
 
 const GAP = 5;
@@ -32,7 +40,7 @@ interface SequenceItem {
   name: string;
 }
 
-function buildSequence(artists: ArtistGridData[], cols: number): SequenceItem[] {
+function buildSequence(artists: ArtistGridData[], cols: number, filtered: boolean): SequenceItem[] {
   const items: RepeatItem<SequenceItem>[] = artists.flatMap(artist =>
     artist.images.map(img => ({
       // Two identities: the artist (so two different pieces by one artist
@@ -48,7 +56,8 @@ function buildSequence(artists: ArtistGridData[], cols: number): SequenceItem[] 
   );
   return buildSpacedSequence(items, {
     cols,
-    repeats: GRID_REPEATS,
+    repeats: filtered ? 1 : GRID_REPEATS,
+    padToFullRows: !filtered,
     minRowGap: GRID_MIN_ROW_GAP,
     // sequence[0] is rendered below as the 2-col x 2-row logo cell. The
     // planner has to model that footprint or every row boundary after it
@@ -70,7 +79,7 @@ interface GridLayout {
  * the cells into links, Escape or the resume button restarts it. Rendered
  * declaratively — layout lives in state, not hand-built DOM.
  */
-export function CityGrid({ artists, overlayImageUrl, maskImageUrl, onFrozenChange }: Props) {
+export function CityGrid({ artists, overlayImageUrl, maskImageUrl, onFrozenChange, filtered = false }: Props) {
   const vpRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [layout, setLayout] = useState<GridLayout | null>(null);
@@ -95,11 +104,11 @@ export function CityGrid({ artists, overlayImageUrl, maskImageUrl, onFrozenChang
 
     const cols = window.innerWidth < 500 ? 3 : 4;
     const col = Math.floor((window.innerWidth - GAP * (cols + 1)) / cols);
-    setLayout({ cols, col, row: col, sequence: buildSequence(artists, cols) });
+    setLayout({ cols, col, row: col, sequence: buildSequence(artists, cols, filtered) });
 
     const vp = vpRef.current;
     if (vp) vp.scrollTop = 0;
-  }, [artists]);
+  }, [artists, filtered]);
 
   useEffect(() => {
     // Building in a mount effect is deliberate: the randomized layout must

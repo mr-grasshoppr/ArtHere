@@ -11,9 +11,11 @@ interface Tab {
 interface Props {
   citySlug: string;
   cityDisplayName: string;
+  /** Pin to the top edge (just below the site nav) instead of the bottom. Used by the combined-page prototype. */
+  position?: 'top' | 'bottom';
 }
 
-export function CityBottomBar({ citySlug, cityDisplayName }: Props) {
+export function CityBottomBar({ citySlug, cityDisplayName, position = 'bottom' }: Props) {
   const pathname = usePathname();
 
   const tabs: Tab[] = [
@@ -25,7 +27,7 @@ export function CityBottomBar({ citySlug, cityDisplayName }: Props) {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 flex items-center px-[18px] gap-7 z-[100]"
+      className={`fixed ${position === 'top' ? 'top-14' : 'bottom-0'} left-0 right-0 flex items-center px-[18px] gap-7 z-[100]`}
       style={{
         height: 56,
         background: 'rgba(0,0,0,0.85)',

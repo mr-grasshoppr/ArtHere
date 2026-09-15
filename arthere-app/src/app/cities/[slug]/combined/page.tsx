@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { NavBar } from '@/components/NavBar';
 import { CityBottomBar } from '@/components/CityBottomBar';
-import { CombinedCityView } from '@/components/CombinedCityView';
+import { CombinedCityView, type CombinedLayout } from '@/components/CombinedCityView';
 import type { ArtworkArtistData } from '@/components/ArtworkBrowser';
 import { getFocals } from '@/lib/image-focus';
 import { parseNeighborhoodList, getGroupedNeighborhoods, isCityLevelNeighborhood } from '@/lib/neighborhoods';
@@ -29,8 +29,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return { title: `${city?.displayName ?? city?.name ?? slug} — Art Here (prototype)`, robots: { index: false } };
 }
 
-export default async function CombinedCityPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function CombinedCityPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ layout?: string }>;
+}) {
   const { slug } = await params;
+  // ?layout=tabs-top | filters-top — the two placements under test. See
+  // CombinedLayout. Defaults to the tabs-at-top variant.
+  const { layout: rawLayout } = await searchParams;
+  const layout: CombinedLayout = rawLayout === 'filters-top' ? 'filters-top' : 'tabs-top';
 
   const scope = await getCityScope(slug);
   if (!scope) notFound();
@@ -78,6 +88,8 @@ export default async function CombinedCityPage({ params }: { params: Promise<{ s
     <div className="h-screen overflow-hidden bg-[#0a0a0a] text-white">
       <NavBar activeCitySlug={slug} />
       <CombinedCityView
+        layout={layout}
+        citySlug={slug}
         artists={artists}
         overlayImageUrl={city.logoOverlayImageUrl ?? '/images/arthere-portland-overlay.png'}
         maskImageUrl="/images/arthere-mask.png"
@@ -86,7 +98,11 @@ export default async function CombinedCityPage({ params }: { params: Promise<{ s
         neighborhoodGroups={neighborhoodGroups}
         communityOptions={communityOptions}
       />
-      <CityBottomBar citySlug={slug} cityDisplayName={cityDisplayName} />
+      <CityBottomBar
+        citySlug={slug}
+        cityDisplayName={cityDisplayName}
+        position={layout === 'tabs-top' ? 'top' : 'bottom'}
+      />
     </div>
   );
 }
