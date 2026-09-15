@@ -8,6 +8,7 @@ import { snapshotPlace } from "@/lib/profile-revision";
 import { slugify } from "@/lib/slug";
 import { joinNeighborhoodList, parseNeighborhoodList } from "@/lib/neighborhoods";
 import { LinkType } from "@prisma/client";
+import { normalizeLinkUrl } from "@/lib/social-link";
 
 async function uniquePlaceSlug(name: string): Promise<string> {
   const base = slugify(name) || "venue";
@@ -89,7 +90,7 @@ export async function updateOrganization(placeId: string, data: OrgInput) {
       data: validLinks.map((l, i) => ({
         placeId,
         type: l.type as LinkType,
-        url: l.url.trim(),
+        url: normalizeLinkUrl(l.url),
         label: l.label?.trim() || null,
         sortOrder: i,
       })),

@@ -8,6 +8,7 @@ import { snapshotArtist } from "@/lib/profile-revision";
 import { buildHireForText, parseMediumList } from "@/lib/artist-options";
 import { registerMediumOptions } from "@/lib/medium-options";
 import { normalizeNeighborhood } from "@/lib/neighborhoods";
+import { normalizeLinkUrl } from "@/lib/social-link";
 
 // Attaches (or reuses) an owner account for an artist that doesn't have one
 // yet — a profile created bare via "+ New artist" has no userId until an
@@ -151,7 +152,7 @@ export async function updateArtistProfile(artistId: string, data: ProfileInput) 
       data: validLinks.map((l, i) => ({
         artistId,
         type: l.type as LinkType,
-        url: l.url.trim(),
+        url: normalizeLinkUrl(l.url),
         label: l.label?.trim() || null,
         sortOrder: i,
       })),

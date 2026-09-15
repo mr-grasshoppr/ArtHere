@@ -35,6 +35,11 @@ const GALLERY_MAX = 3;
 const inputCls =
   "w-full px-3 py-2 border border-[#e5e5e5] rounded-lg bg-white text-[#1a1a1a] placeholder-[#bbb] focus:outline-none focus:border-[#999] text-sm";
 const labelCls = "block text-xs text-[#888] uppercase tracking-wide mb-1.5";
+// Same as inputCls minus w-full — a <select> sitting next to a flex-1 input
+// (the Links row) can't have both stretch to full width, or the input gets
+// squeezed to a sliver. Mirrors AdminProfileEditor's selectCls exactly.
+const selectCls =
+  "px-3 py-2 border border-[#e5e5e5] rounded-lg bg-white text-[#1a1a1a] focus:outline-none focus:border-[#999] text-sm";
 
 async function uploadBlob(file: File): Promise<string> {
   const form = new FormData();
@@ -77,8 +82,14 @@ export default function OrgEditor({
   const [thumbnailImageUrl, setThumbnailImageUrl] = useState<string | null>(place.thumbnailImageUrl);
   const [galleryImages, setGalleryImages] = useState<string[]>(place.galleryImages);
 
-  // Images the thumbnail can be chosen from: the hero plus every gallery photo.
-  const thumbnailChoices = [heroImageUrl, ...galleryImages].filter((u): u is string => !!u);
+  // Images the community-card picker can choose from: the hero, every
+  // gallery photo, and (deduped) whatever's currently set as the thumbnail —
+  // covers an org saved before this picker replaced the old standalone
+  // "+ Upload thumbnail" control, whose image may not be the hero or in the
+  // gallery.
+  const thumbnailChoices = [...new Set(
+    [heroImageUrl, ...galleryImages, thumbnailImageUrl].filter((u): u is string => !!u)
+  )];
 
   async function handleHero(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -86,19 +97,6 @@ export default function OrgEditor({
     setUploading(true);
     try {
       setHeroImageUrl(await uploadBlob(file));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload failed");
-    }
-    setUploading(false);
-    e.target.value = "";
-  }
-
-  async function handleThumbnail(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      setThumbnailImageUrl(await uploadBlob(file));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
     }
@@ -183,37 +181,6 @@ export default function OrgEditor({
         </div>
       </section>
 
-      {/* Community thumbnail — a separate image, doesn't count against the gallery */}
-      <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
-        <div>
-          <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Community thumbnail</h2>
-          <p className="text-xs text-[#aaa] mt-1">The card shown in the Community directory. Defaults to the hero image if none is chosen. Doesn&rsquo;t count against the gallery below.</p>
-        </div>
-        <div className="flex flex-wrap gap-3 items-start">
-          {thumbnailChoices.map((url) => {
-            const selected = (thumbnailImageUrl ?? heroImageUrl) === url;
-            return (
-              <button
-                key={url}
-                type="button"
-                onClick={() => setThumbnailImageUrl(url)}
-                className={`relative w-32 aspect-video rounded-md overflow-hidden bg-[#f0f0f0] border-2 transition-colors ${selected ? "border-[#1a1a1a]" : "border-transparent hover:border-[#ccc]"}`}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={url} alt="" className="w-full h-full object-cover" style={styleFor(url)} />
-                {selected && (
-                  <span className="absolute bottom-1 right-1 bg-[#1a1a1a] text-white text-[0.6rem] px-1.5 py-0.5 rounded-full">Thumbnail</span>
-                )}
-              </button>
-            );
-          })}
-          <label className="w-32 aspect-video rounded-md border-2 border-dashed border-[#e5e5e5] flex items-center justify-center cursor-pointer hover:border-[#bbb] transition-colors text-[#ccc] text-xs text-center px-2">
-            {uploading ? "Uploading…" : "+ Upload thumbnail"}
-            <input type="file" accept="image/*" onChange={handleThumbnail} className="hidden" />
-          </label>
-        </div>
-      </section>
-
       {/* Basic info */}
       <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-4">
         <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Basic info</h2>
@@ -248,7 +215,7 @@ export default function OrgEditor({
                 <select
                   value={link.type}
                   onChange={(e) => setLinks((prev) => prev.map((l, idx) => (idx === i ? { ...l, type: e.target.value } : l)))}
-                  className={inputCls}
+                  className={selectCls}
                 >
                   {LINK_TYPE_OPTIONS.map((t) => (
                     <option key={t.value} value={t.value}>{t.label}</option>
@@ -329,6 +296,33 @@ export default function OrgEditor({
           onAddFiles={handleGalleryAdd}
           uploading={uploading}
         />
+
+        {thumbnailChoices.length > 0 && (
+          <div className="pt-3 border-t border-[#f0f0f0]">
+            <h3 className="text-xs text-[#888] uppercase tracking-wide mb-1">Community directory card</h3>
+            <p className="text-xs text-[#aaa] mb-2">Which of these shows on the org&rsquo;s card in the Community directory. Defaults to the hero image if none is chosen.</p>
+            <div className="flex flex-wrap gap-2">
+              {thumbnailChoices.map((url) => {
+                const selected = (thumbnailImageUrl ?? heroImageUrl) === url;
+                return (
+                  <button
+                    key={url}
+                    type="button"
+                    onClick={() => setThumbnailImageUrl(url === heroImageUrl ? null : url)}
+                    title={url === heroImageUrl ? "Hero image (default)" : "Use for the Community card"}
+                    className={`relative w-20 aspect-video rounded-md overflow-hidden bg-[#f0f0f0] border-2 transition-colors ${selected ? "border-[#1a1a1a]" : "border-transparent hover:border-[#ccc]"}`}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={url} alt="" className="w-full h-full object-cover" style={styleFor(url)} />
+                    {selected && (
+                      <span className="absolute bottom-0.5 right-0.5 bg-[#1a1a1a] text-white text-[0.55rem] px-1 py-0.5 rounded-full">Card</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </section>
 
       {error && <p className="text-red-500 text-sm">{error}</p>}

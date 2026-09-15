@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { LinkType } from "@prisma/client";
-import { classifySocialLink } from "../social-link";
+import { classifySocialLink, normalizeLinkUrl } from "../social-link";
 
 describe("classifySocialLink", () => {
   it("returns null for blank/absent input", () => {
@@ -54,5 +54,32 @@ describe("classifySocialLink", () => {
   it("returns null for free text that isn't link-shaped", () => {
     expect(classifySocialLink("DM me on IG")).toBeNull();
     expect(classifySocialLink("no website yet")).toBeNull();
+  });
+});
+
+describe("normalizeLinkUrl", () => {
+  it("prepends https:// to a bare www. domain", () => {
+    expect(normalizeLinkUrl("www.janedoeart.com")).toBe("https://www.janedoeart.com");
+  });
+
+  it("prepends https:// to a bare domain with a path", () => {
+    expect(normalizeLinkUrl("janedoeart.com/shop")).toBe("https://janedoeart.com/shop");
+  });
+
+  it("expands an @handle into a full Instagram URL", () => {
+    expect(normalizeLinkUrl("@jane_doe.art")).toBe("https://instagram.com/jane_doe.art");
+  });
+
+  it("leaves an already-schemed URL alone", () => {
+    expect(normalizeLinkUrl("http://janedoeart.com")).toBe("http://janedoeart.com");
+    expect(normalizeLinkUrl("https://instagram.com/janedoe")).toBe("https://instagram.com/janedoe");
+  });
+
+  it("leaves text that isn't link-shaped alone", () => {
+    expect(normalizeLinkUrl("call for hours")).toBe("call for hours");
+  });
+
+  it("trims whitespace", () => {
+    expect(normalizeLinkUrl("  www.janedoeart.com  ")).toBe("https://www.janedoeart.com");
   });
 });

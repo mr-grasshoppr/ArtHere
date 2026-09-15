@@ -10,6 +10,7 @@ import { snapshotArtist } from "@/lib/profile-revision";
 import { normalizeNeighborhood } from "@/lib/neighborhoods";
 import { parseMediumList } from "@/lib/artist-options";
 import { registerMediumOptions } from "@/lib/medium-options";
+import { normalizeLinkUrl } from "@/lib/social-link";
 
 // GET — fetch current user's artist profile
 export async function GET() {
@@ -265,7 +266,7 @@ export async function POST(req: NextRequest) {
         data: validLinks.map((l, i) => ({
           artistId: artist.id,
           type: l.type as LinkType,
-          url: l.url.trim(),
+          url: normalizeLinkUrl(l.url),
           label: l.label?.trim() || null,
           sortOrder: i,
         })),

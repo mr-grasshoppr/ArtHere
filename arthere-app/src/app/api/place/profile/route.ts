@@ -6,6 +6,7 @@ import { snapshotPlace } from '@/lib/profile-revision';
 import { joinNeighborhoodList, parseNeighborhoodList } from '@/lib/neighborhoods';
 import { placeAccessWhere } from '@/lib/place-access';
 import { LinkType } from '@prisma/client';
+import { normalizeLinkUrl } from '@/lib/social-link';
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -46,7 +47,7 @@ export async function POST(req: NextRequest) {
         data: validLinks.map((l, i) => ({
           placeId: place.id,
           type: l.type as LinkType,
-          url: l.url.trim(),
+          url: normalizeLinkUrl(l.url),
           label: l.label?.trim() || null,
           sortOrder: i,
         })),
