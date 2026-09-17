@@ -16,79 +16,24 @@ interface Props {
   communityOptions: string[];
 }
 
-interface SearchMatch {
-  slug: string;
-  score: number;
-  reason: string;
-}
-
 type DropdownKey = 'medium' | 'neighborhood' | 'community';
 
 /**
- * Filter pills (Medium / Neighborhood / Community) plus a search box for a
- * city's artist directory. Search lets visitors describe what they're
- * looking for in plain language (e.g. "sw portland metal sculptors for
- * outdoor pieces"); the dropdowns narrow the grid to an exact match.
+ * Filter pills (Medium / Neighborhood / Places) for a city's artist
+ * directory, pinned to the bottom edge like the city page's bar. The
+ * free-text search that used to sit beside them was removed (it wasn't
+ * working); /api/artists/search still exists if it comes back.
  */
 export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOptions, neighborhoodGroups, communityOptions }: Props) {
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<ArtistCardData[] | null>(null);
-  const [explanation, setExplanation] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
   const [mediumFilter, setMediumFilter] = useState('');
   const [neighborhoodFilter, setNeighborhoodFilter] = useState<string[]>([]);
   const [communityFilter, setCommunityFilter] = useState('');
   const [openDropdown, setOpenDropdown] = useState<DropdownKey | null>(null);
 
-  async function runSearch(q: string) {
-    const trimmed = q.trim();
-    if (!trimmed) {
-      clearSearch();
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-
-    try {
-      const res = await fetch(`/api/artists/search?city=${encodeURIComponent(citySlug)}&q=${encodeURIComponent(trimmed)}`);
-      if (!res.ok) throw new Error('Search request failed');
-      const data: { matches: SearchMatch[]; explanation: string } = await res.json();
-
-      const bySlug = new Map(artists.map(a => [a.slug, a]));
-      const ordered = data.matches
-        .map(m => bySlug.get(m.slug))
-        .filter((a): a is ArtistCardData => a != null);
-
-      setResults(ordered);
-      setExplanation(data.explanation ?? '');
-    } catch {
-      setError("Search isn't working right now — showing everyone instead.");
-      setResults(null);
-      setExplanation('');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function clearSearch() {
-    setQuery('');
-    setResults(null);
-    setExplanation('');
-    setError('');
-  }
-
   function clearFilters() {
     setMediumFilter('');
     setNeighborhoodFilter([]);
     setCommunityFilter('');
-  }
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    runSearch(query);
   }
 
   function toggleDropdown(key: DropdownKey) {
@@ -97,7 +42,7 @@ export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOp
 
   const hasFilter = !!(mediumFilter || neighborhoodFilter.length > 0 || communityFilter);
 
-  const shown = (results ?? artists).filter(a =>
+  const shown = artists.filter(a =>
     mediumMatches(a.medium, mediumFilter) &&
     (neighborhoodFilter.length === 0 || parseNeighborhoodList(a.neighborhood).some(n => neighborhoodFilter.includes(n))) &&
     (!communityFilter || a.communities.includes(communityFilter))
@@ -110,7 +55,9 @@ export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOp
         <div className="fixed inset-0 z-40" onClick={() => setOpenDropdown(null)} aria-hidden />
       )}
 
-      <div className="sticky top-14 z-50 bg-white/[0.97] backdrop-blur-[8px] border-b border-[#f0f0f0]">
+      {/* Pinned to the bottom edge, matching the city page's filter bar, so
+          the top of the page is the nav alone. Menus open upward. */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/[0.97] backdrop-blur-[8px] border-t border-[#f0f0f0]">
         <div className="max-w-[1400px] mx-auto px-5 sm:px-10 py-3 sm:py-4 flex flex-wrap items-center gap-2">
           <button
             type="button"
@@ -128,16 +75,18 @@ export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOp
             onChange={setMediumFilter}
             isOpen={openDropdown === 'medium'}
             onToggle={() => toggleDropdown('medium')}
+            openUp
           />
           <MultiFilterDropdown
             label="Neighborhood"
             pluralLabel="neighborhoods"
             options={neighborhoodOptions}
-          optionGroups={neighborhoodGroups}
+            optionGroups={neighborhoodGroups}
             value={neighborhoodFilter}
             onChange={setNeighborhoodFilter}
             isOpen={openDropdown === 'neighborhood'}
             onToggle={() => toggleDropdown('neighborhood')}
+            openUp
           />
           <FilterDropdown
             label="Places"
@@ -147,48 +96,17 @@ export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOp
             onChange={setCommunityFilter}
             isOpen={openDropdown === 'community'}
             onToggle={() => toggleDropdown('community')}
+            openUp
           />
 
-          <form onSubmit={handleSubmit} className="flex gap-2 items-center w-full sm:w-auto sm:ml-auto">
-            <input
-              type="text"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="Search or describe what you need…"
-              className="flex-1 sm:flex-none sm:w-[220px] px-3.5 py-[7px] rounded-full border border-[#ddd] text-[0.82rem] text-[#1a1a1a] placeholder-[#aaa] focus:outline-none focus:border-[#999] transition-colors"
-            />
-            <button
-              type="submit"
-              disabled={loading || !query.trim()}
-              className={`${pillClass('light', true)} disabled:opacity-40 disabled:cursor-not-allowed border-none`}
-            >
-              {loading ? 'Searching…' : 'Search'}
-            </button>
-            {(results !== null || query) && (
-              <button
-                type="button"
-                onClick={clearSearch}
-                className="text-[0.8rem] text-[#888] hover:text-[#1a1a1a] transition-colors"
-              >
-                Clear
-              </button>
-            )}
-          </form>
+          <span className="ml-auto text-[0.8rem] text-[#bbb] tabular-nums">
+            {hasFilter
+              ? shown.length === 0
+                ? 'No matches — try a different filter.'
+                : `${shown.length} artist${shown.length === 1 ? '' : 's'}`
+              : 'Browsing all'}
+          </span>
         </div>
-
-        {(explanation || error || results !== null || hasFilter) && (
-          <div className="max-w-[1400px] mx-auto px-5 sm:px-10 pb-3">
-            {explanation && <p className="text-[0.85rem] text-[#888] italic">{explanation}</p>}
-            {error && <p className="text-[0.85rem] text-[#b91c1c]">{error}</p>}
-            {!error && (
-              <p className="text-[0.8rem] text-[#bbb]">
-                {shown.length === 0
-                  ? 'No matches — try a different search or filter.'
-                  : `${shown.length} artist${shown.length === 1 ? '' : 's'} found`}
-              </p>
-            )}
-          </div>
-        )}
       </div>
 
       <ArtistsGrid artists={shown} citySlug={citySlug} />
