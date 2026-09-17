@@ -80,18 +80,19 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark', cityNav }
 
         {/* City section links — the city name goes home, the tabs go to the
             sections. Pushed to the right, next to the menu, so the logo
-            stands alone on the left. The row is the logo's height and
-            bottom-aligned, so the text sits on the logo's baseline. Scrolls
-            sideways on narrow screens rather than wrapping. */}
+            stands alone on the left. Everything is centred on the bar, with
+            the Bebas city name nudged down (its caps sit high in the em box)
+            so its ink centre lands on the tabs' — measured, not eyeballed.
+            Scrolls sideways on narrow screens rather than wrapping. */}
         {cityNav && (
-          <nav className="flex items-end h-[38px] gap-5 sm:gap-7 ml-auto mr-3 sm:mr-6 min-w-0 overflow-x-auto [scrollbar-width:none]">
+          <nav className="flex items-center gap-5 sm:gap-7 ml-auto mr-3 sm:mr-6 min-w-0 overflow-x-auto [scrollbar-width:none]">
             <Link
               href={cityNav.cityHref}
               className={`font-display flex-shrink-0 text-[1.35rem] leading-none tracking-[0.05em] no-underline transition-opacity hover:opacity-60 ${
                 isLight ? 'text-[#1a1a1a]' : 'text-white'
               }`}
             >
-              {cityNav.cityLabel}
+              <span className="relative top-[0.13em]">{cityNav.cityLabel}</span>
             </Link>
             {cityNav.tabs.map(tab => {
               const isActive = pathname === tab.href;
@@ -99,7 +100,7 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark', cityNav }
                 <Link
                   key={tab.label}
                   href={tab.href}
-                  className={`flex-shrink-0 no-underline text-[0.88rem] leading-none font-medium tracking-[0.04em] pb-[3px] transition-colors duration-200 border-b-[1.5px] border-transparent ${
+                  className={`flex-shrink-0 no-underline text-[0.88rem] leading-none font-medium tracking-[0.04em] pb-[3px] mt-[3.5px] transition-colors duration-200 border-b-[1.5px] border-transparent ${
                     isLight
                       ? 'text-[#1a1a1a]/55 hover:text-[#1a1a1a] hover:border-[#1a1a1a]/60'
                       : 'text-white/55 hover:text-white hover:border-white/60'
