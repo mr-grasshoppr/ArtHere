@@ -231,7 +231,7 @@ export function MultiFilterDropdown({
                 }`}
               >
                 <span
-                  className={`inline-block w-3 h-3 rounded-sm border flex-shrink-0 ${
+                  className={`inline-block w-3 h-3 rounded-full border flex-shrink-0 ${
                     on ? 'bg-current border-current' : partial ? 'border-current' : 'border-current opacity-40'
                   }`}
                   style={partial ? { backgroundImage: 'linear-gradient(currentColor, currentColor)', backgroundSize: '50% 2px', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' } : undefined}
