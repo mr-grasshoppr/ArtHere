@@ -66,10 +66,10 @@ export function CityArtworkView({
   const [frozen, setFrozen] = useState(false);
   const [mediumFilter, setMediumFilter] = useState('');
   const [neighborhoodFilter, setNeighborhoodFilter] = useState<string[]>([]);
-  const [communityFilter, setCommunityFilter] = useState('');
+  const [communityFilter, setCommunityFilter] = useState<string[]>([]);
   const [openDropdown, setOpenDropdown] = useState<DropdownKey | null>(null);
 
-  const hasFilter = !!(mediumFilter || neighborhoodFilter.length > 0 || communityFilter);
+  const hasFilter = !!(mediumFilter || neighborhoodFilter.length > 0 || communityFilter.length > 0);
 
   // Additive filter, then projected down to the shape CityGrid wants. Memoised on the filter values so the grid's artists prop
   // only changes identity when the selection actually does — CityGrid rebuilds
@@ -81,7 +81,7 @@ export function CityArtworkView({
           a =>
             (neighborhoodFilter.length === 0 ||
               parseNeighborhoodList(a.neighborhood).some(n => neighborhoodFilter.includes(n))) &&
-            (!communityFilter || a.communities.includes(communityFilter))
+            (communityFilter.length === 0 || a.communities.some(c => communityFilter.includes(c)))
         )
         .map(a => ({
           url: `/artists/${a.slug}`,
@@ -104,7 +104,7 @@ export function CityArtworkView({
   function clearFilters() {
     setMediumFilter('');
     setNeighborhoodFilter([]);
-    setCommunityFilter('');
+    setCommunityFilter([]);
   }
 
   function toggleDropdown(key: DropdownKey) {
@@ -161,7 +161,7 @@ export function CityArtworkView({
           onToggle={() => toggleDropdown('neighborhood')}
           openUp
         />
-        <FilterDropdown
+        <MultiFilterDropdown
           theme="dark"
           label="Places"
           pluralLabel="places"
