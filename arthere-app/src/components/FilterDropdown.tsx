@@ -86,6 +86,20 @@ function useCloseOnLeave(isOpen: boolean, close: () => void) {
   };
   useEffect(() => cancel, []);
   useEffect(() => { if (!isOpen) cancel(); }, [isOpen]);
+  // Scrolling the page (or any scrollable region — the frozen city grid
+  // scrolls inside its own viewport) closes the menu at once. This is the
+  // touch counterpart of moving the mouse away. Scrolls inside the menu
+  // itself don't count.
+  useEffect(() => {
+    if (!isOpen) return;
+    const onScroll = (e: Event) => {
+      const target = e.target as Node | null;
+      if (target instanceof Element && target.closest('[data-filter-menu]')) return;
+      close();
+    };
+    window.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    return () => window.removeEventListener('scroll', onScroll, { capture: true });
+  }, [isOpen, close]);
   return {
     onPointerLeave: (e: React.PointerEvent) => {
       if (!isOpen || e.pointerType !== 'mouse') return;
@@ -134,7 +148,7 @@ export function FilterDropdown({
       </button>
 
       {isOpen && (
-        <div className={`absolute ${menuPosition(openUp)} left-0 ${t.menu}`}>
+        <div data-filter-menu className={`absolute ${menuPosition(openUp)} left-0 ${t.menu}`}>
           <button
             type="button"
             onClick={e => { e.stopPropagation(); onChange(''); }}
@@ -227,7 +241,7 @@ export function MultiFilterDropdown({
       </button>
 
       {isOpen && (
-        <div className={`absolute ${menuPosition(openUp)} left-0 ${t.menu}`}>
+        <div data-filter-menu className={`absolute ${menuPosition(openUp)} left-0 ${t.menu}`}>
           <button
             type="button"
             onClick={e => { e.stopPropagation(); onChange([]); }}
