@@ -1,5 +1,5 @@
 // Shared randomized-placement builder for the ambient artwork grids
-// (CityGrid's city-page background, ArtworkBrowser's /artwork page).
+// (CityGrid on the city page, ambient and filtered).
 //
 // ⚠️ The spacing this file produces is a REQUIRED DESIGN FEATURE, not a
 // nicety — see REQUIRED-DESIGN-FEATURES.md at the repo root. It has been

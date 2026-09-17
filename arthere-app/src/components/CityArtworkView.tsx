@@ -3,8 +3,25 @@
 import { useCallback, useMemo, useState } from 'react';
 import { CityGrid, type ArtistGridData } from './CityGrid';
 import { FilterDropdown, MultiFilterDropdown, pillClass, type OptionGroup } from './FilterDropdown';
-import type { ArtworkArtistData } from './ArtworkBrowser';
 import { parseNeighborhoodList } from '@/lib/neighborhoods';
+import type { Focal } from '@/lib/focal-style';
+
+export interface ArtworkArtistData {
+  slug: string;
+  name: string;
+  medium: string | null;
+  neighborhood: string | null;
+  /** Names of places with their own page that this artist is connected to. */
+  communities: string[];
+  images: {
+    src: string;
+    focal?: Focal | null;
+    alt: string;
+    isHero: boolean;
+    /** This specific piece's medium(s) — may differ from the artist's other work. */
+    medium: string[];
+  }[];
+}
 
 interface Props {
   artists: ArtworkArtistData[];
@@ -20,23 +37,23 @@ interface Props {
 type DropdownKey = 'medium' | 'neighborhood' | 'community';
 
 /**
- * PROTOTYPE — the city page's ambient grid with the artwork page's filters.
+ * The city page: the ambient artwork grid, with filters.
  *
- * The grid runs as it does on the city page. Clicking freezes it into the
- * browsable state it already had, and that freeze is what brings the filter
- * bar in along the bottom edge. The city's section links live in the site
- * nav at the top (NavBar's cityNav), so the bottom edge is the bar's alone.
+ * The grid runs on its own until a click freezes it into the browsable
+ * state, and that freeze is what brings the filter bar in along the bottom
+ * edge. The city's section links live in the site nav at the top (NavBar's
+ * cityNav), so the bottom edge is the bar's alone.
  *
  * The trigger is the freeze, not "when scrolling stops": the grid never
  * stops scrolling on its own, so that has no clean meaning here, whereas the
  * freeze is a gesture the page already teaches.
  *
- * Filtering reuses the artwork page's rules exactly: neighborhood and place
+ * Filtering: neighborhood and place
  * narrow by artist, medium narrows by individual piece. The grid rebuilds in
  * place and stays frozen, and under a filter every piece appears once
  * (GRID-6) rather than tiling the way the ambient scroll does.
  */
-export function CombinedCityView({
+export function CityArtworkView({
   artists,
   overlayImageUrl,
   maskImageUrl,
@@ -54,8 +71,7 @@ export function CombinedCityView({
 
   const hasFilter = !!(mediumFilter || neighborhoodFilter.length > 0 || communityFilter);
 
-  // Same additive filter as ArtworkBrowser, then projected down to the shape
-  // CityGrid wants. Memoised on the filter values so the grid's artists prop
+  // Additive filter, then projected down to the shape CityGrid wants. Memoised on the filter values so the grid's artists prop
   // only changes identity when the selection actually does — CityGrid rebuilds
   // its layout whenever that prop changes.
   const gridArtists = useMemo<ArtistGridData[]>(

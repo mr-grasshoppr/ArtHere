@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { CSSProperties } from 'react';
 import type { Artist, ArtworkImage, ArtistPlace, ArtistOtherConnection, ArtistLink, Place, City } from '@prisma/client';
 import { NavBar } from '@/components/NavBar';
-import { CityBottomBar } from '@/components/CityBottomBar';
+import { cityNavFor } from '@/lib/city-nav';
 import { SiteFooter } from '@/components/SiteFooter';
 import { TechSupportLink } from '@/components/TechSupportLink';
 import { FadeImage } from '@/components/FadeImage';
@@ -71,7 +71,7 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals, p
     'text-[#999] underline underline-offset-4 decoration-[#ddd] hover:text-[#1a1a1a] hover:decoration-[#aaa] transition-colors';
 
   return (
-    <div className="min-h-screen bg-white text-[#1a1a1a] pt-14 pb-14">
+    <div className="min-h-screen bg-white text-[#1a1a1a] pt-14">
       {preview ? (
         <div className="sticky top-0 z-50 flex items-center justify-between gap-3 bg-[#1a1a1a] text-white text-sm px-5 py-3">
           <span>Previewing your profile</span>
@@ -80,7 +80,11 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals, p
           </Link>
         </div>
       ) : (
-        <NavBar activeCitySlug={citySlug ?? artist.city?.slug} theme="light" />
+        <NavBar
+          activeCitySlug={citySlug ?? artist.city?.slug}
+          theme="light"
+          cityNav={citySlug ? cityNavFor(citySlug, cityDisplayName) : undefined}
+        />
       )}
 
       {artist.isPlaceholder && (
@@ -251,8 +255,6 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals, p
 
       {!preview && <SiteFooter />}
       <TechSupportLink />
-
-      {!preview && citySlug && <CityBottomBar citySlug={citySlug} cityDisplayName={cityDisplayName} />}
     </div>
   );
 }

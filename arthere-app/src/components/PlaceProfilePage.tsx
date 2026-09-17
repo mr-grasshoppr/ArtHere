@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { CSSProperties } from 'react';
 import type { Place, ArtistPlace, Artist, PlaceLink } from '@prisma/client';
 import { NavBar } from '@/components/NavBar';
-import { CityBottomBar } from '@/components/CityBottomBar';
+import { cityNavFor } from '@/lib/city-nav';
 import { SiteFooter } from '@/components/SiteFooter';
 import { TechSupportLink } from '@/components/TechSupportLink';
 import { FadeImage } from '@/components/FadeImage';
@@ -44,7 +44,7 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
     'text-[#999] underline underline-offset-4 decoration-[#ddd] hover:text-[#1a1a1a] hover:decoration-[#aaa] transition-colors';
 
   return (
-    <div className="min-h-screen bg-white text-[#1a1a1a] pt-14 pb-14">
+    <div className="min-h-screen bg-white text-[#1a1a1a] pt-14">
       {preview ? (
         <div className="sticky top-0 z-50 flex items-center justify-between gap-3 bg-[#1a1a1a] text-white text-sm px-5 py-3">
           <span>Previewing your page</span>
@@ -53,7 +53,11 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
           </Link>
         </div>
       ) : (
-        <NavBar activeCitySlug={citySlug} theme="light" />
+        <NavBar
+          activeCitySlug={citySlug}
+          theme="light"
+          cityNav={citySlug ? cityNavFor(citySlug, cityDisplayName) : undefined}
+        />
       )}
 
       {!place.inDirectory && (
@@ -178,8 +182,6 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
 
       {!preview && <SiteFooter />}
       <TechSupportLink />
-
-      {!preview && citySlug && <CityBottomBar citySlug={citySlug} cityDisplayName={cityDisplayName} />}
     </div>
   );
 }

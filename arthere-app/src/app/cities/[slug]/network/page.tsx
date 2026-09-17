@@ -4,7 +4,7 @@ import { getCityScope, artistScopeWhere } from '@/lib/city-scope';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { NavBar } from '@/components/NavBar';
-import { CityBottomBar } from '@/components/CityBottomBar';
+import { cityNavFor } from '@/lib/city-nav';
 import { NetworkGraph, type NetworkNode, type NetworkLink } from '@/components/NetworkGraph';
 import { parseNeighborhoodList, getGroupedNeighborhoods } from '@/lib/neighborhoods';
 
@@ -109,8 +109,8 @@ export default async function CityNetworkPage({
     .map(g => ({ label: g.area, options: g.neighborhoods }));
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white pt-14 pb-14">
-      <NavBar activeCitySlug={slug} />
+    <div className="min-h-screen bg-[#0a0a0a] text-white pt-14">
+      <NavBar activeCitySlug={slug} cityNav={cityNavFor(slug, cityDisplayName)} />
 
       <div className="relative" style={{ height: 'calc(100vh - 7rem)' }}>
         <div className="absolute top-0 left-0 right-0 z-10 px-5 pt-5 pointer-events-none">
@@ -124,8 +124,6 @@ export default async function CityNetworkPage({
 
         <NetworkGraph nodes={nodes} links={links} neighborhoodGroups={neighborhoodGroups} />
       </div>
-
-      <CityBottomBar citySlug={slug} cityDisplayName={cityDisplayName} />
     </div>
   );
 }

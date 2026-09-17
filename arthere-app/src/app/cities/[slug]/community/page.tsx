@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { NavBar } from '@/components/NavBar';
-import { CityBottomBar } from '@/components/CityBottomBar';
+import { cityNavFor } from '@/lib/city-nav';
 import { CommunityBrowser, type CommunityPlaceData } from '@/components/CommunityBrowser';
 import { getFocalStyles } from '@/lib/image-focus';
 import { SiteFooter } from '@/components/SiteFooter';
@@ -109,8 +109,8 @@ export default async function CityCommunityPage({
   ].sort();
 
   return (
-    <div className="min-h-screen bg-white text-[#1a1a1a] pt-14 pb-14">
-      <NavBar activeCitySlug={slug} theme="light" />
+    <div className="min-h-screen bg-white text-[#1a1a1a] pt-14">
+      <NavBar activeCitySlug={slug} theme="light" cityNav={cityNavFor(slug, cityDisplayName)} />
 
       <div className="max-w-[1400px] mx-auto px-5 sm:px-10 pt-12 pb-8 border-b border-[#f0f0f0]">
         <h1 className="font-heading text-[2rem] font-bold tracking-[-0.01em] mb-1.5">
@@ -140,8 +140,6 @@ export default async function CityCommunityPage({
 
       <SiteFooter />
       <TechSupportLink />
-
-      <CityBottomBar citySlug={slug} cityDisplayName={cityDisplayName} />
     </div>
   );
 }

@@ -24,8 +24,8 @@ per-artist cap).
 
 ## GRID — the artwork and city grid views
 
-The city page background (`CityGrid`) and the `/artwork` browser
-(`ArtworkBrowser`) both tile the same images repeatedly. What makes them read
+The city page's grid (`CityGrid`, driven by `CityArtworkView` — the city
+page and the artwork browser are one page) tiles the same images repeatedly. What makes them read
 as a designed surface rather than as a bug is that a visitor never catches
 the same thing twice in one glance.
 
@@ -33,7 +33,7 @@ the same thing twice in one glance.
 - [`arthere-app/src/lib/grid-design.ts`](arthere-app/src/lib/grid-design.ts) — the numbers, in one place
 - [`arthere-app/src/lib/grid-sequence.ts`](arthere-app/src/lib/grid-sequence.ts) — the placement planner
 - [`arthere-app/src/components/CityGrid.tsx`](arthere-app/src/components/CityGrid.tsx)
-- [`arthere-app/src/components/ArtworkBrowser.tsx`](arthere-app/src/components/ArtworkBrowser.tsx)
+- [`arthere-app/src/components/CityArtworkView.tsx`](arthere-app/src/components/CityArtworkView.tsx)
 
 **Guarded by**
 [`arthere-app/src/lib/__tests__/required-design-features.test.ts`](arthere-app/src/lib/__tests__/required-design-features.test.ts),

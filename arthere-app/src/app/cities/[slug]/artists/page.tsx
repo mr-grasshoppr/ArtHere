@@ -4,9 +4,9 @@ import { getCityScope, artistScopeWhere } from '@/lib/city-scope';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { NavBar } from '@/components/NavBar';
+import { cityNavFor } from '@/lib/city-nav';
 import { ArtistsSearch } from '@/components/ArtistsSearch';
 import type { ArtistCardData } from '@/components/ArtistsGrid';
-import { CityBottomBar } from '@/components/CityBottomBar';
 import { parseMediumList } from '@/lib/artist-options';
 import { isCityLevelNeighborhood, parseNeighborhoodList, getGroupedNeighborhoods } from '@/lib/neighborhoods';
 
@@ -73,8 +73,8 @@ export default async function CityArtistsPage({
   const communityOptions = [...new Set(artists.flatMap(a => a.communities))].sort();
 
   return (
-    <div className="min-h-screen bg-white text-[#1a1a1a] pt-14 pb-14">
-      <NavBar activeCitySlug={slug} theme="light" />
+    <div className="min-h-screen bg-white text-[#1a1a1a] pt-14">
+      <NavBar activeCitySlug={slug} theme="light" cityNav={cityNavFor(slug, cityDisplayName)} />
 
       <div className="max-w-[1400px] mx-auto px-5 sm:px-10 pt-12 pb-8 border-b border-[#f0f0f0]">
         <h1 className="font-heading text-[2rem] font-bold tracking-[-0.01em] mb-1.5">
@@ -93,8 +93,6 @@ export default async function CityArtistsPage({
         neighborhoodGroups={neighborhoodGroups}
         communityOptions={communityOptions}
       />
-
-      <CityBottomBar citySlug={slug} cityDisplayName={cityDisplayName} />
     </div>
   );
 }

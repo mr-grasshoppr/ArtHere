@@ -79,13 +79,14 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark', cityNav }
         </Link>
 
         {/* City section links — the city name goes home, the tabs go to the
-            sections. Scrolls sideways on narrow screens rather than wrapping
-            into a second row. */}
+            sections. The row is the logo's height and bottom-aligned, so
+            the text sits on the logo's baseline. Scrolls sideways on narrow
+            screens rather than wrapping into a second row. */}
         {cityNav && (
-          <nav className="flex items-center gap-5 sm:gap-7 ml-3 sm:ml-6 min-w-0 overflow-x-auto [scrollbar-width:none]">
+          <nav className="flex items-end h-[38px] gap-5 sm:gap-7 ml-3 sm:ml-6 min-w-0 overflow-x-auto [scrollbar-width:none]">
             <Link
               href={cityNav.cityHref}
-              className={`font-heading flex-shrink-0 text-[0.95rem] font-bold tracking-[0.03em] no-underline transition-opacity hover:opacity-60 ${
+              className={`font-display flex-shrink-0 text-[1.35rem] leading-none tracking-[0.05em] no-underline transition-opacity hover:opacity-60 ${
                 isLight ? 'text-[#1a1a1a]' : 'text-white'
               }`}
             >
@@ -97,7 +98,7 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark', cityNav }
                 <Link
                   key={tab.label}
                   href={tab.href}
-                  className={`flex-shrink-0 no-underline text-[0.88rem] font-medium tracking-[0.04em] py-1 transition-colors duration-200 border-b-[1.5px] border-transparent ${
+                  className={`flex-shrink-0 no-underline text-[0.88rem] leading-none font-medium tracking-[0.04em] pb-[3px] transition-colors duration-200 border-b-[1.5px] border-transparent ${
                     isLight
                       ? 'text-[#1a1a1a]/55 hover:text-[#1a1a1a] hover:border-[#1a1a1a]/60'
                       : 'text-white/55 hover:text-white hover:border-white/60'
