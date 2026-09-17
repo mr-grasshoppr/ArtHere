@@ -164,7 +164,7 @@ export function CityArtworkView({
         <FilterDropdown
           theme="dark"
           label="Places"
-          pluralLabel="communities"
+          pluralLabel="places"
           options={communityOptions}
           optionGroups={communityGroups}
           value={communityFilter}

@@ -141,7 +141,7 @@ export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOp
           />
           <FilterDropdown
             label="Places"
-            pluralLabel="communities"
+            pluralLabel="places"
             options={communityOptions}
             value={communityFilter}
             onChange={setCommunityFilter}
