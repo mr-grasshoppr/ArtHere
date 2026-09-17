@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
+
 // Shared filter-pill dropdown used by the artists, artwork, and community
 // browsers. Render a fixed click-outside catcher yourself when open:
 //   {openDropdown && <div className="fixed inset-0 z-40" onClick={close} aria-hidden />}
@@ -69,6 +71,31 @@ function menuPosition(openUp: boolean | undefined): string {
   return openUp ? 'bottom-[calc(100%+6px)]' : 'top-[calc(100%+6px)]';
 }
 
+/**
+ * Close an open menu once the pointer has left the pill and its menu. Mouse
+ * only — a finger has no hover, so on touch the click-outside catcher the
+ * parent renders is the way out. The short grace period keeps a menu from
+ * vanishing while the cursor crosses the gap between pill and menu.
+ */
+const LEAVE_GRACE_MS = 350;
+function useCloseOnLeave(isOpen: boolean, close: () => void) {
+  const timer = useRef<number | null>(null);
+  const cancel = () => {
+    if (timer.current !== null) window.clearTimeout(timer.current);
+    timer.current = null;
+  };
+  useEffect(() => cancel, []);
+  useEffect(() => { if (!isOpen) cancel(); }, [isOpen]);
+  return {
+    onPointerLeave: (e: React.PointerEvent) => {
+      if (!isOpen || e.pointerType !== 'mouse') return;
+      cancel();
+      timer.current = window.setTimeout(close, LEAVE_GRACE_MS);
+    },
+    onPointerEnter: cancel,
+  };
+}
+
 export function FilterDropdown({
   label,
   pluralLabel,
@@ -83,6 +110,7 @@ export function FilterDropdown({
 }: Props) {
   const t = MENU_THEME[theme];
   const buttonLabel = value ? `${value} ▾` : `${label} ▾`;
+  const leave = useCloseOnLeave(isOpen, onToggle);
 
   const option = (opt: string, indent: boolean) => (
     <button
@@ -96,7 +124,7 @@ export function FilterDropdown({
   );
 
   return (
-    <div className="relative">
+    <div className="relative" {...leave}>
       <button
         type="button"
         onClick={e => { e.stopPropagation(); onToggle(); }}
@@ -182,12 +210,14 @@ export function MultiFilterDropdown({
     : value.length === 1 ? `${value[0]} ▾`
     : `${value.length} ${pluralLabel} ▾`;
 
+  const leave = useCloseOnLeave(isOpen, onToggle);
+
   function toggleOption(opt: string) {
     onChange(value.includes(opt) ? value.filter(v => v !== opt) : [...value, opt]);
   }
 
   return (
-    <div className="relative">
+    <div className="relative" {...leave}>
       <button
         type="button"
         onClick={e => { e.stopPropagation(); onToggle(); }}
