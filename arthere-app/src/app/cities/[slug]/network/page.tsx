@@ -38,7 +38,7 @@ export default async function CityNetworkPage({
 
   const scope = await getCityScope(slug);
   if (!scope) notFound();
-  const { city, cityDisplayName } = scope;
+  const { cityDisplayName } = scope;
 
   const cityArtists = await prisma.artist.findMany({
     where: artistScopeWhere(scope),
@@ -112,16 +112,9 @@ export default async function CityNetworkPage({
     <div className="min-h-screen bg-[#0a0a0a] text-white pt-14">
       <NavBar activeCitySlug={slug} cityNav={cityNavFor(slug, cityDisplayName)} />
 
-      <div className="relative" style={{ height: 'calc(100vh - 7rem)' }}>
-        <div className="absolute top-0 left-0 right-0 z-10 px-5 pt-5 pointer-events-none">
-          <h1 className="font-heading text-[1.8rem] font-bold tracking-[-0.01em] mb-1">
-            {city.name} Network
-          </h1>
-          <p className="text-[0.88rem] text-[#666] font-light">
-            How {city.name}&rsquo;s artists and places connect. Drag, scroll to zoom, click to visit.
-          </p>
-        </div>
-
+      {/* The graph fills everything under the nav; the page title is the
+          nav's own "network" tab. */}
+      <div className="relative" style={{ height: 'calc(100vh - 3.5rem)' }}>
         <NetworkGraph nodes={nodes} links={links} neighborhoodGroups={neighborhoodGroups} />
       </div>
     </div>
