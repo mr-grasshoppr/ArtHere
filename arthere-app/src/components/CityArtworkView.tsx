@@ -174,9 +174,11 @@ export function CityArtworkView({
           openUp
         />
 
-        <span className="ml-auto text-[0.72rem] text-[#666] tabular-nums">
-          {hasFilter ? `${matchCount} ${matchCount === 1 ? 'piece' : 'pieces'}` : 'Browsing all'}
-        </span>
+        {hasFilter && (
+          <span className="ml-auto text-[0.72rem] text-[#666] tabular-nums">
+            {matchCount} {matchCount === 1 ? 'piece' : 'pieces'}
+          </span>
+        )}
       </div>
 
     </>

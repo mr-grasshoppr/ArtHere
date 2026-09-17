@@ -99,13 +99,13 @@ export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOp
             openUp
           />
 
-          <span className="ml-auto text-[0.8rem] text-[#bbb] tabular-nums">
-            {hasFilter
-              ? shown.length === 0
+          {hasFilter && (
+            <span className="ml-auto text-[0.8rem] text-[#bbb] tabular-nums">
+              {shown.length === 0
                 ? 'No matches — try a different filter.'
-                : `${shown.length} artist${shown.length === 1 ? '' : 's'}`
-              : 'Browsing all'}
-          </span>
+                : `${shown.length} artist${shown.length === 1 ? '' : 's'}`}
+            </span>
+          )}
         </div>
       </div>
 
