@@ -24,12 +24,13 @@ export function pillClass(theme: FilterTheme, active: boolean): string {
   return `${PILL_BASE} ${active ? PILL_THEME[theme].active : PILL_THEME[theme].inactive}`;
 }
 
-export const MENU_THEME: Record<FilterTheme, { menu: string; item: string; itemOn: string; itemOff: string; empty: string; heading: string }> = {
+export const MENU_THEME: Record<FilterTheme, { menu: string; item: string; itemOn: string; itemOff: string; itemSelected: string; empty: string; heading: string }> = {
   light: {
     menu: 'bg-white border border-[#ddd] rounded-lg overflow-hidden min-w-[180px] z-[100] shadow-[0_4px_16px_rgba(0,0,0,0.1)]',
     item: 'block w-full text-left px-[18px] py-2.5 text-[0.85rem] border-b border-[#f5f5f5] last:border-b-0 transition-colors hover:bg-[#fafafa] hover:text-[#1a1a1a]',
     itemOn: 'text-[#1a1a1a] font-medium',
     itemOff: 'text-[#666]',
+    itemSelected: 'bg-[#f0f0f0]',
     empty: 'px-[18px] py-2.5 text-[0.85rem] text-[#bbb] italic',
     heading: 'px-[18px] pt-2.5 pb-1 text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#999]',
   },
@@ -38,6 +39,7 @@ export const MENU_THEME: Record<FilterTheme, { menu: string; item: string; itemO
     item: 'block w-full text-left px-4 py-2.5 text-[0.82rem] border-b border-[#222] last:border-b-0 transition-colors hover:bg-[#222] hover:text-white',
     itemOn: 'text-white',
     itemOff: 'text-[#888]',
+    itemSelected: 'bg-[#2a2a2a]',
     empty: 'px-4 py-2.5 text-[0.82rem] text-[#555] italic',
     heading: 'px-4 pt-2.5 pb-1 text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#666]',
   },
@@ -221,21 +223,18 @@ export function MultiFilterDropdown({
               onChange(allOn ? value.filter(v => !whole.includes(v)) : [...new Set([...value, ...whole])]);
             };
 
+            // Selection reads as a highlighted row — no checkbox. A partly
+            // selected area shows its heading in the "on" colour without
+            // the fill, so it's clear something under it is chosen.
             const row = (label: string, on: boolean, partial: boolean, onClick: () => void, indent: boolean, heading: boolean) => (
               <button
                 key={`${group.label ?? 'g'}:${label}`}
                 type="button"
                 onClick={e => { e.stopPropagation(); onClick(); }}
-                className={`${t.item} ${on ? t.itemOn : t.itemOff} flex items-center gap-2${indent ? ' pl-[26px]' : ''}${
+                className={`${t.item} ${on || partial ? t.itemOn : t.itemOff}${on ? ` ${t.itemSelected}` : ''}${indent ? ' pl-7' : ''}${
                   heading ? ' font-semibold' : ''
                 }`}
               >
-                <span
-                  className={`inline-block w-3 h-3 rounded-full border flex-shrink-0 ${
-                    on ? 'bg-current border-current' : partial ? 'border-current' : 'border-current opacity-40'
-                  }`}
-                  style={partial ? { backgroundImage: 'linear-gradient(currentColor, currentColor)', backgroundSize: '50% 2px', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' } : undefined}
-                />
                 {label}
               </button>
             );
