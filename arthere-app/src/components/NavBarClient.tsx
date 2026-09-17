@@ -100,7 +100,7 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark', cityNav }
                 <Link
                   key={tab.label}
                   href={tab.href}
-                  className={`flex-shrink-0 no-underline text-[0.88rem] leading-none font-medium tracking-[0.04em] pb-[3px] mt-[3.5px] transition-colors duration-200 border-b-[1.5px] border-transparent ${
+                  className={`flex-shrink-0 no-underline text-[0.88rem] leading-none font-light tracking-[0.01em] pb-[3px] mt-[3.5px] transition-colors duration-200 border-b-[1.5px] border-transparent ${
                     isLight
                       ? 'text-[#1a1a1a]/55 hover:text-[#1a1a1a] hover:border-[#1a1a1a]/60'
                       : 'text-white/55 hover:text-white hover:border-white/60'
