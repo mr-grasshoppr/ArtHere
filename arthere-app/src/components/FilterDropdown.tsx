@@ -24,13 +24,14 @@ export function pillClass(theme: FilterTheme, active: boolean): string {
   return `${PILL_BASE} ${active ? PILL_THEME[theme].active : PILL_THEME[theme].inactive}`;
 }
 
-export const MENU_THEME: Record<FilterTheme, { menu: string; item: string; itemOn: string; itemOff: string; empty: string }> = {
+export const MENU_THEME: Record<FilterTheme, { menu: string; item: string; itemOn: string; itemOff: string; empty: string; heading: string }> = {
   light: {
     menu: 'bg-white border border-[#ddd] rounded-lg overflow-hidden min-w-[180px] z-[100] shadow-[0_4px_16px_rgba(0,0,0,0.1)]',
     item: 'block w-full text-left px-[18px] py-2.5 text-[0.85rem] border-b border-[#f5f5f5] last:border-b-0 transition-colors hover:bg-[#fafafa] hover:text-[#1a1a1a]',
     itemOn: 'text-[#1a1a1a] font-medium',
     itemOff: 'text-[#666]',
     empty: 'px-[18px] py-2.5 text-[0.85rem] text-[#bbb] italic',
+    heading: 'px-[18px] pt-2.5 pb-1 text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#999]',
   },
   dark: {
     menu: 'bg-[#1a1a1a] border border-[#333] rounded-md overflow-hidden min-w-[170px] z-[100] shadow-[0_4px_16px_rgba(0,0,0,0.5)]',
@@ -38,6 +39,7 @@ export const MENU_THEME: Record<FilterTheme, { menu: string; item: string; itemO
     itemOn: 'text-white',
     itemOff: 'text-[#888]',
     empty: 'px-4 py-2.5 text-[0.82rem] text-[#555] italic',
+    heading: 'px-4 pt-2.5 pb-1 text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#666]',
   },
 };
 
@@ -50,6 +52,12 @@ interface Props {
   isOpen: boolean;
   onToggle: () => void;
   theme?: FilterTheme;
+  /**
+   * Optional grouping for the menu (e.g. places under their Portland area).
+   * Headings are labels only — a single-select can't pick a whole group.
+   * `options` stays the flat source of truth for what is selectable.
+   */
+  optionGroups?: OptionGroup[];
   /** Open the menu above the button instead of below — for a bar pinned to the bottom edge. */
   openUp?: boolean;
 }
@@ -68,10 +76,22 @@ export function FilterDropdown({
   isOpen,
   onToggle,
   theme = 'light',
+  optionGroups,
   openUp,
 }: Props) {
   const t = MENU_THEME[theme];
   const buttonLabel = value ? `${value} ▾` : `${label} ▾`;
+
+  const option = (opt: string, indent: boolean) => (
+    <button
+      key={opt}
+      type="button"
+      onClick={e => { e.stopPropagation(); onChange(opt); }}
+      className={`${t.item} ${value === opt ? t.itemOn : t.itemOff}${indent ? ' pl-[26px]' : ''}`}
+    >
+      {opt}
+    </button>
+  );
 
   return (
     <div className="relative">
@@ -93,16 +113,18 @@ export function FilterDropdown({
             All {pluralLabel}
           </button>
           {options.length === 0 && <div className={t.empty}>Nothing tagged yet</div>}
-          {options.map(opt => (
-            <button
-              key={opt}
-              type="button"
-              onClick={e => { e.stopPropagation(); onChange(opt); }}
-              className={`${t.item} ${value === opt ? t.itemOn : t.itemOff}`}
-            >
-              {opt}
-            </button>
-          ))}
+          {optionGroups
+            ? optionGroups.map((group, gi) =>
+                group.label ? (
+                  <div key={group.label}>
+                    <div className={t.heading}>{group.label}</div>
+                    {group.options.map(opt => option(opt, true))}
+                  </div>
+                ) : (
+                  <div key={`group-${gi}`}>{group.options.map(opt => option(opt, false))}</div>
+                )
+              )
+            : options.map(opt => option(opt, false))}
         </div>
       )}
     </div>

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export interface CityEntry {
   slug: string;
@@ -13,17 +14,31 @@ export interface CityEntry {
 
 export type NavBarTheme = 'dark' | 'light';
 
+/**
+ * A city's section links, shown inline in the bar between the logo and the
+ * menu: "Portland, OR  artwork  artists  network". The city name and the
+ * first tab point at the same page, so the name is the home link and the
+ * tabs are where you are within it.
+ */
+export interface CityNav {
+  cityLabel: string;
+  cityHref: string;
+  tabs: { label: string; href: string }[];
+}
+
 interface Props {
   cities: CityEntry[];
   activeCitySlug?: string;
   /** 'dark' (default) = black bar for the "now playing" city pages.
    *  'light' = white bar for content/directory pages. */
   theme?: NavBarTheme;
+  cityNav?: CityNav;
 }
 
-export function NavBarClient({ cities, activeCitySlug, theme = 'dark' }: Props) {
+export function NavBarClient({ cities, activeCitySlug, theme = 'dark', cityNav }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [citiesOpen, setCitiesOpen] = useState(false);
+  const pathname = usePathname();
   const isLight = theme === 'light';
 
   const activeCity = cities.find(c => c.slug === activeCitySlug);
@@ -62,6 +77,45 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark' }: Props) 
             priority
           />
         </Link>
+
+        {/* City section links — the city name goes home, the tabs go to the
+            sections. Scrolls sideways on narrow screens rather than wrapping
+            into a second row. */}
+        {cityNav && (
+          <nav className="flex items-center gap-5 sm:gap-7 ml-3 sm:ml-6 min-w-0 overflow-x-auto [scrollbar-width:none]">
+            <Link
+              href={cityNav.cityHref}
+              className={`font-heading flex-shrink-0 text-[0.95rem] font-bold tracking-[0.03em] no-underline transition-opacity hover:opacity-60 ${
+                isLight ? 'text-[#1a1a1a]' : 'text-white'
+              }`}
+            >
+              {cityNav.cityLabel}
+            </Link>
+            {cityNav.tabs.map(tab => {
+              const isActive = pathname === tab.href;
+              return (
+                <Link
+                  key={tab.label}
+                  href={tab.href}
+                  className={`flex-shrink-0 no-underline text-[0.88rem] font-medium tracking-[0.04em] py-1 transition-colors duration-200 border-b-[1.5px] border-transparent ${
+                    isLight
+                      ? 'text-[#1a1a1a]/55 hover:text-[#1a1a1a] hover:border-[#1a1a1a]/60'
+                      : 'text-white/55 hover:text-white hover:border-white/60'
+                  }`}
+                  style={
+                    isActive
+                      ? isLight
+                        ? { color: '#1a1a1a', borderColor: 'rgba(26,26,26,0.6)' }
+                        : { color: '#fff', borderColor: 'rgba(255,255,255,0.6)' }
+                      : undefined
+                  }
+                >
+                  {tab.label}
+                </Link>
+              );
+            })}
+          </nav>
+        )}
 
         {/* Hamburger menu */}
         <div className="relative flex-shrink-0 ml-auto z-[210]">

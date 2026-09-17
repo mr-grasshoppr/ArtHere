@@ -36,6 +36,7 @@ interface Props {
   /** Optional area grouping for the neighborhood menu. */
   neighborhoodGroups?: OptionGroup[];
   communityOptions: string[];
+  communityGroups?: OptionGroup[];
 }
 
 interface SequenceItem {
@@ -94,7 +95,7 @@ function buildSequence(
  * grid of artwork images for a city. Every image links back to the artist
  * who made it.
  */
-export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, neighborhoodGroups, communityOptions }: Props) {
+export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, neighborhoodGroups, communityOptions, communityGroups }: Props) {
   const [mediumFilter, setMediumFilter] = useState('');
   const [neighborhoodFilter, setNeighborhoodFilter] = useState<string[]>([]);
   const [communityFilter, setCommunityFilter] = useState('');
@@ -212,6 +213,7 @@ export function ArtworkBrowser({ artists, mediumOptions, neighborhoodOptions, ne
           label="Places"
           pluralLabel="communities"
           options={communityOptions}
+          optionGroups={communityGroups}
           value={communityFilter}
           onChange={setCommunityFilter}
           isOpen={openDropdown === 'community'}

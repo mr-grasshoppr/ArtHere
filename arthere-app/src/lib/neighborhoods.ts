@@ -115,3 +115,52 @@ export async function getGroupedNeighborhoods(): Promise<NeighborhoodGroup[]> {
 export async function getOrderedNeighborhoods(): Promise<string[]> {
   return (await getGroupedNeighborhoods()).flatMap((g) => g.neighborhoods);
 }
+
+// ─── Places by area ───────────────────────────────────────────────────────────
+
+export interface PlaceOptionGroup {
+  /** Area name, e.g. "SW Portland". Null for places with no filed neighborhood. */
+  label: string | null;
+  options: string[];
+}
+
+/**
+ * Place names grouped under the same areas the neighborhood filter uses, in
+ * the same order. A place is filed under every area its neighborhoods fall
+ * in (Tender Loving Empire is in NW and SE), so it can appear twice — the
+ * option value is the name either way. Places whose neighborhood isn't filed
+ * under any area land in a trailing group with no heading, so they are
+ * still reachable while they wait to be tagged.
+ */
+export async function groupPlacesByArea(
+  places: { name: string; neighborhood: string | null }[]
+): Promise<PlaceOptionGroup[]> {
+  const { prisma } = await import('@/lib/db');
+  const [areas, curated] = await Promise.all([
+    prisma.neighborhoodArea.findMany({ orderBy: { sortOrder: 'asc' } }),
+    prisma.neighborhood.findMany({ select: { name: true, areaId: true } }),
+  ]);
+  const areaOf = new Map(curated.map((n) => [n.name, n.areaId]));
+
+  const byArea = new Map<string | null, Set<string>>();
+  for (const place of places) {
+    const areaIds = new Set(
+      parseNeighborhoodList(place.neighborhood)
+        .map((n) => areaOf.get(n))
+        .filter((id): id is string => !!id)
+    );
+    for (const id of areaIds.size > 0 ? areaIds : [null]) {
+      if (!byArea.has(id)) byArea.set(id, new Set());
+      byArea.get(id)!.add(place.name);
+    }
+  }
+
+  const groups: PlaceOptionGroup[] = [];
+  for (const area of areas) {
+    const names = byArea.get(area.id);
+    if (names && names.size > 0) groups.push({ label: area.name, options: [...names].sort() });
+  }
+  const unfiled = byArea.get(null);
+  if (unfiled && unfiled.size > 0) groups.push({ label: null, options: [...unfiled].sort() });
+  return groups;
+}

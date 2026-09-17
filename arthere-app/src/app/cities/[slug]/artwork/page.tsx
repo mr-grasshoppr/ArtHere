@@ -6,7 +6,7 @@ import type { Metadata } from 'next';
 import { NavBar } from '@/components/NavBar';
 import { ArtworkBrowser, type ArtworkArtistData } from '@/components/ArtworkBrowser';
 import { CityBottomBar } from '@/components/CityBottomBar';
-import { isCityLevelNeighborhood, parseNeighborhoodList, getGroupedNeighborhoods } from '@/lib/neighborhoods';
+import { isCityLevelNeighborhood, parseNeighborhoodList, getGroupedNeighborhoods, groupPlacesByArea } from '@/lib/neighborhoods';
 import { getFocals } from '@/lib/image-focus';
 
 // ISR: content is edited via admin + self-service; regenerate at most every 30s
@@ -63,7 +63,13 @@ export default async function CityArtworkPage({
       name: artist.name,
       medium: artist.medium,
       neighborhood: artist.neighborhood,
-      communities: artist.placeRelations.map(r => r.place?.name ?? r.venueName).filter((n): n is string => !!n),
+      // Only places with their own page. A free-text venue (venueName) or a
+      // place kept out of the directory is still shown on the artist's
+      // profile, but it isn't somewhere a visitor can go, so it isn't a
+      // filter here.
+      communities: artist.placeRelations
+        .map(r => (r.place && r.place.inDirectory && !r.place.isArchived ? r.place.name : null))
+        .filter((n): n is string => !!n),
       // Every image, unfiltered — including the hero. ArtworkBrowser curates
       // (excludes the hero, caps per artist) for the default ambient view,
       // but a medium filter needs the full set or "N pieces match X" would
@@ -100,7 +106,18 @@ export default async function CityArtworkPage({
     .map(g => ({ label: g.area, options: g.neighborhoods.filter(n => inUse.has(n)) }))
     .filter(g => g.options.length > 0);
   const neighborhoodOptions = neighborhoodGroups.flatMap(g => g.options);
-  const communityOptions = [...new Set(artists.flatMap(a => a.communities))].sort();
+  // Places grouped under the same areas as the neighborhood menu, narrowed
+  // to places at least one artist here is connected to.
+  const inUsePlaces = new Set(artists.flatMap(a => a.communities));
+  const communityGroups = await groupPlacesByArea(
+    [...new Map(
+      cityArtists
+        .flatMap(a => a.placeRelations.map(r => r.place))
+        .filter((p): p is NonNullable<typeof p> => !!p && inUsePlaces.has(p.name))
+        .map(p => [p.name, { name: p.name, neighborhood: p.neighborhood }])
+    ).values()]
+  );
+  const communityOptions = [...inUsePlaces].sort();
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white pt-14 pb-14">
@@ -121,6 +138,7 @@ export default async function CityArtworkPage({
         neighborhoodOptions={neighborhoodOptions}
         neighborhoodGroups={neighborhoodGroups}
         communityOptions={communityOptions}
+        communityGroups={communityGroups}
       />
 
       <CityBottomBar citySlug={slug} cityDisplayName={cityDisplayName} />

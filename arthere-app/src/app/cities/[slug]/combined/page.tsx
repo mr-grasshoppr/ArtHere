@@ -3,11 +3,10 @@ import { getCityScope, artistScopeWhere } from '@/lib/city-scope';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { NavBar } from '@/components/NavBar';
-import { CityBottomBar } from '@/components/CityBottomBar';
-import { CombinedCityView, type CombinedLayout } from '@/components/CombinedCityView';
+import { CombinedCityView } from '@/components/CombinedCityView';
 import type { ArtworkArtistData } from '@/components/ArtworkBrowser';
 import { getFocals } from '@/lib/image-focus';
-import { parseNeighborhoodList, getGroupedNeighborhoods, isCityLevelNeighborhood } from '@/lib/neighborhoods';
+import { parseNeighborhoodList, getGroupedNeighborhoods, groupPlacesByArea, isCityLevelNeighborhood } from '@/lib/neighborhoods';
 
 /**
  * PROTOTYPE ROUTE — the city page and the artwork page as one screen.
@@ -29,18 +28,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return { title: `${city?.displayName ?? city?.name ?? slug} — Art Here (prototype)`, robots: { index: false } };
 }
 
-export default async function CombinedCityPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ slug: string }>;
-  searchParams: Promise<{ layout?: string }>;
-}) {
+export default async function CombinedCityPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  // ?layout=tabs-top | filters-top — the two placements under test. See
-  // CombinedLayout. Defaults to the tabs-at-top variant.
-  const { layout: rawLayout } = await searchParams;
-  const layout: CombinedLayout = rawLayout === 'filters-top' ? 'filters-top' : 'tabs-top';
 
   const scope = await getCityScope(slug);
   if (!scope) notFound();
@@ -64,7 +53,13 @@ export default async function CombinedCityPage({
       name: artist.name,
       medium: artist.medium,
       neighborhood: artist.neighborhood,
-      communities: artist.placeRelations.map(r => r.place?.name ?? r.venueName).filter((n): n is string => !!n),
+      // Only places with their own page. A free-text venue (venueName) or a
+      // place kept out of the directory is still shown on the artist's
+      // profile, but it isn't somewhere a visitor can go, so it isn't a
+      // filter here.
+      communities: artist.placeRelations
+        .map(r => (r.place && r.place.inDirectory && !r.place.isArchived ? r.place.name : null))
+        .filter((n): n is string => !!n),
       images: artist.artworkImages.map(img => ({
         src: img.url,
         focal: focals.get(img.url) ?? null,
@@ -82,14 +77,38 @@ export default async function CombinedCityPage({
     .map(g => ({ label: g.area, options: g.neighborhoods.filter(n => inUse.has(n)) }))
     .filter(g => g.options.length > 0);
   const neighborhoodOptions = neighborhoodGroups.flatMap(g => g.options);
-  const communityOptions = [...new Set(artists.flatMap(a => a.communities))].sort();
+  // Places grouped under the same areas as the neighborhood menu, narrowed
+  // to places at least one artist here is connected to.
+  const inUsePlaces = new Set(artists.flatMap(a => a.communities));
+  const communityGroups = await groupPlacesByArea(
+    [...new Map(
+      cityArtists
+        .flatMap(a => a.placeRelations.map(r => r.place))
+        .filter((p): p is NonNullable<typeof p> => !!p && inUsePlaces.has(p.name))
+        .map(p => [p.name, { name: p.name, neighborhood: p.neighborhood }])
+    ).values()]
+  );
+  const communityOptions = [...inUsePlaces].sort();
+
+  // The city name and "artwork" are the same page: this one. Within the
+  // prototype that's this route; once adopted it becomes /cities/[slug].
+  const home = `/cities/${slug}/combined`;
 
   return (
     <div className="h-screen overflow-hidden bg-[#0a0a0a] text-white">
-      <NavBar activeCitySlug={slug} />
+      <NavBar
+        activeCitySlug={slug}
+        cityNav={{
+          cityLabel: cityDisplayName,
+          cityHref: home,
+          tabs: [
+            { label: 'artwork', href: home },
+            { label: 'artists', href: `/cities/${slug}/artists` },
+            { label: 'network', href: `/cities/${slug}/network` },
+          ],
+        }}
+      />
       <CombinedCityView
-        layout={layout}
-        citySlug={slug}
         artists={artists}
         overlayImageUrl={city.logoOverlayImageUrl ?? '/images/arthere-portland-overlay.png'}
         maskImageUrl="/images/arthere-mask.png"
@@ -97,11 +116,7 @@ export default async function CombinedCityPage({
         neighborhoodOptions={neighborhoodOptions}
         neighborhoodGroups={neighborhoodGroups}
         communityOptions={communityOptions}
-      />
-      <CityBottomBar
-        citySlug={slug}
-        cityDisplayName={cityDisplayName}
-        position={layout === 'tabs-top' ? 'top' : 'bottom'}
+        communityGroups={communityGroups}
       />
     </div>
   );

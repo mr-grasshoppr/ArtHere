@@ -1,25 +1,12 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
-import Link from 'next/link';
 import { CityGrid, type ArtistGridData } from './CityGrid';
 import { FilterDropdown, MultiFilterDropdown, pillClass, type OptionGroup } from './FilterDropdown';
 import type { ArtworkArtistData } from './ArtworkBrowser';
 import { parseNeighborhoodList } from '@/lib/neighborhoods';
 
-/**
- * The two placements under test.
- *
- * 'tabs-top'    — the city tabs (artwork / artists / places / network) move up
- *                 under the site nav, and the filter bar owns the bottom edge.
- * 'filters-top' — the tabs stay at the bottom where they are today, and the
- *                 filter bar drops in under the site nav once the grid freezes.
- */
-export type CombinedLayout = 'tabs-top' | 'filters-top';
-
 interface Props {
-  layout: CombinedLayout;
-  citySlug: string;
   artists: ArtworkArtistData[];
   overlayImageUrl: string;
   maskImageUrl: string;
@@ -27,6 +14,7 @@ interface Props {
   neighborhoodOptions: string[];
   neighborhoodGroups?: OptionGroup[];
   communityOptions: string[];
+  communityGroups?: OptionGroup[];
 }
 
 type DropdownKey = 'medium' | 'neighborhood' | 'community';
@@ -36,9 +24,8 @@ type DropdownKey = 'medium' | 'neighborhood' | 'community';
  *
  * The grid runs as it does on the city page. Clicking freezes it into the
  * browsable state it already had, and that freeze is what brings the filter
- * bar in. Where the bar comes in from is the `layout` prop — see
- * CombinedLayout above. Both are kept side by side so they can be compared
- * on the same data at the same URL, with a switch in the corner.
+ * bar in along the bottom edge. The city's section links live in the site
+ * nav at the top (NavBar's cityNav), so the bottom edge is the bar's alone.
  *
  * The trigger is the freeze, not "when scrolling stops": the grid never
  * stops scrolling on its own, so that has no clean meaning here, whereas the
@@ -50,8 +37,6 @@ type DropdownKey = 'medium' | 'neighborhood' | 'community';
  * (GRID-6) rather than tiling the way the ambient scroll does.
  */
 export function CombinedCityView({
-  layout,
-  citySlug,
   artists,
   overlayImageUrl,
   maskImageUrl,
@@ -59,6 +44,7 @@ export function CombinedCityView({
   neighborhoodOptions,
   neighborhoodGroups,
   communityOptions,
+  communityGroups,
 }: Props) {
   const [frozen, setFrozen] = useState(false);
   const [mediumFilter, setMediumFilter] = useState('');
@@ -67,7 +53,6 @@ export function CombinedCityView({
   const [openDropdown, setOpenDropdown] = useState<DropdownKey | null>(null);
 
   const hasFilter = !!(mediumFilter || neighborhoodFilter.length > 0 || communityFilter);
-  const filtersAtTop = layout === 'filters-top';
 
   // Same additive filter as ArtworkBrowser, then projected down to the shape
   // CityGrid wants. Memoised on the filter values so the grid's artists prop
@@ -112,17 +97,6 @@ export function CombinedCityView({
 
   const matchCount = gridArtists.reduce((n, a) => n + a.images.length, 0);
 
-  // Where the bar lives and which way it travels while hidden. With the tabs
-  // at the top the bar owns the bottom edge outright; with the tabs left at
-  // the bottom it comes in under the site nav, the way the artwork page's own
-  // sticky bar does.
-  const barPlacement = filtersAtTop
-    ? 'top-14 border-b'
-    : 'bottom-0 border-t';
-  const barHidden = filtersAtTop
-    ? '-translate-y-full opacity-0 pointer-events-none'
-    : 'translate-y-full opacity-0 pointer-events-none';
-
   return (
     <>
       <CityGrid
@@ -139,8 +113,8 @@ export function CombinedCityView({
       )}
 
       <div
-        className={`fixed left-0 right-0 ${barPlacement} z-[95] bg-[#0a0a0a]/[0.97] backdrop-blur-[8px] border-[#222] px-3.5 py-2.5 flex items-center gap-2 flex-wrap transition-[transform,opacity] duration-300 ease-out ${
-          frozen ? 'translate-y-0 opacity-100' : barHidden
+        className={`fixed left-0 right-0 bottom-0 z-[95] bg-[#0a0a0a]/[0.97] backdrop-blur-[8px] border-t border-[#222] px-3.5 py-2.5 flex items-center gap-2 flex-wrap transition-[transform,opacity] duration-300 ease-out ${
+          frozen ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 pointer-events-none'
         }`}
         aria-hidden={!frozen}
       >
@@ -157,7 +131,7 @@ export function CombinedCityView({
           onChange={setMediumFilter}
           isOpen={openDropdown === 'medium'}
           onToggle={() => toggleDropdown('medium')}
-          openUp={!filtersAtTop}
+          openUp
         />
         <MultiFilterDropdown
           theme="dark"
@@ -169,18 +143,19 @@ export function CombinedCityView({
           onChange={setNeighborhoodFilter}
           isOpen={openDropdown === 'neighborhood'}
           onToggle={() => toggleDropdown('neighborhood')}
-          openUp={!filtersAtTop}
+          openUp
         />
         <FilterDropdown
           theme="dark"
           label="Places"
           pluralLabel="communities"
           options={communityOptions}
+          optionGroups={communityGroups}
           value={communityFilter}
           onChange={setCommunityFilter}
           isOpen={openDropdown === 'community'}
           onToggle={() => toggleDropdown('community')}
-          openUp={!filtersAtTop}
+          openUp
         />
 
         <span className="ml-auto text-[0.72rem] text-[#666] tabular-nums">
@@ -188,28 +163,6 @@ export function CombinedCityView({
         </span>
       </div>
 
-      {/* Prototype-only switch between the two placements. Bottom-right,
-          just above whichever bar owns the bottom edge in that layout —
-          the one spot neither layout puts a control in. */}
-      <div className="fixed bottom-[66px] right-4 z-[110] flex items-center gap-1 text-[0.68rem] bg-[#111]/90 border border-[#2a2a2a] rounded-full px-1 py-0.5">
-        <span className="px-2 text-[#666] uppercase tracking-[0.08em]">Layout</span>
-        {(
-          [
-            ['tabs-top', 'A · tabs top'],
-            ['filters-top', 'B · filters top'],
-          ] as const
-        ).map(([key, label]) => (
-          <Link
-            key={key}
-            href={`/cities/${citySlug}/combined?layout=${key}`}
-            className={`px-2.5 py-1 rounded-full no-underline transition-colors ${
-              layout === key ? 'bg-white text-black' : 'text-[#999] hover:text-white'
-            }`}
-          >
-            {label}
-          </Link>
-        ))}
-      </div>
     </>
   );
 }
