@@ -40,7 +40,7 @@ export default async function CityArtistsPage({
 
   const scope = await getCityScope(slug);
   if (!scope) notFound();
-  const { city, cityDisplayName } = scope;
+  const { cityDisplayName } = scope;
 
   const cityArtists = await prisma.artist.findMany({
     where: artistScopeWhere(scope),
@@ -76,15 +76,7 @@ export default async function CityArtistsPage({
     <div className="min-h-screen bg-white text-[#1a1a1a] pt-14 pb-24">
       <NavBar activeCitySlug={slug} theme="light" cityNav={cityNavFor(slug, cityDisplayName)} />
 
-      <div className="max-w-[1400px] mx-auto px-5 sm:px-10 pt-12 pb-8 border-b border-[#f0f0f0]">
-        <h1 className="font-heading text-[2rem] font-bold tracking-[-0.01em] mb-1.5">
-          {city.name} Artists
-        </h1>
-        <p className="text-[0.95rem] text-[#888] font-light">
-          A growing directory of working artists across {city.name}.
-        </p>
-      </div>
-
+      {/* No page heading — the nav's "artists" tab is the title. */}
       <ArtistsSearch
         citySlug={slug}
         artists={artists}
