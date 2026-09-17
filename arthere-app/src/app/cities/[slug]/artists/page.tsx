@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { NavBar } from '@/components/NavBar';
 import { cityNavFor } from '@/lib/city-nav';
+import { DirectoryCallout } from '@/components/DirectoryCallout';
 import { ArtistsSearch } from '@/components/ArtistsSearch';
 import type { ArtistCardData } from '@/components/ArtistsGrid';
 import { parseMediumList } from '@/lib/artist-options';
@@ -40,7 +41,7 @@ export default async function CityArtistsPage({
 
   const scope = await getCityScope(slug);
   if (!scope) notFound();
-  const { cityDisplayName } = scope;
+  const { city, cityDisplayName } = scope;
 
   const cityArtists = await prisma.artist.findMany({
     where: artistScopeWhere(scope),
@@ -76,7 +77,10 @@ export default async function CityArtistsPage({
     <div className="min-h-screen bg-white text-[#1a1a1a] pt-14 pb-24">
       <NavBar activeCitySlug={slug} theme="light" cityNav={cityNavFor(slug, cityDisplayName)} />
 
-      {/* No page heading — the nav's "artists" tab is the title. */}
+      {/* No page heading — the nav's "artists" tab is the title; the
+          band below is the invitation to join. */}
+      <DirectoryCallout cityName={city.name} />
+
       <ArtistsSearch
         citySlug={slug}
         artists={artists}

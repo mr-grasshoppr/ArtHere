@@ -150,7 +150,7 @@ export default async function Home() {
                       />
                     </div>
                     <div className="px-5 py-5">
-                      <h3 className="font-heading text-[1.05rem] font-bold mb-2">{title}</h3>
+                      <h3 className="font-display text-[1.5rem] leading-none tracking-[0.04em] mb-2.5">{title}</h3>
                       <p className="text-[0.85rem] text-[#666] font-light leading-[1.7]">{body}</p>
                     </div>
                   </div>
