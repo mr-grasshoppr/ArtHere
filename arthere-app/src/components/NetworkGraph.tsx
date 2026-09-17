@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import Image from 'next/image';
 import { isCityLevelNeighborhood } from '@/lib/neighborhoods';
-import { pillClass } from '@/components/FilterDropdown';
 
 export interface NetworkNode {
   id: string;
@@ -504,11 +503,11 @@ export function NetworkGraph({ nodes, links, neighborhoodGroups }: Props) {
       {/* Reset, in the same top-left corner the filter bar used to occupy.
           Nudges the layout back together and then frames every node, which is
           the way back from having dragged or zoomed somewhere unrecoverable. */}
-      <div className="absolute top-[90px] left-5 z-10 text-[0.72rem]">
+      <div className="absolute bottom-5 right-5 z-10">
         <button
           type="button"
           onClick={() => resetRef.current?.()}
-          className={pillClass('dark', false)}
+          className="px-2.5 py-1 rounded-md border border-[#444] text-[0.72rem] text-[#888] bg-[#0a0a0a]/80 hover:border-[#888] hover:text-[#ccc] transition-colors cursor-pointer"
         >
           Reset view
         </button>
