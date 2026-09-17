@@ -79,11 +79,12 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark', cityNav }
         </Link>
 
         {/* City section links — the city name goes home, the tabs go to the
-            sections. The row is the logo's height and bottom-aligned, so
-            the text sits on the logo's baseline. Scrolls sideways on narrow
-            screens rather than wrapping into a second row. */}
+            sections. Pushed to the right, next to the menu, so the logo
+            stands alone on the left. The row is the logo's height and
+            bottom-aligned, so the text sits on the logo's baseline. Scrolls
+            sideways on narrow screens rather than wrapping. */}
         {cityNav && (
-          <nav className="flex items-end h-[38px] gap-5 sm:gap-7 ml-3 sm:ml-6 min-w-0 overflow-x-auto [scrollbar-width:none]">
+          <nav className="flex items-end h-[38px] gap-5 sm:gap-7 ml-auto mr-3 sm:mr-6 min-w-0 overflow-x-auto [scrollbar-width:none]">
             <Link
               href={cityNav.cityHref}
               className={`font-display flex-shrink-0 text-[1.35rem] leading-none tracking-[0.05em] no-underline transition-opacity hover:opacity-60 ${
@@ -119,7 +120,7 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark', cityNav }
         )}
 
         {/* Hamburger menu */}
-        <div className="relative flex-shrink-0 ml-auto z-[210]">
+        <div className={`relative flex-shrink-0 z-[210]${cityNav ? '' : ' ml-auto'}`}>
           <button
             className="bg-transparent border-none cursor-pointer p-1 flex flex-col gap-1"
             onClick={e => { e.stopPropagation(); setMenuOpen(o => !o); if (menuOpen) setCitiesOpen(false); }}
