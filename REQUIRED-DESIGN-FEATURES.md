@@ -53,6 +53,7 @@ for where anything lands.
 | **GRID-5** | **An artist's work stays four rows clear of itself.** |
 | **GRID-6** | Ambient grids end on a **flush bottom edge**; a **filtered** result set is never padded — every match appears exactly once. |
 | **GRID-7** | The city page's logo cell is planned as the **2 cols × 2 rows** tile it renders as. |
+| **GRID-8** | The logo cell's artwork is **drawn at random** across artists — never defaulted to whoever has the most pieces. |
 
 ### What "four rows clear" can and cannot promise
 

@@ -340,13 +340,13 @@ function planLayout<T>(
    * Least-bad artwork for one slot. Ties are broken by reservoir sampling, so
    * the grid still looks different on every visit.
    */
-  const choose = (eligible: (i: number) => boolean, block: Block): number => {
+  const choose = (eligible: (i: number) => boolean, block: Block, uniform = false): number => {
     let best = -1;
     let bestRank: number[] = [];
     let ties = 0;
     for (let i = 0; i < items.length; i++) {
       if (!eligible(i)) continue;
-      const rank = rankOf(i, block);
+      const rank = uniform ? [] : rankOf(i, block);
       const cmp = best === -1 ? -1 : rankCompare(rank, bestRank);
       if (cmp < 0) {
         best = i;
@@ -379,9 +379,14 @@ function planLayout<T>(
     // piece for a one-row cell, which drags the whole layout out of step
     // with the geometry it was planned against.
     const pad = s >= padFrom;
+    // The lead cell (the city page's logo tile) is drawn uniformly. Nothing
+    // has been placed yet, so the spacing terms are all zero and the
+    // scarcity tiebreak would hand it to whichever artist has the most
+    // pieces — the same one on every visit.
+    const uniform = s === 0 && !!leadCell;
     let i = pad
       ? choose(j => padPool.has(j), block)
-      : choose(j => idLeft[j] > 0 && spanOf(items[j]) === slot.itemSpan, block);
+      : choose(j => idLeft[j] > 0 && spanOf(items[j]) === slot.itemSpan, block, uniform);
     // Only reachable with a degenerate pool (e.g. every piece is tall, so a
     // padding slot has no short piece to draw). Matching the span still comes
     // first: a mismatch here would render at the wrong height and shift every

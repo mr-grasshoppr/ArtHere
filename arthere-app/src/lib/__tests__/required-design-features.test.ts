@@ -314,4 +314,23 @@ describe("REQUIRED DESIGN FEATURES — artwork & city grids", () => {
     // every row boundary below it drifts and the rules above become fiction.
     expect(CITY_LOGO_CELL).toEqual({ rowSpan: 2, colSpan: 2 });
   });
+
+  it("GRID-8: the logo cell's artwork is drawn at random, not from the most prolific artist", () => {
+    // Nothing is placed before the lead cell, so every spacing term is zero
+    // and the scarcity tiebreak alone would decide it — handing the tile to
+    // whichever artist has the most pieces, on every single visit.
+    const pool: RepeatItem<Tile>[] = [];
+    for (let a = 0; a < 6; a++) {
+      const n = a === 0 ? 8 : 2; // one artist with far more work than the rest
+      for (let i = 0; i < n; i++) {
+        pool.push({ key: `artist-${a}`, id: `art-${a}-${i}`, span: 1, payload: { artist: `artist-${a}`, artwork: `art-${a}-${i}`, tall: false } });
+      }
+    }
+    const leads = new Set<string>();
+    for (let t = 0; t < 60; t++) {
+      const seq = buildSpacedSequence(pool, { cols: 4, repeats: 3, minRowGap: GRID_MIN_ROW_GAP, leadCell: CITY_LOGO_CELL });
+      leads.add(seq[0].artist);
+    }
+    expect(leads.size).toBeGreaterThan(1);
+  });
 });
