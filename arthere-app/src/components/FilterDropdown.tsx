@@ -9,7 +9,7 @@ import { useEffect, useRef } from 'react';
 export type FilterTheme = 'light' | 'dark';
 
 export const PILL_BASE =
-  'px-4 py-[7px] rounded-full border text-[0.82rem] transition-colors whitespace-nowrap cursor-pointer';
+  'px-3.5 py-[4px] rounded-full border text-[0.82rem] transition-colors whitespace-nowrap cursor-pointer';
 
 const PILL_THEME: Record<FilterTheme, { inactive: string; active: string }> = {
   light: {

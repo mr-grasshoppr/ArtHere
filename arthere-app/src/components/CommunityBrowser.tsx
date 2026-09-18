@@ -102,7 +102,7 @@ export function CommunityBrowser({ places, neighborhoodOptions, citySlug }: Prop
       )}
 
       <div className="sticky top-14 z-50 bg-white/[0.97] backdrop-blur-[8px] border-b border-[#f0f0f0]">
-        <div className="max-w-[1400px] mx-auto px-5 sm:px-10 py-3 sm:py-4 flex flex-wrap items-center gap-2">
+        <div className="max-w-[1400px] mx-auto px-5 sm:px-10 py-2 flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => setNeighborhoodFilter([])}

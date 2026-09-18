@@ -129,7 +129,7 @@ export function CityArtworkView({
       )}
 
       <div
-        className={`fixed left-0 right-0 bottom-0 z-[95] bg-[#0a0a0a]/[0.97] backdrop-blur-[8px] border-t border-[#222] px-3.5 py-2.5 flex items-center gap-2 flex-wrap transition-[transform,opacity] duration-300 ease-out ${
+        className={`fixed left-0 right-0 bottom-0 z-[95] bg-[#0a0a0a]/[0.97] backdrop-blur-[8px] border-t border-[#222] px-3.5 py-1 flex items-center gap-2 flex-wrap transition-[transform,opacity] duration-300 ease-out ${
           frozen ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 pointer-events-none'
         }`}
         aria-hidden={!frozen}
