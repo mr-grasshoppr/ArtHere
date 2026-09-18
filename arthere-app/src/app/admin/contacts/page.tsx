@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db";
 import { requireAdminPage } from "@/lib/admin";
+import Link from "next/link";
+import { CreateDraftProfileButton } from "@/components/admin/CreateDraftProfileButton";
 
 const INTENTS: Record<string, string> = {
   featured: "Get Featured",
@@ -46,6 +48,16 @@ export default async function AdminContactsPage() {
                     day: "numeric",
                   })}
                 </span>
+                {s.invitedArtistId ? (
+                  <Link
+                    href={`/admin/artists/${s.invitedArtistId}/edit`}
+                    className="text-xs px-3 py-1.5 rounded border border-[#e5e5e5] text-[#888] hover:border-[#999] transition-colors whitespace-nowrap"
+                  >
+                    Edit draft profile →
+                  </Link>
+                ) : (
+                  <CreateDraftProfileButton email={s.email} />
+                )}
               </div>
               {s.social && (
                 <p className="text-[0.82rem] text-[#888] mb-1">

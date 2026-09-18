@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { sendOutreach, setContactTest, type SendResult } from "./actions";
 import type { Contact, ContactSource } from "@/lib/contact-tracking";
+import { CreateDraftProfileButton } from "@/components/admin/CreateDraftProfileButton";
 
 const PILL =
   "px-3 py-1.5 rounded-full border text-xs transition-colors whitespace-nowrap";
@@ -310,17 +311,23 @@ export default function ContactTracker({
                         <p className="text-[#555] whitespace-pre-wrap mt-0.5 leading-[1.6]">{o.body}</p>
                       </div>
                     ))}
-                    <button
-                      onClick={() => handleToggleTest(c.email, !c.isTest)}
-                      disabled={testPending === c.email}
-                      className={`text-xs px-3 py-1.5 rounded border transition-colors ${
-                        c.isTest
-                          ? "border-[#f062a4]/40 bg-[#f062a4]/10 text-[#a84573] hover:bg-[#f062a4]/15"
-                          : "border-[#e5e5e5] text-[#888] hover:border-[#f062a4]/40 hover:text-[#a84573]"
-                      }`}
-                    >
-                      {testPending === c.email ? "Saving…" : c.isTest ? "Unmark as test" : "Mark as test"}
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleToggleTest(c.email, !c.isTest)}
+                        disabled={testPending === c.email}
+                        className={`text-xs px-3 py-1.5 rounded border transition-colors ${
+                          c.isTest
+                            ? "border-[#f062a4]/40 bg-[#f062a4]/10 text-[#a84573] hover:bg-[#f062a4]/15"
+                            : "border-[#e5e5e5] text-[#888] hover:border-[#f062a4]/40 hover:text-[#a84573]"
+                        }`}
+                      >
+                        {testPending === c.email ? "Saving…" : c.isTest ? "Unmark as test" : "Mark as test"}
+                      </button>
+                      <CreateDraftProfileButton
+                        email={c.email}
+                        className="text-xs px-3 py-1.5 rounded border border-[#e5e5e5] text-[#888] hover:border-[#999] transition-colors disabled:opacity-40 whitespace-nowrap"
+                      />
+                    </div>
                   </div>
                 )}
               </div>

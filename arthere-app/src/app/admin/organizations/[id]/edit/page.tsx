@@ -29,12 +29,21 @@ export default async function AdminOrgEditPage({ params }: { params: Promise<{ i
 
   return (
     <div className="max-w-2xl">
-      <Link
-        href={`/admin/organizations/${id}`}
-        className="text-sm text-[#999] hover:text-[#1a1a1a] transition-colors mb-6 inline-block"
-      >
-        ← Back to {place.name}
-      </Link>
+      <div className="flex items-center justify-between mb-6">
+        <Link
+          href={`/admin/organizations/${id}`}
+          className="text-sm text-[#999] hover:text-[#1a1a1a] transition-colors"
+        >
+          ← Back to {place.name}
+        </Link>
+        <Link
+          href={`/places/${place.slug}`}
+          target="_blank"
+          className="inline-flex items-center justify-center px-4 py-2 rounded-full border border-[#e0e0e0] text-xs font-medium text-[#444] hover:border-[#1a1a1a] hover:text-[#1a1a1a] transition-colors"
+        >
+          View page ↗
+        </Link>
+      </div>
       <h1 className="text-2xl font-medium mb-8">Edit Organization — {place.name}</h1>
 
       <OrgEditor

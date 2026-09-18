@@ -80,3 +80,68 @@ export async function previewInterestedInvite(submissionId: string): Promise<Inv
   });
   return { ...preview, artistId };
 }
+
+/**
+ * Create a placeholder Artist from a Contact Tracking / Contact Submissions
+ * row, prefilled with whatever's on file for that email — no invite sent,
+ * just a draft the admin can finish filling in and publish or invite from
+ * later. Idempotent: an email that already has an artist just returns it,
+ * so clicking the button twice (or from both tabs) can't create duplicates.
+ *
+ * Contact Tracking's merged Contact view drops the free-text fields (social,
+ * affiliations) that make this worth doing, so this goes back to the
+ * underlying ContactSubmission rows rather than taking pre-merged data.
+ */
+export async function createDraftArtistFromEmail(email: string): Promise<{ artistId: string; alreadyExisted: boolean }> {
+  await requireAdmin();
+  const clean = email.trim().toLowerCase();
+  if (!clean) throw new Error("An email is required");
+
+  const existingUser = await prisma.user.findUnique({ where: { email: clean }, include: { artist: true } });
+  if (existingUser?.artist) {
+    return { artistId: existingUser.artist.id, alreadyExisted: true };
+  }
+
+  // A contact-form submission is the only source with social/affiliations —
+  // survey and newsletter rows contribute nothing beyond email. Prefer
+  // whichever submission actually has something to prefill; several blank
+  // ones (e.g. a repeat newsletter-only signup) shouldn't beat one with data.
+  const submissions = await prisma.contactSubmission.findMany({
+    where: { email: { equals: clean, mode: "insensitive" } },
+    orderBy: { createdAt: "desc" },
+  });
+  const submission = submissions.find((s) => s.social?.trim() || s.affiliations?.trim()) ?? submissions[0];
+
+  const name = submission?.name?.trim() || clean;
+  const slug = await uniqueArtistSlug(name);
+  const portland = await prisma.city.findUnique({ where: { slug: "portland" } });
+  const artist = await prisma.artist.create({
+    data: { name, slug, isPlaceholder: true, cityId: portland?.id ?? null },
+  });
+
+  const social = classifySocialLink(submission?.social);
+  if (social) {
+    await prisma.artistLink.create({ data: { artistId: artist.id, ...social } });
+  }
+
+  const noteLines = [
+    submission
+      ? `Draft created from a "${INTENT_LABELS[submission.intent ?? ""] ?? "contact form"}" submission.`
+      : "Draft created from Contact Tracking.",
+    submission?.social ? `Website/social as entered: ${submission.social}` : null,
+    submission?.affiliations ? `Community connections as entered: ${submission.affiliations}` : null,
+    submission?.message ? `Message: ${submission.message}` : null,
+  ].filter((line): line is string => Boolean(line));
+  await prisma.adminNote.create({ data: { artistId: artist.id, body: noteLines.join("\n") } });
+
+  // Best-effort — lets the "Interested" tab's Not-yet-invited list know this
+  // one's spoken for too. Not critical, so a stale/conflicting value on an
+  // unrelated submission for this email shouldn't fail the whole action.
+  if (submission && !submission.invitedArtistId) {
+    await prisma.contactSubmission.update({ where: { id: submission.id }, data: { invitedArtistId: artist.id } }).catch(() => {});
+  }
+
+  await attachArtistUser(artist.id, clean);
+
+  return { artistId: artist.id, alreadyExisted: false };
+}
