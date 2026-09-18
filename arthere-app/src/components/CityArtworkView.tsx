@@ -129,11 +129,18 @@ export function CityArtworkView({
       )}
 
       <div
-        className={`fixed left-0 right-0 bottom-0 z-[95] bg-[#0a0a0a]/[0.97] backdrop-blur-[8px] border-t border-[#222] px-3.5 py-1 flex items-center gap-2 flex-wrap transition-[transform,opacity] duration-300 ease-out ${
+        className={`fixed left-0 right-0 bottom-0 z-[95] bg-[#0a0a0a]/[0.97] backdrop-blur-[8px] border-t border-[#222] px-3.5 py-1 flex items-center justify-end gap-2 flex-wrap transition-[transform,opacity] duration-300 ease-out ${
           frozen ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 pointer-events-none'
         }`}
         aria-hidden={!frozen}
       >
+        {/* Pills sit on the right: Chrome's link-preview bubble lives in the
+            bottom-left corner and would cover them while browsing the grid. */}
+        {hasFilter && (
+          <span className="mr-auto text-[0.72rem] text-[#666] tabular-nums">
+            {matchCount} {matchCount === 1 ? 'piece' : 'pieces'}
+          </span>
+        )}
         <button type="button" onClick={clearFilters} className={pillClass('dark', !hasFilter)}>
           All
         </button>
@@ -148,6 +155,7 @@ export function CityArtworkView({
           isOpen={openDropdown === 'medium'}
           onToggle={() => toggleDropdown('medium')}
           openUp
+          alignRight
         />
         <MultiFilterDropdown
           theme="dark"
@@ -160,6 +168,7 @@ export function CityArtworkView({
           isOpen={openDropdown === 'neighborhood'}
           onToggle={() => toggleDropdown('neighborhood')}
           openUp
+          alignRight
         />
         <MultiFilterDropdown
           theme="dark"
@@ -172,13 +181,9 @@ export function CityArtworkView({
           isOpen={openDropdown === 'community'}
           onToggle={() => toggleDropdown('community')}
           openUp
+          alignRight
         />
 
-        {hasFilter && (
-          <span className="ml-auto text-[0.72rem] text-[#666] tabular-nums">
-            {matchCount} {matchCount === 1 ? 'piece' : 'pieces'}
-          </span>
-        )}
       </div>
 
     </>

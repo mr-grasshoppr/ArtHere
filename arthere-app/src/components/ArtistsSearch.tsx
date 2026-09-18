@@ -14,6 +14,7 @@ interface Props {
   /** Optional area grouping for the neighborhood menu. */
   neighborhoodGroups?: OptionGroup[];
   communityOptions: string[];
+  communityGroups?: OptionGroup[];
 }
 
 type DropdownKey = 'medium' | 'neighborhood' | 'community';
@@ -24,28 +25,28 @@ type DropdownKey = 'medium' | 'neighborhood' | 'community';
  * free-text search that used to sit beside them was removed (it wasn't
  * working); /api/artists/search still exists if it comes back.
  */
-export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOptions, neighborhoodGroups, communityOptions }: Props) {
+export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOptions, neighborhoodGroups, communityOptions, communityGroups }: Props) {
   const [mediumFilter, setMediumFilter] = useState('');
   const [neighborhoodFilter, setNeighborhoodFilter] = useState<string[]>([]);
-  const [communityFilter, setCommunityFilter] = useState('');
+  const [communityFilter, setCommunityFilter] = useState<string[]>([]);
   const [openDropdown, setOpenDropdown] = useState<DropdownKey | null>(null);
 
   function clearFilters() {
     setMediumFilter('');
     setNeighborhoodFilter([]);
-    setCommunityFilter('');
+    setCommunityFilter([]);
   }
 
   function toggleDropdown(key: DropdownKey) {
     setOpenDropdown(open => (open === key ? null : key));
   }
 
-  const hasFilter = !!(mediumFilter || neighborhoodFilter.length > 0 || communityFilter);
+  const hasFilter = !!(mediumFilter || neighborhoodFilter.length > 0 || communityFilter.length > 0);
 
   const shown = artists.filter(a =>
     mediumMatches(a.medium, mediumFilter) &&
     (neighborhoodFilter.length === 0 || parseNeighborhoodList(a.neighborhood).some(n => neighborhoodFilter.includes(n))) &&
-    (!communityFilter || a.communities.includes(communityFilter))
+    (communityFilter.length === 0 || a.communities.some(c => communityFilter.includes(c)))
   );
 
   return (
@@ -58,7 +59,15 @@ export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOp
       {/* Pinned to the bottom edge, matching the city page's filter bar, so
           the top of the page is the nav alone. Menus open upward. */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/[0.97] backdrop-blur-[8px] border-t border-[#f0f0f0]">
-        <div className="max-w-[1400px] mx-auto px-5 sm:px-10 py-2 flex flex-wrap items-center gap-2">
+        <div className="max-w-[1400px] mx-auto px-5 sm:px-10 py-2 flex flex-wrap items-center justify-end gap-2">
+          {/* Pills on the right, clear of Chrome's bottom-left link bubble. */}
+          {hasFilter && (
+            <span className="mr-auto text-[0.8rem] text-[#bbb] tabular-nums">
+              {shown.length === 0
+                ? 'No matches — try a different filter.'
+                : `${shown.length} artist${shown.length === 1 ? '' : 's'}`}
+            </span>
+          )}
           <button
             type="button"
             onClick={clearFilters}
@@ -76,6 +85,7 @@ export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOp
             isOpen={openDropdown === 'medium'}
             onToggle={() => toggleDropdown('medium')}
             openUp
+            alignRight
           />
           <MultiFilterDropdown
             label="Neighborhood"
@@ -87,25 +97,21 @@ export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOp
             isOpen={openDropdown === 'neighborhood'}
             onToggle={() => toggleDropdown('neighborhood')}
             openUp
+            alignRight
           />
-          <FilterDropdown
+          <MultiFilterDropdown
             label="Places"
             pluralLabel="places"
             options={communityOptions}
+            optionGroups={communityGroups}
             value={communityFilter}
             onChange={setCommunityFilter}
             isOpen={openDropdown === 'community'}
             onToggle={() => toggleDropdown('community')}
             openUp
+            alignRight
           />
 
-          {hasFilter && (
-            <span className="ml-auto text-[0.8rem] text-[#bbb] tabular-nums">
-              {shown.length === 0
-                ? 'No matches — try a different filter.'
-                : `${shown.length} artist${shown.length === 1 ? '' : 's'}`}
-            </span>
-          )}
         </div>
       </div>
 

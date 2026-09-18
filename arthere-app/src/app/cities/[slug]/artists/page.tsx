@@ -9,7 +9,7 @@ import { DirectoryCallout } from '@/components/DirectoryCallout';
 import { ArtistsSearch } from '@/components/ArtistsSearch';
 import type { ArtistCardData } from '@/components/ArtistsGrid';
 import { parseMediumList } from '@/lib/artist-options';
-import { isCityLevelNeighborhood, parseNeighborhoodList, getGroupedNeighborhoods } from '@/lib/neighborhoods';
+import { isCityLevelNeighborhood, parseNeighborhoodList, getGroupedNeighborhoods, groupPlacesByArea } from '@/lib/neighborhoods';
 
 // ISR: content is edited via admin + self-service; regenerate at most every 30s
 export const revalidate = 30;
@@ -55,7 +55,10 @@ export default async function CityArtistsPage({
     photoUrl: artist.bioPhotoUrl ?? artist.heroImageUrl ?? null,
     medium: artist.medium,
     neighborhood: artist.neighborhood,
-    communities: artist.placeRelations.map(r => r.place?.name ?? r.venueName).filter((n): n is string => !!n),
+    // Only places with their own page — same rule as the city page's filter.
+    communities: artist.placeRelations
+      .map(r => (r.place && r.place.inDirectory && !r.place.isArchived ? r.place.name : null))
+      .filter((n): n is string => !!n),
   }));
 
   // Distinct, sorted option lists for the filter dropdowns. medium is stored
@@ -71,7 +74,16 @@ export default async function CityArtistsPage({
     .map(g => ({ label: g.area, options: g.neighborhoods.filter(n => inUse.has(n)) }))
     .filter(g => g.options.length > 0);
   const neighborhoodOptions = neighborhoodGroups.flatMap(g => g.options);
-  const communityOptions = [...new Set(artists.flatMap(a => a.communities))].sort();
+  const inUsePlaces = new Set(artists.flatMap(a => a.communities));
+  const communityGroups = await groupPlacesByArea(
+    [...new Map(
+      cityArtists
+        .flatMap(a => a.placeRelations.map(r => r.place))
+        .filter((p): p is NonNullable<typeof p> => !!p && inUsePlaces.has(p.name))
+        .map(p => [p.name, { name: p.name, neighborhood: p.neighborhood }])
+    ).values()]
+  );
+  const communityOptions = [...inUsePlaces].sort();
 
   return (
     <div className="min-h-screen bg-white text-[#1a1a1a] pt-14 pb-24">
@@ -88,6 +100,7 @@ export default async function CityArtistsPage({
         neighborhoodOptions={neighborhoodOptions}
         neighborhoodGroups={neighborhoodGroups}
         communityOptions={communityOptions}
+        communityGroups={communityGroups}
       />
     </div>
   );

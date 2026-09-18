@@ -64,11 +64,13 @@ interface Props {
   optionGroups?: OptionGroup[];
   /** Open the menu above the button instead of below — for a bar pinned to the bottom edge. */
   openUp?: boolean;
+  /** Anchor the menu to the button's right edge — for pills sitting at the right of the screen. */
+  alignRight?: boolean;
 }
 
 /** Menu placement relative to its button. */
-function menuPosition(openUp: boolean | undefined): string {
-  return openUp ? 'bottom-[calc(100%+6px)]' : 'top-[calc(100%+6px)]';
+function menuPosition(openUp: boolean | undefined, alignRight: boolean | undefined): string {
+  return `${openUp ? 'bottom-[calc(100%+6px)]' : 'top-[calc(100%+6px)]'} ${alignRight ? 'right-0' : 'left-0'}`;
 }
 
 /**
@@ -121,6 +123,7 @@ export function FilterDropdown({
   theme = 'light',
   optionGroups,
   openUp,
+  alignRight,
 }: Props) {
   const t = MENU_THEME[theme];
   const buttonLabel = value ? `${value} ▾` : `${label} ▾`;
@@ -148,7 +151,7 @@ export function FilterDropdown({
       </button>
 
       {isOpen && (
-        <div data-filter-menu className={`absolute ${menuPosition(openUp)} left-0 ${t.menu}`}>
+        <div data-filter-menu className={`absolute ${menuPosition(openUp, alignRight)} ${t.menu}`}>
           <button
             type="button"
             onClick={e => { e.stopPropagation(); onChange(''); }}
@@ -198,6 +201,8 @@ interface MultiProps {
   optionGroups?: OptionGroup[];
   /** Open the menu above the button instead of below — for a bar pinned to the bottom edge. */
   openUp?: boolean;
+  /** Anchor the menu to the button's right edge — for pills sitting at the right of the screen. */
+  alignRight?: boolean;
 }
 
 /**
@@ -217,6 +222,7 @@ export function MultiFilterDropdown({
   theme = 'light',
   optionGroups,
   openUp,
+  alignRight,
 }: MultiProps) {
   const t = MENU_THEME[theme];
   const buttonLabel =
@@ -241,7 +247,7 @@ export function MultiFilterDropdown({
       </button>
 
       {isOpen && (
-        <div data-filter-menu className={`absolute ${menuPosition(openUp)} left-0 ${t.menu}`}>
+        <div data-filter-menu className={`absolute ${menuPosition(openUp, alignRight)} ${t.menu}`}>
           <button
             type="button"
             onClick={e => { e.stopPropagation(); onChange([]); }}
