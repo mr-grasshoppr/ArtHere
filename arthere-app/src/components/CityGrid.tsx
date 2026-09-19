@@ -28,6 +28,11 @@ interface Props {
    * same four pieces over and over.
    */
   filtered?: boolean;
+  /**
+   * Open (or switch to) the frozen, browsable state — the nav's "artwork"
+   * tab. Turning it off again restarts the ambient scroll.
+   */
+  browse?: boolean;
 }
 
 const GAP = 5;
@@ -79,12 +84,14 @@ interface GridLayout {
  * the cells into links, Escape or the resume button restarts it. Rendered
  * declaratively — layout lives in state, not hand-built DOM.
  */
-export function CityGrid({ artists, overlayImageUrl, maskImageUrl, onFrozenChange, filtered = false }: Props) {
+export function CityGrid({ artists, overlayImageUrl, maskImageUrl, onFrozenChange, filtered = false, browse = false }: Props) {
   const vpRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [layout, setLayout] = useState<GridLayout | null>(null);
-  const [frozen, setFrozen] = useState(false);
-  const frozenRef = useRef(false);
+  // Opened via the nav's "artwork" tab (?browse): frozen from the start.
+  const [frozen, setFrozen] = useState(browse);
+  const frozenRef = useRef(browse);
+  const frozenAtRef = useRef(0);
   const resizeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // (Re)build the randomized layout — on mount, on resume, and on resize.
@@ -128,6 +135,7 @@ export function CityGrid({ artists, overlayImageUrl, maskImageUrl, onFrozenChang
     if (!track || !vp) return;
 
     frozenRef.current = true;
+    frozenAtRef.current = Date.now();
 
     // Capture the current mid-animation Y offset from the CSS transform
     // matrix, then switch to native scrolling at that same position.
@@ -150,14 +158,41 @@ export function CityGrid({ artists, overlayImageUrl, maskImageUrl, onFrozenChang
     buildGrid();
   }, [buildGrid]);
 
+  // The nav's city name and "artwork" tab are the same page in two states:
+  // toggling ?browse while already here freezes or restarts the grid. Only
+  // a change counts — the initial value was applied in state above, and a
+  // click-freeze must not be undone by an effect re-run.
+  const browseRef = useRef(browse);
+  useEffect(() => {
+    if (browseRef.current === browse) return;
+    browseRef.current = browse;
+    if (browse) freeze();
+    else resume();
+  }, [browse, freeze, resume]);
+
   // Viewport click/touch to freeze; keyboard shortcuts; rebuild on resize.
   useEffect(() => {
     const vp = vpRef.current;
     if (!vp) return;
 
-    const onVpPointer = () => { if (!frozenRef.current) freeze(); };
-    vp.addEventListener('click', onVpPointer);
-    vp.addEventListener('touchstart', onVpPointer, { passive: true });
+    // The first click/tap freezes the grid and does nothing else: the logo
+    // cell is a link even while ambient, and on touch the touchstart freeze
+    // re-renders the tile under the finger into a link before its click
+    // lands, so without preventDefault a freezing tap navigated to whichever
+    // artist happened to be under it. Capture phase so it runs ahead of the
+    // cells' own stopPropagation.
+    const onVpClick = (e: MouseEvent) => {
+      if (!frozenRef.current) {
+        e.preventDefault();
+        freeze();
+      } else if (Date.now() - frozenAtRef.current < 700) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    const onVpTouch = () => { if (!frozenRef.current) freeze(); };
+    vp.addEventListener('click', onVpClick, true);
+    vp.addEventListener('touchstart', onVpTouch, { passive: true });
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.code === 'Space') { e.preventDefault(); if (frozenRef.current) resume(); else freeze(); }
@@ -172,8 +207,8 @@ export function CityGrid({ artists, overlayImageUrl, maskImageUrl, onFrozenChang
     window.addEventListener('resize', onResize);
 
     return () => {
-      vp.removeEventListener('click', onVpPointer);
-      vp.removeEventListener('touchstart', onVpPointer);
+      vp.removeEventListener('click', onVpClick, true);
+      vp.removeEventListener('touchstart', onVpTouch);
       document.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('resize', onResize);
       if (resizeTimerRef.current) clearTimeout(resizeTimerRef.current);
@@ -277,6 +312,18 @@ export function CityGrid({ artists, overlayImageUrl, maskImageUrl, onFrozenChang
           })}
         </div>
       </div>
+      {/* The viewport stops 56px short of the bottom edge to leave room for
+          the filter bar, which is off screen until the freeze — so while
+          ambient that black strip is dead space. Give it the same first-click
+          behaviour as the grid. */}
+      {!frozen && (
+        <div
+          className="fixed left-0 right-0 bottom-0 h-14 cursor-pointer"
+          onClick={freeze}
+          onTouchStart={freeze}
+          aria-hidden
+        />
+      )}
       <button
         className={`${styles.resumeBtn}${frozen ? ` ${styles.resumeBtnVisible}` : ''}`}
         onClick={e => { e.stopPropagation(); resume(); }}

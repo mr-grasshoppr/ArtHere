@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { prisma } from '@/lib/db';
 import { safeStaticParams } from '@/lib/static-params';
 import { getCityScope, artistScopeWhere } from '@/lib/city-scope';
@@ -113,6 +114,9 @@ export default async function CityPage({
   return (
     <div className="h-screen overflow-hidden bg-[#0a0a0a] text-white">
       <NavBar activeCitySlug={slug} cityNav={cityNavFor(slug, cityDisplayName)} />
+      {/* Suspense: CityArtworkView reads the ?browse flag with
+          useSearchParams, which needs a boundary on a prerendered page. */}
+      <Suspense>
       <CityArtworkView
         artists={artists}
         overlayImageUrl={city.logoOverlayImageUrl ?? '/images/arthere-portland-overlay.png'}
@@ -123,6 +127,7 @@ export default async function CityPage({
         communityOptions={communityOptions}
         communityGroups={communityGroups}
       />
+      </Suspense>
     </div>
   );
 }

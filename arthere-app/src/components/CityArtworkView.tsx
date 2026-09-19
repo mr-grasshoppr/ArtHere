@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { CityGrid, type ArtistGridData } from './CityGrid';
 import { FilterDropdown, MultiFilterDropdown, pillClass, type OptionGroup } from './FilterDropdown';
 import { parseNeighborhoodList } from '@/lib/neighborhoods';
@@ -42,7 +43,9 @@ type DropdownKey = 'medium' | 'neighborhood' | 'community';
  * The grid runs on its own until a click freezes it into the browsable
  * state, and that freeze is what brings the filter bar in along the bottom
  * edge. The city's section links live in the site nav at the top (NavBar's
- * cityNav), so the bottom edge is the bar's alone.
+ * cityNav), so the bottom edge is the bar's alone. The nav's "artwork" tab
+ * links here with ?browse, which opens the page already frozen; the city
+ * name links here without it, which (re)starts the scroll.
  *
  * The trigger is the freeze, not "when scrolling stops": the grid never
  * stops scrolling on its own, so that has no clean meaning here, whereas the
@@ -63,7 +66,8 @@ export function CityArtworkView({
   communityOptions,
   communityGroups,
 }: Props) {
-  const [frozen, setFrozen] = useState(false);
+  const browse = useSearchParams().has('browse');
+  const [frozen, setFrozen] = useState(browse);
   const [mediumFilter, setMediumFilter] = useState('');
   const [neighborhoodFilter, setNeighborhoodFilter] = useState<string[]>([]);
   const [communityFilter, setCommunityFilter] = useState<string[]>([]);
@@ -121,6 +125,7 @@ export function CityArtworkView({
         maskImageUrl={maskImageUrl}
         onFrozenChange={onFrozenChange}
         filtered={hasFilter}
+        browse={browse}
       />
 
       {/* Click-outside catcher for an open menu. Sits under the bar itself. */}

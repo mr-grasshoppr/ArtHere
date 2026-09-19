@@ -95,7 +95,8 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark', cityNav }
               <span className="relative top-[0.13em]">{cityNav.cityLabel}</span>
             </Link>
             {cityNav.tabs.map(tab => {
-              const isActive = pathname === tab.href;
+              // Tabs may carry a query (artwork's ?browse); active is by path.
+              const isActive = pathname === tab.href.split('?')[0];
               return (
                 <Link
                   key={tab.label}
