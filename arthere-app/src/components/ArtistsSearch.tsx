@@ -59,7 +59,7 @@ export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOp
       {/* Pinned to the bottom edge, matching the city page's filter bar, so
           the top of the page is the nav alone. Menus open upward. */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/[0.97] backdrop-blur-[8px] border-t border-[#f0f0f0]">
-        <div className="max-w-[1400px] mx-auto px-5 sm:px-10 py-2 flex flex-wrap items-center justify-end gap-2">
+        <div className="max-w-[1400px] mx-auto px-5 sm:px-10 pt-2 pb-3 flex flex-wrap items-center justify-end gap-2">
           {/* Pills on the right, clear of Chrome's bottom-left link bubble. */}
           {hasFilter && (
             <span className="mr-auto text-[0.8rem] text-[#bbb] tabular-nums">
