@@ -81,7 +81,7 @@ interface GridLayout {
 /**
  * Full-screen ambient artwork grid for city pages. Auto-scrolls upward via a
  * CSS animation; clicking/tapping (or Space) freezes it in place and turns
- * the cells into links, Escape or the resume button restarts it. Rendered
+ * the cells into links; Space or Escape restarts it. Rendered
  * declaratively — layout lives in state, not hand-built DOM.
  */
 export function CityGrid({ artists, overlayImageUrl, maskImageUrl, onFrozenChange, filtered = false, browse = false }: Props) {
@@ -324,12 +324,6 @@ export function CityGrid({ artists, overlayImageUrl, maskImageUrl, onFrozenChang
           aria-hidden
         />
       )}
-      <button
-        className={`${styles.resumeBtn}${frozen ? ` ${styles.resumeBtnVisible}` : ''}`}
-        onClick={e => { e.stopPropagation(); resume(); }}
-      >
-        &#9654; resume
-      </button>
     </>
   );
 }
