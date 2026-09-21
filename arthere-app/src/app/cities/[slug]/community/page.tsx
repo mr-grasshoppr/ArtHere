@@ -42,7 +42,7 @@ export default async function CityCommunityPage({
 
   const scope = await getCityScope(slug);
   if (!scope) notFound();
-  const { city, cityDisplayName } = scope;
+  const { cityDisplayName } = scope;
 
   // A place's own cityId is what puts it in this directory — independent
   // of whether any artist happens to be connected to it yet (a place with
@@ -112,15 +112,7 @@ export default async function CityCommunityPage({
     <div className="min-h-screen bg-white text-[#1a1a1a] pt-14">
       <NavBar activeCitySlug={slug} theme="light" cityNav={cityNavFor(slug, cityDisplayName)} />
 
-      <div className="max-w-[1400px] mx-auto px-5 sm:px-10 pt-12 pb-8 border-b border-[#f0f0f0]">
-        <h1 className="font-heading text-[2rem] font-bold tracking-[-0.01em] mb-1.5">
-          {city.name} Places
-        </h1>
-        <p className="text-[0.95rem] text-[#888] font-light">
-          The places &amp; organizations that support {city.name}&rsquo;s artists.
-        </p>
-      </div>
-
+      {/* No page heading — the nav's "places" tab is the title, as on the artists page. */}
       {places.length > 0 ? (
         <CommunityBrowser places={places} neighborhoodOptions={neighborhoodOptions} citySlug={slug} />
       ) : (
