@@ -83,12 +83,13 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark', cityNav }
             stands alone on the left. Everything is centred on the bar, with
             the Bebas city name nudged down (its caps sit high in the em box)
             so its ink centre lands on the tabs' — measured, not eyeballed.
-            Scrolls sideways on narrow screens rather than wrapping. */}
+            On phones (under the sm breakpoint) the city name is dropped —
+            the four tabs alone are all that fits beside the logo and menu. */}
         {cityNav && (
-          <nav className="flex items-center gap-5 sm:gap-7 ml-auto mr-3 sm:mr-6 min-w-0 overflow-x-auto [scrollbar-width:none]">
+          <nav className="flex items-center gap-3 sm:gap-7 ml-auto mr-2.5 sm:mr-6 min-w-0 overflow-x-auto [scrollbar-width:none]">
             <Link
               href={cityNav.cityHref}
-              className={`font-display flex-shrink-0 text-[1.35rem] leading-none tracking-[0.05em] no-underline transition-opacity hover:opacity-60 ${
+              className={`font-display flex-shrink-0 text-[1.35rem] leading-none tracking-[0.05em] no-underline transition-opacity hover:opacity-60 hidden sm:block ${
                 isLight ? 'text-[#1a1a1a]' : 'text-white'
               }`}
             >
@@ -101,7 +102,7 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark', cityNav }
                 <Link
                   key={tab.label}
                   href={tab.href}
-                  className={`flex-shrink-0 no-underline text-[0.88rem] leading-none font-light tracking-[0.01em] pb-[3px] mt-[3.5px] transition-colors duration-200 border-b-[1.5px] border-transparent ${
+                  className={`flex-shrink-0 no-underline text-[0.84rem] sm:text-[0.88rem] leading-none font-light tracking-[0.01em] pb-[3px] mt-[3.5px] transition-colors duration-200 border-b-[1.5px] border-transparent ${
                     isLight
                       ? 'text-[#1a1a1a]/55 hover:text-[#1a1a1a] hover:border-[#1a1a1a]/60'
                       : 'text-white/55 hover:text-white hover:border-white/60'
