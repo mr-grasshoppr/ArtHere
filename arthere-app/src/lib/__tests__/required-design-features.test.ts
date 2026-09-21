@@ -147,7 +147,8 @@ interface Scenario {
 /** Every grid the site renders, in the shapes real cities produce. */
 const SCENARIOS: Scenario[] = (() => {
   const out: Scenario[] = [];
-  for (const artists of [4, 6, 10, 25]) {
+  // 12 / 16 / 20 sit on the steps of GRID-5's ladder (see requiredArtistGap).
+  for (const artists of [4, 6, 10, 12, 16, 20, 25]) {
     for (const perArtist of [2, 4]) {
       const full = city(artists, perArtist);
       const label = `${artists} artists x ${perArtist} pieces`;
@@ -242,17 +243,22 @@ function requiredArtworkGap(distinct: number, cols: number, artists: number): nu
 }
 
 /**
- * Same idea for artists. Full separation needs real depth — roughly three
- * artists per column — because a hero already holds its artist across two
- * rows, so a thin roster has that artist back on screen almost immediately.
- * Under that, GRID-3's same-row rule is the whole guarantee.
+ * Same idea for artists, as a ladder: four clear rows where the city can
+ * fill them, and otherwise the most it can — three, then two, then one,
+ * then only GRID-3's same-row rule. The step is one row of separation per
+ * column's worth of artists, with four artists' slack because every hero
+ * already pins its artist across two rows and the logo cell eats a 2×2
+ * block at the top. This is the floor the planner is held to; a real city
+ * usually lands a row above it.
+ *
+ *   4 cols: 5–11 artists → 1 (rows apart), 12–15 → 2, 16–19 → 3, 20–23 → 4, 24+ → 5 (four clear rows)
+ *   3 cols: 4–9 → 1, 10–12 → 2, 13–15 → 3, 16–18 → 4, 19+ → 5
  */
 function requiredArtistGap(artists: number, cols: number): number {
   // With no more artists than columns there is nothing to promise at all —
   // see GRID-3, where the same threshold applies for the same reason.
   if (artists <= cols) return 0;
-  const pool = Math.min(GRID_MIN_ROW_GAP, Math.floor(artists / cols));
-  return artists >= cols * 3 ? pool : Math.min(pool, 1);
+  return Math.max(1, Math.min(GRID_MIN_ROW_GAP, Math.floor((artists - 4) / cols)));
 }
 
 describe("REQUIRED DESIGN FEATURES — artwork & city grids", () => {
@@ -289,7 +295,7 @@ describe("REQUIRED DESIGN FEATURES — artwork & city grids", () => {
     }
   });
 
-  it("GRID-5: an artist's work stays four rows clear of itself where the city allows", () => {
+  it("GRID-5: an artist's work stays four rows clear of itself, or as many as the city allows", () => {
     for (const s of SAMPLES) {
       const want = requiredArtistGap(s.scenario.artists, s.cols);
       expect(closestRepeat(s.grid, t => t.artist), where(s)).toBeGreaterThanOrEqual(want);

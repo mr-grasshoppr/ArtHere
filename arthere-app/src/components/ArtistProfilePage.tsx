@@ -58,10 +58,20 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals, p
     cityDisplayName,
   ].filter(Boolean);
 
-  const bioParagraphs = (artist.bio ?? '')
+  // A bio paragraph wrapped in quote marks is a pull quote too. Most
+  // profiles predate the dedicated `quote` field and still carry theirs
+  // this way, so it gets the same treatment: set apart, and shown above
+  // the rest of the bio wherever it falls in the text.
+  const isQuoteParagraph = (p: string) => /^["“]/.test(p) && /["”]$/.test(p);
+  const bioParagraphsRaw = (artist.bio ?? '')
     .split(/\n\s*\n/)
     .map(p => p.trim())
     .filter(Boolean);
+  const bioParagraphs = [
+    ...bioParagraphsRaw.filter(isQuoteParagraph),
+    ...bioParagraphsRaw.filter(p => !isQuoteParagraph(p)),
+  ];
+  const quoteCls = 'italic border-l-2 border-[#ccc] pl-5 mb-[18px] text-[#888] text-[0.92rem]';
 
   const placeHref = (slug: string) =>
     citySlug ? `/cities/${citySlug}/places/${slug}` : `/places/${slug}`;
@@ -149,16 +159,20 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals, p
         <section className="max-w-[980px] mx-auto px-5 sm:px-10 pt-7 pb-10">
           <div className="max-w-[680px] text-[1.05rem] text-[#444] font-light leading-[1.8]">
             {artist.quote && (
-              <blockquote className="italic border-l-2 border-[#ccc] pl-5 mb-[18px] text-[#888] text-[0.92rem]">
+              <blockquote className={quoteCls}>
                 &ldquo;{artist.quote}&rdquo;
                 {artist.quoteAttribution && (
                   <footer className="not-italic mt-1.5 text-[#aaa]">— {artist.quoteAttribution}</footer>
                 )}
               </blockquote>
             )}
-            {bioParagraphs.map((p, i) => (
-              <p key={i} className="mb-[18px]">{p}</p>
-            ))}
+            {bioParagraphs.map((p, i) =>
+              isQuoteParagraph(p) ? (
+                <blockquote key={i} className={quoteCls}>{p}</blockquote>
+              ) : (
+                <p key={i} className="mb-[18px]">{p}</p>
+              )
+            )}
             {artist.links.length > 0 && (
               <p className="text-[#999] text-[0.9rem]">
                 {artist.links.map((link, i) => (

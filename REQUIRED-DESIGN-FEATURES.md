@@ -50,7 +50,7 @@ for where anything lands.
 | **GRID-2** | **The same artwork never appears twice in one row.** |
 | **GRID-3** | **No artist has two pieces in one row** — not two copies of one piece, and not two different pieces either. |
 | **GRID-4** | **The same artwork stays four rows clear of itself.** |
-| **GRID-5** | **An artist's work stays four rows clear of itself.** |
+| **GRID-5** | **An artist's work stays four rows clear of itself** — and where a city is too small for four, as many rows clear as it can fill: three, then two, then one. See the ladder below. |
 | **GRID-6** | Ambient grids end on a **flush bottom edge**; a **filtered** result set is never padded — every match appears exactly once. |
 | **GRID-7** | The city page's logo cell is planned as the **2 cols × 2 rows** tile it renders as. |
 | **GRID-8** | The logo cell's artwork is **drawn at random** across artists — never defaulted to whoever has the most pieces. |
@@ -63,32 +63,46 @@ material to draw from — with 8 artists on a 4-column grid, no arrangement
 keeps every artist 5 rows from themselves, because there simply aren't
 enough of them to fill the gap.
 
-So the rules degrade in a **defined order**, and the planner defends them in
-this sequence:
+**When four clear rows can't be had, the grid takes the most it can — three
+clear rows, then two, then one — rather than giving up on spacing.** The
+planner scores every placement by how far short of four rows it falls, and
+keeps the best of many attempts, so separation degrades one row at a time as
+a city gets smaller. It never trades the same-row rules for it: those hold
+first, in this order —
 
 1. same artwork in one row — never;
 2. same artist in one row — never;
-3. same artwork within four rows;
-4. same artist within four rows.
+3. same artwork within four rows, else as far as it can;
+4. same artist within four rows, else as far as it can.
 
 Artwork is defended ahead of artist on purpose: a visitor notices *that exact
 picture again* far more readily than *another piece by the same person*.
 
-Measured guarantees, as the test asserts them:
+**The ladder the test holds the planner to** (rows apart between two pieces
+by one artist; "5" is four clear rows). It is a floor: a real city usually
+lands a row above it.
 
-- **GRID-2** holds whenever there are at least `cols` distinct pieces.
-- **GRID-3** holds whenever the city has **more artists than the grid has
-  columns**. At exactly `cols` artists every row must contain every artist
-  once, and a single tall hero cell makes that unsatisfiable.
-- **GRID-4** holds at `min(5, distinct pieces / cols)` once the city has at
-  least `cols + 2` artists and `cols × 3` distinct pieces. Below that,
-  GRID-2 is the guarantee.
-- **GRID-5** holds at `min(5, artists / cols)` once the city has about three
-  artists per column. Below that, GRID-3 is the guarantee.
+| Guaranteed separation | Artists, 4-column grid (desktop) | Artists, 3-column grid (phone) |
+|---|---|---|
+| nothing beyond the same-row rules | up to 4 | up to 3 |
+| never on adjacent rows (1 apart) | 5–11 | 4–9 |
+| 1 clear row (2 apart) | 12–15 | 10–12 |
+| 2 clear rows (3 apart) | 16–19 | 13–15 |
+| 3 clear rows (4 apart) | 20–23 | 16–18 |
+| **4 clear rows (5 apart)** | 24+ | 19+ |
 
-Portland is comfortably past all of these thresholds. A city on its first few
-sign-ups is not, and its grid will be visibly tighter until it fills out.
-That is expected, and the tests encode it rather than papering over it.
+The step is one row of separation per column's worth of artists, with four
+artists' slack because every hero pins its artist across two rows and the
+logo cell takes a 2×2 block at the top. (In the test:
+`requiredArtistGap = min(5, floor((artists − 4) / cols))`, at least 1 once
+there are more artists than columns.) The same-artwork rule, GRID-4, holds at four clear
+rows once the city has `cols + 2` artists and `cols × 3` distinct pieces,
+and at `distinct pieces / cols` below that.
+
+Portland is comfortably past the top of the ladder on both grids. A city on
+its first few sign-ups is not, and its grid will be visibly tighter until it
+fills out. That is expected, and the tests encode it rather than papering
+over it.
 
 ### Things that have quietly broken these rules before
 

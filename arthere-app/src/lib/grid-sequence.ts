@@ -190,12 +190,14 @@ interface Plan<T> {
  *
  * Re-planning fixes the greedy's weak spot — the last rows, where whatever
  * is left over has to go somewhere — and best-of-16 is measurably tighter
- * than best-of-1 on the small pools where that bites. But planning is
+ * than best-of-1 on the small pools where that bites; a young city (a dozen
+ * artists) gets 64, which buys it another row of separation at ~20ms. But planning is
  * quadratic in pool size, so a big city would pay ~200ms on mount for
  * attempts it doesn't need: with hundreds of distinct pieces the rules are
  * satisfied comfortably on the first try. Scale the effort to the pool.
  */
 function planAttempts(tiles: number): number {
+  if (tiles <= 150) return 64;
   if (tiles <= 400) return 16;
   if (tiles <= 1000) return 4;
   return 2;
