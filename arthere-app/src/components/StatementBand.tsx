@@ -51,10 +51,10 @@ export function StatementBand({ cityHref, cityLabel, cityCode }: Props) {
           block of empty space below it. */}
       <div className="relative z-10 w-full max-w-[900px] mx-auto px-6 sm:px-10 py-16 sm:py-20 flex flex-row items-center justify-between gap-4 sm:gap-10">
         <h2 className="font-display text-[clamp(1.35rem,3vw,2rem)] tracking-[0.04em] leading-[1.2] text-[#1a1a1a]">
-          {/* Broken by hand rather than left to text-balance: the line turns
-              on the comma, so each half is one complete thought. */}
-          <span className="block">Discover the art made down the street,</span>
-          <span className="block">foster a vibrant community</span>
+          {/* Broken by hand rather than left to text-balance. One line when
+              there's room; once it doesn't fit, it turns after "made". */}
+          <span className="block min-[760px]:inline">Discover the art made</span>{' '}
+          <span className="block min-[760px]:inline">down the street,</span>
         </h2>
         {cityHref && (
           <Link
