@@ -40,6 +40,7 @@ export const OFFERING_OPTIONS = [
 export const LINK_TYPE_OPTIONS: { value: string; label: string; placeholder: string }[] = [
   { value: 'WEBSITE', label: 'Website', placeholder: 'https://yoursite.com' },
   { value: 'PORTFOLIO', label: 'Portfolio', placeholder: 'https://yourportfolio.com' },
+  { value: 'GALLERY', label: 'Gallery', placeholder: 'https://yourgallery.com' },
   { value: 'SHOP', label: 'Shop', placeholder: 'https://yourshop.com' },
   { value: 'PATREON', label: 'Patreon', placeholder: 'https://patreon.com/you' },
   { value: 'INSTAGRAM', label: 'Instagram', placeholder: 'https://instagram.com/you' },

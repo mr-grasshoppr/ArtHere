@@ -24,6 +24,7 @@ type InitialData = {
 const LINK_TYPE_OPTIONS = [
   { value: "WEBSITE", label: "Website", placeholder: "https://yoursite.com" },
   { value: "PORTFOLIO", label: "Portfolio", placeholder: "https://yourportfolio.com" },
+  { value: "GALLERY", label: "Gallery", placeholder: "https://yourgallery.com" },
   { value: "INSTAGRAM", label: "Instagram", placeholder: "https://instagram.com/you" },
   { value: "PATREON", label: "Patreon", placeholder: "https://patreon.com/you" },
   { value: "SHOP", label: "Shop", placeholder: "https://yourshop.com" },

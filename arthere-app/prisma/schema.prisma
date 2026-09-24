@@ -173,6 +173,7 @@ model ArtistLink {
 enum LinkType {
   WEBSITE
   PORTFOLIO
+  GALLERY
   SHOP
   PATREON
   INSTAGRAM
