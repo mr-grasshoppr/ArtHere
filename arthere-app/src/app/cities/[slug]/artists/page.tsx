@@ -14,6 +14,22 @@ import { isCityLevelNeighborhood, parseNeighborhoodList, getGroupedNeighborhoods
 // ISR: content is edited via admin + self-service; regenerate at most every 30s
 export const revalidate = 30;
 
+/**
+ * Rendered per request rather than prerendered, because the card order is
+ * shuffled on every visit — a static page would freeze one ordering.
+ */
+export const dynamic = 'force-dynamic';
+
+/** Fisher-Yates, on a copy. */
+function shuffle<T>(items: T[]): T[] {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
 export async function generateStaticParams() {
   return safeStaticParams(async () => {
     const cities = await prisma.city.findMany({ select: { slug: true } });
@@ -45,11 +61,13 @@ export default async function CityArtistsPage({
 
   const cityArtists = await prisma.artist.findMany({
     where: artistScopeWhere(scope),
+    // Ordered here only so the shuffle below starts from something stable;
+    // the order visitors see is randomized per request.
     orderBy: { name: 'asc' },
     include: { placeRelations: { include: { place: true } } },
   });
 
-  const artists: ArtistCardData[] = cityArtists.map(artist => ({
+  const artists: ArtistCardData[] = shuffle(cityArtists).map(artist => ({
     slug: artist.slug,
     name: artist.name,
     photoUrl: artist.bioPhotoUrl ?? artist.heroImageUrl ?? null,
