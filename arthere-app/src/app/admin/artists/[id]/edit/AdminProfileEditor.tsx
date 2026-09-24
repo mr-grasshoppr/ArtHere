@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { updateArtistProfile } from "../actions";
+import { updateArtistProfile, setArtistEmail } from "../actions";
 import { MEDIUM_OPTIONS, OFFERING_OPTIONS, LINK_TYPE_OPTIONS } from "@/lib/artist-options";
 
 type Place = { id: string; name: string; neighborhood: string | null };
@@ -24,6 +24,7 @@ type Artist = {
   offerings: string[];
   placeRelations: { placeId: string | null; venueName: string | null; relationship: string; relationshipLabel: string | null; place: Place | null }[];
   links: { type: string; url: string; label: string | null }[];
+  email: string | null;
 };
 
 const RELATIONSHIP_TYPES = [
@@ -74,6 +75,7 @@ export default function AdminProfileEditor({
     artist.otherConnections.map((c) => ({ name: c.name, relationship: c.relationship, relationshipLabel: c.relationshipLabel ?? "" }))
   );
   const [neighborhood, setNeighborhood] = useState(artist.neighborhood ?? "");
+  const [email, setEmail] = useState(artist.email ?? "");
 
   const initialMedium = parseMedium(artist.medium);
   const [mediumSelected, setMediumSelected] = useState<Set<string>>(initialMedium.selected);
@@ -143,6 +145,9 @@ export default function AdminProfileEditor({
           placeRelations,
           links,
         });
+        if (email.trim() !== (artist.email ?? "")) {
+          await setArtistEmail(artist.id, email);
+        }
         setSaved(true);
         router.refresh();
       } catch (err) {
@@ -168,9 +173,21 @@ export default function AdminProfileEditor({
           </div>
         </div>
 
-        <div>
-          <label className={labelCls}>Neighborhood</label>
-          <input type="text" value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)} placeholder="e.g. SE Portland" className={inputCls} />
+        <div className="flex gap-3">
+          <div className="flex-1">
+            <label className={labelCls}>Neighborhood</label>
+            <input type="text" value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)} placeholder="e.g. SE Portland" className={inputCls} />
+          </div>
+          <div className="flex-1">
+            <label className={labelCls}>Owner email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="owner@email.com"
+              className={inputCls}
+            />
+          </div>
         </div>
 
         <div>
@@ -200,7 +217,14 @@ export default function AdminProfileEditor({
 
       {/* Medium */}
       <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
-        <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Medium</h2>
+        <div>
+          <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Medium</h2>
+          <p className="text-xs text-[#aaa] mt-1">
+            A broad category — like Painting or Sculpture — not the specific materials or
+            techniques the artist uses. Anything typed under &ldquo;Other&rdquo; becomes a new
+            shared category for every artist, pending approval at /admin/mediums.
+          </p>
+        </div>
         <div className="flex flex-wrap gap-2">
           {MEDIUM_OPTIONS.map((option) => (
             <button
@@ -225,7 +249,7 @@ export default function AdminProfileEditor({
             type="text"
             value={mediumOther}
             onChange={(e) => setMediumOther(e.target.value)}
-            placeholder="e.g. Printmaking, glasswork"
+            placeholder="e.g. Printmaking — a category, not a materials list"
             className={inputCls}
           />
         )}

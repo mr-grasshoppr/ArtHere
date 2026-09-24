@@ -199,6 +199,9 @@ model ArtworkImage {
   sortOrder  Int      @default(0)
   isHero     Boolean  @default(false)
   uploadedAt DateTime @default(now())
+  // Who added this image — "admin" or "artist". Null for images uploaded
+  // before this field existed.
+  uploadedBy String?
 
   // AI-generated tags stored as JSON
   // Shape: { medium, colors, scale, style, subjects, indoor_outdoor, mood }
@@ -241,6 +244,11 @@ model MediumOption {
   label     String   @unique
   sortOrder Int      @default(0)
   createdAt DateTime @default(now())
+  // Existing rows are grandfathered in as approved by the migration default.
+  // New labels — whether typed into an artist's free-text "Other" medium
+  // field or added via an admin's "+ New" artwork tag — start unapproved and
+  // stay out of every selectable list until reviewed at /admin/mediums.
+  approved  Boolean  @default(true)
 }
 
 // ─── Places ───────────────────────────────────────────────────────────────────

@@ -23,7 +23,11 @@ interface MagicLinkEmailProps {
 // Exported so lib/magic-link.ts can prefill the same copy into the
 // admin invite-preview modal, without the two drifting apart.
 export const MAGIC_LINK_DEFAULT_BODY_TEXT =
-  "Thanks for expressing interest in joining Art Here as a featured artist! We're excited to have you.\n\nClick the button below to edit your artist profile. Submit when you're ready, and then your profile and artwork will soon be live on Art Here alongside other Portland-area artists.";
+  "Thanks for expressing interest in joining Art Here as a featured artist!" +
+  "\n\nI created a draft profile from the content on your website to help you get started." +
+  "\n\nYou are welcome to edit and adjust as you like, and you'll always be able to access it through your email address." +
+  "\n\nSubmit when you're ready, and then your profile and artwork will appear live on Art Here alongside other Portland-area artists." +
+  "\n\nWe're excited to have you!";
 
 // Same welcome email, but for a Place (gallery/studio/shop/venue) rather
 // than an individual artist — kept separate so the two never drift onto

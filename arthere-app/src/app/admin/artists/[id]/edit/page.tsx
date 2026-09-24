@@ -21,6 +21,7 @@ export default async function AdminArtistEditPage({ params }: { params: Promise<
         otherConnections: { orderBy: { sortOrder: "asc" } },
         links: { orderBy: { sortOrder: "asc" } },
         intake: true,
+        user: { select: { email: true } },
       },
     }),
     prisma.place.findMany({ where: { inDirectory: true }, orderBy: { name: "asc" } }),
@@ -64,7 +65,7 @@ export default async function AdminArtistEditPage({ params }: { params: Promise<
         />
       </div>
 
-      <AdminProfileEditor artist={artist} places={places} />
+      <AdminProfileEditor artist={{ ...artist, email: artist.user?.email ?? null }} places={places} />
     </div>
   );
 }

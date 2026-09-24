@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
 
   const existingCount = await prisma.artworkImage.count({ where: { artistId } });
   const image = await prisma.artworkImage.create({
-    data: { artistId, url: blob.url, sortOrder: existingCount, isHero },
+    data: { artistId, url: blob.url, sortOrder: existingCount, isHero, uploadedBy: "admin" },
   });
 
   if (isHero) {

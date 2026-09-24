@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   createArea, renameArea, deleteArea, moveArea,
-  assignNeighborhood, setNeighborhoodHidden, moveNeighborhood,
+  createNeighborhood, assignNeighborhood, setNeighborhoodHidden, moveNeighborhood,
 } from "./actions";
 
 export interface AreaRow { id: string; name: string }
@@ -25,6 +25,7 @@ export default function NeighborhoodManager({
 }: { areas: AreaRow[]; neighborhoods: NeighborhoodRow[] }) {
   const router = useRouter();
   const [newArea, setNewArea] = useState("");
+  const [newNeighborhood, setNewNeighborhood] = useState("");
   const [busy, setBusy] = useState(false);
 
   async function run(fn: () => Promise<unknown>) {
@@ -127,6 +128,22 @@ export default function NeighborhoodManager({
         {unfiled.length === 0
           ? <p className="text-xs text-[#bbb]">Everything is filed.</p>
           : unfiled.map((n, i) => <NeighborhoodLine key={n.id} n={n} i={i} total={unfiled.length} />)}
+
+        <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#f2f2f2]">
+          <input
+            value={newNeighborhood}
+            onChange={(e) => setNewNeighborhood(e.target.value)}
+            placeholder="A value already in use with no row yet, e.g. Sylvan Heights"
+            className="flex-1 px-3 py-2 border border-[#e5e5e5] rounded text-sm"
+          />
+          <button
+            className="text-sm px-4 py-2 rounded-full bg-[#1a1a1a] text-white hover:opacity-80 disabled:opacity-40 whitespace-nowrap"
+            disabled={busy || !newNeighborhood.trim()}
+            onClick={() => run(async () => { await createNeighborhood(newNeighborhood); setNewNeighborhood(""); })}
+          >
+            + Add neighborhood
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useTransition } from "react";
-import { setHeroImage, deleteImage, setBioPhoto, setArtworkMedium } from "../actions";
+import { setHeroImage, deleteImage, setBioPhoto, setArtworkMedium, setGalleryPosition } from "../actions";
 import { FramingButton } from "@/components/FramingButton";
 import { focalStyle, type Focal } from "@/lib/focal-style";
 import type { FramingValue } from "@/components/FramingEditor";
@@ -15,7 +15,17 @@ type Image = {
   isHero: boolean;
   sortOrder: number;
   medium: string[];
+  uploadedBy: string | null;
 };
+
+// Mirrors ArtistProfilePage's own computation exactly (non-hero images by
+// sortOrder, first 3) — this is the same slice that becomes the public
+// profile's gallery, so this list is what "Gallery Image 1/2/3" refers to.
+function galleryPositionOf(images: Image[], imageId: string): number | null {
+  const nonHero = [...images].filter((img) => !img.isHero).sort((a, b) => a.sortOrder - b.sortOrder);
+  const i = nonHero.findIndex((img) => img.id === imageId);
+  return i >= 0 && i < 3 ? i + 1 : null;
+}
 
 export default function AdminImageManager({
   artistId,
@@ -79,7 +89,7 @@ export default function AdminImageManager({
           if (data.isHero) hasHero = true;
           setImages((prev) => [
             ...prev,
-            { id: data.id, url: data.url, altText: null, isHero: data.isHero, sortOrder: prev.length, medium: [] },
+            { id: data.id, url: data.url, altText: null, isHero: data.isHero, sortOrder: prev.length, medium: [], uploadedBy: "admin" },
           ]);
         }
       } catch {
@@ -124,6 +134,14 @@ export default function AdminImageManager({
     startTransition(async () => {
       await setHeroImage(artistId, imageId);
       setImages((prev) => prev.map((img) => ({ ...img, isHero: img.id === imageId })));
+    });
+  }
+
+  function handleSetGalleryPosition(imageId: string, position: number) {
+    startTransition(async () => {
+      const updated = await setGalleryPosition(artistId, imageId, position);
+      const orderOf = new Map(updated.map((u) => [u.id, u.sortOrder]));
+      setImages((prev) => prev.map((img) => (orderOf.has(img.id) ? { ...img, sortOrder: orderOf.get(img.id)! } : img)));
     });
   }
 
@@ -194,28 +212,60 @@ export default function AdminImageManager({
 
         {images.length > 0 && (
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-3">
-            {images.map((img) => (
+            {images.map((img) => {
+              const galleryPosition = galleryPositionOf(images, img.id);
+              return (
               <div key={img.id} className="space-y-1">
               <div className="relative group aspect-square rounded-lg overflow-hidden bg-[#f0f0f0]">
                 <img src={img.url} alt={img.altText ?? ""} className="w-full h-full object-cover" style={styleFor(img.url)} />
 
-                {/* Hero badge */}
-                {img.isHero && (
+                {/* Hero / gallery-position badge */}
+                {img.isHero ? (
                   <div className="absolute top-1 left-1 text-[10px] bg-[#1a1a1a] text-white px-1.5 py-0.5 rounded">
                     hero
+                  </div>
+                ) : galleryPosition && (
+                  <div className="absolute top-1 left-1 text-[10px] bg-[#1a1a1a]/70 text-white px-1.5 py-0.5 rounded">
+                    gallery {galleryPosition}
+                  </div>
+                )}
+
+                {/* Who uploaded this — admin vs. the artist themselves */}
+                {img.uploadedBy && (
+                  <div className="absolute top-1 right-1 text-[9px] bg-black/45 text-white px-1.5 py-0.5 rounded">
+                    {img.uploadedBy}
                   </div>
                 )}
 
                 {/* Hover actions */}
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1.5 p-2">
                   {!img.isHero && (
-                    <button
-                      onClick={() => handleSetHero(img.id)}
-                      disabled={isPending}
-                      className="w-full text-[11px] bg-white text-[#1a1a1a] rounded px-2 py-1 hover:bg-[#f0f0f0] transition-colors disabled:opacity-50"
-                    >
-                      Set as hero
-                    </button>
+                    <>
+                      <button
+                        onClick={() => handleSetHero(img.id)}
+                        disabled={isPending}
+                        className="w-full text-[11px] bg-white text-[#1a1a1a] rounded px-2 py-1 hover:bg-[#f0f0f0] transition-colors disabled:opacity-50"
+                      >
+                        Set as hero
+                      </button>
+                      <div className="flex w-full gap-1">
+                        {[1, 2, 3].map((pos) => (
+                          <button
+                            key={pos}
+                            onClick={() => handleSetGalleryPosition(img.id, pos)}
+                            disabled={isPending}
+                            title={`Set as Gallery Image ${pos}`}
+                            className={`flex-1 text-[11px] rounded px-1 py-1 transition-colors disabled:opacity-50 ${
+                              galleryPosition === pos
+                                ? "bg-[#1a1a1a] text-white"
+                                : "bg-white/90 text-[#1a1a1a] hover:bg-white"
+                            }`}
+                          >
+                            {pos}
+                          </button>
+                        ))}
+                      </div>
+                    </>
                   )}
                   <FramingButton
                     imageUrl={img.url}
@@ -271,7 +321,8 @@ export default function AdminImageManager({
                 </button>
               )}
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

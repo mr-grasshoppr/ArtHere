@@ -488,7 +488,11 @@ export default function OnboardingForm({
         </div>
         <div className="flex gap-3 flex-wrap mt-2">
           <div className="flex-1 min-w-[220px]">
-            <p className="text-[0.72rem] font-semibold text-[#1a1a1a] mb-2 ml-1">Medium</p>
+            <p className="text-[0.72rem] font-semibold text-[#1a1a1a] mb-1 ml-1">Medium</p>
+            <p className="text-[0.68rem] text-[#999] mb-2 ml-1">
+              A broad category — like Painting or Sculpture — not the specific materials or
+              techniques you use.
+            </p>
             <div className="flex flex-wrap gap-2 mb-2">
               {MEDIUM_OPTIONS.map(opt => (
                 <button
@@ -516,7 +520,7 @@ export default function OnboardingForm({
                 id="medium-other"
                 value={mediumOther}
                 onChange={e => setMediumOther(e.target.value)}
-                placeholder="Describe your medium…"
+                placeholder="A category, e.g. Printmaking — not a materials list"
                 className={`${FIELD} text-sm mt-1`}
                 autoFocus
               />

@@ -26,6 +26,34 @@ export async function attachArtistUser(artistId: string, email: string): Promise
   return user.id;
 }
 
+// Corrects an artist's owner email from the profile editor — distinct from
+// attachArtistUser, which only ever fills in a *missing* owner and silently
+// no-ops if one is already set. That left no way to fix a wrong address
+// (e.g. a placeholder like name@placeholder.arthere.local) without also
+// changing who owns the profile: the admin edits the field, but the linked
+// User row's email never moved, so the detail page kept showing the old one
+// forever. This always updates the currently-linked account's own email; if
+// there's no owner yet, it attaches one (same behavior as attachArtistUser).
+export async function setArtistEmail(artistId: string, email: string) {
+  const session = await requireAdmin();
+  const clean = email.trim().toLowerCase();
+  if (!clean) return;
+
+  const artist = await prisma.artist.findUnique({ where: { id: artistId }, select: { userId: true } });
+  if (!artist) throw new Error("Artist not found");
+
+  if (artist.userId) {
+    try {
+      await prisma.user.update({ where: { id: artist.userId }, data: { email: clean } });
+    } catch {
+      throw new Error(`${clean} is already used by another account.`);
+    }
+  } else {
+    await attachArtistUser(artistId, clean);
+  }
+  await snapshotArtist(artistId, "admin", session.user?.email);
+}
+
 // Mints the one-time login link and the default email copy, but sends
 // nothing yet — the admin previews/edits it first (see InvitePreviewModal).
 export async function previewArtistInvite(artistId: string, email: string): Promise<InvitePreview> {
@@ -172,6 +200,37 @@ export async function setHeroImage(artistId: string, imageId: string) {
   await prisma.artworkImage.update({ where: { id: imageId }, data: { isHero: true } });
   await prisma.artist.update({ where: { id: artistId }, data: { heroImageUrl: image.url } });
   await snapshotArtist(artistId, "admin", session.user?.email);
+}
+
+// The public profile's gallery is the first 3 non-hero images by sortOrder
+// (see ArtistProfilePage) — this lets an admin pin a specific image into one
+// of those 3 slots directly, instead of only being able to influence it via
+// upload order. Hero has its own dedicated control (setHeroImage above), so
+// this only ever touches non-hero images.
+export async function setGalleryPosition(
+  artistId: string,
+  imageId: string,
+  position: number
+): Promise<{ id: string; sortOrder: number }[]> {
+  const session = await requireAdmin();
+  if (![1, 2, 3].includes(position)) throw new Error("Position must be 1, 2, or 3");
+
+  const images = await prisma.artworkImage.findMany({
+    where: { artistId, isHero: false },
+    orderBy: { sortOrder: "asc" },
+  });
+  const target = images.find((i) => i.id === imageId);
+  if (!target) throw new Error("Image not found (or it's the hero image)");
+
+  const rest = images.filter((i) => i.id !== imageId);
+  rest.splice(position - 1, 0, target);
+
+  await prisma.$transaction(
+    rest.map((img, i) => prisma.artworkImage.update({ where: { id: img.id }, data: { sortOrder: i } }))
+  );
+  await snapshotArtist(artistId, "admin", session.user?.email);
+
+  return rest.map((img, i) => ({ id: img.id, sortOrder: i }));
 }
 
 export async function deleteImage(artistId: string, imageId: string) {

@@ -102,6 +102,7 @@ export async function POST(req: NextRequest) {
       altText: altText ?? null,
       sortOrder: existingCount,
       isHero,
+      uploadedBy: "artist",
     },
   });
 

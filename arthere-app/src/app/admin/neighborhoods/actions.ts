@@ -45,6 +45,26 @@ export async function moveArea(id: string, direction: "up" | "down") {
 
 // ─── Neighborhoods ───────────────────────────────────────────────────────────
 
+// A curated row an admin adds by hand — e.g. a real value already in use on
+// a profile (typed into the free-text neighborhood field) that never got a
+// row here, so it couldn't be filed into an area or hidden. Lands unfiled;
+// use assignNeighborhood to file it.
+export async function createNeighborhood(name: string) {
+  await requireAdmin();
+  const trimmed = name.trim();
+  if (!trimmed) return;
+  const last = await prisma.neighborhood.findFirst({
+    where: { areaId: null },
+    orderBy: { sortOrder: "desc" },
+    select: { sortOrder: true },
+  });
+  await prisma.neighborhood.upsert({
+    where: { name: trimmed },
+    create: { name: trimmed, sortOrder: (last?.sortOrder ?? -1) + 1 },
+    update: {},
+  });
+}
+
 /** Pass areaId null to unfile it. */
 export async function assignNeighborhood(id: string, areaId: string | null) {
   await requireAdmin();
