@@ -54,6 +54,7 @@ for where anything lands.
 | **GRID-6** | Ambient grids end on a **flush bottom edge**; a **filtered** result set is never padded — every match appears exactly once. |
 | **GRID-7** | The city page's logo cell is planned as the **2 cols × 2 rows** tile it renders as. |
 | **GRID-8** | The logo cell's artwork is **drawn at random** across artists — never defaulted to whoever has the most pieces. |
+| **GRID-9** | **A tile shows the artwork, not the mat.** When an image carries a white border (a photographed mat, scan margins, an export with a white frame), the tile crops tighter — to the piece — and the piece sits centred in the cell. |
 
 ### What "four rows clear" can and cannot promise
 
@@ -127,6 +128,36 @@ Every one of these was a real regression:
 - **Shuffling the row-spans.** A plain shuffle regularly drops a knot of tall
   cells into the last rows, where too few distinct pieces remain to fill
   them. Spans are now spread evenly through the sequence.
+
+### Crop white borders out of artwork tiles (GRID-9)
+
+An artwork tile that shows a white mat as well as the piece reads as a bug:
+the art floats off-centre inside a white box, and a dark drawing on white
+paper turns into a white cell with something small in the middle. Whenever
+there is a white background around a piece of art, the tile crops tighter.
+
+**Implemented by**
+- [`arthere-app/src/lib/image-border.ts`](arthere-app/src/lib/image-border.ts)
+  — finds the near-white margin on each side and converts it into a focal
+  point + zoom that keeps the tile's window inside the artwork for **any**
+  cell shape. The original file is never rewritten; only the framing changes.
+- [`arthere-app/src/lib/image-focus.ts`](arthere-app/src/lib/image-focus.ts)
+  `detectFocus` — runs on every upload after the vision model picks the
+  focal point. A border, when found, wins; the vision point still steers any
+  axis that has no border.
+- [`arthere-app/scripts/trim-white-borders.mts`](arthere-app/scripts/trim-white-borders.mts)
+  — backfill for images that were uploaded before this existed. Run it after
+  any bulk import.
+
+**Rules of thumb**
+- Borders under 1.5% of a side are ignored (keylines, anti-aliasing).
+- Zoom is capped at 2.5× so a small piece on a large sheet doesn't become a
+  blurry tile; in that case some mat stays visible, which is the lesser evil.
+- A **manual** framing (`ImageFocus.manual`) is never overwritten by the
+  detector. If a manually framed tile still shows a mat, re-frame it or run
+  the backfill with `--force` for that image.
+- Only white/near-white borders are trimmed. A dark or coloured border is
+  part of the picture until someone says otherwise.
 
 ### If you change any of this
 
@@ -225,3 +256,40 @@ real Gmail dark-mode render, which nothing in this repo or CI can simulate.
 Whichever state this ends up in, it must be confirmed against a real,
 received email — this file existing hasn't stopped this from breaking
 twice already; only actually checking the rendered email will.
+
+---
+
+## PALETTE — the brand colors
+
+Three colors, taken from the statement-band artwork. Use these hex values
+verbatim for anything brand-colored; do not sample them off a screenshot or
+off the artwork, which is soft-edged and will give a different value
+depending on where the dropper lands.
+
+| Name | Hex | Where it comes from |
+| --- | --- | --- |
+| **pink** | `#f96a9b` | the band's right-hand wash; also the logo's pink |
+| **green** | `#07b26b` | the band's left-hand wash; also the logo's green |
+| **chartreuse** | `#bdd349` | the band's yellow-green corner |
+
+**Implemented by** — nothing yet as CSS tokens. The only place these colors
+appear on the site today is the artwork itself:
+[`arthere-app/public/images/pink_green_section_v3.png`](arthere-app/public/images/pink_green_section_v3.png)
+(the homepage statement band, via `StatementBand.module.css`) and the color
+logo masters listed under LOGO above.
+
+### The rule
+
+**PALETTE-1.** New brand-colored UI uses these three values, not
+approximations of them. If a second component needs one, define them as
+tokens under `@theme inline` in
+[`arthere-app/src/app/globals.css`](arthere-app/src/app/globals.css) rather
+than repeating the literals.
+
+The site's neutrals are a separate, already-settled set and are not affected
+by this: `#1a1a1a` (near-black text and dark sections), `#0a0a0a` (the city
+pages' black), `#f7f6f3` (the light section background), `#dedad4` (borders,
+and the US map's outline).
+
+**Guarded by:** nothing automated. These are values to reach for, not an
+invariant a test can check.
