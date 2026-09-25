@@ -7,6 +7,7 @@ import { ArtworkMediumSelect } from "@/components/ArtworkMediumSelect";
 import { focalStyle, type Focal } from "@/lib/focal-style";
 import type { FramingValue } from "@/components/FramingEditor";
 import { resizeImageForUpload } from "@/lib/client-image-resize";
+import { MAX_ARTWORK_IMAGES } from "@/lib/artist-options";
 
 type InitialData = {
   slug: string;
@@ -66,6 +67,9 @@ const LABEL = "block text-[0.7rem] font-semibold text-[#aaa] mb-2 uppercase trac
 
 const BTN =
   "px-6 py-2.5 rounded-full bg-[#1a1a1a] text-white text-[0.88rem] font-medium transition-opacity hover:opacity-80 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer";
+
+/** Gallery tiles: the four pieces a profile shows, less the cover. */
+const GALLERY_SLOTS = MAX_ARTWORK_IMAGES - 1;
 
 export default function OnboardingForm({
   initialData,
@@ -707,17 +711,27 @@ export default function OnboardingForm({
         </button>
       </div>
 
-      {/* ── Work gallery (max 3) ──────────────────────────────────────── */}
+      {/* ── Work gallery: the cover plus MAX_ARTWORK_IMAGES - 1 more ──── */}
       <div className="mb-8">
         <div className="flex items-baseline gap-2 mb-3">
           <h2 className="text-[0.7rem] font-semibold text-[#aaa] uppercase tracking-widest">My Gallery</h2>
-          <span className="text-[0.7rem] text-[#bbb]">up to 3 photos</span>
+          <span className="text-[0.7rem] text-[#bbb]">up to {GALLERY_SLOTS} photos, alongside your cover</span>
         </div>
         <p className="text-[0.75rem] text-[#999] mb-3">
           Tag each piece with its medium so visitors can find it when they filter by medium.
         </p>
+        {galleryImages.length > GALLERY_SLOTS && (
+          <p className="text-[0.75rem] text-[#b45309] mb-3">
+            This profile has {galleryImages.length + 1} pieces, more than the {MAX_ARTWORK_IMAGES} a
+            profile shows. They are all here — replace the ones you want to keep and ask us to remove
+            the rest.
+          </p>
+        )}
         <div className="grid grid-cols-3 gap-3">
-          {[0, 1, 2].map((slot) => {
+          {/* Every piece gets a tile, even past the limit: an image the form
+              hides is one the artist cannot change, while the city grid
+              carries on showing it. */}
+          {Array.from({ length: Math.max(GALLERY_SLOTS, galleryImages.length) }, (_, i) => i).map((slot) => {
             const img = galleryImages[slot];
             return img ? (
               <div key={img.id}>
@@ -757,7 +771,16 @@ export default function OnboardingForm({
                 <span className="text-[#ccc] text-sm text-center px-2">
                   {uploading && slot === galleryImages.length ? "Uploading…" : "+ Add photo"}
                 </span>
-                <input ref={slot === galleryImages.length ? galleryInputRef : undefined} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleGallerySelect} className="hidden" />
+                <input
+                  ref={slot === galleryImages.length ? galleryInputRef : undefined}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleGallerySelect}
+                  // Two quick clicks on an empty slot used to upload twice,
+                  // and neither the form nor the endpoint stopped it.
+                  disabled={uploading || images.length >= MAX_ARTWORK_IMAGES}
+                  className="hidden"
+                />
               </label>
             );
           })}

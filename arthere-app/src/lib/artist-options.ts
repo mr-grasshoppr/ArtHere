@@ -12,6 +12,19 @@
 
 import type { PlaceRelationship } from '@prisma/client';
 
+/**
+ * How many artwork images one artist shows — the cover plus three more.
+ *
+ * The onboarding form has only ever offered a cover and three gallery
+ * slots, but nothing enforced it: the upload endpoints counted existing
+ * images only to set a sort order, and the admin editor's picker takes
+ * several files at once with no limit. Profiles ended up with five to
+ * eight pieces, and the onboarding form then rendered the first three and
+ * hid the rest, so an artist could not see — let alone remove — work that
+ * was still on the city grid.
+ */
+export const MAX_ARTWORK_IMAGES = 4;
+
 // Baseline/fallback medium vocabulary — seeded into the MediumOption table
 // (see prisma/schema.prisma) on migration. The live, admin-extensible list
 // lives in the DB now (src/lib/medium-options.ts); this constant is only the

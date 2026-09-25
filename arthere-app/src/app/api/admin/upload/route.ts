@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { waitUntil } from "@vercel/functions";
 import { prisma } from "@/lib/db";
+import { MAX_ARTWORK_IMAGES } from "@/lib/artist-options";
 import { put } from "@vercel/blob";
 import { tagArtworkImage, normalizeMediumTags } from "@/lib/claude";
 import { archiveOriginal } from "@/lib/originals";
@@ -51,6 +52,16 @@ export async function POST(req: NextRequest) {
   }
 
   const existingCount = await prisma.artworkImage.count({ where: { artistId } });
+  // The same four-piece limit the artist's own form has (MAX_ARTWORK_IMAGES).
+  // Uploading here on an artist's behalf is still their profile.
+  if (existingCount >= MAX_ARTWORK_IMAGES) {
+    return NextResponse.json(
+      {
+        error: `${artist.name} already has ${existingCount} images — the limit is ${MAX_ARTWORK_IMAGES}. Remove one first.`,
+      },
+      { status: 400 }
+    );
+  }
   const image = await prisma.artworkImage.create({
     data: { artistId, url: blob.url, sortOrder: existingCount, isHero, uploadedBy: "admin" },
   });

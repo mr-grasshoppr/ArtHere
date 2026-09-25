@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { waitUntil } from "@vercel/functions";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { MAX_ARTWORK_IMAGES } from "@/lib/artist-options";
 import { put } from "@vercel/blob";
 import { tagArtworkImage, detectArtworkCrop, normalizeMediumTags } from "@/lib/claude";
 import { archiveOriginal } from "@/lib/originals";
@@ -83,8 +84,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ url: blob.url, isBioPhoto: true });
   }
 
-  // Determine sort order
+  // Determine sort order — and hold the line at four pieces (see
+  // MAX_ARTWORK_IMAGES). Replacing a piece deletes it first, so a replace
+  // arrives here with a slot free.
   const existingCount = await prisma.artworkImage.count({ where: { artistId: artist.id } });
+  if (existingCount >= MAX_ARTWORK_IMAGES) {
+    return NextResponse.json(
+      {
+        error: `You can show up to ${MAX_ARTWORK_IMAGES} pieces. Replace or remove one to add another.`,
+      },
+      { status: 400 }
+    );
+  }
 
   // A new hero replaces the old one — clear isHero on every other image first,
   // or multiple rows end up flagged and consumers that pick "the" hero via
