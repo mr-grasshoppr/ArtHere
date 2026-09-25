@@ -12,13 +12,12 @@
  * and asserts the rules against the rows that actually result.
  */
 import { describe, it, expect } from "vitest";
-import { buildSpacedSequence, type RepeatItem } from "../grid-sequence";
+import { buildSpacedSequence, buildGridPool, type RepeatItem, type PoolGroup } from "../grid-sequence";
 import {
   GRID_REPEATS,
   GRID_MIN_ROW_GAP,
   CITY_LOGO_CELL,
   GRID_COLS,
-  ARTWORK_CURATED_PER_ARTIST,
 } from "../grid-design";
 
 interface Tile {
@@ -30,22 +29,36 @@ interface Tile {
 type Cell = Tile | "logo" | null;
 type Footprint = { rowSpan: number; colSpan: number };
 
-/** A city's artists, each with a hero plus `perArtist - 1` other pieces. */
-function city(artists: number, perArtist: number): RepeatItem<Tile>[] {
-  const pool: RepeatItem<Tile>[] = [];
+/**
+ * A city's artists, each with a hero plus some other pieces.
+ *
+ * `perArtist` may be a function of the artist's index, because a real city
+ * is lopsided — Portland's most prolific artist has twice the median — and
+ * a roster where everyone has the same number of pieces is precisely the
+ * shape that hid a production bug: with per-piece repeats, that artist's
+ * surplus ended up stacked in the last rows of the grid.
+ */
+function city(artists: number, perArtist: number | ((a: number) => number)): PoolGroup<Tile>[] {
+  const groups: PoolGroup<Tile>[] = [];
   for (let a = 0; a < artists; a++) {
-    for (let i = 0; i < perArtist; i++) {
+    const n = typeof perArtist === "function" ? perArtist(a) : perArtist;
+    const items = [];
+    for (let i = 0; i < n; i++) {
       const tall = i === 0; // the artist's hero
-      pool.push({
-        key: `artist-${a}`,
+      items.push({
         id: `artist-${a}/img-${i}`,
         span: tall ? 2 : 1,
         payload: { artist: `artist-${a}`, artwork: `artist-${a}/img-${i}`, tall },
       });
     }
+    groups.push({ key: `artist-${a}`, items });
   }
-  return pool;
+  return groups;
 }
+
+/** Portland's actual shape: a median, a long tail, and one artist with 2x. */
+const lopsided = (median: number) => (a: number) =>
+  a === 0 ? median * 2 : a === 1 ? median + 1 : a % 5 === 0 ? median - 1 : median;
 
 /**
  * Mirrors the browser: `grid-auto-flow: row dense`, one column per tile
@@ -138,53 +151,50 @@ function closestRepeat(grid: Cell[][], labelOf: (t: Tile) => string): number {
 interface Scenario {
   name: string;
   artists: number;
-  pool: RepeatItem<Tile>[];
+  /** The artists' work, before the pool builder decides who appears how often. */
+  groups: PoolGroup<Tile>[];
+  filtered: boolean;
   repeats: number;
   padToFullRows: boolean;
   lead?: Footprint;
 }
+
+/** The pool the grid actually draws from — the production path, not a stand-in. */
+const poolOf = (s: Scenario): RepeatItem<Tile>[] => buildGridPool(s.groups, s.filtered);
+
+/** Every distinct piece in a scenario, however the pool shares them out. */
+const distinctOf = (s: Scenario) => s.groups.reduce((n, g) => n + g.items.length, 0);
 
 /** Every grid the site renders, in the shapes real cities produce. */
 const SCENARIOS: Scenario[] = (() => {
   const out: Scenario[] = [];
   // 12 / 16 / 20 sit on the steps of GRID-5's ladder (see requiredArtistGap).
   for (const artists of [4, 6, 10, 12, 16, 20, 25]) {
-    for (const perArtist of [2, 4]) {
+    // Even rosters, and the lopsided ones real cities actually have.
+    for (const perArtist of [2, 4, lopsided(4)] as const) {
       const full = city(artists, perArtist);
-      const label = `${artists} artists x ${perArtist} pieces`;
+      const label =
+        typeof perArtist === "function"
+          ? `${artists} artists x lopsided`
+          : `${artists} artists x ${perArtist} pieces`;
 
       // City page: full pool, heroes render tall, logo cell leads.
       out.push({
         name: `CityGrid ${label}`,
         artists,
-        pool: full,
+        groups: full,
+        filtered: false,
         repeats: GRID_REPEATS,
         padToFullRows: true,
         lead: { ...CITY_LOGO_CELL },
       });
 
-      // /artwork ambient: heroes dropped, capped per artist, padded flush.
-      const curated: RepeatItem<Tile>[] = [];
-      for (let a = 0; a < artists; a++) {
-        curated.push(
-          ...full
-            .filter(it => it.key === `artist-${a}` && !it.payload.tall)
-            .slice(0, ARTWORK_CURATED_PER_ARTIST)
-        );
-      }
+      // Filtered: every match once, heroes included, no padding.
       out.push({
-        name: `Artwork ambient ${label}`,
+        name: `Filtered ${label}`,
         artists,
-        pool: curated,
-        repeats: GRID_REPEATS,
-        padToFullRows: true,
-      });
-
-      // /artwork filtered: every match once, heroes included, no padding.
-      out.push({
-        name: `Artwork filtered ${label}`,
-        artists,
-        pool: full,
+        groups: full,
+        filtered: true,
         repeats: 1,
         padToFullRows: false,
       });
@@ -208,7 +218,7 @@ const SAMPLES: Sample[] = (() => {
   for (const cols of GRID_COLS) {
     for (const scenario of SCENARIOS) {
       for (let t = 0; t < TRIALS; t++) {
-        const sequence = buildSpacedSequence(scenario.pool, {
+        const sequence = buildSpacedSequence(poolOf(scenario), {
           cols,
           repeats: scenario.repeats,
           minRowGap: GRID_MIN_ROW_GAP,
@@ -245,23 +255,81 @@ function requiredArtworkGap(distinct: number, cols: number, artists: number): nu
 /**
  * Same idea for artists, as a ladder: four clear rows where the city can
  * fill them, and otherwise the most it can — three, then two, then one,
- * then only GRID-3's same-row rule. The step is one row of separation per
- * column's worth of artists, with four artists' slack because every hero
- * already pins its artist across two rows and the logo cell eats a 2×2
- * block at the top. This is the floor the planner is held to; a real city
- * usually lands a row above it.
+ * then only GRID-3's same-row rule.
  *
- *   4 cols: 5–11 artists → 1 (rows apart), 12–15 → 2, 16–19 → 3, 20–23 → 4, 24+ → 5 (four clear rows)
- *   3 cols: 4–9 → 1, 10–12 → 2, 13–15 → 3, 16–18 → 4, 19+ → 5
+ * These are measured floors, not arithmetic: the numbers come from running
+ * the planner over lopsided rosters (2–6 pieces each, one artist with
+ * double) and taking the worst result, then leaving a step of margin. A
+ * real city usually lands a row above its floor.
+ *
+ *   4 cols: 5–10 artists → 1, 11 → 2, 12–14 → 3, 15–17 → 4, 18+ → 5
+ *   3 cols: 5–6 → 1, 7–8 → 2, 9–10 → 3, 11–13 → 4, 14+ → 5
  */
+const ARTIST_GAP_LADDER: Record<number, [number, number][]> = {
+  // [fewer artists than this, guaranteed rows apart]
+  3: [[7, 1], [9, 2], [11, 3], [14, 4]],
+  4: [[11, 1], [12, 2], [15, 3], [18, 4]],
+};
+
 function requiredArtistGap(artists: number, cols: number): number {
   // With no more artists than columns there is nothing to promise at all —
   // see GRID-3, where the same threshold applies for the same reason.
   if (artists <= cols) return 0;
-  return Math.max(1, Math.min(GRID_MIN_ROW_GAP, Math.floor((artists - 4) / cols)));
+  for (const [upTo, gap] of ARTIST_GAP_LADDER[cols] ?? []) {
+    if (artists < upTo) return gap;
+  }
+  return GRID_MIN_ROW_GAP;
+}
+
+/**
+ * The other ceiling: a label that appears `k` times in a grid `rows` deep
+ * can be at most `rows / k` rows from itself, however well it is placed.
+ * Ambient grids keep every artist's `k` equal (GRID-10) so this is slack —
+ * but a filtered result set is whatever matched, and an artist who owns a
+ * fifth of the matches simply is on screen more often.
+ */
+function capacityGap(sample: Sample, labelOf: (t: Tile) => string): number {
+  const counts = new Map<string, number>();
+  for (const row of sample.grid) {
+    for (const cell of row) if (cell && cell !== "logo") counts.set(labelOf(cell), (counts.get(labelOf(cell)) ?? 0) + 1);
+  }
+  // Cells, not tiles: a tall tile is counted twice above, which is right —
+  // it occupies two rows' worth of the room being divided up.
+  const busiest = Math.max(1, ...counts.values());
+  return Math.floor((sample.grid.length * sample.cols) / busiest / sample.cols);
 }
 
 describe("REQUIRED DESIGN FEATURES — artwork & city grids", () => {
+  it("GRID-10: every artist gets the same amount of an ambient grid", () => {
+    // The rule this file exists to enforce, and the one it used to miss:
+    // every roster it built gave each artist the same number of pieces, the
+    // one shape in which per-piece repeats and per-artist appearances look
+    // identical. In production one artist had twice the portfolio, drew
+    // twice the tiles, and her surplus filled the last rows of the grid.
+    for (const per of [2, 4, lopsided(4), (a: number) => 2 + (a % 7)]) {
+      const pool = buildGridPool(city(12, per), false);
+      const perArtist = new Map<string, number>();
+      for (const item of pool) {
+        perArtist.set(item.key, (perArtist.get(item.key) ?? 0) + (item.repeats ?? 0));
+      }
+      const shares = [...perArtist.values()];
+      expect(new Set(shares).size, `shares: ${shares.join()}`).toBe(1);
+      expect(shares[0]).toBeGreaterThanOrEqual(GRID_REPEATS);
+    }
+
+    // Deeper portfolios spend that budget on a different selection each
+    // time, so the work still all reaches the grid — over visits, not at
+    // anyone else's expense within one.
+    const deep = city(12, a => (a === 0 ? 9 : 3));
+    const seen = new Set<string>();
+    for (let t = 0; t < 40; t++) {
+      for (const item of buildGridPool(deep, false)) {
+        if (item.key === "artist-0" && (item.repeats ?? 0) > 0) seen.add(item.id!);
+      }
+    }
+    expect(seen.size).toBe(9);
+  });
+
   it("GRID-1: the spacing rule is four clear rows (a gap of 5)", () => {
     // Pinned deliberately. A change that wants a different number changes
     // REQUIRED-DESIGN-FEATURES.md and this line together, on purpose.
@@ -271,7 +339,7 @@ describe("REQUIRED DESIGN FEATURES — artwork & city grids", () => {
 
   it("GRID-2: the same artwork never appears twice in one row", () => {
     for (const s of SAMPLES) {
-      const distinct = new Set(s.scenario.pool.map(i => i.id)).size;
+      const distinct = distinctOf(s.scenario);
       if (distinct < s.cols) continue; // fewer pieces than columns — impossible
       expect(sameRowRepeats(s.grid, t => t.artwork), where(s)).toBe(0);
     }
@@ -289,15 +357,25 @@ describe("REQUIRED DESIGN FEATURES — artwork & city grids", () => {
 
   it("GRID-4: the same artwork stays four rows clear of itself", () => {
     for (const s of SAMPLES) {
-      const distinct = new Set(s.scenario.pool.map(i => i.id)).size;
-      const want = requiredArtworkGap(distinct, s.cols, s.scenario.artists);
+      const distinct = distinctOf(s.scenario);
+      const want = Math.min(
+        requiredArtworkGap(distinct, s.cols, s.scenario.artists),
+        capacityGap(s, t => t.artwork)
+      );
       expect(closestRepeat(s.grid, t => t.artwork), where(s)).toBeGreaterThanOrEqual(want);
     }
   });
 
   it("GRID-5: an artist's work stays four rows clear of itself, or as many as the city allows", () => {
     for (const s of SAMPLES) {
-      const want = requiredArtistGap(s.scenario.artists, s.cols);
+      // A filtered view is whatever matched: if one artist owns a third of
+      // the results they are on screen a third of the time, and no ordering
+      // changes that. The same-row rules (GRID-3) still hold there.
+      const want = s.scenario.filtered
+        ? // Same threshold as GRID-3: with no more artists than columns,
+          // every row holds every artist and there is nothing to promise.
+          (s.scenario.artists > s.cols ? 1 : 0)
+        : Math.min(requiredArtistGap(s.scenario.artists, s.cols), capacityGap(s, t => t.artist));
       expect(closestRepeat(s.grid, t => t.artist), where(s)).toBeGreaterThanOrEqual(want);
     }
   });
@@ -308,8 +386,8 @@ describe("REQUIRED DESIGN FEATURES — artwork & city grids", () => {
         for (const row of s.grid) expect(row.every(Boolean), where(s)).toBe(true);
       } else {
         // A filtered view is a result set, not texture: every match once.
-        expect(s.sequence.length, where(s)).toBe(s.scenario.pool.length);
-        expect(new Set(s.sequence.map(t => t.artwork)).size, where(s)).toBe(s.scenario.pool.length);
+        expect(s.sequence.length, where(s)).toBe(distinctOf(s.scenario));
+        expect(new Set(s.sequence.map(t => t.artwork)).size, where(s)).toBe(distinctOf(s.scenario));
       }
     }
   });

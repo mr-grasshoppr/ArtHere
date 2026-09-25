@@ -31,7 +31,7 @@ the same thing twice in one glance.
 
 **Implemented by**
 - [`arthere-app/src/lib/grid-design.ts`](arthere-app/src/lib/grid-design.ts) — the numbers, in one place
-- [`arthere-app/src/lib/grid-sequence.ts`](arthere-app/src/lib/grid-sequence.ts) — the placement planner
+- [`arthere-app/src/lib/grid-sequence.ts`](arthere-app/src/lib/grid-sequence.ts) — the pool builder and the placement planner
 - [`arthere-app/src/components/CityGrid.tsx`](arthere-app/src/components/CityGrid.tsx)
 - [`arthere-app/src/components/CityArtworkView.tsx`](arthere-app/src/components/CityArtworkView.tsx)
 
@@ -54,7 +54,28 @@ for where anything lands.
 | **GRID-6** | Ambient grids end on a **flush bottom edge**; a **filtered** result set is never padded — every match appears exactly once. |
 | **GRID-7** | The city page's logo cell is planned as the **2 cols × 2 rows** tile it renders as. |
 | **GRID-8** | The logo cell's artwork is **drawn at random** across artists — never defaulted to whoever has the most pieces. |
+| **GRID-10** | **Every artist gets the same amount of the grid.** An ambient grid shows each artist the same number of times, whatever the size of their portfolio; a deeper portfolio means a different selection each visit, not more tiles. |
 | **GRID-9** | **A tile shows the artwork, not the mat.** When an image carries a white border (a photographed mat, scan margins, an export with a white frame), the tile crops tighter — to the piece — and the piece sits centred in the cell. |
+
+### Every artist gets the same amount of the grid (GRID-10)
+
+The pool an ambient grid draws from gives every artist the **same number of
+appearances**: `GRID_REPEATS` turns through the work of whichever artist has
+the least of it. An artist with more pieces than that spends the same budget
+on a random selection of theirs, redrawn on every visit — so the whole of
+their work reaches the grid across visits, without any of it taking up more
+of one visit than anyone else's.
+
+This is not only a fairness rule, it is load-bearing for the spacing rules
+above. Repeating each *piece* a fixed number of times instead — which is what
+the grid did until this was written down — hands an artist with twice the
+portfolio twice the tiles, and a pool that drains unevenly ends in a block of
+whoever is left. That is what the last rows of Portland's grid were: three
+Becky Chinn pieces in one row, eight of fourteen tiles on screen hers, with
+the rest of the grid perfectly well behaved.
+
+**Implemented by** `buildGridPool` and `artistAppearanceBudget`. A filtered
+view is a result set, not texture, so it is exempt: every match once (GRID-6).
 
 ### What "four rows clear" can and cannot promise
 
@@ -66,10 +87,12 @@ enough of them to fill the gap.
 
 **When four clear rows can't be had, the grid takes the most it can — three
 clear rows, then two, then one — rather than giving up on spacing.** The
-planner scores every placement by how far short of four rows it falls, and
-keeps the best of many attempts, so separation degrades one row at a time as
-a city gets smaller. It never trades the same-row rules for it: those hold
-first, in this order —
+planner aims each piece at the spacing its remaining turns can afford, keeps
+the best of many attempts, and finishes with a repair pass that trades tiles
+between distant rows. The two same-row rules are absolute and are never
+traded for anything: they outrank the budget in GRID-10, and the planner will
+spend an extra appearance on someone else's work rather than put an artist
+beside themselves. The order of defence is
 
 1. same artwork in one row — never;
 2. same artist in one row — never;
@@ -80,30 +103,34 @@ Artwork is defended ahead of artist on purpose: a visitor notices *that exact
 picture again* far more readily than *another piece by the same person*.
 
 **The ladder the test holds the planner to** (rows apart between two pieces
-by one artist; "5" is four clear rows). It is a floor: a real city usually
-lands a row above it.
+by one artist; "5 apart" is four clear rows). These are *measured* floors,
+not arithmetic — the numbers come from running the planner over lopsided
+rosters (2–6 pieces each, one artist with double) and taking the worst
+result, with a step of margin. A real city usually lands a row above its
+floor.
 
 | Guaranteed separation | Artists, 4-column grid (desktop) | Artists, 3-column grid (phone) |
 |---|---|---|
 | nothing beyond the same-row rules | up to 4 | up to 3 |
-| never on adjacent rows (1 apart) | 5–11 | 4–9 |
-| 1 clear row (2 apart) | 12–15 | 10–12 |
-| 2 clear rows (3 apart) | 16–19 | 13–15 |
-| 3 clear rows (4 apart) | 20–23 | 16–18 |
-| **4 clear rows (5 apart)** | 24+ | 19+ |
+| never on adjacent rows (1 apart) | 5–10 | 5–6 |
+| 1 clear row (2 apart) | 11 | 7–8 |
+| 2 clear rows (3 apart) | 12–14 | 9–10 |
+| 3 clear rows (4 apart) | 15–17 | 11–13 |
+| **4 clear rows (5 apart)** | 18+ | 14+ |
 
-The step is one row of separation per column's worth of artists, with four
-artists' slack because every hero pins its artist across two rows and the
-logo cell takes a 2×2 block at the top. (In the test:
-`requiredArtistGap = min(5, floor((artists − 4) / cols))`, at least 1 once
-there are more artists than columns.) The same-artwork rule, GRID-4, holds at four clear
-rows once the city has `cols + 2` artists and `cols × 3` distinct pieces,
-and at `distinct pieces / cols` below that.
+The same-artwork rule, GRID-4, holds at four clear rows once the city has
+`cols + 2` artists and `cols × 3` distinct pieces, and at `distinct
+pieces / cols` below that. Both rules are also bounded by simple capacity: a
+piece that appears `k` times in a grid `R` rows deep cannot be more than
+`R / k` rows from itself, and the test asserts the lower of the two.
 
-Portland is comfortably past the top of the ladder on both grids. A city on
-its first few sign-ups is not, and its grid will be visibly tighter until it
-fills out. That is expected, and the tests encode it rather than papering
-over it.
+**Filtered views** are the exception to the ladder. A result set is whatever
+matched: if one artist owns a third of the matches they are on screen a third
+of the time, and no ordering changes that. The same-row rules still hold.
+
+Portland (16 artists) sits at 3 clear rows on desktop and 4 on phones, and
+its grid shows every artist nine times. A city on its first few sign-ups is
+tighter, and the tests encode that rather than papering over it.
 
 ### Things that have quietly broken these rules before
 
@@ -125,6 +152,12 @@ Every one of these was a real regression:
   the pool's budget, later slots were left with a tall piece for a one-row
   cell — which renders at the wrong height and drags the whole layout out of
   step with the geometry it was planned against.
+- **Repeating each piece rather than each artist.** See GRID-10 above. The
+  guard tests missed it for months because every roster they built gave each
+  artist the same number of pieces — the one shape in which the bug cannot
+  appear. They now build lopsided rosters, and they build them through the
+  same `buildGridPool` the site uses, rather than assembling a pool of their
+  own that no page ever renders.
 - **Shuffling the row-spans.** A plain shuffle regularly drops a knot of tall
   cells into the last rows, where too few distinct pieces remain to fill
   them. Spans are now spread evenly through the sequence.

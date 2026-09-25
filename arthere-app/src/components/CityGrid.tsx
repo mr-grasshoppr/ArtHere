@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import Image from 'next/image';
 import styles from './CityGrid.module.css';
-import { buildSpacedSequence, type RepeatItem } from '@/lib/grid-sequence';
+import { buildSpacedSequence, buildGridPool } from '@/lib/grid-sequence';
 import { GRID_REPEATS, GRID_MIN_ROW_GAP, CITY_LOGO_CELL } from '@/lib/grid-design';
 import { focalStyle, type Focal } from '@/lib/focal-style';
 
@@ -46,18 +46,23 @@ interface SequenceItem {
 }
 
 function buildSequence(artists: ArtistGridData[], cols: number, filtered: boolean): SequenceItem[] {
-  const items: RepeatItem<SequenceItem>[] = artists.flatMap(artist =>
-    artist.images.map(img => ({
+  // Pool: every artist the same number of appearances (GRID-10), or one
+  // per match when filtered. See buildGridPool for why that matters.
+  const items = buildGridPool<SequenceItem>(
+    artists.map(artist => ({
       // Two identities: the artist (so two different pieces by one artist
       // can't crowd each other) and the piece itself (so a single image
       // never repeats near itself, even in a city with few artists).
       key: artist.url,
-      id: img.src,
-      // Hero images render as tall (2-row) cells; the planner needs the span
-      // so its spacing is measured against real placement.
-      span: img.isHero ? 2 : 1,
-      payload: { src: img.src, focal: img.focal, tall: img.isHero, url: artist.url, name: artist.name },
-    }))
+      items: artist.images.map(img => ({
+        id: img.src,
+        // Hero images render as tall (2-row) cells; the planner needs the
+        // span so its spacing is measured against real placement.
+        span: img.isHero ? 2 : 1,
+        payload: { src: img.src, focal: img.focal, tall: img.isHero, url: artist.url, name: artist.name },
+      })),
+    })),
+    filtered
   );
   return buildSpacedSequence(items, {
     cols,

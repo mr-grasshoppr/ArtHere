@@ -1,3 +1,5 @@
+import { artistAppearanceBudget } from './grid-design';
+
 // Shared randomized-placement builder for the ambient artwork grids
 // (CityGrid on the city page, ambient and filtered).
 //
@@ -32,6 +34,17 @@ export interface RepeatItem<T> {
   payload: T;
   /** Rows this tile occupies — 2 for a "tall" cell, otherwise 1. */
   span?: number;
+  /**
+   * How many times this piece appears, overriding `BuildOptions.repeats`.
+   *
+   * Ambient grids use this to give every artist the same *number of
+   * appearances* regardless of how much work they have uploaded — see
+   * REQUIRED DESIGN FEATURES GRID-10. Repeating every piece the same number of
+   * times instead hands an artist with twice the portfolio twice the
+   * presence, and the surplus piles up at the end of the grid, where the
+   * pool has drained to whoever had the most left.
+   */
+  repeats?: number;
 }
 
 export interface BuildOptions {
@@ -113,6 +126,70 @@ class DensePacker {
     }
     return -1;
   }
+}
+
+/**
+ * Splits `total` appearances across `pieces` of one artist's work as evenly
+ * as it goes: every piece gets `floor(total / pieces)`, and the remainder is
+ * handed out one each to a random subset, so which pieces get the extra
+ * turn differs from visit to visit.
+ */
+export function spreadAppearances(pieces: number, total: number): number[] {
+  if (pieces <= 0) return [];
+  const base = Math.floor(total / pieces);
+  const out = new Array<number>(pieces).fill(base);
+  // Fisher–Yates over the indices, then top up the first `extra` of them.
+  const order = out.map((_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  for (let k = 0; k < total - base * pieces; k++) out[order[k]]++;
+  return out;
+}
+
+/** One artist's work, as the pool builder takes it. */
+export interface PoolGroup<T> {
+  /** The artist — the identity two tiles must not share a row with. */
+  key: string;
+  items: { id: string; span?: number; payload: T }[];
+}
+
+/**
+ * The pool an ambient grid draws from: every artist present the same number
+ * of times, whatever the size of their portfolio (GRID-10), with that budget
+ * shared out across their own pieces.
+ *
+ * This lives here, beside the planner, rather than in the component, because
+ * it is half of what makes the spacing rules hold: the planner can only
+ * spread what it is given, and a pool where one artist owns a third of the
+ * tiles strands that artist in a block at the end of the grid, where the
+ * pool has drained to whoever had the most left. That is exactly how the
+ * rules broke in production while the guard tests — which only ever built
+ * rosters where everyone had the same number of pieces — stayed green.
+ *
+ * A filtered view is a result set instead: every match exactly once (GRID-6).
+ */
+export function buildGridPool<T>(groups: PoolGroup<T>[], filtered: boolean): RepeatItem<T>[] {
+  const budget = artistAppearanceBudget(groups.map(g => g.items.length));
+  return groups.flatMap(group => {
+    // Exactly the budget, for everyone. An artist with more pieces than
+    // that shows a random selection of them this time round — every piece
+    // is equally likely, and the pick changes on every visit.
+    const share = spreadAppearances(group.items.length, budget);
+    return group.items.map((item, i) => ({
+      key: group.key,
+      id: item.id,
+      span: item.span,
+      repeats: filtered ? 1 : share[i],
+      payload: item.payload,
+    }));
+  });
+}
+
+/** Appearances this piece gets — its own count, or the grid's default. */
+function repeatsOf<T>(it: RepeatItem<T>, fallback: number): number {
+  return Math.max(0, it.repeats ?? fallback);
 }
 
 /** Lexicographic compare of two equal-length rank tuples. Lower wins. */
@@ -197,7 +274,7 @@ interface Plan<T> {
  * satisfied comfortably on the first try. Scale the effort to the pool.
  */
 function planAttempts(tiles: number): number {
-  if (tiles <= 150) return 64;
+  if (tiles <= 150) return 24;
   if (tiles <= 400) return 16;
   if (tiles <= 1000) return 4;
   return 2;
@@ -223,7 +300,7 @@ export function buildSpacedSequence<T>(items: RepeatItem<T>[], options: BuildOpt
   if (items.length === 0 || options.repeats <= 0) return [];
 
   const cap = options.minRowGap;
-  const attempts = planAttempts(items.length * options.repeats);
+  const attempts = planAttempts(items.reduce((n, it) => n + repeatsOf(it, options.repeats), 0));
   let best: Plan<T> | null = null;
   let bestRank: number[] = [];
   for (let attempt = 0; attempt < attempts; attempt++) {
@@ -269,8 +346,13 @@ function planLayout<T>(
   // Which spans exist is fixed by the pool; only their order varies, and
   // that order alone decides where every row boundary falls.
   const spanCounts = new Map<number, number>();
-  for (const it of items) spanCounts.set(spanOf(it), (spanCounts.get(spanOf(it)) ?? 0) + repeats);
-  const spans = evenlySpreadSpans(spanCounts, items.length * repeats);
+  let total = 0;
+  for (const it of items) {
+    const n = repeatsOf(it, repeats);
+    spanCounts.set(spanOf(it), (spanCounts.get(spanOf(it)) ?? 0) + n);
+    total += n;
+  }
+  const spans = evenlySpreadSpans(spanCounts, total);
 
   const packer = new DensePacker(cols);
   const slots: Slot[] = spans.map((span, i) => {
@@ -305,15 +387,32 @@ function planLayout<T>(
   const blocksByKey = new Map<string, Block[]>();
 
   // Copies still owed, per artwork and (summed) per artist.
-  const idLeft = items.map(() => repeats);
+  const idLeft = items.map(it => repeatsOf(it, repeats));
   const keyLeft = new Map<string, number>();
-  for (const it of items) keyLeft.set(it.key, (keyLeft.get(it.key) ?? 0) + repeats);
+  for (const it of items) keyLeft.set(it.key, (keyLeft.get(it.key) ?? 0) + repeatsOf(it, repeats));
 
   const nearest = (placed: Block[] | undefined, block: Block): number => {
     if (!placed || placed.length === 0) return Infinity;
     let closest = Infinity;
     for (const other of placed) closest = Math.min(closest, blockDistance(block, other));
     return closest;
+  };
+
+  // The grid's last row, so a slot knows how much room is left below it.
+  const lastRow = slots.reduce((r, sl) => Math.max(r, sl.row + sl.rowSpan - 1), 0);
+
+  /**
+   * The spacing to hold a label to here: the rule, or as much of it as the
+   * rows left can afford. A piece owed five more turns with ten rows to go
+   * cannot be kept four rows clear of itself however it is placed, and
+   * asking anyway starves it — it is passed over row after row for being
+   * too close, until the end of the grid arrives and every copy it is still
+   * owed has to go somewhere. That is how one artist ends up filling the
+   * last rows, which is exactly where the ambient scroll loops back round.
+   */
+  const affordableGap = (left: number, row: number): number => {
+    const rowsLeft = Math.max(1, lastRow - row + 1);
+    return Math.max(1, Math.min(minRowGap, Math.floor(rowsLeft / Math.max(1, left))));
   };
 
   /** Placement penalty for showing item `i` in `block`. Lower is better. */
@@ -326,15 +425,21 @@ function planLayout<T>(
     const overlap = distKey === 0 ? (distId === 0 ? 2 : 1) : 0;
     return [
       overlap,
+      // First what this piece must have — the rule, or as much of it as the
+      // rows left can afford — so nothing is starved into the last rows.
+      Math.max(0, affordableGap(idLeft[i], block[0]) - distId),
+      Math.max(0, affordableGap(keyLeft.get(it.key) ?? 1, block[0]) - distKey),
+      // Then the rule itself, so a piece that could be given its four clear
+      // rows still is, even where a tighter placement would be allowed.
       Math.max(0, minRowGap - distId),
       Math.max(0, minRowGap - distKey),
-      // Negated counts: "most copies still owed" sorts first. Reaching for
-      // the scarcest-so-far piece is what stops the tail of a long grid
-      // bunching up. Per-artwork before per-artist, because a slot only ever
-      // draws from pieces of its own height and an artist's total says
-      // little about how many of *those* they have left.
-      -idLeft[i],
+      // Then whoever is owed the most, which is a round-robin through the
+      // roster in all but name: every artist holds the same budget, so the
+      // one who has waited longest is the one with the most left. It is
+      // what keeps the last rows from being whatever drained slowest.
       -(keyLeft.get(it.key) ?? 0),
+      // Then the same within that artist's own work.
+      -idLeft[i],
     ];
   };
 
@@ -369,6 +474,8 @@ function planLayout<T>(
   const padPool = new Set(shortItems.length > 0 ? shortItems : items.map((_, i) => i));
 
   const sequence: T[] = new Array(slots.length);
+  /** Which item each slot ended up showing, for the repair pass below. */
+  const chosen: number[] = new Array(slots.length).fill(0);
   const byRow = slots.map((_, i) => i).sort((a, b) => slots[a].row - slots[b].row || a - b);
 
   for (const s of byRow) {
@@ -389,6 +496,22 @@ function planLayout<T>(
     let i = pad
       ? choose(j => padPool.has(j), block)
       : choose(j => idLeft[j] > 0 && spanOf(items[j]) === slot.itemSpan, block, uniform);
+    // The budget is a preference; the spacing rules are the rules. Towards
+    // the end of a grid the pieces still owed are whatever drained slowest —
+    // often one artist's, and for tall slots often one artist's hero — and
+    // insisting on them puts that artist beside themselves in the last rows,
+    // which is exactly where a visitor sees the grid loop. When someone
+    // else's piece would sit better, spend an extra appearance on it.
+    // Not for the lead cell, which is drawn uniformly (GRID-8), and not in
+    // a filtered view, where the sequence is a result set and showing a
+    // match twice would drop another one entirely (GRID-6). An ambient grid
+    // is texture, and can afford one extra turn for a piece.
+    if (!pad && !uniform && padToFullRows && i !== -1) {
+      const spare = choose(j => spanOf(items[j]) === slot.itemSpan, block);
+      if (spare !== -1 && rankCompare(rankOf(spare, block).slice(0, 4), rankOf(i, block).slice(0, 4)) < 0) {
+        i = spare;
+      }
+    }
     // Only reachable with a degenerate pool (e.g. every piece is tall, so a
     // padding slot has no short piece to draw). Matching the span still comes
     // first: a mismatch here would render at the wrong height and shift every
@@ -397,6 +520,7 @@ function planLayout<T>(
     if (i === -1) i = choose(() => true, block);
 
     const it = items[i];
+    chosen[s] = i;
     record(blocksById, idOf(it), block);
     record(blocksByKey, it.key, block);
     if (!pad && idLeft[i] > 0) {
@@ -404,6 +528,16 @@ function planLayout<T>(
       keyLeft.set(it.key, (keyLeft.get(it.key) ?? 1) - 1);
     }
     sequence[s] = it.payload;
+  }
+
+  repairSharedRows(slots, chosen, items, idOf, minRowGap);
+  for (let i = 0; i < slots.length; i++) sequence[i] = items[chosen[i]].payload;
+  blocksById.clear();
+  blocksByKey.clear();
+  for (let i = 0; i < slots.length; i++) {
+    const block: Block = [slots[i].row, slots[i].row + slots[i].rowSpan - 1];
+    record(blocksById, idOf(items[chosen[i]]), block);
+    record(blocksByKey, items[chosen[i]].key, block);
   }
 
   const artwork = closestPair(blocksById, minRowGap);
@@ -415,6 +549,64 @@ function planLayout<T>(
     tightArtwork: artwork.tight,
     tightArtist: artist.tight,
   };
+}
+
+/**
+ * Last line of defence for the two rules that are absolute: no row shows one
+ * artist twice, and no row shows one artwork twice (GRID-2, GRID-3).
+ *
+ * The planner fills slots in row order, so its choices narrow as it goes and
+ * the last rows are left with whatever the pool still owes. Where that is one
+ * artist's work, a row can end up with two of their pieces side by side.
+ * Rather than accept it, trade that tile with one from a row far enough away
+ * that neither row ends up worse — a swap costs nothing, because both slots
+ * are the same height and the pool is unchanged.
+ */
+function repairSharedRows<T>(
+  slots: Slot[],
+  chosen: number[],
+  items: RepeatItem<T>[],
+  idOf: (it: RepeatItem<T>) => string,
+  minRowGap: number
+): void {
+  const rowsOf = (i: number): number[] => {
+    const out: number[] = [];
+    for (let r = slots[i].row; r < slots[i].row + slots[i].rowSpan; r++) out.push(r);
+    return out;
+  };
+  // Row -> the slots that show something in it.
+  const inRow = new Map<number, number[]>();
+  for (let i = 0; i < slots.length; i++) {
+    for (const r of rowsOf(i)) inRow.set(r, [...(inRow.get(r) ?? []), i]);
+  }
+  const labels = (i: number): [string, string] => [items[chosen[i]].key, idOf(items[chosen[i]])];
+
+  /** Would showing `item` at slot `at` repeat an artist or a piece in its rows? */
+  const clashes = (at: number, item: number, ignore: number): boolean => {
+    const [key, id] = [items[item].key, idOf(items[item])];
+    for (const r of rowsOf(at)) {
+      for (const other of inRow.get(r) ?? []) {
+        if (other === at || other === ignore) continue;
+        const [k, d] = labels(other);
+        if (k === key || d === id) return true;
+      }
+    }
+    return false;
+  };
+
+  for (let i = 0; i < slots.length; i++) {
+    if (!clashes(i, chosen[i], -1)) continue;
+    for (let j = 0; j < slots.length; j++) {
+      if (j === i || slots[j].itemSpan !== slots[i].itemSpan) continue;
+      // Far enough apart that the swap cannot create a near-repeat of its own.
+      if (Math.abs(slots[j].row - slots[i].row) < minRowGap) continue;
+      if (clashes(i, chosen[j], j) || clashes(j, chosen[i], i)) continue;
+      const tmp = chosen[i];
+      chosen[i] = chosen[j];
+      chosen[j] = tmp;
+      break;
+    }
+  }
 }
 
 function record(map: Map<string, Block[]>, label: string, block: Block): void {
