@@ -13,6 +13,7 @@
  */
 import { describe, it, expect } from "vitest";
 import { buildSpacedSequence, buildGridPool, type RepeatItem, type PoolGroup } from "../grid-sequence";
+import { MAX_ARTWORK_IMAGES } from "../artist-options";
 import {
   GRID_REPEATS,
   GRID_MIN_ROW_GAP,
@@ -300,27 +301,34 @@ function capacityGap(sample: Sample, labelOf: (t: Tile) => string): number {
 }
 
 describe("REQUIRED DESIGN FEATURES — artwork & city grids", () => {
-  it("GRID-10: every artist gets the same amount of an ambient grid", () => {
-    // The rule this file exists to enforce, and the one it used to miss:
-    // every roster it built gave each artist the same number of pieces, the
-    // one shape in which per-piece repeats and per-artist appearances look
-    // identical. In production one artist had twice the portfolio, drew
-    // twice the tiles, and her surplus filled the last rows of the grid.
-    for (const per of [2, 4, lopsided(4), (a: number) => 2 + (a % 7)]) {
-      const pool = buildGridPool(city(12, per), false);
-      const perArtist = new Map<string, number>();
-      for (const item of pool) {
-        perArtist.set(item.key, (perArtist.get(item.key) ?? 0) + (item.repeats ?? 0));
+  it("GRID-10: no artist takes more of the grid than a full profile", () => {
+    // Each piece goes round GRID_REPEATS times, and a profile holds
+    // MAX_ARTWORK_IMAGES pieces — so a full profile's worth of turns is the
+    // ceiling, whatever an older profile happens to hold. This file used to
+    // build rosters where everyone had the same number of pieces, the one
+    // shape in which per-piece repeats and per-artist share look identical;
+    // in production one artist had twice the portfolio, drew twice the
+    // tiles, and her surplus filled the last rows of the grid.
+    const full = MAX_ARTWORK_IMAGES * GRID_REPEATS;
+    for (const per of [2, 4, 8, lopsided(4), (a: number) => 2 + (a % 7)]) {
+      const groups = city(12, per);
+      const share = new Map<string, number>();
+      for (const item of buildGridPool(groups, false)) {
+        share.set(item.key, (share.get(item.key) ?? 0) + (item.repeats ?? 0));
       }
-      const shares = [...perArtist.values()];
-      expect(new Set(shares).size, `shares: ${shares.join()}`).toBe(1);
-      expect(shares[0]).toBeGreaterThanOrEqual(GRID_REPEATS);
+      for (const group of groups) {
+        const pieces = group.items.length;
+        expect(share.get(group.key), `${group.key} with ${pieces} pieces`).toBe(
+          GRID_REPEATS * Math.min(pieces, MAX_ARTWORK_IMAGES)
+        );
+        expect(share.get(group.key)!).toBeLessThanOrEqual(full);
+      }
     }
 
-    // Deeper portfolios spend that budget on a different selection each
-    // time, so the work still all reaches the grid — over visits, not at
-    // anyone else's expense within one.
-    const deep = city(12, a => (a === 0 ? 9 : 3));
+    // A profile holding more than the limit shows a different selection of
+    // it each time, so all of the work reaches the grid over visits — just
+    // never more of one visit than anyone else gets.
+    const deep = city(12, a => (a === 0 ? 9 : 4));
     const seen = new Set<string>();
     for (let t = 0; t < 40; t++) {
       for (const item of buildGridPool(deep, false)) {

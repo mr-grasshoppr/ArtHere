@@ -8,34 +8,27 @@
  * unrelated work easier fails CI instead of quietly shipping.
  */
 
-/**
- * How many times a *typical* artist's work goes round an ambient
- * (unfiltered) grid. It sets the grid's length: the appearance budget every
- * artist gets is this times the median artist's piece count.
- */
+import { MAX_ARTWORK_IMAGES } from './artist-options';
+
+/** How many times each of an artist's pieces goes round an ambient grid. */
 export const GRID_REPEATS = 3;
 
 /**
- * The ambient grid shows every artist the same number of times, whatever
- * the size of their portfolio — REQUIRED DESIGN FEATURES GRID-10.
- *
- * `budget` is that shared number of appearances: `GRID_REPEATS` passes over
- * the median artist's work. An artist with more pieces than the budget still
- * shows each piece once, so uploading more work is never a reason to be
- * *less* visible — it just isn't a reason to be more visible either.
+ * How many times one artist's work appears in an ambient grid — REQUIRED
+ * DESIGN FEATURES GRID-10. Uploading more work than a profile holds is
+ * never a reason to take up more of the grid than anyone else.
  */
-export function artistAppearanceBudget(pieceCounts: number[]): number {
-  if (pieceCounts.length === 0) return GRID_REPEATS;
-  // Set by the artist with the least work: `GRID_REPEATS` turns through
-  // *their* pieces. Anyone deeper spends the same budget on a random
-  // selection of theirs, so the grid draws on all of it across visits
-  // without anyone taking up more of one visit than anyone else.
+export function artistAppearanceBudget(pieces: number): number {
+  // Every piece goes round the grid `GRID_REPEATS` times, and a profile
+  // holds `MAX_ARTWORK_IMAGES` pieces — so a full profile is on screen
+  // MAX_ARTWORK_IMAGES * GRID_REPEATS times and that is the ceiling.
   //
-  // Sharing out a bigger budget instead — the median artist's, say — means
-  // the thinnest artists run dry first, and a grid whose pool has drained
-  // unevenly ends in a block of whoever is left. That is the bug this
-  // rule exists to prevent, so the floor is what everyone can match.
-  return Math.max(1, GRID_REPEATS * Math.min(...pieceCounts));
+  // The ceiling is what keeps the profiles that predate the limit from
+  // taking more of the grid than anyone else: an artist with eight pieces
+  // gets the same twelve turns as an artist with four, shared out across
+  // eight pieces instead of four. An artist with fewer than four pieces
+  // gets three turns each rather than having them stretched.
+  return Math.max(1, GRID_REPEATS * Math.min(Math.max(1, pieces), MAX_ARTWORK_IMAGES));
 }
 
 /**

@@ -54,7 +54,7 @@ export function StatementBand({ cityHref, cityLabel, cityCode }: Props) {
           {/* Broken by hand rather than left to text-balance. One line when
               there's room; once it doesn't fit, it turns after "made". */}
           <span className="block min-[760px]:inline">Discover the art made</span>{' '}
-          <span className="block min-[760px]:inline">down the street,</span>
+          <span className="block min-[760px]:inline">down the street</span>
         </h2>
         {cityHref && (
           <Link

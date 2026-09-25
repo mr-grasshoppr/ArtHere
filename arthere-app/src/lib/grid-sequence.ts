@@ -171,12 +171,13 @@ export interface PoolGroup<T> {
  * A filtered view is a result set instead: every match exactly once (GRID-6).
  */
 export function buildGridPool<T>(groups: PoolGroup<T>[], filtered: boolean): RepeatItem<T>[] {
-  const budget = artistAppearanceBudget(groups.map(g => g.items.length));
   return groups.flatMap(group => {
-    // Exactly the budget, for everyone. An artist with more pieces than
-    // that shows a random selection of them this time round — every piece
-    // is equally likely, and the pick changes on every visit.
-    const share = spreadAppearances(group.items.length, budget);
+    // Each piece three times, up to a full profile's worth of turns. An
+    // artist holding more pieces than a profile allows — they predate the
+    // limit — shares those same turns across all of them, so some pieces
+    // come round twice and some once, and which is which changes on every
+    // visit.
+    const share = spreadAppearances(group.items.length, artistAppearanceBudget(group.items.length));
     return group.items.map((item, i) => ({
       key: group.key,
       id: item.id,

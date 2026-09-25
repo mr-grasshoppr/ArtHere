@@ -54,17 +54,22 @@ for where anything lands.
 | **GRID-6** | Ambient grids end on a **flush bottom edge**; a **filtered** result set is never padded — every match appears exactly once. |
 | **GRID-7** | The city page's logo cell is planned as the **2 cols × 2 rows** tile it renders as. |
 | **GRID-8** | The logo cell's artwork is **drawn at random** across artists — never defaulted to whoever has the most pieces. |
-| **GRID-10** | **Every artist gets the same amount of the grid.** An ambient grid shows each artist the same number of times, whatever the size of their portfolio; a deeper portfolio means a different selection each visit, not more tiles. |
+| **GRID-10** | **No artist takes more of the grid than a full profile.** Each piece goes round `GRID_REPEATS` times, and a profile holds `MAX_ARTWORK_IMAGES` pieces, so a full profile's worth of turns is the ceiling — an older profile with more pieces shares those same turns across them. |
 | **GRID-9** | **A tile shows the artwork, not the mat.** When an image carries a white border (a photographed mat, scan margins, an export with a white frame), the tile crops tighter — to the piece — and the piece sits centred in the cell. |
 
-### Every artist gets the same amount of the grid (GRID-10)
+### No artist takes more of the grid than a full profile (GRID-10)
 
-The pool an ambient grid draws from gives every artist the **same number of
-appearances**: `GRID_REPEATS` turns through the work of whichever artist has
-the least of it. An artist with more pieces than that spends the same budget
-on a random selection of theirs, redrawn on every visit — so the whole of
-their work reaches the grid across visits, without any of it taking up more
-of one visit than anyone else's.
+Each piece goes round an ambient grid `GRID_REPEATS` times, and a profile
+holds `MAX_ARTWORK_IMAGES` pieces — so **`MAX_ARTWORK_IMAGES × GRID_REPEATS`
+appearances is what a full profile gets, and no one gets more.** Twelve, as
+these are set today.
+
+Profiles that predate the four-image limit hold more than that. They share
+the same twelve turns across everything they hold — some pieces come round
+twice, some once, and which is which is redrawn on every visit, so all of
+the work reaches the grid over time without any of it taking more of one
+visit than anyone else's. A profile with fewer than four pieces gets three
+turns each rather than having them stretched.
 
 This is not only a fairness rule, it is load-bearing for the spacing rules
 above. Repeating each *piece* a fixed number of times instead — which is what
@@ -74,8 +79,11 @@ whoever is left. That is what the last rows of Portland's grid were: three
 Becky Chinn pieces in one row, eight of fourteen tiles on screen hers, with
 the rest of the grid perfectly well behaved.
 
-**Implemented by** `buildGridPool` and `artistAppearanceBudget`. A filtered
-view is a result set, not texture, so it is exempt: every match once (GRID-6).
+**Implemented by** `buildGridPool` and `artistAppearanceBudget`, with the
+limit itself — `MAX_ARTWORK_IMAGES`, enforced by both upload endpoints — in
+[`arthere-app/src/lib/artist-options.ts`](arthere-app/src/lib/artist-options.ts).
+A filtered view is a result set, not texture, so it is exempt: every match
+once (GRID-6).
 
 ### What "four rows clear" can and cannot promise
 
@@ -129,7 +137,7 @@ matched: if one artist owns a third of the matches they are on screen a third
 of the time, and no ordering changes that. The same-row rules still hold.
 
 Portland (16 artists) sits at 3 clear rows on desktop and 4 on phones, and
-its grid shows every artist nine times. A city on its first few sign-ups is
+its grid shows a full profile twelve times. A city on its first few sign-ups is
 tighter, and the tests encode that rather than papering over it.
 
 ### Things that have quietly broken these rules before
