@@ -56,10 +56,15 @@ export function StatementBand({ cityHref, cityLabel, cityCode }: Props) {
           <span className="block min-[760px]:inline">Discover the art made</span>{' '}
           <span className="block min-[760px]:inline">down the street</span>
         </h2>
+        {/* Below the sm breakpoint the pill is pulled off the right edge to
+            sit over the artwork's pink bloom, which peaks at ~81.5% of the
+            image — drawn 109% wide and anchored right, that lands at ~79.8%
+            of the viewport. The margin is that offset minus half the pill's
+            own width, which differs once the label lengthens at 620px. */}
         {cityHref && (
           <Link
             href={cityHref}
-            className={`${styles.revealOnHover} caps-optical-center shrink-0 inline-block mr-0 sm:mr-12 px-5 sm:px-6 py-2.5 rounded-full bg-[#1a1a1a] font-display text-white text-[1rem] sm:text-[1.1rem] tracking-[0.05em] whitespace-nowrap hover:opacity-85`}
+            className={`${styles.revealOnHover} caps-optical-center shrink-0 inline-block mr-[calc(20.2vw-54.5px)] min-[620px]:mr-[calc(20.2vw-84px)] sm:mr-12 px-5 sm:px-6 py-2.5 rounded-full bg-[#1a1a1a] font-display text-white text-[1rem] sm:text-[1.1rem] tracking-[0.05em] whitespace-nowrap hover:opacity-85`}
           >
             {/* Label shortens rather than wrapping as the row tightens. */}
             <span className="hidden min-[620px]:inline">Explore {shortCode}</span>
