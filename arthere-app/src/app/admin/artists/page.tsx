@@ -3,7 +3,6 @@ import { requireAdminPage } from "@/lib/admin";
 import Link from "next/link";
 import ArtistCharts from "./ArtistCharts";
 import ArtistsList from "./ArtistsList";
-import NewArtistForm from "./NewArtistForm";
 import { InviteInterestedButton } from "./InviteInterestedButton";
 import { SendInviteButton } from "./[id]/SendInviteButton";
 import { mediumMatches, parseMediumList } from "@/lib/artist-options";
@@ -245,7 +244,11 @@ export default async function AdminArtistsPage({
                   >
                     View profile
                   </Link>
-                  <SendInviteButton artistId={a.id} initialEmail={a.user?.email ?? ""} />
+                  <SendInviteButton
+                    artistId={a.id}
+                    editHref={`/admin/artists/${a.id}/edit`}
+                    email={a.user?.email ?? null}
+                  />
                 </div>
               ))}
             </div>
@@ -253,10 +256,6 @@ export default async function AdminArtistsPage({
         </div>
       ) : (
         <>
-          <div className="mb-6">
-            <NewArtistForm />
-          </div>
-
           {nonArchived.length > 0 && (
             <ArtistCharts
               mediumData={mediumData}

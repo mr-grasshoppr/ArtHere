@@ -16,16 +16,17 @@ export async function uniqueArtistSlug(name: string): Promise<string> {
 // Deliberately creates a bare artist profile from admin — no owner account
 // required. Mirrors createOrganization: a prototype page an admin can build
 // out and share (e.g. to pitch an artist) before anyone's agreed to anything.
-// An owner email can be attached later via the invite flow.
-export async function createArtist(name: string): Promise<string> {
+// An owner email can be attached later via the invite flow. Name is optional —
+// the admin list's "Create New" button doesn't collect one up front; the
+// admin names the profile once they're in the edit flow.
+export async function createArtist(name: string = ""): Promise<string> {
   await requireAdmin();
-  const trimmedName = name.trim();
-  if (!trimmedName) throw new Error("Name is required");
+  const trimmedName = name.trim() || "New Artist";
 
   const slug = await uniqueArtistSlug(trimmedName);
   // Without a cityId the artist never matches any city-scoped page's query
   // (see lib/city-scope.ts) — publishing it later would silently leave it
-  // invisible on the artwork/artists/network pages despite being live.
+  // invisible on the artwork/artists/map pages despite being live.
   const portland = await prisma.city.findUnique({ where: { slug: "portland" } });
   // Best-effort split for this one-shot admin quick-add — the full editor
   // (with real First/Last fields) is where this gets corrected for real.

@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import VisibilityToggle from "./VisibilityToggle";
+import CreateArtistButton from "./CreateArtistButton";
 import { setArtistsArchived } from "./actions";
 
 type ArtistRow = {
@@ -21,7 +22,7 @@ type ArtistRow = {
   _count: { adminNotes: number };
 };
 
-type SortKey = "newest" | "oldest" | "name-asc" | "name-desc" | "images-desc";
+type SortKey = "newest" | "oldest" | "name-asc" | "name-desc" | "images-desc" | "live-first" | "hidden-first";
 
 const SORTERS: Record<SortKey, (a: ArtistRow, b: ArtistRow) => number> = {
   newest: (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
@@ -29,6 +30,9 @@ const SORTERS: Record<SortKey, (a: ArtistRow, b: ArtistRow) => number> = {
   "name-asc": (a, b) => (a.name || "￿").localeCompare(b.name || "￿"),
   "name-desc": (a, b) => (b.name || "￿").localeCompare(a.name || "￿"),
   "images-desc": (a, b) => b.artworkImages.length - a.artworkImages.length,
+  // isPlaceholder: false === live, true === hidden.
+  "live-first": (a, b) => Number(a.isPlaceholder) - Number(b.isPlaceholder),
+  "hidden-first": (a, b) => Number(b.isPlaceholder) - Number(a.isPlaceholder),
 };
 
 export default function ArtistsList({ artists }: { artists: ArtistRow[] }) {
@@ -70,6 +74,7 @@ export default function ArtistsList({ artists }: { artists: ArtistRow[] }) {
   return (
     <div>
       <div className="flex items-center gap-3 mb-4 flex-wrap">
+        <CreateArtistButton />
         <input
           type="text"
           placeholder="Search by name, email, medium, neighborhood…"
@@ -87,6 +92,8 @@ export default function ArtistsList({ artists }: { artists: ArtistRow[] }) {
           <option value="name-asc">Name A–Z</option>
           <option value="name-desc">Name Z–A</option>
           <option value="images-desc">Most images</option>
+          <option value="live-first">Live first</option>
+          <option value="hidden-first">Hidden first</option>
         </select>
         {selected.size > 0 && (
           <div className="flex items-center gap-2 pl-2 border-l border-[#e5e5e5]">
