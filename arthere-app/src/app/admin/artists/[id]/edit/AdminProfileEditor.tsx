@@ -76,9 +76,11 @@ export default function AdminProfileEditor({
   const [bio, setBio] = useState(artist.bio ?? "");
   const [quote, setQuote] = useState(artist.quote ?? "");
   const [quoteAttribution, setQuoteAttribution] = useState(artist.quoteAttribution ?? "");
-  const [otherConnections, setOtherConnections] = useState<OtherConnection[]>(
-    artist.otherConnections.map((c) => ({ name: c.name, relationship: c.relationship, relationshipLabel: c.relationshipLabel ?? "" }))
-  );
+  const [otherConnections, setOtherConnections] = useState<OtherConnection[]>(() => {
+    const rows = artist.otherConnections.map((c) => ({ name: c.name, relationship: c.relationship, relationshipLabel: c.relationshipLabel ?? "" }));
+    // One empty row to type into, as on the artist's own form.
+    return rows.length > 0 ? rows : [{ name: "", relationship: "MEMBER", relationshipLabel: "" }];
+  });
   const [neighborhood, setNeighborhood] = useState(artist.neighborhood ?? "");
   const [showOnMap, setShowOnMap] = useState(artist.showOnMap);
   const [email, setEmail] = useState(artist.email ?? "");

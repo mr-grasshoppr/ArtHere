@@ -1,5 +1,5 @@
 /**
- * REQUIRED DESIGN FEATURES — artwork & city grids (GRID-1 … GRID-11).
+ * REQUIRED DESIGN FEATURES — artwork & city grids (GRID-1 … GRID-13).
  *
  * See REQUIRED-DESIGN-FEATURES.md at the repo root. These rules have been
  * broken several times by changes that had nothing to do with layout (image
@@ -20,6 +20,8 @@ import {
   GRID_MIN_ROW_GAP,
   CITY_LOGO_CELL,
   GRID_COLS,
+  GRID_WIDE_ROW_GAP,
+  GRID_WIDE_COLUMN_RUN,
 } from "../grid-design";
 
 interface Tile {
@@ -32,7 +34,7 @@ interface Tile {
 type Cell = Tile | "logo" | null;
 type Footprint = { rowSpan: number; colSpan: number };
 /** One tile as the browser places it: the rows it spans. */
-type Placement = { tile: Tile; top: number; bottom: number };
+type Placement = { tile: Tile; top: number; bottom: number; left: number; right: number };
 
 /**
  * A city's artists, each with a hero plus some other pieces.
@@ -89,7 +91,7 @@ function layOut(sequence: Tile[], cols: number, lead?: Footprint): { grid: Cell[
         }
         if (!fits) continue;
         for (let k = 0; k < rowSpan; k++) for (let m = 0; m < colSpan; m++) grid[r + k][c + m] = fill;
-        if (fill !== "logo") placements.push({ tile: fill, top: r, bottom: r + rowSpan - 1 });
+        if (fill !== "logo") placements.push({ tile: fill, top: r, bottom: r + rowSpan - 1, left: c, right: c + colSpan - 1 });
         return;
       }
     }
@@ -152,6 +154,23 @@ const poolOf = (s: Scenario): RepeatItem<Tile>[] => buildGridPool(s.groups, s.fi
 /** Every distinct piece in a scenario, however the pool shares them out. */
 const distinctOf = (s: Scenario) => s.groups.reduce((n, g) => n + g.items.length, 0);
 
+/**
+ * GRID-12 leaves most hero turns out of an ambient grid, so a hero is no
+ * longer a full member of the rotation: the pieces that do go round are the
+ * gallery pieces, plus a hero now and then. Count heroes by the turns they
+ * actually got — a hero shown once in a grid where gallery pieces each show
+ * three times is a third of a piece's worth of room. Filtered views keep
+ * every match (GRID-6), so there nothing is thinned.
+ */
+function roomOf(sample: Sample): { distinct: number; heroesThinned: boolean } {
+  const distinct = distinctOf(sample.scenario);
+  if (sample.scenario.filtered) return { distinct, heroesThinned: false };
+  const heroes = sample.scenario.groups.reduce((n, g) => n + g.items.filter((it) => it.payload.wide).length, 0);
+  const heroTurns = sample.placements.filter((p) => p.tile.wide).length;
+  if (heroTurns >= heroes * GRID_REPEATS) return { distinct, heroesThinned: false };
+  return { distinct: distinct - heroes + Math.floor(heroTurns / GRID_REPEATS), heroesThinned: true };
+}
+
 /** Every grid the site renders, in the shapes real cities produce. */
 const SCENARIOS: Scenario[] = (() => {
   const out: Scenario[] = [];
@@ -212,6 +231,9 @@ const SAMPLES: Sample[] = (() => {
           minRowGap: GRID_MIN_ROW_GAP,
           padToFullRows: scenario.padToFullRows,
           leadCell: scenario.lead,
+          // As CityGrid does: ambient grids only (GRID-12).
+          minWideRowGap: scenario.filtered ? undefined : GRID_WIDE_ROW_GAP,
+          maxWideColumnRun: scenario.filtered ? undefined : GRID_WIDE_COLUMN_RUN,
         });
         out.push({ scenario, cols, sequence, ...layOut(sequence, cols, scenario.lead) });
       }
@@ -352,10 +374,12 @@ describe("REQUIRED DESIGN FEATURES — artwork & city grids", () => {
 
   it("GRID-4: the same artwork stays four rows clear of itself", () => {
     for (const s of SAMPLES) {
-      const distinct = distinctOf(s.scenario);
+      const { distinct, heroesThinned } = roomOf(s);
       const want = Math.min(
         requiredArtworkGap(distinct, s.cols, s.scenario.artists),
-        capacityGap(s, t => t.artwork)
+        // A row short of the ceiling where GRID-12 thinned the heroes — see
+        // GRID-5 below.
+        capacityGap(s, t => t.artwork) - (heroesThinned ? 1 : 0)
       );
       expect(closestRepeat(s.placements, t => t.artwork), where(s)).toBeGreaterThanOrEqual(want);
     }
@@ -370,7 +394,15 @@ describe("REQUIRED DESIGN FEATURES — artwork & city grids", () => {
         ? // Same threshold as GRID-3: with no more artists than columns,
           // every row holds every artist and there is nothing to promise.
           (s.scenario.artists > s.cols ? 1 : 0)
-        : Math.min(requiredArtistGap(s.scenario.artists, s.cols), capacityGap(s, t => t.artist));
+        : Math.min(
+            requiredArtistGap(s.scenario.artists, s.cols),
+            // Where GRID-12 thinned the heroes the grid loses their room,
+            // so it is shorter and each artist's turns sit closer together.
+            // The capacity ceiling below is then the binding one, and it is
+            // a ceiling — perfectly even spacing from the first row to the
+            // last — which the planner can't promise; a row short of it can.
+            capacityGap(s, t => t.artist) - (roomOf(s).heroesThinned ? 1 : 0)
+          );
       expect(closestRepeat(s.placements, t => t.artist), where(s)).toBeGreaterThanOrEqual(want);
     }
   });
@@ -428,5 +460,32 @@ describe("REQUIRED DESIGN FEATURES — artwork & city grids", () => {
     const tile = heroTileWindow(focal, 1.2, 2);
     expect(tile.top).toBeCloseTo(header.top, 9);
     expect(tile.top + tile.height).toBeCloseTo(header.top + header.height, 9);
+  });
+
+  it("GRID-12: at most one wide tile in any four rows", () => {
+    // Pinned deliberately, like GRID-1.
+    expect(GRID_WIDE_ROW_GAP).toBe(4);
+    for (const s of SAMPLES.filter((s) => !s.scenario.filtered)) {
+      const rows = s.placements.filter((p) => p.tile.wide).map((p) => p.top);
+      for (let i = 0; i < rows.length; i++) {
+        for (let j = i + 1; j < rows.length; j++) {
+          expect(Math.abs(rows[i] - rows[j]), `${where(s)}: wide tiles on rows ${rows[i]} and ${rows[j]}`).toBeGreaterThanOrEqual(GRID_WIDE_ROW_GAP);
+        }
+      }
+    }
+  });
+
+  it("GRID-13: wide tiles move around — never three in a row at the same position", () => {
+    expect(GRID_WIDE_COLUMN_RUN).toBe(2);
+    for (const s of SAMPLES.filter((s) => !s.scenario.filtered)) {
+      const sides = s.placements
+        .filter((p) => p.tile.wide)
+        .sort((a, b) => a.top - b.top)
+        .map((p) => (p.left === 0 ? "left" : p.right === s.cols - 1 ? "right" : "middle"));
+      for (let i = GRID_WIDE_COLUMN_RUN; i < sides.length; i++) {
+        const run = sides.slice(i - GRID_WIDE_COLUMN_RUN, i + 1);
+        expect(new Set(run).size, `${where(s)}: wide tiles ${sides.join(", ")}`).toBeGreaterThan(1);
+      }
+    }
   });
 });

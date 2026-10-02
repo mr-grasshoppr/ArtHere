@@ -3,11 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FramingButton } from "@/components/FramingButton";
-import { ArtworkMediumSelect } from "@/components/ArtworkMediumSelect";
+import { HeaderPhotoSlot, GalleryPhotoSlots, type PhotoSlotsContext } from "@/components/ArtworkPhotoSlots";
+import { useArtworkPhotos, type PhotoAdapter } from "@/lib/useArtworkPhotos";
 import { focalStyle, type Focal } from "@/lib/focal-style";
 import type { FramingValue } from "@/components/FramingEditor";
 import { resizeImageForUpload } from "@/lib/client-image-resize";
-import { MAX_ARTWORK_IMAGES } from "@/lib/artist-options";
+import { parseNeighborhoodList, isCityLevelNeighborhood } from "@/lib/neighborhoods";
 
 type InitialData = {
   slug: string;
@@ -68,11 +69,6 @@ const LABEL = "block text-[0.7rem] font-semibold text-[#aaa] mb-2 uppercase trac
 const BTN =
   "px-6 py-2.5 rounded-full bg-[#1a1a1a] text-white text-[0.88rem] font-medium transition-opacity hover:opacity-80 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer";
 
-/** Gallery tiles: the four pieces a profile shows, less the cover. */
-const GALLERY_SLOTS = MAX_ARTWORK_IMAGES - 1;
-
-type ImageState = { id: string; url: string; isHero: boolean; medium: string[] };
-
 export default function OnboardingForm({
   initialData,
   initialFocals,
@@ -90,8 +86,6 @@ export default function OnboardingForm({
     setFocals((prev) => ({ ...prev, [url]: value }));
   }
   const router = useRouter();
-  const heroInputRef = useRef<HTMLInputElement>(null);
-  const galleryInputRef = useRef<HTMLInputElement>(null);
   const bioPhotoInputRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null); // kept for scroll-to on finish validation
 
@@ -114,7 +108,9 @@ export default function OnboardingForm({
     return parts.some(p => !MEDIUM_OPTIONS.includes(p));
   });
   const [neighborhood, setNeighborhood] = useState(initialData?.neighborhood ?? "");
-  const [showOnMap, setShowOnMap] = useState(initialData?.showOnMap ?? false);
+  // A neighborhood shown publicly on the profile counts as consent to be
+  // counted there on the city map — the same call the map's first data made.
+  const showOnMap = parseNeighborhoodList(neighborhood).some((n) => !isCityLevelNeighborhood(n));
   const [bio, setBio] = useState(initialData?.bio ?? "");
   const [quote, setQuote] = useState(initialData?.quote ?? "");
 
@@ -131,7 +127,12 @@ export default function OnboardingForm({
 
   // Other connections — same shape as Places but never linked to a page.
   const [otherConnections, setOtherConnections] = useState<{ name: string; relationship: string; relationshipLabel: string }[]>(
-    () => (initialData?.otherConnections ?? []).map((c) => ({ name: c.name, relationship: c.relationship, relationshipLabel: c.relationshipLabel ?? "" }))
+    () => {
+      const rows = (initialData?.otherConnections ?? []).map((c) => ({ name: c.name, relationship: c.relationship, relationshipLabel: c.relationshipLabel ?? "" }));
+      // Always one empty row to type into, like the local places above; a
+      // blank row is dropped on save.
+      return rows.length > 0 ? rows : [{ name: "", relationship: "MEMBER", relationshipLabel: "" }];
+    }
   );
 
   // Links: 3 fixed rows, each typed via dropdown. Blank rows (no url) are
@@ -163,9 +164,42 @@ export default function OnboardingForm({
   const [offeringsOther, setOfferingsOther] = useState("");
 
   // Images
-  const [images, setImages] = useState<ImageState[]>(initialData?.images ?? []);
+  const photoAdapter: PhotoAdapter = {
+    upload: async (file, asHero) => {
+      const res = await uploadFile(file, { isHero: asHero ? "true" : "false" });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? "Upload failed");
+      return res.json();
+    },
+    arrange: async (order, heroId) => {
+      const res = await fetch("/api/images/arrange", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order, heroId }),
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? "Could not save that change");
+    },
+    remove: async (id) => {
+      const res = await fetch(`/api/images?id=${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? "Could not remove that piece");
+    },
+    setMedium: async (id, next) => {
+      const res = await fetch(`/api/images?id=${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ medium: next }),
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? "Could not save medium");
+    },
+  };
+  const photos = useArtworkPhotos(initialData?.images ?? [], photoAdapter);
   const [bioPhotoUrl, setBioPhotoUrl] = useState<string | null>(initialData?.bioPhotoUrl ?? null);
-  const [uploading, setUploading] = useState(false);
+  const photoCtx: PhotoSlotsContext = {
+    photos,
+    styleFor,
+    rememberFocal,
+    framingEndpoint: "/api/image-focus",
+    mediumOptions,
+  };
   const [uploadingBio, setUploadingBio] = useState(false);
   const [uploadError, setUploadError] = useState("");
 
@@ -183,16 +217,6 @@ export default function OnboardingForm({
   const [submittingReview, setSubmittingReview] = useState(false);
 
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const heroImage = images.find((img) => img.isHero) ?? images[0] ?? null;
-  const otherImages = images.filter((img) => img.id !== heroImage?.id);
-  // A profile shows a header and three gallery pieces. Anything past that
-  // is kept — uploads are never refused — and shown below as not visible,
-  // for the artist to swap in. lib/artist-images is the same rule server
-  // side, and the city grid draws on that slice alone.
-  const galleryImages = otherImages.slice(0, GALLERY_SLOTS);
-  const hiddenImages = otherImages.slice(GALLERY_SLOTS);
-
   // ─── Save ────────────────────────────────────────────────────────────
 
   function buildMediumText() {
@@ -267,50 +291,6 @@ export default function OnboardingForm({
     return fetch("/api/upload", { method: "POST", body: form });
   }
 
-  async function handleHeroSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    setUploadError("");
-    try {
-      const res = await uploadFile(file, { isHero: "true" });
-      if (!res.ok) throw new Error((await res.json()).error ?? "Upload failed");
-      const data = await res.json();
-      const uploaded = { id: data.id, url: data.url, isHero: true, medium: [] };
-      // The header that was there is kept, at the back rather than pushed
-      // into the gallery: changing a header shouldn't quietly rearrange
-      // the three pieces underneath it.
-      const rest = images.filter((img) => img.id !== heroImage?.id);
-      await arrange(
-        [uploaded, ...rest, ...(heroImage ? [heroImage] : [])],
-        uploaded.id
-      );
-    } catch (err) { setUploadError(err instanceof Error ? err.message : "Upload failed."); }
-    setUploading(false);
-    e.target.value = "";
-  }
-
-  async function handleGallerySelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []);
-    if (!files.length) return;
-    setUploading(true);
-    setUploadError("");
-    for (const file of files) {
-      try {
-        const first = images.length === 0;
-        const res = await uploadFile(file, { isHero: first ? "true" : "false" });
-        if (!res.ok) throw new Error((await res.json()).error ?? "Upload failed");
-        const data = await res.json();
-        setImages((prev) => {
-          const base = first ? prev.map((img) => ({ ...img, isHero: false })) : prev;
-          return [...base, { id: data.id, url: data.url, isHero: data.isHero, medium: [] }];
-        });
-      } catch (err) { setUploadError(err instanceof Error ? err.message : "Upload failed."); }
-    }
-    setUploading(false);
-    e.target.value = "";
-  }
-
   async function handleBioPhotoSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -321,99 +301,6 @@ export default function OnboardingForm({
       setBioPhotoUrl((await res.json()).url);
     } catch (err) { setUploadError(err instanceof Error ? err.message : "Upload failed."); }
     setUploadingBio(false);
-    e.target.value = "";
-  }
-
-  // Saved per piece as it's toggled rather than with the rest of the profile:
-  // artwork rows are created by the upload endpoint, so they already exist and
-  // there's nothing to batch them with.
-  async function updateImageMedium(id: string, next: string[]) {
-    setImages((prev) => prev.map((img) => (img.id === id ? { ...img, medium: next } : img)));
-    try {
-      const res = await fetch(`/api/images?id=${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ medium: next }),
-      });
-      if (!res.ok) throw new Error((await res.json()).error ?? "Could not save medium");
-    } catch (err) {
-      setUploadError(err instanceof Error ? err.message : "Could not save medium.");
-    }
-  }
-
-  /**
-   * Saves which pieces the profile shows, and in what order: the header
-   * first, then the gallery, then everything kept back. The whole
-   * arrangement goes in one request — a sequence of moves can leave two
-   * pieces claiming one slot if a request fails midway.
-   */
-  async function arrange(next: ImageState[], heroId: string | null) {
-    const previous = images;
-    setImages(next.map((img) => ({ ...img, isHero: img.id === heroId })));
-    try {
-      const res = await fetch("/api/images/arrange", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ order: next.map((img) => img.id), heroId }),
-      });
-      if (!res.ok) throw new Error((await res.json()).error ?? "Could not save that change");
-    } catch (err) {
-      setImages(previous);
-      setUploadError(err instanceof Error ? err.message : "Could not save that change.");
-    }
-  }
-
-  /** Move a kept-back piece into the last gallery slot, and that one out. */
-  function showInGallery(id: string) {
-    const piece = images.find((img) => img.id === id);
-    if (!piece || !heroImage) return;
-    const rest = otherImages.filter((img) => img.id !== id);
-    const next = [heroImage, ...rest.slice(0, GALLERY_SLOTS - 1), piece, ...rest.slice(GALLERY_SLOTS - 1)];
-    arrange(next, heroImage.id);
-  }
-
-  /** Make a piece the header; the old header takes the slot it vacated. */
-  function makeHeader(id: string) {
-    const piece = images.find((img) => img.id === id);
-    if (!piece || !heroImage) return;
-    const next = [piece, ...otherImages.map((img) => (img.id === id ? heroImage : img))];
-    arrange(next, id);
-  }
-
-  async function removeImage(id: string) {
-    setUploadError("");
-    const previous = images;
-    setImages((prev) => prev.filter((img) => img.id !== id));
-    try {
-      const res = await fetch(`/api/images?id=${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error((await res.json()).error ?? "Could not remove that piece");
-    } catch (err) {
-      setImages(previous);
-      setUploadError(err instanceof Error ? err.message : "Could not remove that piece.");
-    }
-  }
-
-  async function handleGalleryReplace(oldId: string, e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    setUploadError("");
-    try {
-      const res = await uploadFile(file, { isHero: "false" });
-      if (!res.ok) throw new Error((await res.json()).error ?? "Upload failed");
-      const data = await res.json();
-      const uploaded = { id: data.id, url: data.url, isHero: false, medium: [] };
-      // The new piece takes that slot and the old one moves to the back,
-      // still there if the artist wants it again.
-      const replaced = images.find((img) => img.id === oldId);
-      const next = [
-        ...(heroImage ? [heroImage] : []),
-        ...otherImages.map((img) => (img.id === oldId ? uploaded : img)),
-        ...(replaced ? [replaced] : []),
-      ];
-      await arrange(next, heroImage?.id ?? null);
-    } catch (err) { setUploadError(err instanceof Error ? err.message : "Upload failed."); }
-    setUploading(false);
     e.target.value = "";
   }
 
@@ -472,44 +359,7 @@ export default function OnboardingForm({
         {/* Hero image */}
         {/* 21:9 to match the live hero on the artist/place profile page exactly
             (see ArtistProfilePage.tsx / PlaceProfilePage.tsx). */}
-        <div className="rounded-lg overflow-hidden bg-[#f0ede9] relative" style={{ aspectRatio: "21 / 9" }}>
-          {heroImage ? (
-            <>
-              <label className="block w-full h-full cursor-pointer group absolute inset-0">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={heroImage.url} alt="" className="w-full h-full object-cover" style={styleFor(heroImage.url)} />
-                <span className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/25 transition-all opacity-0 group-hover:opacity-100">
-                  <span className="text-white text-sm font-medium px-4 py-2 bg-black/50 rounded-full">
-                    {uploading ? "Uploading…" : "Change header image"}
-                  </span>
-                </span>
-                <input ref={heroInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleHeroSelect} className="hidden" />
-              </label>
-              <div className="absolute bottom-2 right-2 z-10">
-                <FramingButton
-                  imageUrl={heroImage.url}
-                  endpoint="/api/image-focus"
-                  aspect="21 / 9"
-                  onSaved={(v) => rememberFocal(heroImage.url, v)}
-                />
-              </div>
-            </>
-          ) : (
-            <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer gap-1 absolute inset-0">
-              <span className="text-[#bbb] text-sm">{uploading ? "Uploading…" : "+ Add header image"}</span>
-              <input ref={heroInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleHeroSelect} className="hidden" />
-            </label>
-          )}
-        </div>
-        {heroImage && (
-          <div className="mt-2 max-w-[240px]">
-            <ArtworkMediumSelect
-              value={heroImage.medium}
-              options={mediumOptions}
-              onChange={(next) => updateImageMedium(heroImage.id, next)}
-            />
-          </div>
-        )}
+        <HeaderPhotoSlot ctx={photoCtx} />
 
         {/* Bio photo — overlaps hero bottom-left */}
         <div className="absolute -bottom-14 left-8">
@@ -545,7 +395,7 @@ export default function OnboardingForm({
       {/* ── Constrained content ──────────────────────────────────────── */}
       <div className="max-w-3xl mx-auto px-4 pb-16">
 
-      {uploadError && <p className="text-red-500 text-xs mb-3">{uploadError}</p>}
+      {(uploadError || photos.error) && <p className="text-red-500 text-xs mb-3">{uploadError || photos.error}</p>}
 
       {/* ── Name + subtitle ───────────────────────────────────────────── */}
       <div className="mb-6">
@@ -613,10 +463,7 @@ export default function OnboardingForm({
               className={FIELD}
             />
             <p className="text-[0.72rem] font-semibold text-[#1a1a1a] mt-1.5 ml-1">Neighborhood (primary)</p>
-            <label className="flex items-center gap-2 text-[0.72rem] text-[#555] mt-2 ml-1">
-              <input type="checkbox" checked={showOnMap} onChange={(e) => setShowOnMap(e.target.checked)} />
-              Count me in my neighborhood on the city map
-            </label>
+            <p className="text-[0.72rem] text-[#555] mt-2 ml-1">Your artwork will be on the map!</p>
           </div>
         </div>
       </div>
@@ -791,151 +638,7 @@ export default function OnboardingForm({
       </div>
 
       {/* ── Work gallery: the cover plus MAX_ARTWORK_IMAGES - 1 more ──── */}
-      <div className="mb-8">
-        <div className="flex items-baseline gap-2 mb-3">
-          <h2 className="text-[0.7rem] font-semibold text-[#aaa] uppercase tracking-widest">My Gallery</h2>
-          <span className="text-[0.7rem] text-[#bbb]">up to {GALLERY_SLOTS} photos, alongside your cover</span>
-        </div>
-        <p className="text-[0.75rem] text-[#999] mb-3">
-          Tag each piece with its medium so visitors can find it when they filter by medium.
-        </p>
-        <div className="grid grid-cols-3 gap-3">
-          {Array.from({ length: GALLERY_SLOTS }, (_, i) => i).map((slot) => {
-            const img = galleryImages[slot];
-            return img ? (
-              <div key={img.id}>
-              <div className="rounded-lg overflow-hidden bg-[#f0ede9] aspect-square relative group">
-                <label className="absolute inset-0 cursor-pointer block">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img.url} alt="" className="w-full h-full object-cover" style={styleFor(img.url)} />
-                  <span className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/25 transition-all opacity-0 group-hover:opacity-100">
-                    <span className="text-white text-sm font-medium px-4 py-2 bg-black/50 rounded-full">
-                      {uploading ? "Uploading…" : "Change photo"}
-                    </span>
-                  </span>
-                  <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => handleGalleryReplace(img.id, e)} className="hidden" />
-                </label>
-                <div className="absolute bottom-1.5 right-1.5 z-10">
-                  <FramingButton
-                    imageUrl={img.url}
-                    endpoint="/api/image-focus"
-                    aspect="1 / 1"
-                    onSaved={(v) => rememberFocal(img.url, v)}
-                  />
-                </div>
-                {/* Without this the only way out of an over-full profile was
-                    to write and ask, and the form quietly hid the extras. */}
-                <button
-                  type="button"
-                  onClick={() => removeImage(img.id)}
-                  className="absolute top-1.5 right-1.5 z-10 w-6 h-6 rounded-full bg-black/45 text-white text-sm leading-none opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
-                  title="Remove this piece"
-                  aria-label="Remove this piece"
-                >×</button>
-              </div>
-              <div className="mt-1.5">
-                <ArtworkMediumSelect
-                  value={img.medium}
-                  options={mediumOptions}
-                  onChange={(next) => updateImageMedium(img.id, next)}
-                />
-              </div>
-              </div>
-            ) : (
-              <label
-                key={slot}
-                className="rounded-lg border-2 border-dashed border-[#e5e5e5] aspect-square flex items-center justify-center cursor-pointer hover:border-[#bbb] transition-colors"
-              >
-                <span className="text-[#ccc] text-sm text-center px-2">
-                  {uploading && slot === galleryImages.length ? "Uploading…" : "+ Add photo"}
-                </span>
-                <input
-                  ref={slot === galleryImages.length ? galleryInputRef : undefined}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={handleGallerySelect}
-                  // Two quick clicks on an empty slot used to upload twice.
-                  disabled={uploading}
-                  className="hidden"
-                />
-              </label>
-            );
-          })}
-        </div>
-
-        {/* Pieces beyond the header and three slots. Uploads are never
-            refused, so these are kept rather than lost — but they are not
-            on the profile or the city grid until one is swapped in, and
-            saying so plainly beats a form that quietly shows three of the
-            eight pieces an artist uploaded. */}
-        {(hiddenImages.length > 0 || galleryImages.length >= GALLERY_SLOTS) && (
-          <div className="mt-6">
-            <div className="flex items-baseline gap-2 mb-2">
-              <h3 className="text-[0.7rem] font-semibold text-[#aaa] uppercase tracking-widest">
-                Also uploaded
-              </h3>
-              <span className="text-[0.7rem] text-[#bbb]">
-                {hiddenImages.length > 0
-                  ? `${hiddenImages.length} ${hiddenImages.length === 1 ? "piece" : "pieces"} you're not showing`
-                  : "keep uploading — anything past the four above waits here"}
-              </span>
-              {/* With the three slots full there was otherwise no way to add
-                  a piece at all, which is its own kind of blocked. */}
-              <label className="ml-auto text-[0.72rem] text-[#777] hover:text-[#1a1a1a] underline underline-offset-2 transition-colors cursor-pointer">
-                {uploading ? "Uploading…" : "+ Add another piece"}
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={handleGallerySelect}
-                  disabled={uploading}
-                  className="hidden"
-                />
-              </label>
-            </div>
-            <div className="grid grid-cols-3 gap-3">
-              {hiddenImages.map((img) => (
-                <div key={img.id}>
-                  <div className="rounded-lg overflow-hidden bg-[#f0ede9] aspect-square relative group">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={img.url}
-                      alt=""
-                      className="w-full h-full object-cover opacity-55 group-hover:opacity-80 transition-opacity"
-                      style={styleFor(img.url)}
-                    />
-                    <span className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full bg-black/55 text-white text-[0.62rem] tracking-wide">
-                      Not visible in profile
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => removeImage(img.id)}
-                      className="absolute top-1.5 right-1.5 z-10 w-6 h-6 rounded-full bg-black/45 text-white text-sm leading-none opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
-                      title="Delete this piece"
-                      aria-label="Delete this piece"
-                    >×</button>
-                  </div>
-                  <div className="mt-1.5 flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => showInGallery(img.id)}
-                      className="text-[0.72rem] text-[#777] hover:text-[#1a1a1a] underline underline-offset-2 transition-colors"
-                    >
-                      Show in gallery
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => makeHeader(img.id)}
-                      className="text-[0.72rem] text-[#777] hover:text-[#1a1a1a] underline underline-offset-2 transition-colors"
-                    >
-                      Use as header
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
+      <GalleryPhotoSlots ctx={photoCtx} />
 
       {/* ── Additional details ────────────────────────────────────────── */}
       <div className="border-t border-[#f0f0f0] pt-8 mb-10">

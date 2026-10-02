@@ -57,6 +57,8 @@ for where anything lands.
 | **GRID-10** | **No artist takes more of the grid than a full profile.** Each piece goes round `GRID_REPEATS` times, and a profile holds `MAX_ARTWORK_IMAGES` pieces, so a full profile's worth of turns is the ceiling — an older profile with more pieces shares those same turns across them. |
 | **GRID-9** | **A tile shows the artwork, not the mat.** When an image carries a white border (a photographed mat, scan margins, an export with a white frame), the tile crops tighter — to the piece — and the piece sits centred in the cell. |
 | **GRID-11** | **A hero is a wide tile framed by its header.** An artist's hero image takes a **2 cols × 1 row** cell, and the tile shows exactly the vertical band the 21:9 profile header shows — the header's top and bottom are the tile's top and bottom — centred across on the header's centre. |
+| **GRID-12** | **At most one wide tile in any four rows** of an ambient grid (`GRID_WIDE_ROW_GAP`). Heroes that don't fit are left out — heroes come round less often than gallery pieces, by design. |
+| **GRID-13** | **Wide tiles move around.** Reading down an ambient grid, never more than two wide tiles in a row (`GRID_WIDE_COLUMN_RUN`) sit at the same position — left edge, right edge, or (at 4 columns) the middle. |
 
 ### No artist takes more of the grid than a full profile (GRID-10)
 
@@ -239,6 +241,39 @@ they are wide cells now — the grid shape nearest the header.
 - If a narrow image can't show the whole band at the tile's shape, the band
   is trimmed evenly top and bottom rather than distorted or letterboxed.
 - A hero with no stored framing is centred, as the header centres it.
+
+### Wide tiles are spaced out and move around (GRID-12, GRID-13)
+
+Wide tiles are the grid's accents; packed together they read as a second,
+competing layout. So in an ambient grid there is at most one in any four
+rows, and reading down the grid they never sit at the same position —
+left edge, right edge, or in between — more than twice running.
+
+Heroes give way for this: the planner works out up front how many wide
+cells the grid has room for and trims the heroes' turns to fit, evenly
+across artists. A wide cell that would break either rule where the spread
+put it waits for the next spot that keeps them, and is left out if none
+comes. Heroes are therefore on screen less often than gallery pieces — Maryanna's
+call (2026-10-02).
+
+**Not in filtered views.** A filtered grid is a result set and every match
+appears once (GRID-6), so no hero can be left out; heroes stay wide there
+and these two rules don't apply.
+
+**What it costs.** The gallery pieces now go round without the room the
+heroes used to take, so they come round sooner. A small roster of two
+pieces per artist feels this: a hero that is shown lands between two of its
+artist's gallery turns, at best half a cycle from each, and the tests lower
+GRID-4/GRID-5's floors for those rosters accordingly (`roomOf` in the
+test). Rosters the size of Portland's clear the full ladder.
+
+**Implemented by**
+- [`arthere-app/src/lib/grid-sequence.ts`](arthere-app/src/lib/grid-sequence.ts)
+  — `minWideRowGap` and `maxWideColumnRun` in `planLayout`'s geometry pass.
+- [`arthere-app/src/lib/grid-design.ts`](arthere-app/src/lib/grid-design.ts)
+  — `GRID_WIDE_ROW_GAP` (4) and `GRID_WIDE_COLUMN_RUN` (2).
+- [`arthere-app/src/components/CityGrid.tsx`](arthere-app/src/components/CityGrid.tsx)
+  — passes both for ambient grids only.
 
 ### If you change any of this
 

@@ -65,6 +65,20 @@ export interface BuildOptions {
    * boundary after it is off by the difference.
    */
   leadCell?: { rowSpan: number; colSpan: number };
+  /**
+   * Keep cells wider than one column at least this many rows apart (GRID-12).
+   * A wide cell that would land closer is left out — its piece just comes
+   * round fewer times — so only use this where appearances are flexible (an
+   * ambient grid), never for a result set that must show every match.
+   */
+  minWideRowGap?: number;
+  /**
+   * With `minWideRowGap`: never more than this many wide cells in a row, top
+   * to bottom, at the same position — left edge, right edge or in between
+   * (GRID-13). Like the row gap, a wide cell that would break it waits for a
+   * later spot, and is left out if none comes.
+   */
+  maxWideColumnRun?: number;
 }
 
 /**
@@ -89,10 +103,10 @@ class DensePacker {
   }
 
   /** Row-major first fit, without mutating. */
-  findRow(rowSpan: number, colSpan = 1): number {
+  findCell(rowSpan: number, colSpan = 1): { row: number; col: number } {
     for (let r = 0; ; r++) {
       this.ensureRow(r + rowSpan - 1);
-      for (let c = 0; c + colSpan <= this.cols; c++) if (this.fits(r, c, rowSpan, colSpan)) return r;
+      for (let c = 0; c + colSpan <= this.cols; c++) if (this.fits(r, c, rowSpan, colSpan)) return { row: r, col: c };
     }
   }
 
@@ -344,7 +358,7 @@ export function buildSpacedSequence<T>(items: RepeatItem<T>[], options: BuildOpt
  */
 function planLayout<T>(
   items: RepeatItem<T>[],
-  { cols, repeats, minRowGap, padToFullRows = true, leadCell }: BuildOptions
+  { cols, repeats, minRowGap, padToFullRows = true, leadCell, minWideRowGap, maxWideColumnRun }: BuildOptions
 ): Plan<T> {
   const idOf = (it: RepeatItem<T>) => it.id ?? it.key;
   // A cell's footprint, as "rows x cols" — the key pieces are matched to
@@ -356,26 +370,123 @@ function planLayout<T>(
     return { rowSpan, colSpan };
   };
 
+  // Copies owed, per artwork. Usually the plain repeat count — but where
+  // wide cells are held apart (GRID-12) the grid only has room for so many,
+  // and planning the rest only to drop them would leave the square pieces
+  // packed tighter than the spacing rules allow. So the wide pieces' budget
+  // is cut to fit first, before any shapes are laid out.
+  const owed = items.map(it => repeatsOf(it, repeats));
+  const isWide = (it: RepeatItem<T>) => footprint(shapeOf(it)).colSpan > 1;
+  // Take `excess` copies back from the wide pieces among `owners` — evenly, a
+  // turn at a time from whichever is owed most, ties broken at random — so no
+  // one artist loses all their hero's appearances.
+  const trimWide = (owners: number[], excess: number) => {
+    while (excess > 0) {
+      const most = owners.reduce((a, b) => (owed[b] > owed[a] || (owed[b] === owed[a] && Math.random() < 0.5) ? b : a));
+      if (owed[most] === 0) break;
+      owed[most]--;
+      excess--;
+    }
+  };
+  const wideOwners = items.map((it, i) => (isWide(it) ? i : -1)).filter(i => i >= 0);
+  if (minWideRowGap && wideOwners.length > 0) {
+    const cellsOf = (i: number) => {
+      const { rowSpan, colSpan } = footprint(shapeOf(items[i]));
+      return rowSpan * colSpan;
+    };
+    const otherCells = items.reduce((n, it, i) => n + (isWide(it) ? 0 : owed[i] * cellsOf(i)), 0);
+    const wide = wideOwners.reduce((n, i) => n + owed[i], 0);
+    const room = (w: number) => {
+      // Rows the grid will run to with `w` wide cells (2 cells each, each in
+      // place of one ordinary cell — see below), and so how many wide cells
+      // fit one per `minWideRowGap` rows.
+      const cells = otherCells - w + w * 2 + (leadCell ? leadCell.rowSpan * leadCell.colSpan - 1 : 0);
+      return Math.floor(Math.ceil(cells / cols) / minWideRowGap);
+    };
+    let fit = wide;
+    while (fit > 0 && fit > room(fit)) fit--;
+    trimWide(wideOwners, wide - fit);
+    // A hero that is shown takes one of its own artist's turns rather than
+    // adding one: an extra turn would land between that artist's gallery
+    // pieces, which now come round sooner without the heroes' room, and sit
+    // them half as far apart as everyone else (GRID-5). So each hero turn
+    // kept costs that artist a gallery turn, from whichever piece has most.
+    for (const h of wideOwners) {
+      const mates = items.map((it, i) => (it.key === items[h].key && !isWide(it) ? i : -1)).filter(i => i >= 0);
+      for (let n = 0; n < owed[h] && mates.length > 0; n++) {
+        const most = mates.reduce((a, b) => (owed[b] > owed[a] || (owed[b] === owed[a] && Math.random() < 0.5) ? b : a));
+        if (owed[most] === 0) break;
+        owed[most]--;
+      }
+    }
+  }
+
   // ── Pass 1: geometry ──────────────────────────────────────────────────
-  // Which shapes exist is fixed by the pool; only their order varies, and
+  // Which shapes exist is fixed by the budget; only their order varies, and
   // that order alone decides where every row boundary falls.
   const shapeCounts = new Map<string, number>();
   let total = 0;
-  for (const it of items) {
-    const n = repeatsOf(it, repeats);
-    shapeCounts.set(shapeOf(it), (shapeCounts.get(shapeOf(it)) ?? 0) + n);
-    total += n;
-  }
+  items.forEach((it, i) => {
+    shapeCounts.set(shapeOf(it), (shapeCounts.get(shapeOf(it)) ?? 0) + owed[i]);
+    total += owed[i];
+  });
   const shapes = evenlySpreadShapes(shapeCounts, total);
+  // The lead cell draws a piece of whatever shape comes first and shows the
+  // caller's tile instead, so where wide cells are scarce don't spend one
+  // there — swap in the first ordinary shape.
+  if (leadCell && minWideRowGap && footprint(shapes[0] ?? '1x1').colSpan > 1) {
+    const k = shapes.findIndex(sh => footprint(sh).colSpan === 1);
+    if (k > 0) [shapes[0], shapes[k]] = [shapes[k], shapes[0]];
+  }
 
   const packer = new DensePacker(cols);
-  const slots: Slot[] = shapes.map((shape, i) => {
+  const slots: Slot[] = [];
+  // Wide cells placed so far, to hold them `minWideRowGap` apart (GRID-12)
+  // and keep their positions varied (GRID-13). Checked against all of them,
+  // in row order, not just the last placed: dense flow can drop a later cell
+  // back into an earlier row.
+  const wides: { row: number; side: string }[] = [];
+  const sideOf = (col: number, colSpan: number) => (col === 0 ? 'left' : col + colSpan === cols ? 'right' : 'middle');
+  const wideAllowed = (rowSpan: number, colSpan: number) => {
+    const { row, col } = packer.findCell(rowSpan, colSpan);
+    if (wides.some(w => Math.abs(w.row - row) < minWideRowGap!)) return null;
+    const side = sideOf(col, colSpan);
+    if (maxWideColumnRun) {
+      const order = [...wides, { row, side }].sort((a, b) => a.row - b.row);
+      let run = 0;
+      for (let k = 0; k < order.length; k++) {
+        run = k > 0 && order[k].side === order[k - 1].side ? run + 1 : 1;
+        if (run > maxWideColumnRun) return null;
+      }
+    }
+    return { row, side };
+  };
+  // Wide cells that couldn't go where the spread put them, waiting for the
+  // next spot that keeps the rules.
+  const waiting: string[] = [];
+  const tryWide = (shape: string) => {
+    const { rowSpan, colSpan } = footprint(shape);
+    const ok = wideAllowed(rowSpan, colSpan);
+    if (!ok) return false;
+    wides.push(ok);
+    slots.push({ rowSpan, colSpan, itemShape: shape, row: packer.place(rowSpan, colSpan) });
+    return true;
+  };
+  shapes.forEach((shape, i) => {
     // The caller renders the first tile specially (CityGrid's logo cell); it
     // still consumes one piece from the pool, so its item shape is whatever
     // the spread put first, but its footprint is the caller's.
-    const { rowSpan, colSpan } = i === 0 && leadCell ? leadCell : footprint(shape);
-    return { rowSpan, colSpan, itemShape: shape, row: packer.place(rowSpan, colSpan) };
+    const lead = i === 0 && !!leadCell;
+    const { rowSpan, colSpan } = lead ? leadCell! : footprint(shape);
+    if (!lead && colSpan > 1 && minWideRowGap) {
+      if (!tryWide(shape)) waiting.push(shape);
+      return;
+    }
+    if (waiting.length > 0 && tryWide(waiting[0])) waiting.shift();
+    slots.push({ rowSpan, colSpan, itemShape: shape, row: packer.place(rowSpan, colSpan) });
   });
+  // Any still waiting when the squares run out are left out: tacked on at
+  // the end they'd crowd the last rows, which is where the grid loops.
 
   // Top up until the bottom edge is flush. Padding slots are always 1x1 so
   // they drop into the holes larger cells left behind rather than opening new
@@ -399,10 +510,22 @@ function planLayout<T>(
   const blocksById = new Map<string, Block[]>();
   const blocksByKey = new Map<string, Block[]>();
 
-  // Copies still owed, per artwork and (summed) per artist.
-  const idLeft = items.map(it => repeatsOf(it, repeats));
+  // Copies still owed, per artwork and (summed) per artist. Any wide cells
+  // left out above are copies nobody can be given: take them back the same
+  // even way, or the scarcity tiebreak below would read an artist's
+  // unplaceable hero copies as owed and hand them extra square tiles.
+  {
+    // Every slot of a shape takes one copy — the lead cell included, which
+    // draws a piece of whatever shape the spread put first.
+    const slotsOf = (shape: string) => slots.filter(sl => sl.itemShape === shape).length;
+    for (const shape of new Set(wideOwners.map(i => shapeOf(items[i])))) {
+      const owners = wideOwners.filter(i => shapeOf(items[i]) === shape);
+      trimWide(owners, owners.reduce((n, i) => n + owed[i], 0) - slotsOf(shape));
+    }
+  }
+  const idLeft = owed;
   const keyLeft = new Map<string, number>();
-  for (const it of items) keyLeft.set(it.key, (keyLeft.get(it.key) ?? 0) + repeatsOf(it, repeats));
+  items.forEach((it, i) => keyLeft.set(it.key, (keyLeft.get(it.key) ?? 0) + idLeft[i]));
 
   const nearest = (placed: Block[] | undefined, block: Block): number => {
     if (!placed || placed.length === 0) return Infinity;
@@ -428,6 +551,18 @@ function planLayout<T>(
     return Math.max(1, Math.min(minRowGap, Math.floor(rowsLeft / Math.max(1, left))));
   };
 
+  /**
+   * The artist rule, unless the artist's own rhythm can't keep it: one owed
+   * ten turns in forty-five rows averages four and a half rows apart, and
+   * held to five early on they arrive at the last rows with turns still owed
+   * and nowhere left to put them but beside themselves. So hold them to
+   * their average. (A piece's few turns always fit; it keeps the rule.)
+   */
+  const comfortableGap = (left: number, row: number): number => {
+    const rowsLeft = Math.max(1, lastRow - row + 1);
+    return Math.max(1, Math.min(minRowGap, Math.round(rowsLeft / Math.max(1, left))));
+  };
+
   /** Placement penalty for showing item `i` in `block`. Lower is better. */
   const rankOf = (i: number, block: Block): number[] => {
     const it = items[i];
@@ -445,7 +580,7 @@ function planLayout<T>(
       // Then the rule itself, so a piece that could be given its four clear
       // rows still is, even where a tighter placement would be allowed.
       Math.max(0, minRowGap - distId),
-      Math.max(0, minRowGap - distKey),
+      Math.max(0, comfortableGap(keyLeft.get(it.key) ?? 1, block[0]) - distKey),
       // Then whoever is owed the most, which is a round-robin through the
       // roster in all but name: every artist holds the same budget, so the
       // one who has waited longest is the one with the most left. It is

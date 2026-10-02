@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import styles from './CityGrid.module.css';
 import { ArtworkTileImage } from './ArtworkTileImage';
 import { buildSpacedSequence, buildGridPool } from '@/lib/grid-sequence';
-import { GRID_REPEATS, GRID_MIN_ROW_GAP, CITY_LOGO_CELL } from '@/lib/grid-design';
+import { GRID_REPEATS, GRID_MIN_ROW_GAP, CITY_LOGO_CELL, GRID_WIDE_ROW_GAP, GRID_WIDE_COLUMN_RUN } from '@/lib/grid-design';
 import { LEGACY_GRID_OBJECT_POSITION, type Focal } from '@/lib/focal-style';
 
 export interface ArtistGridData {
@@ -78,7 +78,7 @@ function buildSequence(artists: ArtistGridData[], cols: number, filtered: boolea
           src: img.src,
           focal: img.focal,
           fallbackPosition: img.fallbackPosition ?? LEGACY_GRID_OBJECT_POSITION,
-          wide: img.isHero,
+                    wide: img.isHero,
           url: artist.url,
           name: artist.name,
         },
@@ -95,6 +95,12 @@ function buildSequence(artists: ArtistGridData[], cols: number, filtered: boolea
     // planner has to model that footprint or every row boundary after it
     // drifts from the one the browser actually lays out.
     leadCell: CITY_LOGO_CELL,
+    // At most one wide (hero) cell in any four rows; the rest are left out,
+    // so heroes come round less often than gallery pieces (GRID-12) — and
+    // never three in a row at the same position (GRID-13). Not in a
+    // filtered view, where every match must appear once (GRID-6).
+    minWideRowGap: filtered ? undefined : GRID_WIDE_ROW_GAP,
+    maxWideColumnRun: filtered ? undefined : GRID_WIDE_COLUMN_RUN,
   });
 }
 

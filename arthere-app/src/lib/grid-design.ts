@@ -41,5 +41,18 @@ export const GRID_MIN_ROW_GAP = 5;
 /** CityGrid renders sequence[0] as a 2-col x 2-row logo cell. */
 export const CITY_LOGO_CELL = { rowSpan: 2, colSpan: 2 } as const;
 
+/**
+ * Wide (hero) tiles sit at least this many rows apart in an ambient grid —
+ * at most one in any four rows (GRID-12). A hero cell that would land closer
+ * is left out, so heroes come round less often than gallery pieces.
+ */
+export const GRID_WIDE_ROW_GAP = 4;
+
+/**
+ * Wide tiles move around: never more than this many in a row, top to bottom,
+ * at the same position — left edge, right edge or in between (GRID-13).
+ */
+export const GRID_WIDE_COLUMN_RUN = 2;
+
 /** Column counts each grid renders at, narrow breakpoint first. */
 export const GRID_COLS = [3, 4] as const;
