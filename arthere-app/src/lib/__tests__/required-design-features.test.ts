@@ -1,5 +1,5 @@
 /**
- * REQUIRED DESIGN FEATURES — artwork & city grids (GRID-1 … GRID-7).
+ * REQUIRED DESIGN FEATURES — artwork & city grids (GRID-1 … GRID-11).
  *
  * See REQUIRED-DESIGN-FEATURES.md at the repo root. These rules have been
  * broken several times by changes that had nothing to do with layout (image
@@ -8,12 +8,13 @@
  *
  * It does NOT check `buildSpacedSequence` against its own idea of where
  * tiles land. It re-simulates the browser's `grid-auto-flow: row dense`
- * placement — row spans, the city page's 2-col x 2-row logo cell, and all —
+ * placement — heroes' 2-col cells, the city page's 2-col x 2-row logo cell, and all —
  * and asserts the rules against the rows that actually result.
  */
 import { describe, it, expect } from "vitest";
 import { buildSpacedSequence, buildGridPool, type RepeatItem, type PoolGroup } from "../grid-sequence";
 import { MAX_ARTWORK_IMAGES } from "../artist-options";
+import { coverWindow, heroTileWindow, HERO_HEADER_ASPECT } from "../hero-band";
 import {
   GRID_REPEATS,
   GRID_MIN_ROW_GAP,
@@ -24,11 +25,14 @@ import {
 interface Tile {
   artist: string;
   artwork: string;
-  tall: boolean;
+  /** An artist's hero — a 2-column cell (GRID-11). */
+  wide: boolean;
 }
 
 type Cell = Tile | "logo" | null;
 type Footprint = { rowSpan: number; colSpan: number };
+/** One tile as the browser places it: the rows it spans. */
+type Placement = { tile: Tile; top: number; bottom: number };
 
 /**
  * A city's artists, each with a hero plus some other pieces.
@@ -45,11 +49,12 @@ function city(artists: number, perArtist: number | ((a: number) => number)): Poo
     const n = typeof perArtist === "function" ? perArtist(a) : perArtist;
     const items = [];
     for (let i = 0; i < n; i++) {
-      const tall = i === 0; // the artist's hero
+      const wide = i === 0; // the artist's hero
       items.push({
         id: `artist-${a}/img-${i}`,
-        span: tall ? 2 : 1,
-        payload: { artist: `artist-${a}`, artwork: `artist-${a}/img-${i}`, tall },
+        span: 1,
+        colSpan: wide ? 2 : 1,
+        payload: { artist: `artist-${a}`, artwork: `artist-${a}/img-${i}`, wide },
       });
     }
     groups.push({ key: `artist-${a}`, items });
@@ -62,11 +67,15 @@ const lopsided = (median: number) => (a: number) =>
   a === 0 ? median * 2 : a === 1 ? median + 1 : a % 5 === 0 ? median - 1 : median;
 
 /**
- * Mirrors the browser: `grid-auto-flow: row dense`, one column per tile
- * except an optional leading cell that spans two of each.
+ * Mirrors the browser: `grid-auto-flow: row dense` — a hero two columns wide,
+ * everything else one, and an optional leading cell that spans two of each.
+ * Returns the cells and, separately, every tile placed, once each: a hero
+ * fills two cells of its row, and reading the cells back can't tell that
+ * apart from two copies of one piece side by side.
  */
-function layOut(sequence: Tile[], cols: number, lead?: Footprint): Cell[][] {
+function layOut(sequence: Tile[], cols: number, lead?: Footprint): { grid: Cell[][]; placements: Placement[] } {
   const grid: Cell[][] = [];
+  const placements: Placement[] = [];
   const ensure = (r: number) => {
     while (grid.length <= r) grid.push(new Array(cols).fill(null));
   };
@@ -80,6 +89,7 @@ function layOut(sequence: Tile[], cols: number, lead?: Footprint): Cell[][] {
         }
         if (!fits) continue;
         for (let k = 0; k < rowSpan; k++) for (let m = 0; m < colSpan; m++) grid[r + k][c + m] = fill;
+        if (fill !== "logo") placements.push({ tile: fill, top: r, bottom: r + rowSpan - 1 });
         return;
       }
     }
@@ -91,57 +101,33 @@ function layOut(sequence: Tile[], cols: number, lead?: Footprint): Cell[][] {
     put(lead.rowSpan, lead.colSpan, "logo");
     tiles = sequence.slice(1);
   }
-  for (const tile of tiles) put(tile.tall ? 2 : 1, 1, tile);
-  return grid;
+  for (const tile of tiles) put(1, tile.wide ? 2 : 1, tile);
+  return { grid, placements };
 }
 
-/** Rows in which some label appears twice — the never-allowed case. */
-function sameRowRepeats(grid: Cell[][], labelOf: (t: Tile) => string): number {
-  let bad = 0;
-  for (const row of grid) {
-    const labels = row.filter((c): c is Tile => c !== null && c !== "logo").map(labelOf);
-    if (new Set(labels).size !== labels.length) bad++;
+/** Rows in which some label appears on two different tiles — the never-allowed case. */
+function sameRowRepeats(placements: Placement[], labelOf: (t: Tile) => string): number {
+  const rows = new Map<number, string[]>();
+  for (const p of placements) {
+    for (let r = p.top; r <= p.bottom; r++) rows.set(r, [...(rows.get(r) ?? []), labelOf(p.tile)]);
   }
+  let bad = 0;
+  for (const labels of rows.values()) if (new Set(labels).size !== labels.length) bad++;
   return bad;
 }
 
-/**
- * Closest two appearances of any one label end up. Rows a single tall tile
- * occupies are one appearance, so they aren't counted as a repeat — but two
- * separate tiles landing on neighbouring rows are, which is the whole point.
- */
-function closestRepeat(grid: Cell[][], labelOf: (t: Tile) => string): number {
-  // Walked column by column, splitting each column into runs of one cell, so
-  // a tall tile is recognised as the single tile it is. Reading rows instead
-  // would have to guess whether two neighbouring rows are one tall tile or
-  // two separate ones — and it is exactly the second case these rules are
-  // about.
-  const placements = new Map<string, [number, number][]>();
-  for (let c = 0; c < (grid[0]?.length ?? 0); c++) {
-    let r = 0;
-    while (r < grid.length) {
-      const cell = grid[r][c];
-      if (cell === null || cell === "logo") {
-        r++;
-        continue;
-      }
-      let end = r;
-      while (end + 1 < grid.length && grid[end + 1][c] === cell) end++;
-      const label = labelOf(cell);
-      const list = placements.get(label) ?? [];
-      list.push([r, end]);
-      placements.set(label, list);
-      r = end + 1;
-    }
-  }
+/** Closest two separate tiles with one label end up, in rows (0 = sharing one). */
+function closestRepeat(placements: Placement[], labelOf: (t: Tile) => string): number {
+  const byLabel = new Map<string, Placement[]>();
+  for (const p of placements) byLabel.set(labelOf(p.tile), [...(byLabel.get(labelOf(p.tile)) ?? []), p]);
 
   let closest = Infinity;
-  for (const list of placements.values()) {
+  for (const list of byLabel.values()) {
     for (let i = 0; i < list.length; i++) {
       for (let j = i + 1; j < list.length; j++) {
-        const [aTop, aBottom] = list[i];
-        const [bTop, bBottom] = list[j];
-        const d = aTop > bBottom ? aTop - bBottom : bTop > aBottom ? bTop - aBottom : 0;
+        const a = list[i];
+        const b = list[j];
+        const d = a.top > b.bottom ? a.top - b.bottom : b.top > a.bottom ? b.top - a.bottom : 0;
         closest = Math.min(closest, d);
       }
     }
@@ -179,7 +165,7 @@ const SCENARIOS: Scenario[] = (() => {
           ? `${artists} artists x lopsided`
           : `${artists} artists x ${perArtist} pieces`;
 
-      // City page: full pool, heroes render tall, logo cell leads.
+      // City page: full pool, heroes render wide, logo cell leads.
       out.push({
         name: `CityGrid ${label}`,
         artists,
@@ -212,6 +198,7 @@ interface Sample {
   cols: number;
   sequence: Tile[];
   grid: Cell[][];
+  placements: Placement[];
 }
 
 const SAMPLES: Sample[] = (() => {
@@ -226,7 +213,7 @@ const SAMPLES: Sample[] = (() => {
           padToFullRows: scenario.padToFullRows,
           leadCell: scenario.lead,
         });
-        out.push({ scenario, cols, sequence, grid: layOut(sequence, cols, scenario.lead) });
+        out.push({ scenario, cols, sequence, ...layOut(sequence, cols, scenario.lead) });
       }
     }
   }
@@ -242,7 +229,7 @@ const where = (s: Sample) => `${s.scenario.name} @ ${s.cols} cols`;
  *
  * A city barely bigger than the grid is wide is a different case. With only
  * a handful of artists, "no artist twice in a row" already decides most of
- * who goes where, and every hero pins its artist across two rows on top of
+ * who goes where, and every hero takes two of a row's places on top of
  * that — so the artwork rule takes what is left and the honest guarantee
  * drops to the same-row one. Portland is well past this; a city on its first
  * few sign-ups is not.
@@ -294,8 +281,8 @@ function capacityGap(sample: Sample, labelOf: (t: Tile) => string): number {
   for (const row of sample.grid) {
     for (const cell of row) if (cell && cell !== "logo") counts.set(labelOf(cell), (counts.get(labelOf(cell)) ?? 0) + 1);
   }
-  // Cells, not tiles: a tall tile is counted twice above, which is right —
-  // it occupies two rows' worth of the room being divided up.
+  // Cells, not tiles: a hero is counted twice above, which is right — it
+  // takes two cells' worth of the room being divided up.
   const busiest = Math.max(1, ...counts.values());
   return Math.floor((sample.grid.length * sample.cols) / busiest / sample.cols);
 }
@@ -349,7 +336,7 @@ describe("REQUIRED DESIGN FEATURES — artwork & city grids", () => {
     for (const s of SAMPLES) {
       const distinct = distinctOf(s.scenario);
       if (distinct < s.cols) continue; // fewer pieces than columns — impossible
-      expect(sameRowRepeats(s.grid, t => t.artwork), where(s)).toBe(0);
+      expect(sameRowRepeats(s.placements, t => t.artwork), where(s)).toBe(0);
     }
   });
 
@@ -357,9 +344,9 @@ describe("REQUIRED DESIGN FEATURES — artwork & city grids", () => {
     for (const s of SAMPLES) {
       // Needs at least one artist more than the grid is wide: with exactly
       // `cols` artists, every row must contain every artist exactly once and
-      // a single tall cell is enough to make that impossible.
+      // a single hero's cell is enough to make that impossible.
       if (s.scenario.artists <= s.cols) continue;
-      expect(sameRowRepeats(s.grid, t => t.artist), where(s)).toBe(0);
+      expect(sameRowRepeats(s.placements, t => t.artist), where(s)).toBe(0);
     }
   });
 
@@ -370,7 +357,7 @@ describe("REQUIRED DESIGN FEATURES — artwork & city grids", () => {
         requiredArtworkGap(distinct, s.cols, s.scenario.artists),
         capacityGap(s, t => t.artwork)
       );
-      expect(closestRepeat(s.grid, t => t.artwork), where(s)).toBeGreaterThanOrEqual(want);
+      expect(closestRepeat(s.placements, t => t.artwork), where(s)).toBeGreaterThanOrEqual(want);
     }
   });
 
@@ -384,7 +371,7 @@ describe("REQUIRED DESIGN FEATURES — artwork & city grids", () => {
           // every row holds every artist and there is nothing to promise.
           (s.scenario.artists > s.cols ? 1 : 0)
         : Math.min(requiredArtistGap(s.scenario.artists, s.cols), capacityGap(s, t => t.artist));
-      expect(closestRepeat(s.grid, t => t.artist), where(s)).toBeGreaterThanOrEqual(want);
+      expect(closestRepeat(s.placements, t => t.artist), where(s)).toBeGreaterThanOrEqual(want);
     }
   });
 
@@ -415,7 +402,7 @@ describe("REQUIRED DESIGN FEATURES — artwork & city grids", () => {
     for (let a = 0; a < 6; a++) {
       const n = a === 0 ? 8 : 2; // one artist with far more work than the rest
       for (let i = 0; i < n; i++) {
-        pool.push({ key: `artist-${a}`, id: `art-${a}-${i}`, span: 1, payload: { artist: `artist-${a}`, artwork: `art-${a}-${i}`, tall: false } });
+        pool.push({ key: `artist-${a}`, id: `art-${a}-${i}`, span: 1, payload: { artist: `artist-${a}`, artwork: `art-${a}-${i}`, wide: false } });
       }
     }
     const leads = new Set<string>();
@@ -424,5 +411,22 @@ describe("REQUIRED DESIGN FEATURES — artwork & city grids", () => {
       leads.add(seq[0].artist);
     }
     expect(leads.size).toBeGreaterThan(1);
+  });
+
+  it("GRID-11: a hero takes a wide cell, framed by its profile header's band", () => {
+    // Heroes are planned as one row by two columns — the shape closest to the
+    // 21:9 header they're framed for. If CityGrid.module.css (.cellWide:
+    // grid-column span 2) stops matching, every row boundary drifts.
+    for (const s of SAMPLES) {
+      for (const p of s.placements) expect(p.bottom - p.top, where(s)).toBe(0);
+      const heroes = s.placements.filter((p) => p.tile.wide).length;
+      expect(heroes, where(s)).toBeGreaterThan(0);
+    }
+    // And the tile shows the header's band: same top, same bottom.
+    const focal = { x: 40, y: 70, scale: 1.3 };
+    const header = coverWindow(focal, 1.2, HERO_HEADER_ASPECT);
+    const tile = heroTileWindow(focal, 1.2, 2);
+    expect(tile.top).toBeCloseTo(header.top, 9);
+    expect(tile.top + tile.height).toBeCloseTo(header.top + header.height, 9);
   });
 });

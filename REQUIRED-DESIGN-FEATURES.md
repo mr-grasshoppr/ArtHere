@@ -38,7 +38,7 @@ the same thing twice in one glance.
 **Guarded by**
 [`arthere-app/src/lib/__tests__/required-design-features.test.ts`](arthere-app/src/lib/__tests__/required-design-features.test.ts),
 which re-simulates the browser's real `grid-auto-flow: row dense` placement —
-row spans, the city page's 2×2 logo cell and all — and asserts the rules
+heroes' 2-column cells, the city page's 2×2 logo cell and all — and asserts the rules
 against the rows that actually result. It does not take the planner's word
 for where anything lands.
 
@@ -56,6 +56,7 @@ for where anything lands.
 | **GRID-8** | The logo cell's artwork is **drawn at random** across artists — never defaulted to whoever has the most pieces. |
 | **GRID-10** | **No artist takes more of the grid than a full profile.** Each piece goes round `GRID_REPEATS` times, and a profile holds `MAX_ARTWORK_IMAGES` pieces, so a full profile's worth of turns is the ceiling — an older profile with more pieces shares those same turns across them. |
 | **GRID-9** | **A tile shows the artwork, not the mat.** When an image carries a white border (a photographed mat, scan margins, an export with a white frame), the tile crops tighter — to the piece — and the piece sits centred in the cell. |
+| **GRID-11** | **A hero is a wide tile framed by its header.** An artist's hero image takes a **2 cols × 1 row** cell, and the tile shows exactly the vertical band the 21:9 profile header shows — the header's top and bottom are the tile's top and bottom — centred across on the header's centre. |
 
 ### No artist takes more of the grid than a full profile (GRID-10)
 
@@ -174,6 +175,11 @@ Every one of these was a real regression:
 - **Shuffling the row-spans.** A plain shuffle regularly drops a knot of tall
   cells into the last rows, where too few distinct pieces remain to fill
   them. Spans are now spread evenly through the sequence.
+- **Too few planning attempts for a small city.** The planner keeps the best
+  of several layouts. At 24 attempts, a dozen artists on a 3-column grid drew
+  a layout with an artist two rows from themselves about 1 visit in 20 — the
+  GRID-5 test failed intermittently. Pools of up to 150 tiles now get 64
+  attempts (~50ms), and that case holds four rows in 600 of 600 layouts.
 
 ### Crop white borders out of artwork tiles (GRID-9)
 
@@ -204,6 +210,35 @@ there is a white background around a piece of art, the tile crops tighter.
   the backfill with `--force` for that image.
 - Only white/near-white borders are trimmed. A dark or coloured border is
   part of the picture until someone says otherwise.
+
+### Heroes are wide tiles, framed by their header (GRID-11)
+
+A hero is framed for the profile header — a wide 21:9 strip — so its focal
+point and zoom are tuned for that strip. Reused in a squarer or taller tile,
+the same framing shows far more above and below than the header does: the
+paper margin, the wall, the mat. So a hero's tile takes its top and bottom
+from the header. Heroes used to be tall cells (1 col × 2 rows); framed this
+way a tall cell had to magnify a thin vertical slice several times over, so
+they are wide cells now — the grid shape nearest the header.
+
+**Implemented by**
+- [`arthere-app/src/lib/hero-band.ts`](arthere-app/src/lib/hero-band.ts) —
+  the band the header shows (`coverWindow` at 21:9) and the window a tile of
+  any shape shows of it (`heroTileWindow`).
+- [`arthere-app/src/components/ArtworkTileImage.tsx`](arthere-app/src/components/ArtworkTileImage.tsx)
+  — the tile image shared by the grid and the map tab's region panel, so the
+  two frame every piece identically. Non-hero pieces keep `focalStyle`.
+- [`arthere-app/src/components/CityGrid.tsx`](arthere-app/src/components/CityGrid.tsx)
+  and `CityGrid.module.css` (`.cellWide`) — the 2-column hero cell, planned
+  as `colSpan: 2` by `grid-sequence.ts`.
+
+**Rules of thumb**
+- The header's shape is the one the admin framing editor previews (21:9),
+  not whatever the browser window makes it — that is the framing an admin
+  actually chose.
+- If a narrow image can't show the whole band at the tile's shape, the band
+  is trimmed evenly top and bottom rather than distorted or letterboxed.
+- A hero with no stored framing is centred, as the header centres it.
 
 ### If you change any of this
 

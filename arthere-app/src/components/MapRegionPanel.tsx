@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import type { MapArtist } from '@/lib/map-data';
 import { mixByArtist } from '@/lib/mix-by-artist';
-import { focalStyle } from '@/lib/focal-style';
+import { ArtworkTileImage } from '@/components/ArtworkTileImage';
 
 type Tab = 'artists' | 'artwork';
 
@@ -174,14 +174,16 @@ export function MapRegionPanel({
                     title={img.artist.name}
                     className="relative block h-full w-full rounded-sm overflow-hidden bg-[#1a1a1a]"
                   >
-                    <Image
+                    <ArtworkTileImage
                       src={img.url}
                       alt={img.alt}
-                      fill
                       sizes="(min-width: 768px) 110px, 160px"
                       className="object-cover"
-                      // Same framing as the artwork grid and the artist's gallery.
-                      style={focalStyle(img.focal, img.fallbackPosition)}
+                      // Framed exactly as on the artwork grid (a hero by its
+                      // header band, GRID-11).
+                      focal={img.focal}
+                      fallbackPosition={img.fallbackPosition}
+                      isHero={img.isHero}
                     />
                   </Link>
                 </li>

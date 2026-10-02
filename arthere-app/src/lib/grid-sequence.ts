@@ -11,7 +11,7 @@ import { artistAppearanceBudget } from './grid-design';
 // the guarantees regress. Do not weaken either file without the same care.
 //
 // Both grids are CSS `grid-auto-flow: row dense` with some cells spanning two
-// rows (and, on city pages, one cell spanning two columns as well), so a
+// columns (heroes) and, on city pages, one lead cell spanning two of each, so a
 // sequence index says very little about where a tile actually lands. This
 // builder therefore *simulates* that placement as it goes and enforces
 // spacing against the resulting geometry, rather than against a
@@ -32,8 +32,10 @@ export interface RepeatItem<T> {
    */
   id?: string;
   payload: T;
-  /** Rows this tile occupies — 2 for a "tall" cell, otherwise 1. */
+  /** Rows this tile occupies (default 1). */
   span?: number;
+  /** Columns this tile occupies (default 1) — 2 for a hero's wide cell. */
+  colSpan?: number;
   /**
    * How many times this piece appears, overriding `BuildOptions.repeats`.
    *
@@ -152,7 +154,7 @@ export function spreadAppearances(pieces: number, total: number): number[] {
 export interface PoolGroup<T> {
   /** The artist — the identity two tiles must not share a row with. */
   key: string;
-  items: { id: string; span?: number; payload: T }[];
+  items: { id: string; span?: number; colSpan?: number; payload: T }[];
 }
 
 /**
@@ -182,6 +184,7 @@ export function buildGridPool<T>(groups: PoolGroup<T>[], filtered: boolean): Rep
       key: group.key,
       id: item.id,
       span: item.span,
+      colSpan: item.colSpan,
       repeats: filtered ? 1 : share[i],
       payload: item.payload,
     }));
@@ -202,25 +205,25 @@ function rankCompare(a: number[], b: number[]): number {
 }
 
 /**
- * Orders the pool's row-spans so each height is spread evenly through the
+ * Orders the pool's cell shapes so each is spread evenly through the
  * sequence rather than clustered — a plain shuffle regularly drops a knot of
- * tall cells into the last few rows, and once the grid is down to a handful
- * of tall pieces those slots have no choice but to repeat one on top of
- * another. Evenly spread, the same number of tall cells is always in reach
- * of enough distinct pieces to fill them.
+ * hero cells into the last few rows, and once the grid is down to a handful
+ * of heroes those slots have no choice but to repeat one beside another.
+ * Evenly spread, the same number of hero cells is always in reach of enough
+ * distinct pieces to fill them.
  *
  * Each height accrues credit at its share of the pool and the largest
  * outstanding credit takes the next slot (the usual smooth-scheduling
  * construction). The starting credit is random, so the pattern's phase still
  * differs on every visit.
  */
-function evenlySpreadSpans(counts: Map<number, number>, total: number): number[] {
+function evenlySpreadShapes<K>(counts: Map<K, number>, total: number): K[] {
   const kinds = [...counts.keys()];
   const left = kinds.map(k => counts.get(k)!);
   const rate = kinds.map(k => counts.get(k)! / total);
   const credit = kinds.map(() => Math.random());
 
-  const order: number[] = [];
+  const order: K[] = [];
   for (let i = 0; i < total; i++) {
     let best = -1;
     for (let j = 0; j < kinds.length; j++) {
@@ -239,8 +242,8 @@ function evenlySpreadSpans(counts: Map<number, number>, total: number): number[]
 interface Slot {
   rowSpan: number;
   colSpan: number;
-  /** Span an item must have to be allowed here — tall art needs a tall cell. */
-  itemSpan: number;
+  /** Shape an item must have to be allowed here — a hero needs a hero's cell. */
+  itemShape: string;
   row: number;
 }
 
@@ -269,13 +272,16 @@ interface Plan<T> {
  * Re-planning fixes the greedy's weak spot — the last rows, where whatever
  * is left over has to go somewhere — and best-of-16 is measurably tighter
  * than best-of-1 on the small pools where that bites; a young city (a dozen
- * artists) gets 64, which buys it another row of separation at ~20ms. But planning is
+ * artists) gets 64, which buys it another row of separation at ~50ms. Fewer
+ * isn't enough: at 24, a dozen artists on a 3-column grid still drew a layout
+ * with an artist two rows from themselves in about 1 in 20 visits (the GRID-5
+ * test caught it intermittently), and at 40 about 1 in 300. But planning is
  * quadratic in pool size, so a big city would pay ~200ms on mount for
  * attempts it doesn't need: with hundreds of distinct pieces the rules are
  * satisfied comfortably on the first try. Scale the effort to the pool.
  */
 function planAttempts(tiles: number): number {
-  if (tiles <= 150) return 24;
+  if (tiles <= 150) return 64;
   if (tiles <= 400) return 16;
   if (tiles <= 1000) return 4;
   return 2;
@@ -327,7 +333,7 @@ export function buildSpacedSequence<T>(items: RepeatItem<T>[], options: BuildOpt
  * One candidate layout, in two passes.
  *
  * The first lays out *geometry* only: the pool fixes the multiset of
- * row-spans, `evenlySpreadSpans` fixes their order, and dense packing turns
+ * cell shapes, `evenlySpreadShapes` fixes their order, and dense packing turns
  * that into slots with known rows. The second walks those slots **in row
  * order** and decides which artwork each one shows.
  *
@@ -341,32 +347,38 @@ function planLayout<T>(
   { cols, repeats, minRowGap, padToFullRows = true, leadCell }: BuildOptions
 ): Plan<T> {
   const idOf = (it: RepeatItem<T>) => it.id ?? it.key;
-  const spanOf = (it: RepeatItem<T>) => Math.max(1, it.span ?? 1);
+  // A cell's footprint, as "rows x cols" — the key pieces are matched to
+  // slots by. Never wider than the grid.
+  const shapeOf = (it: RepeatItem<T>) =>
+    `${Math.max(1, it.span ?? 1)}x${Math.min(cols, Math.max(1, it.colSpan ?? 1))}`;
+  const footprint = (shape: string) => {
+    const [rowSpan, colSpan] = shape.split('x').map(Number);
+    return { rowSpan, colSpan };
+  };
 
   // ── Pass 1: geometry ──────────────────────────────────────────────────
-  // Which spans exist is fixed by the pool; only their order varies, and
+  // Which shapes exist is fixed by the pool; only their order varies, and
   // that order alone decides where every row boundary falls.
-  const spanCounts = new Map<number, number>();
+  const shapeCounts = new Map<string, number>();
   let total = 0;
   for (const it of items) {
     const n = repeatsOf(it, repeats);
-    spanCounts.set(spanOf(it), (spanCounts.get(spanOf(it)) ?? 0) + n);
+    shapeCounts.set(shapeOf(it), (shapeCounts.get(shapeOf(it)) ?? 0) + n);
     total += n;
   }
-  const spans = evenlySpreadSpans(spanCounts, total);
+  const shapes = evenlySpreadShapes(shapeCounts, total);
 
   const packer = new DensePacker(cols);
-  const slots: Slot[] = spans.map((span, i) => {
+  const slots: Slot[] = shapes.map((shape, i) => {
     // The caller renders the first tile specially (CityGrid's logo cell); it
-    // still consumes one piece from the pool, so its item span is whatever
+    // still consumes one piece from the pool, so its item shape is whatever
     // the spread put first, but its footprint is the caller's.
-    const rowSpan = i === 0 && leadCell ? leadCell.rowSpan : span;
-    const colSpan = i === 0 && leadCell ? leadCell.colSpan : 1;
-    return { rowSpan, colSpan, itemSpan: span, row: packer.place(rowSpan, colSpan) };
+    const { rowSpan, colSpan } = i === 0 && leadCell ? leadCell : footprint(shape);
+    return { rowSpan, colSpan, itemShape: shape, row: packer.place(rowSpan, colSpan) };
   });
 
-  // Top up until the bottom edge is flush. Padding slots are always span-1 so
-  // they drop into the holes tall cells left behind rather than opening new
+  // Top up until the bottom edge is flush. Padding slots are always 1x1 so
+  // they drop into the holes larger cells left behind rather than opening new
   // ones — which also means they can't move any slot already placed.
   const padFrom = slots.length;
   if (padToFullRows) {
@@ -374,7 +386,7 @@ function planLayout<T>(
     // guard only protects against a pathological input.
     let guard = packer.holeCount() + cols;
     while (packer.holeCount() > 0 && guard-- > 0) {
-      slots.push({ rowSpan: 1, colSpan: 1, itemSpan: 1, row: packer.place(1, 1) });
+      slots.push({ rowSpan: 1, colSpan: 1, itemShape: '1x1', row: packer.place(1, 1) });
     }
   }
 
@@ -468,10 +480,10 @@ function planLayout<T>(
     return best;
   };
 
-  // Only pad with pieces that are naturally span-1: reusing a tall piece's
-  // payload would render as a 2-row cell no matter what span the slot plans
-  // for it, punching the hole straight back open.
-  const shortItems = items.map((it, i) => (spanOf(it) === 1 ? i : -1)).filter(i => i >= 0);
+  // Only pad with pieces that are naturally 1x1: reusing a hero's payload
+  // would render as a hero's cell no matter what shape the slot plans for
+  // it, punching the hole straight back open.
+  const shortItems = items.map((it, i) => (shapeOf(it) === '1x1' ? i : -1)).filter(i => i >= 0);
   const padPool = new Set(shortItems.length > 0 ? shortItems : items.map((_, i) => i));
 
   const sequence: T[] = new Array(slots.length);
@@ -496,7 +508,7 @@ function planLayout<T>(
     const uniform = s === 0 && !!leadCell;
     let i = pad
       ? choose(j => padPool.has(j), block)
-      : choose(j => idLeft[j] > 0 && spanOf(items[j]) === slot.itemSpan, block, uniform);
+      : choose(j => idLeft[j] > 0 && shapeOf(items[j]) === slot.itemShape, block, uniform);
     // The budget is a preference; the spacing rules are the rules. Towards
     // the end of a grid the pieces still owed are whatever drained slowest —
     // often one artist's, and for tall slots often one artist's hero — and
@@ -508,16 +520,16 @@ function planLayout<T>(
     // match twice would drop another one entirely (GRID-6). An ambient grid
     // is texture, and can afford one extra turn for a piece.
     if (!pad && !uniform && padToFullRows && i !== -1) {
-      const spare = choose(j => spanOf(items[j]) === slot.itemSpan, block);
+      const spare = choose(j => shapeOf(items[j]) === slot.itemShape, block);
       if (spare !== -1 && rankCompare(rankOf(spare, block).slice(0, 4), rankOf(i, block).slice(0, 4)) < 0) {
         i = spare;
       }
     }
-    // Only reachable with a degenerate pool (e.g. every piece is tall, so a
-    // padding slot has no short piece to draw). Matching the span still comes
-    // first: a mismatch here would render at the wrong height and shift every
-    // tile below it off its planned row.
-    if (i === -1) i = choose(j => spanOf(items[j]) === slot.itemSpan, block);
+    // Only reachable with a degenerate pool (e.g. every piece is a hero, so a
+    // padding slot has no 1x1 piece to draw). Matching the shape still comes
+    // first: a mismatch here would render at the wrong size and shift every
+    // tile after it off its planned place.
+    if (i === -1) i = choose(j => shapeOf(items[j]) === slot.itemShape, block);
     if (i === -1) i = choose(() => true, block);
 
     const it = items[i];
@@ -561,7 +573,7 @@ function planLayout<T>(
  * artist's work, a row can end up with two of their pieces side by side.
  * Rather than accept it, trade that tile with one from a row far enough away
  * that neither row ends up worse — a swap costs nothing, because both slots
- * are the same height and the pool is unchanged.
+ * are the same shape and the pool is unchanged.
  */
 function repairSharedRows<T>(
   slots: Slot[],
@@ -598,7 +610,7 @@ function repairSharedRows<T>(
   for (let i = 0; i < slots.length; i++) {
     if (!clashes(i, chosen[i], -1)) continue;
     for (let j = 0; j < slots.length; j++) {
-      if (j === i || slots[j].itemSpan !== slots[i].itemSpan) continue;
+      if (j === i || slots[j].itemShape !== slots[i].itemShape) continue;
       // Far enough apart that the swap cannot create a near-repeat of its own.
       if (Math.abs(slots[j].row - slots[i].row) < minRowGap) continue;
       if (clashes(i, chosen[j], j) || clashes(j, chosen[i], i)) continue;

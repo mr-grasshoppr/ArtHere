@@ -21,7 +21,7 @@
   right: 0;
   display: grid;
   /* Dense packing backfills the gaps sparse auto-placement leaves around the
-     row-spanning logo cell and "tall" cells, instead of leaving empty (black)
+     2x2 logo cell and 2-column hero cells, instead of leaving empty (black)
      cells wherever a span couldn't be placed in its natural slot. */
   grid-auto-flow: row dense;
   will-change: transform;
@@ -53,8 +53,11 @@
   display: block;
 }
 
-.cellTall {
-  grid-row: span 2;
+/* A hero: two columns across, one row high — the shape nearest its 21:9
+   profile header (GRID-11). Planned as 1x2 by lib/grid-sequence.ts; change
+   one and the other must follow. */
+.cellWide {
+  grid-column: span 2;
 }
 
 .cellClickable {

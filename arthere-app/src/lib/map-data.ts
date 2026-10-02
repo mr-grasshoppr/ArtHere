@@ -42,7 +42,7 @@ export interface MapArtist {
   /** Every region they count toward — neighborhood(s), quadrant, or city. */
   regionIds: string[];
   /** Framed exactly as on the artwork grid: its stored focal, else the grid's fallback. */
-  artwork: { url: string; alt: string; focal: Focal | null; fallbackPosition: string }[];
+  artwork: { url: string; alt: string; focal: Focal | null; fallbackPosition: string; isHero: boolean }[];
 }
 
 export interface GeoMapData {
@@ -87,6 +87,7 @@ export async function toMapArtists(slug: string, artists: ArtistRow[]): Promise<
       alt: img.altText ?? `Artwork by ${a.name}`,
       focal: focals.get(img.url) ?? null,
       fallbackPosition: gridFallbackFor(img.uploadedAt),
+      isHero: img.isHero,
     })),
   }));
 }

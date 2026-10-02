@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
-import Image from 'next/image';
 import styles from './CityGrid.module.css';
+import { ArtworkTileImage } from './ArtworkTileImage';
 import { buildSpacedSequence, buildGridPool } from '@/lib/grid-sequence';
 import { GRID_REPEATS, GRID_MIN_ROW_GAP, CITY_LOGO_CELL } from '@/lib/grid-design';
-import { focalStyle, LEGACY_GRID_OBJECT_POSITION, type Focal } from '@/lib/focal-style';
+import { LEGACY_GRID_OBJECT_POSITION, type Focal } from '@/lib/focal-style';
 
 export interface ArtistGridData {
   url: string;   // e.g. /artists/kurtis-piltz
@@ -52,7 +52,8 @@ interface SequenceItem {
   focal?: Focal | null;
   /** Framing to use when this piece has no focal of its own. */
   fallbackPosition: string;
-  tall: boolean;
+  /** An artist's hero — a 2-column cell, framed by its header band (GRID-11). */
+  wide: boolean;
   url: string;
   name: string;
 }
@@ -68,14 +69,16 @@ function buildSequence(artists: ArtistGridData[], cols: number, filtered: boolea
       key: artist.url,
       items: artist.images.map(img => ({
         id: img.src,
-        // Hero images render as tall (2-row) cells; the planner needs the
-        // span so its spacing is measured against real placement.
-        span: img.isHero ? 2 : 1,
+        // Hero images render as wide (2-column) cells — the shape nearest
+        // the 21:9 header they're framed for (GRID-11). The planner needs
+        // the footprint so its spacing is measured against real placement.
+        span: 1,
+        colSpan: img.isHero ? 2 : 1,
         payload: {
           src: img.src,
           focal: img.focal,
           fallbackPosition: img.fallbackPosition ?? LEGACY_GRID_OBJECT_POSITION,
-          tall: img.isHero,
+          wide: img.isHero,
           url: artist.url,
           name: artist.name,
         },
@@ -247,9 +250,9 @@ export function CityGrid({ artists, overlayImageUrl, maskImageUrl, onFrozenChang
     return { dist: `-${dist}px`, dur: `${totalRows * 5}s` };
   }, [layout]);
 
-  // Tall flags are left exactly as planned: the sequence builder simulates
-  // grid placement using these spans, so demoting one here would shift every
-  // following tile off the rows its spacing was calculated against.
+  // Wide flags are left exactly as planned: the sequence builder simulates
+  // grid placement using these footprints, so demoting one here would shift
+  // every following tile off the rows its spacing was calculated against.
   const cells = useMemo(() => (layout ? layout.sequence.slice(1) : []), [layout]);
 
   if (!layout || layout.sequence.length === 0) {
@@ -305,16 +308,14 @@ export function CityGrid({ artists, overlayImageUrl, maskImageUrl, onFrozenChang
             // optimised copy on the CDN, and hands the browser something
             // sized for the cell instead of for print.
             const cellContent = (
-              <Image
+              <ArtworkTileImage
                 src={item.src}
                 alt=""
-                fill
-                // A tall cell is one column wide but two rows high, and
-                // object-cover scales a landscape source to fill that height —
-                // so it needs roughly twice the pixels across that a square
-                // cell does. Reporting the plain column width here left tall
-                // tiles visibly soft.
-                sizes={`${Math.round(layout.col * (item.tall ? 2 : 1))}px`}
+                // A wide cell is two columns across, so it needs twice the
+                // pixels a plain cell does (a hero then asks for more still —
+                // see ArtworkTileImage). Reporting the plain column width here
+                // left large tiles visibly soft.
+                sizes={`${Math.round(item.wide ? layout.col * 2 + GAP : layout.col)}px`}
                 quality={75}
                 // Only the first couple of rows are on screen at load; the
                 // rest stream in as the grid scrolls them into view.
@@ -323,12 +324,15 @@ export function CityGrid({ artists, overlayImageUrl, maskImageUrl, onFrozenChang
                 // A tile that crops differently from the page it links to
                 // reads as a different photograph — though pieces that were
                 // already on the grid keep the framing they have today (see
-                // gridFallbackFor).
-                style={focalStyle(item.focal, item.fallbackPosition)}
+                // gridFallbackFor). A hero (the wide cell) is framed by its
+                // profile header's band instead (GRID-11).
+                focal={item.focal}
+                fallbackPosition={item.fallbackPosition}
+                isHero={item.wide}
               />
             );
-            const className = `${styles.cell}${item.tall ? ` ${styles.cellTall}` : ''}${frozen ? ` ${styles.cellClickable}` : ''}`;
-            const height = item.tall ? layout.row * 2 + GAP : layout.row;
+            const className = `${styles.cell}${item.wide ? ` ${styles.cellWide}` : ''}${frozen ? ` ${styles.cellClickable}` : ''}`;
+            const height = layout.row;
             return frozen ? (
               <a key={i} href={item.url} className={className} style={{ height }} onClick={e => e.stopPropagation()}>
                 {cellContent}
