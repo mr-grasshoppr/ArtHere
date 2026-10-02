@@ -2,24 +2,40 @@ import { prisma } from "@/lib/db";
 import { detectFocalPoint } from "@/lib/claude";
 import type { CSSProperties } from "react";
 import { focalStyle, type Focal } from "@/lib/focal-style";
+import { detectBorderFocal } from "@/lib/image-border";
 
 export type { Focal };
 export { focalStyle };
 
-// Compute an image's focal point via the vision model and store it, keyed by
-// URL. Best-effort — a failure is logged and swallowed so it never breaks the
-// upload it's attached to. Skips URLs we've already analyzed (including ones a
-// human has manually framed — auto-detection never overwrites a manual edit).
+// Work out how an image should be framed: the vision model picks the point to
+// keep in frame, then, if the image carries a white border (a photographed
+// mat, scan margins), that border is cropped away by zooming in on the content
+// — the vision point still steers any axis that has no border to trim.
+// Returns null when neither step produced anything.
+export async function detectFocus(url: string): Promise<Focal | null> {
+  const vision = await detectFocalPoint(url);
+  const trimmed = await detectBorderFocal(url, vision ?? undefined).catch((err) => {
+    console.error("[focal] border detection failed for", url, err);
+    return null;
+  });
+  if (trimmed) return trimmed;
+  return vision ? { ...vision, scale: 1 } : null;
+}
+
+// Compute an image's focal point and store it, keyed by URL. Best-effort — a
+// failure is logged and swallowed so it never breaks the upload it's attached
+// to. Skips URLs we've already analyzed (including ones a human has manually
+// framed — auto-detection never overwrites a manual edit).
 export async function computeAndStoreFocus(url: string): Promise<void> {
   try {
     const existing = await prisma.imageFocus.findUnique({ where: { url }, select: { url: true } });
     if (existing) return;
-    const focal = await detectFocalPoint(url);
+    const focal = await detectFocus(url);
     if (!focal) return;
     await prisma.imageFocus.upsert({
       where: { url },
-      create: { url, x: focal.x, y: focal.y },
-      update: { x: focal.x, y: focal.y },
+      create: { url, x: focal.x, y: focal.y, scale: focal.scale },
+      update: { x: focal.x, y: focal.y, scale: focal.scale },
     });
   } catch (err) {
     console.error("[focal] computeAndStoreFocus failed for", url, err);

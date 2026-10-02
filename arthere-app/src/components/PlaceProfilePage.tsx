@@ -1,3 +1,4 @@
+import { DEFAULT_OBJECT_POSITION } from '@/lib/focal-style';
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
 import type { Place, ArtistPlace, Artist, PlaceLink } from '@prisma/client';
@@ -34,7 +35,7 @@ interface Props {
 export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, preview }: Props) {
   const metaParts = [place.neighborhood].filter(Boolean) as string[];
   // Auto-detected focal point per image, falling back to center.
-  const styleOf = (url: string, fallback: CSSProperties = { objectPosition: '50% 50%' }) =>
+  const styleOf = (url: string, fallback: CSSProperties = { objectPosition: DEFAULT_OBJECT_POSITION }) =>
     focals?.get(url) ?? fallback;
 
   const artistHref = (slug: string) =>

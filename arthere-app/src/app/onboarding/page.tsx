@@ -44,6 +44,7 @@ export default async function OnboardingPage() {
     lastName: a.lastName ?? "",
     medium: a.medium ?? "",
     neighborhood: a.neighborhood ?? "",
+    showOnMap: a.showOnMap,
     bio: a.bio ?? "",
     quote: a.quote ?? "",
     otherConnections: a.otherConnections.map((c) => ({ name: c.name, relationship: c.relationship, relationshipLabel: c.relationshipLabel ?? undefined })),

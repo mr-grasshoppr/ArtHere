@@ -13,6 +13,8 @@ interface Props {
   neighborhoodOptions: string[];
   /** Optional area grouping for the neighborhood menu. */
   neighborhoodGroups?: OptionGroup[];
+  /** Neighborhoods pre-selected from ?neighborhood= (the map tab links here). */
+  initialNeighborhoods?: string[];
   communityOptions: string[];
   communityGroups?: OptionGroup[];
 }
@@ -25,9 +27,9 @@ type DropdownKey = 'medium' | 'neighborhood' | 'community';
  * free-text search that used to sit beside them was removed (it wasn't
  * working); /api/artists/search still exists if it comes back.
  */
-export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOptions, neighborhoodGroups, communityOptions, communityGroups }: Props) {
+export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOptions, neighborhoodGroups, initialNeighborhoods, communityOptions, communityGroups }: Props) {
   const [mediumFilter, setMediumFilter] = useState('');
-  const [neighborhoodFilter, setNeighborhoodFilter] = useState<string[]>([]);
+  const [neighborhoodFilter, setNeighborhoodFilter] = useState<string[]>(initialNeighborhoods ?? []);
   const [communityFilter, setCommunityFilter] = useState<string[]>([]);
   const [openDropdown, setOpenDropdown] = useState<DropdownKey | null>(null);
 

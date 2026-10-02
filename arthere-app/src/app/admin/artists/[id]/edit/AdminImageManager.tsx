@@ -163,7 +163,12 @@ export default function AdminImageManager({
     <div className="space-y-6">
       {/* Bio photo */}
       <div>
-        <h3 className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-3">Bio Photo</h3>
+        <h3 className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-3">
+          Bio Photo
+          <span className="ml-2 text-[9px] font-normal normal-case text-[#00805a] bg-[#00ae7a]/10 px-1.5 py-0.5 rounded-full align-middle">
+            artist-editable
+          </span>
+        </h3>
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-full overflow-hidden bg-[#f0f0f0] flex-shrink-0">
             {bioPhotoUrl ? (
@@ -206,9 +211,16 @@ export default function AdminImageManager({
 
       {/* Artwork images */}
       <div>
-        <h3 className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-3">
+        <h3 className="text-xs font-semibold text-[#888] uppercase tracking-wide">
           Artwork Images ({images.length})
+          <span className="ml-2 text-[9px] font-normal normal-case text-[#00805a] bg-[#00ae7a]/10 px-1.5 py-0.5 rounded-full align-middle">
+            artist-editable
+          </span>
         </h3>
+        <p className="text-[11px] text-[#bbb] mb-3">
+          Top-right badge on each tile shows who added it. Artists can upload here too — an image
+          tagged &ldquo;unknown&rdquo; was uploaded before this was tracked.
+        </p>
 
         {images.length > 0 && (
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-3">
@@ -230,12 +242,16 @@ export default function AdminImageManager({
                   </div>
                 )}
 
-                {/* Who uploaded this — admin vs. the artist themselves */}
-                {img.uploadedBy && (
-                  <div className="absolute top-1 right-1 text-[9px] bg-black/45 text-white px-1.5 py-0.5 rounded">
-                    {img.uploadedBy}
-                  </div>
-                )}
+                {/* Who uploaded this — admin vs. the artist themselves. Images
+                    from before this field existed show "unknown" rather than
+                    nothing, so a blank badge doesn't read as "not tracked". */}
+                <div
+                  className={`absolute top-1 right-1 text-[9px] px-1.5 py-0.5 rounded ${
+                    img.uploadedBy ? "bg-black/45 text-white" : "bg-black/25 text-white/70 italic"
+                  }`}
+                >
+                  {img.uploadedBy ?? "unknown"}
+                </div>
 
                 {/* Hover actions */}
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1.5 p-2">

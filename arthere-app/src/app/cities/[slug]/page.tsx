@@ -7,8 +7,17 @@ import type { Metadata } from 'next';
 import { NavBar } from '@/components/NavBar';
 import { CityArtworkView, type ArtworkArtistData } from '@/components/CityArtworkView';
 import { getFocals } from '@/lib/image-focus';
+import { visibleArtworkImages } from '@/lib/artist-images';
+import { gridFallbackFor } from '@/lib/focal-style';
 import { cityNavFor } from '@/lib/city-nav';
 import { parseNeighborhoodList, getGroupedNeighborhoods, groupPlacesByArea, isCityLevelNeighborhood } from '@/lib/neighborhoods';
+
+// The one page in the city that had no revalidate, so it was built once and
+// served from that build until the next deploy: an artist could adjust their
+// framing, see it take on their profile (revalidate = 30, like every other
+// page here) and still find the old crop on the artwork grid. 30s matches
+// its siblings.
+export const revalidate = 30;
 
 export async function generateStaticParams() {
   return safeStaticParams(async () => {
@@ -74,7 +83,13 @@ export default async function CityPage({
       communities: artist.placeRelations
         .map(r => (r.place && r.place.inDirectory && !r.place.isArchived ? r.place.name : null))
         .filter((n): n is string => !!n),
-      images: artist.artworkImages.map(img => ({
+      // Only the pieces the artist's own page shows — a grid tile that
+      // leads to a profile without that piece on it reads as a mistake.
+      images: visibleArtworkImages(artist.artworkImages).map(img => ({
+        // Pieces uploaded from the cutoff on frame the same way here as on
+        // the artist's own page; the ones that were already on the grid keep
+        // the framing they have today, until someone adjusts them.
+        fallbackPosition: gridFallbackFor(img.uploadedAt),
         src: img.url,
         focal: focals.get(img.url) ?? null,
         alt: img.altText ?? `Artwork by ${artist.name}`,

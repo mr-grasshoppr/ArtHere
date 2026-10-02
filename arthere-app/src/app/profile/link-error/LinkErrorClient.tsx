@@ -1,11 +1,16 @@
 "use client";
 
-import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+import type { CSSProperties } from 'react';
+import { AnimatedLogoMask, type LogoSlideData } from '@/components/AnimatedLogoMask';
 
-export default function LinkErrorClient() {
-  const params = useSearchParams();
-  const message = params.get('msg') ?? 'This link is invalid.';
+export default function LinkErrorClient({
+  logoSlides,
+  logoFocals,
+}: {
+  logoSlides: LogoSlideData[];
+  logoFocals: Map<string, CSSProperties>;
+}) {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
@@ -25,11 +30,13 @@ export default function LinkErrorClient() {
   return (
     <main className="min-h-screen flex items-center justify-center px-5 bg-white">
       <div className="max-w-md w-full text-center">
+        <AnimatedLogoMask width="min(55vw, 200px)" className="mx-auto mb-8" slides={logoSlides} focals={logoFocals} />
+
         <h1 className="font-heading text-[1.6rem] font-bold tracking-[-0.02em] text-[#1a1a1a] mb-4">
-          This link didn&rsquo;t work
+          Time for a new magic link!
         </h1>
         <p className="text-[1rem] text-[#666] font-light leading-[1.8] mb-10">
-          {message}
+          Your new link will be fresh for 48 hours.
         </p>
 
         {sent ? (
@@ -59,8 +66,12 @@ export default function LinkErrorClient() {
               </button>
             </form>
             <p className="mt-4 text-[0.78rem] text-[#bbb] leading-[1.6]">
-              We&rsquo;ll send a fresh link to the email you used when completing the survey.
-              It arrives within a minute and works for 48 hours.
+              Your fresh link will arrive within a minute and it will be active for 48 hours.
+              Please{' '}
+              <a href="mailto:hello@artishere.org" className="underline hover:text-[#1a1a1a]">
+                reach out
+              </a>{' '}
+              if you experience any tech issues or have questions.
             </p>
           </div>
         )}

@@ -2,10 +2,11 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { updateArtistProfile, setArtistEmail } from "../actions";
+import { updateArtistProfile, setArtistEmail, setArtistCity } from "../actions";
 import { MEDIUM_OPTIONS, OFFERING_OPTIONS, LINK_TYPE_OPTIONS } from "@/lib/artist-options";
 
 type Place = { id: string; name: string; neighborhood: string | null };
+type CityOption = { id: string; label: string };
 type PlaceRelation = { placeId?: string; venueName?: string; relationship: string; relationshipLabel?: string };
 type OtherConnection = { name: string; relationship: string; relationshipLabel?: string };
 type Link = { type: string; url: string; label?: string };
@@ -21,10 +22,12 @@ type Artist = {
   otherConnections: { name: string; relationship: string; relationshipLabel: string | null }[];
   medium: string | null;
   neighborhood: string | null;
+  showOnMap: boolean;
   offerings: string[];
   placeRelations: { placeId: string | null; venueName: string | null; relationship: string; relationshipLabel: string | null; place: Place | null }[];
   links: { type: string; url: string; label: string | null }[];
   email: string | null;
+  cityId: string | null;
 };
 
 const RELATIONSHIP_TYPES = [
@@ -57,9 +60,11 @@ function parseMedium(raw: string | null): { selected: Set<string>; other: string
 export default function AdminProfileEditor({
   artist,
   places,
+  cities,
 }: {
   artist: Artist;
   places: Place[];
+  cities: CityOption[];
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -75,7 +80,9 @@ export default function AdminProfileEditor({
     artist.otherConnections.map((c) => ({ name: c.name, relationship: c.relationship, relationshipLabel: c.relationshipLabel ?? "" }))
   );
   const [neighborhood, setNeighborhood] = useState(artist.neighborhood ?? "");
+  const [showOnMap, setShowOnMap] = useState(artist.showOnMap);
   const [email, setEmail] = useState(artist.email ?? "");
+  const [cityId, setCityId] = useState(artist.cityId ?? "");
 
   const initialMedium = parseMedium(artist.medium);
   const [mediumSelected, setMediumSelected] = useState<Set<string>>(initialMedium.selected);
@@ -141,12 +148,16 @@ export default function AdminProfileEditor({
           otherConnections,
           medium,
           neighborhood,
+          showOnMap,
           offerings,
           placeRelations,
           links,
         });
         if (email.trim() !== (artist.email ?? "")) {
           await setArtistEmail(artist.id, email);
+        }
+        if (cityId && cityId !== (artist.cityId ?? "")) {
+          await setArtistCity(artist.id, cityId);
         }
         setSaved(true);
         router.refresh();
@@ -160,7 +171,12 @@ export default function AdminProfileEditor({
     <form onSubmit={handleSave} className="space-y-8">
       {/* Basic info */}
       <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-4">
-        <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Basic Info</h2>
+        <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">
+          Basic Info
+          <span className="ml-2 text-[9px] font-normal normal-case text-[#00805a] bg-[#00ae7a]/10 px-1.5 py-0.5 rounded-full align-middle">
+            artist-editable
+          </span>
+        </h2>
 
         <div className="flex gap-3">
           <div className="flex-1">
@@ -173,21 +189,13 @@ export default function AdminProfileEditor({
           </div>
         </div>
 
-        <div className="flex gap-3">
-          <div className="flex-1">
-            <label className={labelCls}>Neighborhood</label>
-            <input type="text" value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)} placeholder="e.g. SE Portland" className={inputCls} />
-          </div>
-          <div className="flex-1">
-            <label className={labelCls}>Owner email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="owner@email.com"
-              className={inputCls}
-            />
-          </div>
+        <div>
+          <label className={labelCls}>Neighborhood</label>
+          <input type="text" value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)} placeholder="e.g. SE Portland" className={inputCls} />
+          <label className="mt-2 flex items-center gap-2 text-sm text-[#444]">
+            <input type="checkbox" checked={showOnMap} onChange={(e) => setShowOnMap(e.target.checked)} />
+            Count on the city map (only with the artist&apos;s OK)
+          </label>
         </div>
 
         <div>
@@ -215,10 +223,57 @@ export default function AdminProfileEditor({
         </div>
       </section>
 
+      {/* Admin only */}
+      <section className="bg-[#f2f2f2] border border-[#e0e0e0] rounded-lg p-5 space-y-3">
+        <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">
+          Admin Only
+          <span className="ml-2 text-[9px] font-normal normal-case text-[#a84573] bg-[#a84573]/10 px-1.5 py-0.5 rounded-full align-middle">
+            not visible to the artist
+          </span>
+        </h2>
+        <div className="max-w-xs">
+          <label className={labelCls}>Owner email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="owner@email.com"
+            className={inputCls}
+          />
+          <p className="text-[11px] text-[#999] mt-1">
+            The artist can&rsquo;t change this themselves. Saved with the rest of this form —
+            use &ldquo;Send profile invite&rdquo; on the profile page to actually email them.
+          </p>
+        </div>
+        <div className="max-w-xs">
+          <label className={labelCls}>City</label>
+          <select value={cityId} onChange={(e) => setCityId(e.target.value)} className={`${selectCls} w-full`}>
+            <option value="" disabled>
+              No city set
+            </option>
+            {cities.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+          <p className="text-[11px] text-[#999] mt-1">
+            Which /cities page this profile appears on. A profile pointed at a
+            &ldquo;demo preview only&rdquo; city won&rsquo;t show up on the real site no matter
+            what Live/Hidden is set to.
+          </p>
+        </div>
+      </section>
+
       {/* Medium */}
       <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
         <div>
-          <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Medium</h2>
+          <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">
+            Medium
+            <span className="ml-2 text-[9px] font-normal normal-case text-[#00805a] bg-[#00ae7a]/10 px-1.5 py-0.5 rounded-full align-middle">
+              artist-editable
+            </span>
+          </h2>
           <p className="text-xs text-[#aaa] mt-1">
             A broad category — like Painting or Sculpture — not the specific materials or
             techniques the artist uses. Anything typed under &ldquo;Other&rdquo; becomes a new
@@ -258,7 +313,12 @@ export default function AdminProfileEditor({
       {/* Offerings */}
       <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
         <div>
-          <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">What are they offering?</h2>
+          <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">
+            What are they offering?
+            <span className="ml-2 text-[9px] font-normal normal-case text-[#00805a] bg-[#00ae7a]/10 px-1.5 py-0.5 rounded-full align-middle">
+              artist-editable
+            </span>
+          </h2>
           <p className="text-xs text-[#aaa] mt-1">People will find this artist when they search for artists who are teaching, taking commissions, etc.</p>
         </div>
         <div className="space-y-2">
@@ -307,7 +367,12 @@ export default function AdminProfileEditor({
 
       {/* Links */}
       <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
-        <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide mb-1">Links</h2>
+        <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide mb-1">
+          Links
+          <span className="ml-2 text-[9px] font-normal normal-case text-[#00805a] bg-[#00ae7a]/10 px-1.5 py-0.5 rounded-full align-middle">
+            artist-editable
+          </span>
+        </h2>
         {links.map((link, i) => {
           const meta = LINK_TYPE_OPTIONS.find((t) => t.value === link.type) ?? LINK_TYPE_OPTIONS[0];
           return (
@@ -360,7 +425,12 @@ export default function AdminProfileEditor({
 
       {/* Places */}
       <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
-        <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide mb-1">Place Connections</h2>
+        <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide mb-1">
+          Place Connections
+          <span className="ml-2 text-[9px] font-normal normal-case text-[#00805a] bg-[#00ae7a]/10 px-1.5 py-0.5 rounded-full align-middle">
+            artist-editable
+          </span>
+        </h2>
         {placeRelations.map((rel, i) => {
           const isOther = !rel.placeId;
           return (
@@ -441,7 +511,12 @@ export default function AdminProfileEditor({
       {/* Other connections */}
       <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
         <div>
-          <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Other Connections</h2>
+          <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">
+            Other Connections
+            <span className="ml-2 text-[9px] font-normal normal-case text-[#00805a] bg-[#00ae7a]/10 px-1.5 py-0.5 rounded-full align-middle">
+              artist-editable
+            </span>
+          </h2>
           <p className="text-xs text-[#aaa] mt-1">Affiliations outside the artist&apos;s local area.</p>
         </div>
         {otherConnections.map((conn, i) => (

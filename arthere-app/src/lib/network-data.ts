@@ -1,45 +1,14 @@
 import { prisma } from '@/lib/db';
-import { safeStaticParams } from '@/lib/static-params';
-import { getCityScope, artistScopeWhere } from '@/lib/city-scope';
-import { notFound } from 'next/navigation';
-import type { Metadata } from 'next';
-import { NavBar } from '@/components/NavBar';
-import { cityNavFor } from '@/lib/city-nav';
-import { NetworkGraph, type NetworkNode, type NetworkLink } from '@/components/NetworkGraph';
+import { artistScopeWhere, type CityScope } from '@/lib/city-scope';
+import type { NetworkNode, NetworkLink } from '@/components/NetworkGraph';
 import { parseNeighborhoodList, getGroupedNeighborhoods } from '@/lib/neighborhoods';
 
-// ISR: content is edited via admin + self-service; regenerate at most every 30s
-export const revalidate = 30;
-
-export async function generateStaticParams() {
-  return safeStaticParams(async () => {
-    const cities = await prisma.city.findMany({ select: { slug: true } });
-    return cities.map(c => ({ slug: c.slug }));
-  });
-}
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
-  const { slug } = await params;
-  const city = await prisma.city.findUnique({ where: { slug }, select: { displayName: true, name: true } });
-  const label = city?.displayName ?? city?.name ?? slug;
-  return { title: `${label} Network — Art Here` };
-}
-
-export default async function CityNetworkPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
-
-  const scope = await getCityScope(slug);
-  if (!scope) notFound();
-  const { cityDisplayName } = scope;
-
+/**
+ * Data for the map tab's Network view: one node per artist, one per place
+ * they're connected to, one link per connection. Moved here unchanged from
+ * the old /network page when it became a view of /map.
+ */
+export async function getNetworkData(slug: string, scope: CityScope) {
   const cityArtists = await prisma.artist.findMany({
     where: artistScopeWhere(scope),
     orderBy: { name: 'asc' },
@@ -108,15 +77,5 @@ export default async function CityNetworkPage({
   const neighborhoodGroups = (await getGroupedNeighborhoods())
     .map(g => ({ label: g.area, options: g.neighborhoods }));
 
-  return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white pt-14">
-      <NavBar activeCitySlug={slug} cityNav={cityNavFor(slug, cityDisplayName)} />
-
-      {/* The graph fills everything under the nav; the page title is the
-          nav's own "network" tab. */}
-      <div className="relative" style={{ height: 'calc(100vh - 3.5rem)' }}>
-        <NetworkGraph nodes={nodes} links={links} neighborhoodGroups={neighborhoodGroups} />
-      </div>
-    </div>
-  );
+  return { nodes, links, neighborhoodGroups };
 }

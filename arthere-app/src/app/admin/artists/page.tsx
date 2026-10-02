@@ -244,7 +244,11 @@ export default async function AdminArtistsPage({
                   >
                     View profile
                   </Link>
-                  <SendInviteButton artistId={a.id} initialEmail={a.user?.email ?? ""} />
+                  <SendInviteButton
+                    artistId={a.id}
+                    editHref={`/admin/artists/${a.id}/edit`}
+                    email={a.user?.email ?? null}
+                  />
                 </div>
               ))}
             </div>

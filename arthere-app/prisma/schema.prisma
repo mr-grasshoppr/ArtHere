@@ -91,6 +91,10 @@ model Artist {
   instagram            String?
   medium               String?
   neighborhood         String?
+  // Opt-in to being counted on the map tab's Geographic view. Off by default:
+  // the map is public and ties a person to a part of town, so it's the
+  // artist's call (or an admin's, with their OK), never automatic.
+  showOnMap            Boolean          @default(false)
   commissionStatus     CommissionStatus @default(UNSPECIFIED)
   priceRangeMin        Int?
   priceRangeMax        Int?
@@ -130,6 +134,7 @@ model Artist {
   magicLinkTokens   MagicLinkToken[]
   links             ArtistLink[]
   otherConnections  ArtistOtherConnection[]
+  blockedAccess     BlockedAccessAttempt[]
 
   @@index([cityId])
 }
@@ -258,6 +263,9 @@ model Place {
   slug                 String    @unique
   name                 String
   neighborhood         String?
+  // Opt-in to pins on the map tab's Geographic view — one pin per
+  // PlaceLocation that geocoded. Off by default, like Artist.showOnMap.
+  showOnMap            Boolean   @default(false)
   description          String?   @db.Text
   // Optional pull quote shown on the page (e.g. a customer or community
   // testimonial), with its speaker credited separately.
@@ -299,8 +307,31 @@ model Place {
   adminNotes      AdminNote[]
   members         PlaceMember[]
   links           PlaceLink[]
+  blockedAccess   BlockedAccessAttempt[]
+  locations       PlaceLocation[]
 
   @@index([cityId])
+}
+
+// A physical address for a place — most have one, some (a shop with several
+// stores) have more. Each geocoded location is its own pin on the map tab's
+// Geographic view. lat/lng are geocoded from streetAddress once, when the
+// place is saved (see lib/geocode.ts) — never on page load — and stay null
+// if the address couldn't be found.
+model PlaceLocation {
+  id            String   @id @default(cuid())
+  placeId       String
+  place         Place    @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  /// Optional name for this location, e.g. "Hawthorne" — shown on the pin's
+  /// hover card. Blank for a place with a single location.
+  label         String?
+  streetAddress String
+  lat           Float?
+  lng           Float?
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  @@index([placeId])
 }
 
 // A social/portfolio/shop link, one of several per place — mirrors
@@ -514,6 +545,31 @@ model MagicLinkToken {
   used      Boolean  @default(false)
   expiresAt DateTime
   createdAt DateTime @default(now())
+
+  artist Artist? @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  place  Place?  @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@index([artistId])
+  @@index([placeId])
+}
+
+// A magic link that was clicked but couldn't sign the person in — most
+// commonly, the token's own email doesn't match any account (see
+// verifyMagicLinkToken/profile/setup/route.ts: the token records who it was
+// actually addressed to, which is only good as its matching User row).
+// Recorded so a real, blocked person doesn't just silently bounce off an
+// error page with no one the wiser — see notifyBlockedAccess.
+model BlockedAccessAttempt {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  // The email the link/token was addressed to, regardless of whether an
+  // account with that email exists.
+  email     String
+  // Human-readable reason: "no matching account", "link already used",
+  // "link expired", "invalid link".
+  reason    String
+  artistId  String?
+  placeId   String?
 
   artist Artist? @relation(fields: [artistId], references: [id], onDelete: Cascade)
   place  Place?  @relation(fields: [placeId], references: [id], onDelete: Cascade)

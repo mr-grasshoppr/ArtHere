@@ -16,7 +16,7 @@ export type NavBarTheme = 'dark' | 'light';
 
 /**
  * A city's section links, shown inline in the bar between the logo and the
- * menu: "Portland, OR  artwork  artists  network". The city name and the
+ * menu: "Portland, OR  artwork  artists  places  map". The city name and the
  * first tab point at the same page, so the name is the home link and the
  * tabs are where you are within it.
  */

@@ -11,7 +11,7 @@ import { MAX_ARTWORK_IMAGES } from "@/lib/artist-options";
 
 type InitialData = {
   slug: string;
-  firstName: string; lastName: string; medium: string; neighborhood: string; bio: string;
+  firstName: string; lastName: string; medium: string; neighborhood: string; showOnMap: boolean; bio: string;
   quote: string;
   otherConnections: { name: string; relationship: string; relationshipLabel?: string }[];
   links: { type: string; url: string; label?: string }[];
@@ -71,6 +71,8 @@ const BTN =
 /** Gallery tiles: the four pieces a profile shows, less the cover. */
 const GALLERY_SLOTS = MAX_ARTWORK_IMAGES - 1;
 
+type ImageState = { id: string; url: string; isHero: boolean; medium: string[] };
+
 export default function OnboardingForm({
   initialData,
   initialFocals,
@@ -112,6 +114,7 @@ export default function OnboardingForm({
     return parts.some(p => !MEDIUM_OPTIONS.includes(p));
   });
   const [neighborhood, setNeighborhood] = useState(initialData?.neighborhood ?? "");
+  const [showOnMap, setShowOnMap] = useState(initialData?.showOnMap ?? false);
   const [bio, setBio] = useState(initialData?.bio ?? "");
   const [quote, setQuote] = useState(initialData?.quote ?? "");
 
@@ -160,7 +163,7 @@ export default function OnboardingForm({
   const [offeringsOther, setOfferingsOther] = useState("");
 
   // Images
-  const [images, setImages] = useState<{ id: string; url: string; isHero: boolean; medium: string[] }[]>(initialData?.images ?? []);
+  const [images, setImages] = useState<ImageState[]>(initialData?.images ?? []);
   const [bioPhotoUrl, setBioPhotoUrl] = useState<string | null>(initialData?.bioPhotoUrl ?? null);
   const [uploading, setUploading] = useState(false);
   const [uploadingBio, setUploadingBio] = useState(false);
@@ -182,7 +185,13 @@ export default function OnboardingForm({
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const heroImage = images.find((img) => img.isHero) ?? images[0] ?? null;
-  const galleryImages = images.filter((img) => img.id !== heroImage?.id);
+  const otherImages = images.filter((img) => img.id !== heroImage?.id);
+  // A profile shows a header and three gallery pieces. Anything past that
+  // is kept — uploads are never refused — and shown below as not visible,
+  // for the artist to swap in. lib/artist-images is the same rule server
+  // side, and the city grid draws on that slice alone.
+  const galleryImages = otherImages.slice(0, GALLERY_SLOTS);
+  const hiddenImages = otherImages.slice(GALLERY_SLOTS);
 
   // ─── Save ────────────────────────────────────────────────────────────
 
@@ -216,6 +225,7 @@ export default function OnboardingForm({
           quote: quote.trim() || null,
           medium: buildMediumText() || null,
           neighborhood,
+          showOnMap,
           hireFor: buildOfferingsText() || null,
           placeRelations: places
             .filter((p) => p.placeName.trim())
@@ -246,7 +256,7 @@ export default function OnboardingForm({
     saveTimer.current = setTimeout(persist, 900);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [firstName, lastName, bio, quote, JSON.stringify(mediumValues), mediumOther, neighborhood, JSON.stringify(offerings), offeringsOther, JSON.stringify(places), JSON.stringify(otherConnections), JSON.stringify(links)]);
+  }, [firstName, lastName, bio, quote, JSON.stringify(mediumValues), mediumOther, neighborhood, showOnMap, JSON.stringify(offerings), offeringsOther, JSON.stringify(places), JSON.stringify(otherConnections), JSON.stringify(links)]);
 
   // ─── Images ──────────────────────────────────────────────────────────
 
@@ -266,10 +276,15 @@ export default function OnboardingForm({
       const res = await uploadFile(file, { isHero: "true" });
       if (!res.ok) throw new Error((await res.json()).error ?? "Upload failed");
       const data = await res.json();
-      setImages((prev) => [
-        ...prev.map((img) => ({ ...img, isHero: false })),
-        { id: data.id, url: data.url, isHero: true, medium: [] },
-      ]);
+      const uploaded = { id: data.id, url: data.url, isHero: true, medium: [] };
+      // The header that was there is kept, at the back rather than pushed
+      // into the gallery: changing a header shouldn't quietly rearrange
+      // the three pieces underneath it.
+      const rest = images.filter((img) => img.id !== heroImage?.id);
+      await arrange(
+        [uploaded, ...rest, ...(heroImage ? [heroImage] : [])],
+        uploaded.id
+      );
     } catch (err) { setUploadError(err instanceof Error ? err.message : "Upload failed."); }
     setUploading(false);
     e.target.value = "";
@@ -326,17 +341,77 @@ export default function OnboardingForm({
     }
   }
 
+  /**
+   * Saves which pieces the profile shows, and in what order: the header
+   * first, then the gallery, then everything kept back. The whole
+   * arrangement goes in one request — a sequence of moves can leave two
+   * pieces claiming one slot if a request fails midway.
+   */
+  async function arrange(next: ImageState[], heroId: string | null) {
+    const previous = images;
+    setImages(next.map((img) => ({ ...img, isHero: img.id === heroId })));
+    try {
+      const res = await fetch("/api/images/arrange", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order: next.map((img) => img.id), heroId }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error ?? "Could not save that change");
+    } catch (err) {
+      setImages(previous);
+      setUploadError(err instanceof Error ? err.message : "Could not save that change.");
+    }
+  }
+
+  /** Move a kept-back piece into the last gallery slot, and that one out. */
+  function showInGallery(id: string) {
+    const piece = images.find((img) => img.id === id);
+    if (!piece || !heroImage) return;
+    const rest = otherImages.filter((img) => img.id !== id);
+    const next = [heroImage, ...rest.slice(0, GALLERY_SLOTS - 1), piece, ...rest.slice(GALLERY_SLOTS - 1)];
+    arrange(next, heroImage.id);
+  }
+
+  /** Make a piece the header; the old header takes the slot it vacated. */
+  function makeHeader(id: string) {
+    const piece = images.find((img) => img.id === id);
+    if (!piece || !heroImage) return;
+    const next = [piece, ...otherImages.map((img) => (img.id === id ? heroImage : img))];
+    arrange(next, id);
+  }
+
+  async function removeImage(id: string) {
+    setUploadError("");
+    const previous = images;
+    setImages((prev) => prev.filter((img) => img.id !== id));
+    try {
+      const res = await fetch(`/api/images?id=${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error((await res.json()).error ?? "Could not remove that piece");
+    } catch (err) {
+      setImages(previous);
+      setUploadError(err instanceof Error ? err.message : "Could not remove that piece.");
+    }
+  }
+
   async function handleGalleryReplace(oldId: string, e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
     setUploadError("");
     try {
-      await fetch(`/api/images?id=${oldId}`, { method: "DELETE" });
       const res = await uploadFile(file, { isHero: "false" });
       if (!res.ok) throw new Error((await res.json()).error ?? "Upload failed");
       const data = await res.json();
-      setImages((prev) => prev.map((img) => img.id === oldId ? { id: data.id, url: data.url, isHero: false, medium: [] } : img));
+      const uploaded = { id: data.id, url: data.url, isHero: false, medium: [] };
+      // The new piece takes that slot and the old one moves to the back,
+      // still there if the artist wants it again.
+      const replaced = images.find((img) => img.id === oldId);
+      const next = [
+        ...(heroImage ? [heroImage] : []),
+        ...otherImages.map((img) => (img.id === oldId ? uploaded : img)),
+        ...(replaced ? [replaced] : []),
+      ];
+      await arrange(next, heroImage?.id ?? null);
     } catch (err) { setUploadError(err instanceof Error ? err.message : "Upload failed."); }
     setUploading(false);
     e.target.value = "";
@@ -538,6 +613,10 @@ export default function OnboardingForm({
               className={FIELD}
             />
             <p className="text-[0.72rem] font-semibold text-[#1a1a1a] mt-1.5 ml-1">Neighborhood (primary)</p>
+            <label className="flex items-center gap-2 text-[0.72rem] text-[#555] mt-2 ml-1">
+              <input type="checkbox" checked={showOnMap} onChange={(e) => setShowOnMap(e.target.checked)} />
+              Count me in my neighborhood on the city map
+            </label>
           </div>
         </div>
       </div>
@@ -720,18 +799,8 @@ export default function OnboardingForm({
         <p className="text-[0.75rem] text-[#999] mb-3">
           Tag each piece with its medium so visitors can find it when they filter by medium.
         </p>
-        {galleryImages.length > GALLERY_SLOTS && (
-          <p className="text-[0.75rem] text-[#b45309] mb-3">
-            This profile has {galleryImages.length + 1} pieces, more than the {MAX_ARTWORK_IMAGES} a
-            profile shows. They are all here — replace the ones you want to keep and ask us to remove
-            the rest.
-          </p>
-        )}
         <div className="grid grid-cols-3 gap-3">
-          {/* Every piece gets a tile, even past the limit: an image the form
-              hides is one the artist cannot change, while the city grid
-              carries on showing it. */}
-          {Array.from({ length: Math.max(GALLERY_SLOTS, galleryImages.length) }, (_, i) => i).map((slot) => {
+          {Array.from({ length: GALLERY_SLOTS }, (_, i) => i).map((slot) => {
             const img = galleryImages[slot];
             return img ? (
               <div key={img.id}>
@@ -754,6 +823,15 @@ export default function OnboardingForm({
                     onSaved={(v) => rememberFocal(img.url, v)}
                   />
                 </div>
+                {/* Without this the only way out of an over-full profile was
+                    to write and ask, and the form quietly hid the extras. */}
+                <button
+                  type="button"
+                  onClick={() => removeImage(img.id)}
+                  className="absolute top-1.5 right-1.5 z-10 w-6 h-6 rounded-full bg-black/45 text-white text-sm leading-none opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                  title="Remove this piece"
+                  aria-label="Remove this piece"
+                >×</button>
               </div>
               <div className="mt-1.5">
                 <ArtworkMediumSelect
@@ -776,15 +854,87 @@ export default function OnboardingForm({
                   type="file"
                   accept="image/jpeg,image/png,image/webp"
                   onChange={handleGallerySelect}
-                  // Two quick clicks on an empty slot used to upload twice,
-                  // and neither the form nor the endpoint stopped it.
-                  disabled={uploading || images.length >= MAX_ARTWORK_IMAGES}
+                  // Two quick clicks on an empty slot used to upload twice.
+                  disabled={uploading}
                   className="hidden"
                 />
               </label>
             );
           })}
         </div>
+
+        {/* Pieces beyond the header and three slots. Uploads are never
+            refused, so these are kept rather than lost — but they are not
+            on the profile or the city grid until one is swapped in, and
+            saying so plainly beats a form that quietly shows three of the
+            eight pieces an artist uploaded. */}
+        {(hiddenImages.length > 0 || galleryImages.length >= GALLERY_SLOTS) && (
+          <div className="mt-6">
+            <div className="flex items-baseline gap-2 mb-2">
+              <h3 className="text-[0.7rem] font-semibold text-[#aaa] uppercase tracking-widest">
+                Also uploaded
+              </h3>
+              <span className="text-[0.7rem] text-[#bbb]">
+                {hiddenImages.length > 0
+                  ? `${hiddenImages.length} ${hiddenImages.length === 1 ? "piece" : "pieces"} you're not showing`
+                  : "keep uploading — anything past the four above waits here"}
+              </span>
+              {/* With the three slots full there was otherwise no way to add
+                  a piece at all, which is its own kind of blocked. */}
+              <label className="ml-auto text-[0.72rem] text-[#777] hover:text-[#1a1a1a] underline underline-offset-2 transition-colors cursor-pointer">
+                {uploading ? "Uploading…" : "+ Add another piece"}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleGallerySelect}
+                  disabled={uploading}
+                  className="hidden"
+                />
+              </label>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              {hiddenImages.map((img) => (
+                <div key={img.id}>
+                  <div className="rounded-lg overflow-hidden bg-[#f0ede9] aspect-square relative group">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={img.url}
+                      alt=""
+                      className="w-full h-full object-cover opacity-55 group-hover:opacity-80 transition-opacity"
+                      style={styleFor(img.url)}
+                    />
+                    <span className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full bg-black/55 text-white text-[0.62rem] tracking-wide">
+                      Not visible in profile
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeImage(img.id)}
+                      className="absolute top-1.5 right-1.5 z-10 w-6 h-6 rounded-full bg-black/45 text-white text-sm leading-none opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                      title="Delete this piece"
+                      aria-label="Delete this piece"
+                    >×</button>
+                  </div>
+                  <div className="mt-1.5 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => showInGallery(img.id)}
+                      className="text-[0.72rem] text-[#777] hover:text-[#1a1a1a] underline underline-offset-2 transition-colors"
+                    >
+                      Show in gallery
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => makeHeader(img.id)}
+                      className="text-[0.72rem] text-[#777] hover:text-[#1a1a1a] underline underline-offset-2 transition-colors"
+                    >
+                      Use as header
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── Additional details ────────────────────────────────────────── */}

@@ -16,6 +16,7 @@ export default async function AdminOrgEditPage({ params }: { params: Promise<{ i
     include: {
       user: { select: { email: true } },
       links: { orderBy: { sortOrder: "asc" } },
+      locations: { orderBy: { sortOrder: "asc" } },
     },
   });
 
@@ -60,6 +61,9 @@ export default async function AdminOrgEditPage({ params }: { params: Promise<{ i
           thumbnailImageUrl: place.thumbnailImageUrl,
           galleryImages: place.galleryImages,
           inDirectory: place.inDirectory,
+          locations: place.locations.map((l) => ({ label: l.label ?? "", streetAddress: l.streetAddress })),
+          unresolvedAddresses: place.locations.filter((l) => l.lat == null).map((l) => l.streetAddress),
+          showOnMap: place.showOnMap,
         }}
         neighborhoodOptions={neighborhoodOptions}
         initialFocals={initialFocals}

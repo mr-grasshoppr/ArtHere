@@ -9,6 +9,7 @@ import { slugify } from "@/lib/slug";
 import { joinNeighborhoodList, parseNeighborhoodList } from "@/lib/neighborhoods";
 import { LinkType } from "@prisma/client";
 import { normalizeLinkUrl } from "@/lib/social-link";
+import { syncPlaceLocations } from "@/lib/geocode";
 
 async function uniquePlaceSlug(name: string): Promise<string> {
   const base = slugify(name) || "venue";
@@ -62,6 +63,8 @@ type OrgInput = {
   heroImageUrl: string | null;
   thumbnailImageUrl: string | null;
   galleryImages: string[];
+  locations: { label: string; streetAddress: string }[];
+  showOnMap: boolean;
 };
 
 export async function updateOrganization(placeId: string, data: OrgInput) {
@@ -71,6 +74,7 @@ export async function updateOrganization(placeId: string, data: OrgInput) {
     where: { id: placeId },
     data: {
       name: data.name.trim(),
+      showOnMap: data.showOnMap,
       neighborhood: joinNeighborhoodList(parseNeighborhoodList(data.neighborhood)),
       description: data.description.trim() || null,
       quote: data.quote.trim() || null,
@@ -96,6 +100,8 @@ export async function updateOrganization(placeId: string, data: OrgInput) {
       })),
     });
   }
+
+  await syncPlaceLocations(placeId, data.locations);
 
   const email = data.email.trim().toLowerCase();
   if (email) await attachPlaceUser(placeId, email);

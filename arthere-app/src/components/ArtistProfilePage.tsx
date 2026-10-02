@@ -1,3 +1,4 @@
+import { DEFAULT_OBJECT_POSITION } from '@/lib/focal-style';
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
 import type { Artist, ArtworkImage, ArtistPlace, ArtistOtherConnection, ArtistLink, Place, City } from '@prisma/client';
@@ -8,6 +9,7 @@ import { TechSupportLink } from '@/components/TechSupportLink';
 import { FadeImage } from '@/components/FadeImage';
 import { Lightbox } from '@/components/Lightbox';
 import { linkTypeLabel } from '@/lib/artist-options';
+import { galleryImagesOf } from '@/lib/artist-images';
 
 export type ArtistWithProfile = Artist & {
   artworkImages: ArtworkImage[];
@@ -40,7 +42,7 @@ interface Props {
  * /cities/[slug]/artists/[artistSlug] so the two routes can't drift apart.
  */
 export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals, preview }: Props) {
-  const styleOf = (url: string, fallback: CSSProperties = { objectPosition: '50% 50%' }) =>
+  const styleOf = (url: string, fallback: CSSProperties = { objectPosition: DEFAULT_OBJECT_POSITION }) =>
     focals?.get(url) ?? fallback;
   const heroUrl =
     artist.heroImageUrl ??
@@ -48,9 +50,9 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals, p
     artist.artworkImages[0]?.url ??
     null;
 
-  const galleryImages = artist.artworkImages
-    .filter(img => !img.isHero && img.url !== artist.heroImageUrl)
-    .slice(0, 3);
+  const galleryImages = galleryImagesOf(artist.artworkImages).filter(
+    img => img.url !== artist.heroImageUrl
+  );
 
   const metaParts = [
     artist.medium,

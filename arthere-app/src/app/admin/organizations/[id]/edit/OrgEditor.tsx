@@ -7,6 +7,7 @@ import OrgVisibilityToggle from "../../OrgVisibilityToggle";
 import { FramingButton } from "@/components/FramingButton";
 import { PhotoGrid } from "@/components/PhotoGrid";
 import { NeighborhoodPicker } from "@/components/NeighborhoodPicker";
+import { PlaceLocationsEditor, type LocationRow } from "@/components/PlaceLocationsEditor";
 import { focalStyle, type Focal } from "@/lib/focal-style";
 import { parseNeighborhoodList, joinNeighborhoodList } from "@/lib/neighborhoods";
 import type { FramingValue } from "@/components/FramingEditor";
@@ -28,6 +29,10 @@ type Org = {
   thumbnailImageUrl: string | null;
   galleryImages: string[];
   inDirectory: boolean;
+  locations: LocationRow[];
+  /** Saved addresses that didn't geocode, so have no pin. */
+  unresolvedAddresses: string[];
+  showOnMap: boolean;
 };
 
 const GALLERY_MAX = 3;
@@ -81,6 +86,8 @@ export default function OrgEditor({
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(place.heroImageUrl);
   const [thumbnailImageUrl, setThumbnailImageUrl] = useState<string | null>(place.thumbnailImageUrl);
   const [galleryImages, setGalleryImages] = useState<string[]>(place.galleryImages);
+  const [locations, setLocations] = useState<LocationRow[]>(place.locations);
+  const [showOnMap, setShowOnMap] = useState(place.showOnMap);
 
   // Images the community-card picker can choose from: the hero, every
   // gallery photo, and (deduped) whatever's currently set as the thumbnail —
@@ -136,6 +143,8 @@ export default function OrgEditor({
           heroImageUrl,
           thumbnailImageUrl,
           galleryImages,
+          locations,
+          showOnMap,
         });
         setSaved(true);
         router.refresh();
@@ -197,6 +206,19 @@ export default function OrgEditor({
             <label className={labelCls}>Owner email</label>
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="owner@email.com" className={inputCls} />
           </div>
+        </div>
+        <div>
+          <label className={labelCls}>Street address{locations.length > 1 ? "es" : ""}</label>
+          <PlaceLocationsEditor
+            value={locations}
+            onChange={setLocations}
+            inputClassName={inputCls}
+            unresolved={place.unresolvedAddresses}
+          />
+          <label className="mt-2 flex items-center gap-2 text-sm text-[#444]">
+            <input type="checkbox" checked={showOnMap} onChange={(e) => setShowOnMap(e.target.checked)} />
+            Show {locations.length > 1 ? "a pin for each location" : "a pin for this place"} on the city map
+          </label>
         </div>
         <div>
           <label className={labelCls}>About</label>

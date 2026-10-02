@@ -64,12 +64,10 @@ holds `MAX_ARTWORK_IMAGES` pieces — so **`MAX_ARTWORK_IMAGES × GRID_REPEATS`
 appearances is what a full profile gets, and no one gets more.** Twelve, as
 these are set today.
 
-Profiles that predate the four-image limit hold more than that. They share
-the same twelve turns across everything they hold — some pieces come round
-twice, some once, and which is which is redrawn on every visit, so all of
-the work reaches the grid over time without any of it taking more of one
-visit than anyone else's. A profile with fewer than four pieces gets three
-turns each rather than having them stretched.
+A profile with fewer than four pieces gets three turns each rather than
+having them stretched. A profile holding *more* than four — artists may
+upload as much as they like — still shows four, so it gets the same twelve
+turns as anyone else.
 
 This is not only a fairness rule, it is load-bearing for the spacing rules
 above. Repeating each *piece* a fixed number of times instead — which is what
@@ -79,11 +77,18 @@ whoever is left. That is what the last rows of Portland's grid were: three
 Becky Chinn pieces in one row, eight of fourteen tiles on screen hers, with
 the rest of the grid perfectly well behaved.
 
-**Implemented by** `buildGridPool` and `artistAppearanceBudget`, with the
-limit itself — `MAX_ARTWORK_IMAGES`, enforced by both upload endpoints — in
-[`arthere-app/src/lib/artist-options.ts`](arthere-app/src/lib/artist-options.ts).
-A filtered view is a result set, not texture, so it is exempt: every match
-once (GRID-6).
+**Implemented by** `buildGridPool` and `artistAppearanceBudget`. The grid
+draws only on the pieces an artist actually shows — the header and three
+gallery slots, `visibleArtworkImages` in
+[`arthere-app/src/lib/artist-images.ts`](arthere-app/src/lib/artist-images.ts).
+Uploading more than that is allowed and nothing is deleted; the extras are
+marked "not visible in profile" in the artist's own editor and appear
+nowhere public until swapped in. A grid tile leading to a profile that does
+not show that piece reads as a mistake, and it is how the profiles that
+predate the limit took several times their share of the grid.
+
+A filtered view is a result set, not texture, so it is exempt from GRID-10:
+every match once (GRID-6).
 
 ### What "four rows clear" can and cannot promise
 

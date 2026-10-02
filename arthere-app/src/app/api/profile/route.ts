@@ -48,6 +48,7 @@ export async function POST(req: NextRequest) {
     quote,
     medium,
     neighborhood,
+    showOnMap,
     hireFor,
     commissionStatus,
     priceRangeMin,
@@ -109,6 +110,7 @@ export async function POST(req: NextRequest) {
     quote: quote?.trim() || null,
     medium: medium?.trim() || null,
     neighborhood: neighborhood?.trim() ? normalizeNeighborhood(neighborhood.trim()) : null,
+    ...(typeof showOnMap === "boolean" ? { showOnMap } : {}),
     hireFor: hireForClean,
     // website/instagram are no longer written here — self-service now manages
     // ArtistLink instead (see below). Omitted, not nulled, so any historical
@@ -143,7 +145,7 @@ export async function POST(req: NextRequest) {
     // "Submit for review" in OnboardingForm / api/profile/submit-for-review.
     // Without a cityId the artist never matches any city-scoped page's query
     // (see lib/city-scope.ts) — publishing it later would silently leave it
-    // invisible on the artwork/artists/network pages despite being live.
+    // invisible on the artwork/artists/map pages despite being live.
     const portland = await prisma.city.findUnique({ where: { slug: "portland" } });
     try {
       artist = await prisma.artist.create({

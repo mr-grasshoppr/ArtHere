@@ -13,15 +13,17 @@
 import type { PlaceRelationship } from '@prisma/client';
 
 /**
- * How many artwork images one artist shows — the cover plus three more.
+ * How many artwork images one artist *shows* — the header plus three
+ * gallery pieces.
  *
- * The onboarding form has only ever offered a cover and three gallery
- * slots, but nothing enforced it: the upload endpoints counted existing
- * images only to set a sort order, and the admin editor's picker takes
- * several files at once with no limit. Profiles ended up with five to
- * eight pieces, and the onboarding form then rendered the first three and
- * hid the rest, so an artist could not see — let alone remove — work that
- * was still on the city grid.
+ * It is a display limit, not an upload one: uploading is never refused,
+ * and nothing is thrown away. Pieces past the fourth are kept and marked
+ * "not visible in profile" for the artist to swap in whenever they like
+ * (see lib/artist-images for the slice, and the onboarding form for the
+ * swapping). The profile page, the city grid and the editors all read that
+ * one slice, so a piece an artist isn't showing is off the site — which it
+ * was not before: the grid drew on everything an artist had ever uploaded,
+ * so the profiles that predate this took several times their share of it.
  */
 export const MAX_ARTWORK_IMAGES = 4;
 

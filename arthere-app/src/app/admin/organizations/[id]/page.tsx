@@ -27,6 +27,11 @@ export default async function AdminOrgDetailPage({ params }: { params: Promise<{
 
   if (!place) notFound();
 
+  const blockedAccess = await prisma.blockedAccessAttempt.findMany({
+    where: { placeId: place.id },
+    orderBy: { createdAt: "desc" },
+  });
+
   const team = [
     ...(place.userId && place.user ? [{ userId: place.userId, email: place.user.email, role: "owner" as const }] : []),
     ...place.members.map((m) => ({ userId: m.userId, email: m.user.email, role: "member" as const })),
@@ -50,6 +55,23 @@ export default async function AdminOrgDetailPage({ params }: { params: Promise<{
           Edit page
         </Link>
       </div>
+
+      {blockedAccess.length > 0 && (
+        <div className="mb-6 bg-red-50 border border-red-200 rounded-lg px-5 py-3">
+          <p className="text-sm text-red-700 font-medium mb-1.5">
+            ⚠ {blockedAccess.length} blocked sign-in attempt{blockedAccess.length === 1 ? "" : "s"}
+          </p>
+          <div className="space-y-1">
+            {blockedAccess.map((b) => (
+              <p key={b.id} className="text-xs text-red-600">
+                {new Date(b.createdAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
+                {" — "}
+                {b.email} ({b.reason})
+              </p>
+            ))}
+          </div>
+        </div>
+      )}
 
       {place.submittedForReviewAt && (
         <div className="mb-6 flex items-center justify-between gap-4 bg-[#f062a4]/10 border border-[#f062a4]/25 rounded-lg px-5 py-3">

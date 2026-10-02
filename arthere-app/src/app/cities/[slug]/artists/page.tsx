@@ -50,10 +50,16 @@ export async function generateMetadata({
 
 export default async function CityArtistsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ neighborhood?: string | string[] }>;
 }) {
   const { slug } = await params;
+  // ?neighborhood=… (repeatable) opens the grid already filtered — the map
+  // tab's Geographic view links here when a neighborhood is clicked.
+  const { neighborhood: neighborhoodParam } = await searchParams;
+  const initialNeighborhoods = [neighborhoodParam ?? []].flat();
 
   const scope = await getCityScope(slug);
   if (!scope) notFound();
@@ -117,6 +123,7 @@ export default async function CityArtistsPage({
         mediumOptions={mediumOptions}
         neighborhoodOptions={neighborhoodOptions}
         neighborhoodGroups={neighborhoodGroups}
+        initialNeighborhoods={initialNeighborhoods}
         communityOptions={communityOptions}
         communityGroups={communityGroups}
       />

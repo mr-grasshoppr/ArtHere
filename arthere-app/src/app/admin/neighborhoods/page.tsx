@@ -34,7 +34,7 @@ export default async function AdminNeighborhoodsPage() {
     <div>
       <h1 className="text-2xl font-medium mb-2">Neighborhoods</h1>
       <p className="text-sm text-[#888] mb-6 max-w-[680px]">
-        Groups the neighborhood filters on the artwork, artists, and network pages. Areas appear in
+        Groups the neighborhood filters on the artwork, artists, and map pages. Areas appear in
         this order, with their neighborhoods nested underneath. A filter option only shows on the
         site if at least one profile actually uses it, so entries marked <em>unused</em> are
         harmless. Anyone writing something like &ldquo;NW Portland and Beaverton&rdquo; is counted

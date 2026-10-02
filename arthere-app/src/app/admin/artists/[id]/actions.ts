@@ -54,6 +54,20 @@ export async function setArtistEmail(artistId: string, email: string) {
   await snapshotArtist(artistId, "admin", session.user?.email);
 }
 
+// Corrects which /cities/[slug] page an artist belongs to. Exists because
+// an artist can end up pointed at the wrong City row — e.g. a "-demo" city
+// used only by an internal preview page — in which case marking them Live
+// (isPlaceholder: false) does nothing visible: artistScopeWhere in
+// lib/city-scope.ts filters by cityId first, so a real city's public page
+// never sees an artist scoped to a different city at all.
+export async function setArtistCity(artistId: string, cityId: string) {
+  const session = await requireAdmin();
+  const city = await prisma.city.findUnique({ where: { id: cityId } });
+  if (!city) throw new Error("City not found");
+  await prisma.artist.update({ where: { id: artistId }, data: { cityId } });
+  await snapshotArtist(artistId, "admin", session.user?.email);
+}
+
 // Mints the one-time login link and the default email copy, but sends
 // nothing yet — the admin previews/edits it first (see InvitePreviewModal).
 export async function previewArtistInvite(artistId: string, email: string): Promise<InvitePreview> {
@@ -95,6 +109,7 @@ type ProfileInput = {
   otherConnections: { name: string; relationship: string; relationshipLabel?: string }[];
   medium: string;
   neighborhood: string;
+  showOnMap: boolean;
   offerings: string[];
   placeRelations: { placeId?: string; venueName?: string; relationship: string; relationshipLabel?: string }[];
   links: { type: string; url: string; label?: string }[];
@@ -127,6 +142,7 @@ export async function updateArtistProfile(artistId: string, data: ProfileInput) 
       quoteAttribution: data.quoteAttribution.trim() || null,
       medium,
       neighborhood: data.neighborhood.trim() ? normalizeNeighborhood(data.neighborhood.trim()) : null,
+      showOnMap: data.showOnMap,
       offerings: data.offerings.map((o) => o.trim()).filter(Boolean),
       hireFor: buildHireForText(data.offerings),
     },

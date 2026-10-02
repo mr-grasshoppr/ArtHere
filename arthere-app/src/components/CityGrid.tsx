@@ -5,13 +5,23 @@ import Image from 'next/image';
 import styles from './CityGrid.module.css';
 import { buildSpacedSequence, buildGridPool } from '@/lib/grid-sequence';
 import { GRID_REPEATS, GRID_MIN_ROW_GAP, CITY_LOGO_CELL } from '@/lib/grid-design';
-import { focalStyle, type Focal } from '@/lib/focal-style';
+import { focalStyle, LEGACY_GRID_OBJECT_POSITION, type Focal } from '@/lib/focal-style';
 
 export interface ArtistGridData {
   url: string;   // e.g. /artists/kurtis-piltz
   name: string;
   /** focal — same framing/crop the artist profile page uses for this image. */
-  images: { src: string; focal?: Focal | null; isHero: boolean }[];
+  images: {
+    src: string;
+    focal?: Focal | null;
+    isHero: boolean;
+    /**
+     * Fallback framing for a piece with no stored focal — the shared
+     * default for recent uploads, the grid's old one for pieces that were
+     * already here. See gridFallbackFor.
+     */
+    fallbackPosition?: string;
+  }[];
 }
 
 interface Props {
@@ -40,6 +50,8 @@ const GAP = 5;
 interface SequenceItem {
   src: string;
   focal?: Focal | null;
+  /** Framing to use when this piece has no focal of its own. */
+  fallbackPosition: string;
   tall: boolean;
   url: string;
   name: string;
@@ -59,7 +71,14 @@ function buildSequence(artists: ArtistGridData[], cols: number, filtered: boolea
         // Hero images render as tall (2-row) cells; the planner needs the
         // span so its spacing is measured against real placement.
         span: img.isHero ? 2 : 1,
-        payload: { src: img.src, focal: img.focal, tall: img.isHero, url: artist.url, name: artist.name },
+        payload: {
+          src: img.src,
+          focal: img.focal,
+          fallbackPosition: img.fallbackPosition ?? LEGACY_GRID_OBJECT_POSITION,
+          tall: img.isHero,
+          url: artist.url,
+          name: artist.name,
+        },
       })),
     })),
     filtered
@@ -300,7 +319,12 @@ export function CityGrid({ artists, overlayImageUrl, maskImageUrl, onFrozenChang
                 // Only the first couple of rows are on screen at load; the
                 // rest stream in as the grid scrolls them into view.
                 loading={i < layout.cols * 2 ? 'eager' : 'lazy'}
-                style={focalStyle(item.focal, '50% 35%')}
+                // The same framing the artist's own page gives this piece.
+                // A tile that crops differently from the page it links to
+                // reads as a different photograph — though pieces that were
+                // already on the grid keep the framing they have today (see
+                // gridFallbackFor).
+                style={focalStyle(item.focal, item.fallbackPosition)}
               />
             );
             const className = `${styles.cell}${item.tall ? ` ${styles.cellTall}` : ''}${frozen ? ` ${styles.cellClickable}` : ''}`;

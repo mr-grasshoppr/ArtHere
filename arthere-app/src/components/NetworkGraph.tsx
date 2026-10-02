@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as d3 from 'd3';
-import Image from 'next/image';
+import { PreviewCard } from '@/components/PreviewCard';
 import { isCityLevelNeighborhood } from '@/lib/neighborhoods';
 
 export interface NetworkNode {
@@ -458,47 +458,17 @@ export function NetworkGraph({ nodes, links, neighborhoodGroups }: Props) {
         </div>
       )}
 
-      {/* Hover card — artists get a compact card with their bio photo as a
-          portrait strip on the left and text to the right. Width is generous
-          enough that most medium lists fit in 1-2 lines; text is never
-          clamped/truncated, so a card with a longer medium list just grows a
-          little taller rather than losing text. Places get their own larger
-          card with the photo as a banner across the top. */}
-      {hover && hover.node.type === 'artist' ? (
-        <div
-          className="fixed z-50 pointer-events-none bg-[#111] border border-[#222] rounded-lg overflow-hidden w-[300px] min-h-[76px] flex items-stretch shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
-          style={{ left: hover.x + 14, top: hover.y + 14 }}
-        >
-          {hover.node.imageUrl && (
-            <div className="relative w-[72px] flex-shrink-0 bg-[#1a1a1a]">
-              <Image src={hover.node.imageUrl} alt="" fill sizes="72px" className="object-cover" />
-            </div>
-          )}
-          <div className="px-3 py-2 min-w-0 flex flex-col justify-center">
-            <div className="font-heading text-[0.8rem] font-bold text-white leading-tight">{hover.node.label}</div>
-            {hover.node.meta && (
-              <div className="text-[0.68rem] text-[#888] leading-snug mt-0.5">{hover.node.meta}</div>
-            )}
-          </div>
-        </div>
-      ) : hover ? (
-        <div
-          className="fixed z-50 pointer-events-none bg-[#111] border border-[#222] rounded-lg overflow-hidden w-[240px] shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
-          style={{ left: hover.x + 14, top: hover.y + 14 }}
-        >
-          {hover.node.imageUrl && (
-            <div className="relative w-full h-[110px] bg-[#1a1a1a]">
-              <Image src={hover.node.imageUrl} alt="" fill sizes="240px" className="object-cover" />
-            </div>
-          )}
-          <div className="p-3">
-            <div className="font-heading text-[0.9rem] font-bold text-white mb-1">{hover.node.label}</div>
-            {hover.node.meta && (
-              <div className="text-[0.75rem] text-[#888] leading-snug">{hover.node.meta}</div>
-            )}
-          </div>
-        </div>
-      ) : null}
+      {/* Hover card — shared with the map tab's Geographic view. */}
+      {hover && (
+        <PreviewCard
+          variant={hover.node.type}
+          label={hover.node.label}
+          meta={hover.node.meta}
+          imageUrl={hover.node.imageUrl}
+          x={hover.x}
+          y={hover.y}
+        />
+      )}
 
       {/* Reset, in the same top-left corner the filter bar used to occupy.
           Nudges the layout back together and then frames every node, which is

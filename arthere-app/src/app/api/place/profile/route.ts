@@ -7,6 +7,7 @@ import { joinNeighborhoodList, parseNeighborhoodList } from '@/lib/neighborhoods
 import { placeAccessWhere } from '@/lib/place-access';
 import { LinkType } from '@prisma/client';
 import { normalizeLinkUrl } from '@/lib/social-link';
+import { syncPlaceLocations } from '@/lib/geocode';
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest) {
   const raw = await req.json().catch(() => null);
   const body = parseBody(placeProfileSchema, raw);
   if (!body) return NextResponse.json({ error: 'Invalid request.' }, { status: 400 });
-  const { name, neighborhood, description, quote, quoteAttribution, links, heroImageUrl, thumbnailImageUrl, galleryImages } = body;
+  const { name, neighborhood, description, quote, quoteAttribution, links, heroImageUrl, thumbnailImageUrl, galleryImages, locations, showOnMap } = body;
 
   const updated = await prisma.place.update({
     where: { id: place.id },
@@ -32,6 +33,7 @@ export async function POST(req: NextRequest) {
       thumbnailImageUrl: typeof thumbnailImageUrl === 'string' ? thumbnailImageUrl || null : undefined,
       // Gallery is capped at 3 — enforced here too in case a client sends more.
       galleryImages: Array.isArray(galleryImages) ? galleryImages.slice(0, 3) : undefined,
+      showOnMap: typeof showOnMap === 'boolean' ? showOnMap : undefined,
     },
   });
 
@@ -54,6 +56,10 @@ export async function POST(req: NextRequest) {
       });
     }
   }
+
+  // Autosave sends the whole list each time; unchanged addresses keep their
+  // coordinates, so only a new or edited one is looked up.
+  if (Array.isArray(locations)) await syncPlaceLocations(place.id, locations);
 
   await snapshotPlace(updated.id, 'place', session.user.email);
 

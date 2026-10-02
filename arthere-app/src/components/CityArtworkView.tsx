@@ -17,6 +17,8 @@ export interface ArtworkArtistData {
   images: {
     src: string;
     focal?: Focal | null;
+    /** Framing for a piece with no focal of its own — see gridFallbackFor. */
+    fallbackPosition?: string;
     alt: string;
     isHero: boolean;
     /** This specific piece's medium(s) — may differ from the artist's other work. */
@@ -93,6 +95,7 @@ export function CityArtworkView({
           images: (mediumFilter ? a.images.filter(img => img.medium.includes(mediumFilter)) : a.images).map(img => ({
             src: img.src,
             focal: img.focal,
+            fallbackPosition: img.fallbackPosition,
             isHero: img.isHero,
           })),
         }))

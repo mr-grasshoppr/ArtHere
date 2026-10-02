@@ -23,6 +23,7 @@ export default async function PlaceEditPage() {
           include: { artist: true },
         },
         links: { orderBy: { sortOrder: 'asc' } },
+        locations: { orderBy: { sortOrder: 'asc' } },
       },
     }),
     prisma.artist.findUnique({ where: { userId: session.user.id }, select: { name: true } }),
@@ -65,6 +66,9 @@ export default async function PlaceEditPage() {
         })),
           inDirectory: place.inDirectory,
           submittedForReviewAt: place.submittedForReviewAt?.toISOString() ?? null,
+          locations: place.locations.map((l) => ({ label: l.label ?? '', streetAddress: l.streetAddress })),
+          unresolvedAddresses: place.locations.filter((l) => l.lat == null).map((l) => l.streetAddress),
+          showOnMap: place.showOnMap,
         }}
         placeSlug={place.slug}
         neighborhoodOptions={neighborhoodOptions}

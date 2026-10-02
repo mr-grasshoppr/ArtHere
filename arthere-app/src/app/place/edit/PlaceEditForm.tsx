@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { FramingButton } from '@/components/FramingButton';
 import { PhotoGrid } from '@/components/PhotoGrid';
 import { NeighborhoodPicker } from '@/components/NeighborhoodPicker';
+import { PlaceLocationsEditor, type LocationRow } from '@/components/PlaceLocationsEditor';
 import { PlaceTeamManager } from '@/components/PlaceTeamManager';
 import { focalStyle, type Focal } from '@/lib/focal-style';
 import { parseNeighborhoodList, joinNeighborhoodList } from '@/lib/neighborhoods';
@@ -35,6 +36,9 @@ interface InitialData {
   artists: Artist[];
   inDirectory: boolean;
   submittedForReviewAt: string | null;
+  locations: LocationRow[];
+  unresolvedAddresses: string[];
+  showOnMap: boolean;
 }
 
 type InitialFocals = Record<string, Focal>;
@@ -84,6 +88,8 @@ export default function PlaceEditForm({
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(initialData.heroImageUrl);
   const [thumbnailImageUrl, setThumbnailImageUrl] = useState<string | null>(initialData.thumbnailImageUrl);
   const [galleryImages, setGalleryImages] = useState<string[]>(initialData.galleryImages);
+  const [locations, setLocations] = useState<LocationRow[]>(initialData.locations);
+  const [showOnMap, setShowOnMap] = useState(initialData.showOnMap);
   const [artists, setArtists] = useState<Artist[]>(initialData.artists);
   const [removingConnectionId, setRemovingConnectionId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -117,6 +123,8 @@ export default function PlaceEditForm({
           heroImageUrl: 'heroImageUrl' in overrides ? overrides.heroImageUrl : heroImageUrl,
           thumbnailImageUrl: 'thumbnailImageUrl' in overrides ? overrides.thumbnailImageUrl : thumbnailImageUrl,
           galleryImages: 'galleryImages' in overrides ? overrides.galleryImages : galleryImages,
+          locations,
+          showOnMap,
         }),
       });
       if (!res.ok) throw new Error();
@@ -132,7 +140,7 @@ export default function PlaceEditForm({
     saveTimer.current = setTimeout(() => persistAll(), 1200);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, neighborhoods, description, quote, quoteAttribution, JSON.stringify(links)]);
+  }, [name, neighborhoods, description, quote, quoteAttribution, JSON.stringify(links), JSON.stringify(locations), showOnMap]);
 
   async function handleHeroSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -292,6 +300,19 @@ export default function PlaceEditForm({
           <NeighborhoodPicker options={neighborhoodOptions} value={neighborhoods} onChange={setNeighborhoods} />
         </div>
         <p className="text-[0.65rem] text-[#ccc] mt-1 mb-5">Neighborhoods</p>
+        <div className="max-w-[520px]">
+          <PlaceLocationsEditor
+            value={locations}
+            onChange={setLocations}
+            inputClassName="w-full border-b border-[#e5e5e5] focus:border-[#1a1a1a] outline-none py-1 text-[0.9rem] bg-transparent"
+            unresolved={initialData.unresolvedAddresses}
+          />
+        </div>
+        <p className="text-[0.65rem] text-[#ccc] mt-1 mb-3">Street address{locations.length > 1 ? 'es' : ''}</p>
+        <label className="flex items-center gap-2 text-[0.8rem] text-[#555]">
+          <input type="checkbox" checked={showOnMap} onChange={e => setShowOnMap(e.target.checked)} />
+          Show {locations.length > 1 ? 'a pin for each of our locations' : 'a pin for us'} on the city map
+        </label>
       </div>
 
       {/* Description + quote + website */}

@@ -19,6 +19,7 @@ export const profileSchema = z
     quote: mediumText.nullish(),
     medium: shortText.nullish(),
     neighborhood: shortText.nullish(),
+    showOnMap: z.boolean().nullish(),
     hireFor: mediumText.nullish(),
     website: z.string().max(500).nullish(),
     instagram: shortText.nullish(),
@@ -145,6 +146,11 @@ export const placeProfileSchema = z
     heroImageUrl: z.string().max(1000).nullish(),
     thumbnailImageUrl: z.string().max(1000).nullish(),
     galleryImages: z.array(z.string().max(1000)).max(3).nullish(),
+    locations: z
+      .array(z.object({ label: shortText.nullish(), streetAddress: shortText }))
+      .max(6)
+      .nullish(),
+    showOnMap: z.boolean().nullish(),
   })
   .loose();
 
