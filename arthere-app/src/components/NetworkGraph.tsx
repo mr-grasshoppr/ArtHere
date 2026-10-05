@@ -321,8 +321,12 @@ export function NetworkGraph({ nodes, links, neighborhoodGroups }: Props) {
         if (d.external) window.open(d.href, '_blank', 'noopener,noreferrer');
         else window.location.href = d.href;
       })
-      .on('mouseover', (e: MouseEvent, d) => setHover({ node: d, x: e.clientX, y: e.clientY }))
-      .on('mousemove', (e: MouseEvent, d) => setHover({ node: d, x: e.clientX, y: e.clientY }))
+      // Only nodes with a page of their own get a hover card. A place without
+      // one is just its name, already printed beside the dot — and a card
+      // would show whatever photo the record happens to hold for a place
+      // that isn't public.
+      .on('mouseover', (e: MouseEvent, d) => d.href && setHover({ node: d, x: e.clientX, y: e.clientY }))
+      .on('mousemove', (e: MouseEvent, d) => d.href && setHover({ node: d, x: e.clientX, y: e.clientY }))
       .on('mouseout', () => setHover(null));
 
     // Each node is a tinted "card": artists are circular photos, places are
