@@ -27,6 +27,9 @@ const DETAIL_ZOOM = 11.5;
 // How far out you can zoom: a little past the whole metro, not the whole
 // Pacific Northwest — out there the map has nothing to show.
 const MIN_ZOOM = 8;
+/** Where the map opens, and where Reset view flies back to. */
+const START_CENTER: [number, number] = [-122.66, 45.5];
+const START_ZOOM = 10;
 // Below this the metro is too small on screen for its quadrant and city
 // names to fit; the shapes stay, the names go.
 const LABEL_MIN_ZOOM = 9;
@@ -135,8 +138,8 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
     const map = new maplibregl.Map({
       container,
       style: STYLE_URL,
-      center: [-122.66, 45.5],
-      zoom: 10,
+      center: START_CENTER,
+      zoom: START_ZOOM,
       minZoom: MIN_ZOOM,
       attributionControl: false,
     });
@@ -527,7 +530,11 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
         </div>
         {topControl && <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20">{topControl}</div>}
         <div className="absolute bottom-5 right-5 z-20">
-          <ZoomControls onZoomIn={() => mapRef.current?.zoomIn()} onZoomOut={() => mapRef.current?.zoomOut()} />
+          <ZoomControls
+            onZoomIn={() => mapRef.current?.zoomIn()}
+            onZoomOut={() => mapRef.current?.zoomOut()}
+            onReset={() => mapRef.current?.flyTo({ center: START_CENTER, zoom: START_ZOOM, duration: 800 })}
+          />
         </div>
       </div>
 

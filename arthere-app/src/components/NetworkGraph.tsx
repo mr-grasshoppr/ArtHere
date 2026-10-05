@@ -274,12 +274,12 @@ export function NetworkGraph({ nodes, links, neighborhoodGroups }: Props) {
       .force('y', d3.forceY<SimNode>(height / 2).strength(tether(width, height).y))
       .force('collide', d3.forceCollide<SimNode>().radius(d => radius(d) + 20));
 
-    // Frame every node — what Reset view does. The first view is framed the
-    // same way, once the layout has settled (below).
-    // Straight to the selection rather than through a transition, for the
-    // same reason as fitToNodes above.
+    // The + / − buttons. Straight to the selection rather than through a
+    // transition, for the same reason as fitToNodes above.
     zoomByRef.current = (factor) => svg.call(zoom.scaleBy, factor);
 
+    // Frame every node — what Reset view does. The first view is framed the
+    // same way, once the layout has settled (below).
     resetRef.current = () => {
       for (const n of simNodes) {
         n.fx = null;
@@ -498,18 +498,13 @@ export function NetworkGraph({ nodes, links, neighborhoodGroups }: Props) {
         />
       )}
 
-      {/* Zoom buttons, then Reset, in the bottom-right corner. Reset frames
-          every node — the way back from having dragged or zoomed somewhere
-          unrecoverable. */}
-      <div className="absolute bottom-5 right-5 z-10 flex flex-col items-end gap-2">
-        <ZoomControls onZoomIn={() => zoomByRef.current?.(1.4)} onZoomOut={() => zoomByRef.current?.(1 / 1.4)} />
-        <button
-          type="button"
-          onClick={() => resetRef.current?.()}
-          className="px-2.5 py-1 rounded-md border border-[#444] text-[0.72rem] text-[#888] bg-[#0a0a0a]/80 hover:border-[#888] hover:text-[#ccc] transition-colors cursor-pointer"
-        >
-          Reset view
-        </button>
+      {/* Zoom and reset, bottom right. Reset frames every node. */}
+      <div className="absolute bottom-5 right-5 z-10">
+        <ZoomControls
+          onZoomIn={() => zoomByRef.current?.(1.4)}
+          onZoomOut={() => zoomByRef.current?.(1 / 1.4)}
+          onReset={() => resetRef.current?.()}
+        />
       </div>
 
     </div>
