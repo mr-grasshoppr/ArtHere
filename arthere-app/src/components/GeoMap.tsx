@@ -5,6 +5,7 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { PreviewCard } from '@/components/PreviewCard';
 import { MapRegionPanel } from '@/components/MapRegionPanel';
+import { ZoomControls } from '@/components/ZoomControls';
 import {
   PLACE_PIN_COLOR,
   REGION_COLOR,
@@ -140,8 +141,6 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
       attributionControl: false,
     });
     mapRef.current = map;
-    // Top-left: the region panel takes the right-hand side.
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-left');
 
     // Fetched alongside the style rather than after it, and layers go on at
     // 'style.load' rather than 'load': 'load' waits for every basemap tile,
@@ -168,7 +167,8 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
 
       map.addControl(
         new maplibregl.AttributionControl({ compact: true, customAttribution: regions.attribution }),
-        'bottom-right'
+        // Bottom-left: the zoom buttons have the bottom-right corner.
+        'bottom-left'
       );
       // Compact attribution starts expanded on narrow screens, where it
       // covers a third of the map; start it folded to its (i) button.
@@ -526,6 +526,9 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
           <div ref={containerRef} className="w-full h-full" />
         </div>
         {topControl && <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20">{topControl}</div>}
+        <div className="absolute bottom-5 right-5 z-20">
+          <ZoomControls onZoomIn={() => mapRef.current?.zoomIn()} onZoomOut={() => mapRef.current?.zoomOut()} />
+        </div>
       </div>
 
       {shownPin ? (

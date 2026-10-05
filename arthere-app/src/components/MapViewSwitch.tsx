@@ -23,7 +23,7 @@ export function MapViewSwitch({ citySlug, active }: { citySlug: string; active: 
   return (
     <nav
       aria-label="Map views"
-      className="inline-flex gap-1.5 p-1 rounded-lg bg-black/80 shadow-[0_8px_32px_rgba(0,0,0,0.6)] backdrop-blur-sm"
+      className="inline-flex p-0.5 rounded-lg bg-[#1c1c1c]/90 border border-[#333] shadow-[0_8px_32px_rgba(0,0,0,0.6)] backdrop-blur-sm"
     >
       {MAP_VIEWS.map((view) => {
         const isActive = view.key === active;
@@ -33,12 +33,8 @@ export function MapViewSwitch({ citySlug, active }: { citySlug: string; active: 
             href={`/cities/${citySlug}/map?view=${view.key}`}
             aria-current={isActive ? 'page' : undefined}
             scroll={false}
-            // The view you're on is solid white; the other is outlined, so
-            // both read clearly over a dark map.
-            className={`px-3.5 py-1.5 rounded-md border text-[0.75rem] font-medium transition-colors ${
-              isActive
-                ? 'bg-white border-white text-black'
-                : 'border-white text-white hover:bg-white/15'
+            className={`px-3.5 py-1.5 rounded-md text-[0.75rem] font-medium transition-colors ${
+              isActive ? 'bg-[#3a3a3a] text-white' : 'text-[#999] hover:text-[#ddd]'
             }`}
           >
             {view.label}
