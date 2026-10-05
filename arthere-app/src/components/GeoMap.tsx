@@ -555,9 +555,18 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
       ) : null}
 
       {/* The region panel: a column down the right on wider screens; on a
-          phone, a strip across the bottom 30% that scrolls sideways. */}
+          phone, a strip across the bottom 30% that scrolls sideways. A
+          region with nobody in it only has a line of text to show, so its
+          panel shrinks to fit it — a short strip on a phone, a small card
+          over the map's corner on wider screens. */}
       {selected && (
-        <div className="flex-shrink-0 h-[30%] min-h-[190px] md:h-full md:min-h-0 md:w-[360px] border-t md:border-t-0 md:border-l border-[#222]">
+        <div
+          className={
+            selectedArtists.length === 0
+              ? 'flex-shrink-0 border-t border-[#222] md:absolute md:top-16 md:right-4 md:z-30 md:w-[300px] md:rounded-lg md:border md:overflow-hidden md:shadow-[0_8px_32px_rgba(0,0,0,0.6)]'
+              : 'flex-shrink-0 h-[30%] min-h-[190px] md:h-full md:min-h-0 md:w-[360px] border-t md:border-t-0 md:border-l border-[#222]'
+          }
+        >
           <MapRegionPanel
             key={selected.id}
             name={selected.name}
