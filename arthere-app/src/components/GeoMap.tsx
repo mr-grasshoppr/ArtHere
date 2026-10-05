@@ -128,6 +128,9 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
   const labelsRef = useRef(new Map<string, maplibregl.Marker>());
   // The map's own handlers outlive renders, so they call back through a ref.
   const selectRef = useRef<(s: Selected | null) => void>(() => {});
+  // The whole Portland area — every quadrant and city drawn on the
+  // zoomed-out map — as [west, south, east, north], once the regions load.
+  const areaBoundsRef = useRef<[number, number, number, number] | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -178,6 +181,8 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
       container.querySelector('.maplibregl-compact-show')?.classList.remove('maplibregl-compact-show');
 
       simplifyBasemap(map);
+
+      areaBoundsRef.current = overviewBounds(regions.features);
 
       map.addSource('regions', {
         type: 'geojson',
@@ -517,6 +522,24 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
       ? `/cities/${citySlug}/artists?${new URLSearchParams(selectedNames.map((n) => ['neighborhood', n]))}`
       : null;
 
+  // Reset view: close the panel and any pinned place card, then show the
+  // whole Portland area. Two frames' wait so the map has its full width back
+  // (the panel's gone from the DOM) before it's fitted.
+  const resetView = () => {
+    setStickyPin(null);
+    selectRef.current(null);
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        const map = mapRef.current;
+        if (!map) return;
+        map.resize();
+        const bounds = areaBoundsRef.current;
+        if (bounds) map.fitBounds(bounds, { padding: 40, duration: 800 });
+        else map.flyTo({ center: START_CENTER, zoom: START_ZOOM, duration: 800 });
+      })
+    );
+  };
+
   return (
     // An open panel takes its own share of the screen and the map narrows
     // (or, on a phone, shortens) to make room — maplibre notices the
@@ -533,7 +556,7 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
           <ZoomControls
             onZoomIn={() => mapRef.current?.zoomIn()}
             onZoomOut={() => mapRef.current?.zoomOut()}
-            onReset={() => mapRef.current?.flyTo({ center: START_CENTER, zoom: START_ZOOM, duration: 800 })}
+            onReset={resetView}
           />
         </div>
       </div>
@@ -591,4 +614,20 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
       )}
     </div>
   );
+}
+
+/** The bounding box of the regions drawn on the zoomed-out map. */
+function overviewBounds(features: MapRegionFeature[]): [number, number, number, number] | null {
+  let w = Infinity, south = Infinity, e = -Infinity, n = -Infinity;
+  const visit = (c: unknown): void => {
+    if (Array.isArray(c) && typeof c[0] === 'number') {
+      const [x, y] = c as number[];
+      w = Math.min(w, x); e = Math.max(e, x);
+      south = Math.min(south, y); n = Math.max(n, y);
+    } else if (Array.isArray(c)) c.forEach(visit);
+  };
+  for (const f of features) {
+    if (f.properties.level === 'area' || f.properties.level === 'city') visit(f.geometry.coordinates);
+  }
+  return Number.isFinite(w) ? [w, south, e, n] : null;
 }
