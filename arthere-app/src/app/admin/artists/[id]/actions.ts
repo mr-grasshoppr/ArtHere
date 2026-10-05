@@ -249,6 +249,30 @@ export async function setGalleryPosition(
   return rest.map((img, i) => ({ id: img.id, sortOrder: i }));
 }
 
+// Saves which pieces the profile shows and in what order, in one request —
+// the admin twin of POST /api/images/arrange, so dragging photos around works
+// the same here as on the artist's own form.
+export async function arrangeArtistImages(artistId: string, order: string[], heroId: string | null) {
+  const session = await requireAdmin();
+  const images = await prisma.artworkImage.findMany({ where: { artistId }, select: { id: true, url: true } });
+  const own = new Map(images.map((img) => [img.id, img.url]));
+  if (order.length !== own.size || new Set(order).size !== order.length || order.some((id) => !own.has(id))) {
+    throw new Error("order must list each of the artist's images once");
+  }
+  if (heroId !== null && !own.has(heroId)) throw new Error("heroId is not one of the artist's images");
+
+  await prisma.$transaction([
+    ...order.map((id, i) =>
+      prisma.artworkImage.update({ where: { id }, data: { sortOrder: i, isHero: id === heroId } })
+    ),
+    prisma.artist.update({
+      where: { id: artistId },
+      data: { heroImageUrl: heroId ? (own.get(heroId) ?? null) : null },
+    }),
+  ]);
+  await snapshotArtist(artistId, "admin", session.user?.email);
+}
+
 export async function deleteImage(artistId: string, imageId: string) {
   const session = await requireAdmin();
   const image = await prisma.artworkImage.findUnique({ where: { id: imageId } });

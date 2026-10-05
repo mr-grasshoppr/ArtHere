@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useRef, useTransition } from "react";
-import { setHeroImage, deleteImage, setBioPhoto, setArtworkMedium, setGalleryPosition } from "../actions";
+import { useState, useRef } from "react";
+import { setBioPhoto, setArtworkMedium, deleteImage, arrangeArtistImages } from "../actions";
 import { FramingButton } from "@/components/FramingButton";
 import { focalStyle, type Focal } from "@/lib/focal-style";
 import type { FramingValue } from "@/components/FramingEditor";
-import { MediumMultiSelect } from "@/components/MediumMultiSelect";
+import { HeaderPhotoSlot, GalleryPhotoSlots, type PhotoSlotsContext } from "@/components/ArtworkPhotoSlots";
+import { useArtworkPhotos, type PhotoAdapter, type PhotoImage } from "@/lib/useArtworkPhotos";
 import { resizeImageForUpload } from "@/lib/client-image-resize";
 
 type Image = {
@@ -17,15 +18,6 @@ type Image = {
   medium: string[];
   uploadedBy: string | null;
 };
-
-// Mirrors ArtistProfilePage's own computation exactly (non-hero images by
-// sortOrder, first 3) — this is the same slice that becomes the public
-// profile's gallery, so this list is what "Gallery Image 1/2/3" refers to.
-function galleryPositionOf(images: Image[], imageId: string): number | null {
-  const nonHero = [...images].filter((img) => !img.isHero).sort((a, b) => a.sortOrder - b.sortOrder);
-  const i = nonHero.findIndex((img) => img.id === imageId);
-  return i >= 0 && i < 3 ? i + 1 : null;
-}
 
 export default function AdminImageManager({
   artistId,
@@ -41,7 +33,6 @@ export default function AdminImageManager({
   initialFocals?: Record<string, Focal>;
   initialMediumOptions: string[];
 }) {
-  const [images, setImages] = useState<Image[]>(initialImages);
   const [bioPhotoUrl, setBioPhotoUrl] = useState<string | null>(initialBioPhotoUrl);
   const [focals, setFocals] = useState<Record<string, Focal>>(initialFocals ?? {});
   const [mediumOptions, setMediumOptions] = useState<string[]>(initialMediumOptions);
@@ -49,57 +40,39 @@ export default function AdminImageManager({
   function rememberFocal(url: string, value: FramingValue) {
     setFocals((prev) => ({ ...prev, [url]: value }));
   }
-  const [uploading, setUploading] = useState(false);
   const [uploadingBio, setUploadingBio] = useState(false);
   const [error, setError] = useState("");
-  const [isPending, startTransition] = useTransition();
-  const [editingMediumFor, setEditingMediumFor] = useState<string | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
   const bioFileRef = useRef<HTMLInputElement>(null);
 
-  function updateMedium(imageId: string, next: string[]) {
-    setImages((prev) => prev.map((img) => (img.id === imageId ? { ...img, medium: next } : img)));
-    setArtworkMedium(artistId, imageId, next);
-  }
+  // Header first, then the gallery in order — the same arrangement the
+  // artist's own form starts from.
+  const initialPhotos: PhotoImage[] = [...initialImages]
+    .sort((a, b) => Number(b.isHero) - Number(a.isHero) || a.sortOrder - b.sortOrder)
+    .map((img) => ({ id: img.id, url: img.url, isHero: img.isHero, medium: img.medium, uploadedBy: img.uploadedBy }));
 
-  async function handleArtworkUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []);
-    if (!files.length) return;
-    setUploading(true);
-    setError("");
-
-    // Tracked locally (not read from `images` state) because a multi-file
-    // batch runs through this loop before any state update lands — reading
-    // `images.length` per-iteration would see the same stale snapshot for
-    // every file and mark them all as hero.
-    let hasHero = images.some((img) => img.isHero);
-
-    for (const file of files) {
+  const adapter: PhotoAdapter = {
+    upload: async (file, asHero) => {
       const form = new FormData();
       form.append("file", await resizeImageForUpload(file));
       form.append("artistId", artistId);
-      form.append("isHero", hasHero ? "false" : "true");
-      try {
-        const res = await fetch("/api/admin/upload", { method: "POST", body: form });
-        if (!res.ok) {
-          const err = await res.json();
-          setError(err.error ?? "Upload failed");
-        } else {
-          const data = await res.json();
-          if (data.isHero) hasHero = true;
-          setImages((prev) => [
-            ...prev,
-            { id: data.id, url: data.url, altText: null, isHero: data.isHero, sortOrder: prev.length, medium: [], uploadedBy: "admin" },
-          ]);
-        }
-      } catch {
-        setError("Upload failed. Please try again.");
-      }
-    }
-
-    setUploading(false);
-    if (fileRef.current) fileRef.current.value = "";
-  }
+      form.append("isHero", asHero ? "true" : "false");
+      const res = await fetch("/api/admin/upload", { method: "POST", body: form });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? "Upload failed");
+      return { ...(await res.json()), uploadedBy: "admin" };
+    },
+    arrange: (order, heroId) => arrangeArtistImages(artistId, order, heroId),
+    remove: (id) => deleteImage(artistId, id),
+    setMedium: (id, next) => setArtworkMedium(artistId, id, next),
+  };
+  const photos = useArtworkPhotos(initialPhotos, adapter);
+  const photoCtx: PhotoSlotsContext = {
+    photos,
+    styleFor,
+    rememberFocal,
+    framingEndpoint: "/api/admin/image-focus",
+    mediumOptions,
+    onMediumOptionsChange: setMediumOptions,
+  };
 
   async function handleBioUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -128,35 +101,6 @@ export default function AdminImageManager({
 
     setUploadingBio(false);
     if (bioFileRef.current) bioFileRef.current.value = "";
-  }
-
-  function handleSetHero(imageId: string) {
-    startTransition(async () => {
-      await setHeroImage(artistId, imageId);
-      setImages((prev) => prev.map((img) => ({ ...img, isHero: img.id === imageId })));
-    });
-  }
-
-  function handleSetGalleryPosition(imageId: string, position: number) {
-    startTransition(async () => {
-      const updated = await setGalleryPosition(artistId, imageId, position);
-      const orderOf = new Map(updated.map((u) => [u.id, u.sortOrder]));
-      setImages((prev) => prev.map((img) => (orderOf.has(img.id) ? { ...img, sortOrder: orderOf.get(img.id)! } : img)));
-    });
-  }
-
-  function handleDelete(imageId: string) {
-    startTransition(async () => {
-      await deleteImage(artistId, imageId);
-      setImages((prev) => {
-        const remaining = prev.filter((img) => img.id !== imageId);
-        const wasHero = prev.find((img) => img.id === imageId)?.isHero;
-        if (wasHero && remaining.length > 0) {
-          remaining[0] = { ...remaining[0], isHero: true };
-        }
-        return remaining;
-      });
-    });
   }
 
   return (
@@ -209,159 +153,30 @@ export default function AdminImageManager({
         </div>
       </div>
 
-      {/* Artwork images */}
+      {/* Header and gallery — the same slots, drag-to-reorder and medium
+          pills as the artist's own editor. */}
       <div>
-        <h3 className="text-xs font-semibold text-[#888] uppercase tracking-wide">
-          Artwork Images ({images.length})
+        <h3 className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-1">
+          Header image
           <span className="ml-2 text-[9px] font-normal normal-case text-[#00805a] bg-[#00ae7a]/10 px-1.5 py-0.5 rounded-full align-middle">
             artist-editable
           </span>
         </h3>
         <p className="text-[11px] text-[#bbb] mb-3">
-          Top-right badge on each tile shows who added it. Artists can upload here too — an image
-          tagged &ldquo;unknown&rdquo; was uploaded before this was tracked.
+          The small label on each gallery image shows who added it. &ldquo;unknown&rdquo; means it was uploaded before this was tracked.
         </p>
-
-        {images.length > 0 && (
-          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-3">
-            {images.map((img) => {
-              const galleryPosition = galleryPositionOf(images, img.id);
-              return (
-              <div key={img.id} className="space-y-1">
-              <div className="relative group aspect-square rounded-lg overflow-hidden bg-[#f0f0f0]">
-                <img src={img.url} alt={img.altText ?? ""} className="w-full h-full object-cover" style={styleFor(img.url)} />
-
-                {/* Hero / gallery-position badge */}
-                {img.isHero ? (
-                  <div className="absolute top-1 left-1 text-[10px] bg-[#1a1a1a] text-white px-1.5 py-0.5 rounded">
-                    hero
-                  </div>
-                ) : galleryPosition && (
-                  <div className="absolute top-1 left-1 text-[10px] bg-[#1a1a1a]/70 text-white px-1.5 py-0.5 rounded">
-                    gallery {galleryPosition}
-                  </div>
-                )}
-
-                {/* Who uploaded this — admin vs. the artist themselves. Images
-                    from before this field existed show "unknown" rather than
-                    nothing, so a blank badge doesn't read as "not tracked". */}
-                <div
-                  className={`absolute top-1 right-1 text-[9px] px-1.5 py-0.5 rounded ${
-                    img.uploadedBy ? "bg-black/45 text-white" : "bg-black/25 text-white/70 italic"
-                  }`}
-                >
-                  {img.uploadedBy ?? "unknown"}
-                </div>
-
-                {/* Hover actions */}
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1.5 p-2">
-                  {!img.isHero && (
-                    <>
-                      <button
-                        onClick={() => handleSetHero(img.id)}
-                        disabled={isPending}
-                        className="w-full text-[11px] bg-white text-[#1a1a1a] rounded px-2 py-1 hover:bg-[#f0f0f0] transition-colors disabled:opacity-50"
-                      >
-                        Set as hero
-                      </button>
-                      <div className="flex w-full gap-1">
-                        {[1, 2, 3].map((pos) => (
-                          <button
-                            key={pos}
-                            onClick={() => handleSetGalleryPosition(img.id, pos)}
-                            disabled={isPending}
-                            title={`Set as Gallery Image ${pos}`}
-                            className={`flex-1 text-[11px] rounded px-1 py-1 transition-colors disabled:opacity-50 ${
-                              galleryPosition === pos
-                                ? "bg-[#1a1a1a] text-white"
-                                : "bg-white/90 text-[#1a1a1a] hover:bg-white"
-                            }`}
-                          >
-                            {pos}
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                  <FramingButton
-                    imageUrl={img.url}
-                    endpoint="/api/admin/image-focus"
-                    aspect={img.isHero ? "21 / 9" : "4 / 3"}
-                    className="w-full text-[11px] bg-white text-[#1a1a1a] rounded px-2 py-1 hover:bg-[#f0f0f0] transition-colors text-center"
-                    label="Adjust framing"
-                    onSaved={(v) => rememberFocal(img.url, v)}
-                  />
-                  <button
-                    onClick={() => handleDelete(img.id)}
-                    disabled={isPending}
-                    className="w-full text-[11px] bg-red-500 text-white rounded px-2 py-1 hover:bg-red-600 transition-colors disabled:opacity-50"
-                  >
-                    Delete
-                  </button>
-                  <a
-                    href={img.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full text-[11px] bg-white/20 text-white rounded px-2 py-1 hover:bg-white/30 transition-colors text-center"
-                  >
-                    View full
-                  </a>
-                </div>
-              </div>
-
-              {/* Per-artwork medium — AI-tagged, hand-correctable. Used to
-                  filter this specific piece on the artwork page. */}
-              {editingMediumFor === img.id ? (
-                <div className="flex flex-wrap gap-1 items-center">
-                  <MediumMultiSelect
-                    value={img.medium}
-                    onChange={(next) => updateMedium(img.id, next)}
-                    options={mediumOptions}
-                    onOptionsChange={setMediumOptions}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setEditingMediumFor(null)}
-                    className="px-1.5 py-0.5 rounded-full text-[10px] text-[#999] underline"
-                  >
-                    Done
-                  </button>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setEditingMediumFor(img.id)}
-                  className="text-[10px] text-[#999] hover:text-[#1a1a1a] transition-colors truncate block w-full text-left"
-                >
-                  {img.medium.length > 0 ? img.medium.join(", ") : "Untagged"} ✎
-                </button>
-              )}
-              </div>
-              );
-            })}
-          </div>
-        )}
-
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          multiple
-          onChange={handleArtworkUpload}
-          className="hidden"
-          id="artwork-upload"
-        />
-        <label
-          htmlFor="artwork-upload"
-          className={`inline-block text-sm px-4 py-2 border border-dashed border-[#e5e5e5] rounded-lg text-[#888] cursor-pointer hover:border-[#999] transition-colors ${
-            uploading ? "opacity-50 pointer-events-none" : ""
-          }`}
-        >
-          {uploading ? "Uploading…" : "+ Add artwork images"}
-        </label>
+        <HeaderPhotoSlot ctx={photoCtx} />
       </div>
 
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      <GalleryPhotoSlots
+        ctx={photoCtx}
+        title="Gallery"
+        renderBadge={(img) => (
+          <span className="text-[9px] px-1.5 py-0.5 rounded bg-black/45 text-white">{img.uploadedBy ?? "unknown"}</span>
+        )}
+      />
+
+      {(error || photos.error) && <p className="text-sm text-red-500">{error || photos.error}</p>}
     </div>
   );
 }
