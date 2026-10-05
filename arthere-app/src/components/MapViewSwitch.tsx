@@ -1,8 +1,9 @@
 import Link from 'next/link';
 
+// The first is the default: what the nav bar's "map" link opens.
 export const MAP_VIEWS = [
-  { key: 'network', label: 'Network' },
   { key: 'geographic', label: 'Geographic' },
+  { key: 'network', label: 'Network' },
 ] as const;
 
 export type MapView = (typeof MAP_VIEWS)[number]['key'];
