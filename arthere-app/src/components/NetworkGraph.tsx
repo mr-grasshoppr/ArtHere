@@ -235,6 +235,14 @@ export function NetworkGraph({ nodes, links, neighborhoodGroups }: Props) {
       svg.call(zoom.transform, d3.zoomIdentity.translate(w / 2 - k * cx, h / 2 - k * cy).scale(k));
     };
 
+    // The tether's pull, per axis, shaped to the screen: on a wide screen the
+    // vertical pull is the stronger, so the graph settles wide rather than
+    // tall and fills the frame instead of being shrunk to fit its height.
+    const tether = (w: number, h: number) => {
+      const aspect = w / Math.max(1, h);
+      return { x: 0.012 * Math.max(1, 1 / aspect), y: 0.012 * Math.max(1, aspect) };
+    };
+
     const sim = d3
       .forceSimulation<SimNode>(simNodes)
       .force(
@@ -259,13 +267,12 @@ export function NetworkGraph({ nodes, links, neighborhoodGroups }: Props) {
       // has to beat charge repulsion out at the fringe, where that force has
       // fallen off. Turned up to 0.055 it overwhelmed charge and collide at
       // close range too and collapsed the whole graph into one clump.
-      .force('x', d3.forceX<SimNode>(width / 2).strength(0.012))
-      .force('y', d3.forceY<SimNode>(height / 2).strength(0.012))
+      .force('x', d3.forceX<SimNode>(width / 2).strength(tether(width, height).x))
+      .force('y', d3.forceY<SimNode>(height / 2).strength(tether(width, height).y))
       .force('collide', d3.forceCollide<SimNode>().radius(d => radius(d) + 20));
 
-    // Frame every node. Also run once from the simulation's own 'end' event,
-    // so the first view a visitor gets is framed too, without guessing at a
-    // settle time with a timer.
+    // Frame every node — what Reset view does. The first view is framed the
+    // same way, once the layout has settled (below).
     resetRef.current = () => {
       for (const n of simNodes) {
         n.fx = null;
@@ -418,30 +425,40 @@ export function NetworkGraph({ nodes, links, neighborhoodGroups }: Props) {
       fadeInTimers.push(setTimeout(() => { el.style.opacity = '1'; }, i * 30));
     });
 
-    sim.on('tick', () => {
+    const draw = () => {
       linkSel
         .attr('x1', d => (d.source as SimNode).x ?? 0)
         .attr('y1', d => (d.source as SimNode).y ?? 0)
         .attr('x2', d => (d.target as SimNode).x ?? 0)
         .attr('y2', d => (d.target as SimNode).y ?? 0);
       nodeSel.attr('transform', d => `translate(${d.x ?? 0},${d.y ?? 0})`);
-    });
-
-    const handleResize = () => {
-      const w = container.clientWidth;
-      const h = container.clientHeight;
-      sim.force('center', d3.forceCenter(w / 2, h / 2));
-      sim.force('x', d3.forceX<SimNode>(w / 2).strength(0.012));
-      sim.force('y', d3.forceY<SimNode>(h / 2).strength(0.012));
-      sim.alpha(0.3).restart();
     };
-    const initialFrame = window.setTimeout(() => fitToNodes(), 2200);
+    sim.on('tick', draw);
 
-    const resizeObserver = new ResizeObserver(handleResize);
+    // Settle the layout before anyone sees it, then frame it once. Letting
+    // it settle on screen and framing it afterwards (it used to, on a 2.2s
+    // timer) showed a full-size graph that then abruptly zoomed out. Only
+    // dragging a node runs the simulation live now.
+    sim.stop();
+    const settleTicks = Math.ceil(Math.log(sim.alphaMin()) / Math.log(1 - sim.alphaDecay()));
+    for (let i = 0; i < settleTicks; i++) sim.tick();
+    draw();
+    fitToNodes();
+
+    // A real resize re-frames the graph where it stands. The observer also
+    // reports once when it starts watching — that's the size the layout was
+    // just framed for, so it's skipped.
+    let observedOnce = false;
+    const resizeObserver = new ResizeObserver(() => {
+      if (!observedOnce) {
+        observedOnce = true;
+        return;
+      }
+      fitToNodes();
+    });
     resizeObserver.observe(container);
 
     return () => {
-      window.clearTimeout(initialFrame);
       sim.stop();
       resizeObserver.disconnect();
       fadeInTimers.forEach(clearTimeout);
