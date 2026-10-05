@@ -92,12 +92,6 @@ export function MapRegionPanel({
           <h2 className="font-heading text-[0.95rem] md:text-[1rem] font-bold leading-tight truncate md:whitespace-normal">
             {name}
           </h2>
-          {artists.length > 0 && (
-            <p className="text-[0.68rem] md:text-[0.72rem] text-[#888] mt-0.5">
-              {artists.length} artist{artists.length === 1 ? '' : 's'}
-              <span className="hidden md:inline"> on the map</span>
-            </p>
-          )}
         </div>
 
         {artists.length > 0 && (
