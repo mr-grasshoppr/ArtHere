@@ -48,19 +48,23 @@ export async function getNetworkData(slug: string, scope: CityScope) {
       // A relation is either a real page (rel.place) or a free-text venue with
       // no page (rel.venueName). Name-only venues appear as plain, unlinked
       // nodes; only live directory pages are clickable.
-      const { place, venueName } = rel;
-      const name = place?.name ?? venueName;
+      const name = rel.place?.name ?? rel.venueName;
       if (!name) continue;
-      const placeId = place ? `place-${place.slug}` : `venue-${name.toLowerCase()}`;
+      // A place record that isn't in the public directory is drawn exactly
+      // like a typed-in venue: keyed by name, so one artist linking the record
+      // and another typing the same name meet at a single node, and plain —
+      // no neighborhood colour, photo or link from a record that isn't public.
+      const place = rel.place?.inDirectory ? rel.place : null;
+      const placeId = place ? `place-${place.slug}` : `venue-${name.trim().toLowerCase()}`;
 
       if (!seenPlaces.has(placeId)) {
         seenPlaces.add(placeId);
         const placeNeighborhood = parseNeighborhoodList(place?.neighborhood)[0] ?? null;
         nodes.push({
           id: placeId,
-          label: name,
+          label: name.trim(),
           type: 'place',
-          href: place?.inDirectory ? `/cities/${slug}/places/${place.slug}` : null,
+          href: place ? `/cities/${slug}/places/${place.slug}` : null,
           external: false,
           imageUrl: place?.heroImageUrl ?? null,
           neighborhood: placeNeighborhood,
