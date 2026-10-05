@@ -54,9 +54,12 @@ export function MapRegionPanel({
     <li className="flex-shrink-0 h-full aspect-square snap-start md:h-auto">
       <Link
         href={artworkHref}
-        className="flex h-full w-full items-center justify-center rounded-sm border border-[#333] px-2 text-center text-[0.7rem] leading-snug text-[#aaa] hover:text-white hover:border-[#555]"
+        className="flex h-full w-full flex-col items-center justify-center rounded-sm border border-[#333] px-2 text-center text-[0.7rem] leading-snug text-[#aaa] hover:text-white hover:border-[#555]"
       >
-        More {cityName} art →
+        {/* One word to a line, stacked in the middle of the tile. */}
+        <span>More</span>
+        <span>{cityName}</span>
+        <span>art →</span>
       </Link>
     </li>
   );
