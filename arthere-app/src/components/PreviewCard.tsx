@@ -55,12 +55,8 @@ export function PreviewCard({ variant, label, meta, imageUrl, x, y, href }: Prev
   const { ref, style } = useOnScreenPosition(x, y);
 
   if (variant === 'artist') {
-    return (
-      <div
-        ref={ref}
-        className="fixed z-50 pointer-events-none bg-[#111] border border-[#222] rounded-lg overflow-hidden w-[300px] min-h-[76px] flex items-stretch shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
-        style={style}
-      >
+    const artistBody = (
+      <>
         {imageUrl && (
           <div className="relative w-[72px] flex-shrink-0 bg-[#1a1a1a]">
             <Image src={imageUrl} alt="" fill sizes="72px" className="object-cover" />
@@ -69,7 +65,23 @@ export function PreviewCard({ variant, label, meta, imageUrl, x, y, href }: Prev
         <div className="px-3 py-2 min-w-0 flex flex-col justify-center">
           <div className="font-heading text-[0.8rem] font-bold text-white leading-tight">{label}</div>
           {meta && <div className="text-[0.68rem] text-[#888] leading-snug mt-0.5">{meta}</div>}
+          {href && <div className="text-[0.68rem] text-[#bbb] mt-1.5 group-hover:text-white">View profile →</div>}
         </div>
+      </>
+    );
+    return (
+      <div
+        ref={ref}
+        className={`fixed z-50 ${href ? 'pointer-events-auto' : 'pointer-events-none'} bg-[#111] border border-[#222] rounded-lg overflow-hidden w-[300px] min-h-[76px] shadow-[0_8px_32px_rgba(0,0,0,0.6)]`}
+        style={style}
+      >
+        {href ? (
+          <Link href={href} className="group flex items-stretch min-h-[76px] hover:bg-[#161616]">
+            {artistBody}
+          </Link>
+        ) : (
+          <div className="flex items-stretch min-h-[76px]">{artistBody}</div>
+        )}
       </div>
     );
   }

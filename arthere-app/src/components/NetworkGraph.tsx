@@ -5,6 +5,7 @@ import * as d3 from 'd3';
 import { PreviewCard } from '@/components/PreviewCard';
 import { ZoomControls } from '@/components/ZoomControls';
 import { loadNetworkCamera, saveNetworkCamera } from '@/lib/map-camera';
+import { isTouchOnly, TAP_OPEN_DELAY_MS } from '@/lib/tap-to-open';
 import { isCityLevelNeighborhood } from '@/lib/neighborhoods';
 
 export interface NetworkNode {
@@ -100,7 +101,12 @@ export function NetworkGraph({ citySlug, nodes, links, neighborhoodGroups }: Pro
   const resetRef = useRef<(() => void) | null>(null);
   // Zooms the graph about the middle of the screen, for the + / − buttons.
   const zoomByRef = useRef<((factor: number) => void) | null>(null);
+  // The pinned node, read by the click handler inside the graph's effect.
+  const pinnedRef = useRef<{ id: string; at: number } | null>(null);
   const [hover, setHover] = useState<HoverState | null>(null);
+  // On a touchscreen, the node whose card a tap has pinned open (and when),
+  // so a later tap on it opens its page (lib/tap-to-open.ts).
+  const [pinned, setPinned] = useState<HoverState | null>(null);
 
   // Memoized so this array keeps the same identity across re-renders that
   // don't change the underlying data (e.g. every time the hover tooltip
@@ -185,9 +191,10 @@ export function NetworkGraph({ citySlug, nodes, links, neighborhoodGroups }: Pro
       // Remember where the graph was left, for this tab (lib/map-camera.ts).
       .on('end', e => saveNetworkCamera(citySlug, { x: e.transform.x, y: e.transform.y, k: e.transform.k }));
     svg.call(zoom);
-    svg.on('dblclick.zoom', () => {
-      svg.call(zoom.transform, d3.zoomIdentity);
-    });
+    // No double-click/double-tap zoom: on a phone it fired on the second tap
+    // of a node, and it reset to a view that wasn't the framed one anyway.
+    // The + / − and reset buttons cover it.
+    svg.on('dblclick.zoom', null);
 
     /**
      * Frame every node.
@@ -328,18 +335,36 @@ export function NetworkGraph({ citySlug, nodes, links, neighborhoodGroups }: Pro
             d.fy = null;
           })
       )
-      .on('click', (_e, d) => {
+      .on('click', (e: MouseEvent, d) => {
+        e.stopPropagation(); // not a tap on the background, which unpins
         if (!d.href) return;
+        // With a mouse the card is already showing from the hover: go. On a
+        // touchscreen the first tap pins the card, and a later tap opens it.
+        if (isTouchOnly()) {
+          const open = pinnedRef.current;
+          if (!open || open.id !== d.id || Date.now() - open.at < TAP_OPEN_DELAY_MS) {
+            pinnedRef.current = { id: d.id, at: Date.now() };
+            setPinned({ node: d, x: e.clientX, y: e.clientY });
+            return;
+          }
+        }
         if (d.external) window.open(d.href, '_blank', 'noopener,noreferrer');
         else window.location.href = d.href;
       })
       // Only nodes with a page of their own get a hover card. A place without
       // one is just its name, already printed beside the dot — and a card
       // would show whatever photo the record happens to hold for a place
-      // that isn't public.
-      .on('mouseover', (e: MouseEvent, d) => d.href && setHover({ node: d, x: e.clientX, y: e.clientY }))
-      .on('mousemove', (e: MouseEvent, d) => d.href && setHover({ node: d, x: e.clientX, y: e.clientY }))
+      // that isn't public. Not on a touchscreen, where a tap would fire
+      // these too and the pinned card does the job.
+      .on('mouseover', (e: MouseEvent, d) => !isTouchOnly() && d.href && setHover({ node: d, x: e.clientX, y: e.clientY }))
+      .on('mousemove', (e: MouseEvent, d) => !isTouchOnly() && d.href && setHover({ node: d, x: e.clientX, y: e.clientY }))
       .on('mouseout', () => setHover(null));
+
+    // A tap on the background puts a pinned card away.
+    svg.on('click.unpin', () => {
+      pinnedRef.current = null;
+      setPinned(null);
+    });
 
     // Each node is a tinted "card": artists are circular photos, places are
     // square swatches. Both are colored by neighborhood — a soft color wash
@@ -495,15 +520,17 @@ export function NetworkGraph({ citySlug, nodes, links, neighborhoodGroups }: Pro
         </div>
       )}
 
-      {/* Hover card — shared with the map tab's Geographic view. */}
-      {hover && (
+      {/* Hover card — shared with the map tab's Geographic view. A card
+          pinned by a tap is clickable through to the page. */}
+      {(hover ?? pinned) && (
         <PreviewCard
-          variant={hover.node.type}
-          label={hover.node.label}
-          meta={hover.node.meta}
-          imageUrl={hover.node.imageUrl}
-          x={hover.x}
-          y={hover.y}
+          variant={(hover ?? pinned)!.node.type}
+          label={(hover ?? pinned)!.node.label}
+          meta={(hover ?? pinned)!.node.meta}
+          imageUrl={(hover ?? pinned)!.node.imageUrl}
+          x={(hover ?? pinned)!.x}
+          y={(hover ?? pinned)!.y}
+          href={!hover && pinned ? pinned.node.href : null}
         />
       )}
 

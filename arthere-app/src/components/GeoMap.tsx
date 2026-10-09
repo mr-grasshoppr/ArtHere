@@ -7,6 +7,7 @@ import { PreviewCard } from '@/components/PreviewCard';
 import { MapRegionPanel } from '@/components/MapRegionPanel';
 import { ZoomControls } from '@/components/ZoomControls';
 import { loadGeoCamera, saveGeoCamera } from '@/lib/map-camera';
+import { TAP_OPEN_DELAY_MS } from '@/lib/tap-to-open';
 import {
   PLACE_PIN_COLOR,
   REGION_COLOR,
@@ -483,6 +484,7 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
     // the map, lets go of it.
     const pinById = new Map(pins.map((p) => [p.id, p]));
     let stickyId: string | undefined;
+    let stickyAt = 0;
     function clearSticky() {
       stickyId = undefined;
       setStickyPin(null);
@@ -501,13 +503,17 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
       const hit = map.queryRenderedFeatures(e.point, { layers: ['places-pin'] })[0];
       const pin = hit && pinById.get(String(hit.properties.id));
       if (!pin) return clearSticky();
-      if (stickyId === pin.id) {
+      // A second click opens the place — but not a quick double-tap, which
+      // only shows the card (lib/tap-to-open.ts).
+      if (stickyId === pin.id && Date.now() - stickyAt >= TAP_OPEN_DELAY_MS) {
         if (pin.href) window.location.href = pin.href;
         return;
       }
+      if (stickyId === pin.id) return;
       clearRegionHover();
       setPlaceHover(null);
       stickyId = pin.id;
+      stickyAt = Date.now();
       setStickyPin({ pin, x: e.originalEvent.clientX, y: e.originalEvent.clientY });
     });
 
