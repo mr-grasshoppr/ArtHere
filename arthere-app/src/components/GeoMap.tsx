@@ -6,6 +6,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { PreviewCard } from '@/components/PreviewCard';
 import { MapRegionPanel } from '@/components/MapRegionPanel';
 import { ZoomControls } from '@/components/ZoomControls';
+import { loadGeoCamera, saveGeoCamera } from '@/lib/map-camera';
 import {
   PLACE_PIN_COLOR,
   REGION_COLOR,
@@ -131,6 +132,13 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
   // The whole Portland area — every quadrant and city drawn on the
   // zoomed-out map — as [west, south, east, north], once the regions load.
   const areaBoundsRef = useRef<[number, number, number, number] | null>(null);
+  // The whole Portland area in view — the first visit's framing, and where
+  // Reset view goes. Extra room at the top for the view switch.
+  const frameArea = (map: maplibregl.Map, duration: number) => {
+    const bounds = areaBoundsRef.current;
+    if (bounds) map.fitBounds(bounds, { padding: { top: 64, bottom: 24, left: 24, right: 24 }, duration });
+    else map.flyTo({ center: START_CENTER, zoom: START_ZOOM, duration });
+  };
 
   useEffect(() => {
     const container = containerRef.current;
@@ -138,15 +146,22 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
     let cancelled = false;
     const labels = labelsRef.current;
 
+    // Back where the visitor left it this session, if anywhere
+    // (lib/map-camera.ts).
+    const saved = loadGeoCamera(citySlug);
     const map = new maplibregl.Map({
       container,
       style: STYLE_URL,
-      center: START_CENTER,
-      zoom: START_ZOOM,
+      center: saved?.center ?? START_CENTER,
+      zoom: saved?.zoom ?? START_ZOOM,
       minZoom: MIN_ZOOM,
       attributionControl: false,
     });
     mapRef.current = map;
+    map.on('moveend', () => {
+      const { lng, lat } = map.getCenter();
+      saveGeoCamera(citySlug, { center: [lng, lat], zoom: map.getZoom() });
+    });
 
     // Fetched alongside the style rather than after it, and layers go on at
     // 'style.load' rather than 'load': 'load' waits for every basemap tile,
@@ -316,17 +331,9 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
       }
       syncLabels();
 
-      // Frame every drawn region — Vancouver to Tigard — on first load.
-      const bounds = new maplibregl.LngLatBounds();
-      for (const f of regions.features) {
-        const polys = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
-        for (const poly of polys) for (const [lng, lat] of poly[0]) bounds.extend([lng, lat]);
-      }
-      // Leave room for the legend card, which floats bottom-left on desktop.
-      const wide = container.clientWidth >= 768;
-      if (!bounds.isEmpty()) {
-        map.fitBounds(bounds, { padding: wide ? { top: 64, bottom: 24, left: 250, right: 24 } : 24, duration: 0 });
-      }
+      // Frame the whole area on a first visit; a remembered view is already
+      // in place.
+      if (!saved) frameArea(map, 0);
       layoutPins();
     });
 
@@ -533,9 +540,7 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
         const map = mapRef.current;
         if (!map) return;
         map.resize();
-        const bounds = areaBoundsRef.current;
-        if (bounds) map.fitBounds(bounds, { padding: 40, duration: 800 });
-        else map.flyTo({ center: START_CENTER, zoom: START_ZOOM, duration: 800 });
+        frameArea(map, 800);
       })
     );
   };

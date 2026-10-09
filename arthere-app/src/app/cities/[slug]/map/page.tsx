@@ -44,18 +44,20 @@ export default async function CityMapPage({
   const { cityDisplayName } = scope;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white pt-14">
+    <div className="min-h-dvh bg-[#0a0a0a] text-white pt-14">
       <NavBar activeCitySlug={slug} cityNav={cityNavFor(slug, cityDisplayName)} />
 
       {/* Each view fills everything under the nav; the page title is the
-          nav's own "map" tab. */}
-      <div className="relative h-[calc(100vh-3.5rem)]">
+          nav's own "map" tab. dvh, not vh: on a phone 100vh is the height
+          with the browser's toolbars hidden, which pushed the bottom of the
+          map — and its zoom buttons — under them. */}
+      <div className="relative h-[calc(100dvh-3.5rem)]">
         {view === 'network' ? (
           <>
             <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20">
               <MapViewSwitch citySlug={slug} active={view} />
             </div>
-            <NetworkGraph {...await getNetworkData(slug, scope)} />
+            <NetworkGraph citySlug={slug} {...await getNetworkData(slug, scope)} />
           </>
         ) : (
           <GeoMap

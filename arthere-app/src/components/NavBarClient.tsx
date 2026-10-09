@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { clearMapCameras } from '@/lib/map-camera';
 
 export interface CityEntry {
   slug: string;
@@ -65,6 +66,11 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark', cityNav }
             : 'bg-black'
         }`}
         style={{ height: 56 }}
+        // Going anywhere through the nav bar — a tab, the logo, the menu —
+        // starts the map tab's views fresh next time (lib/map-camera.ts).
+        onClickCapture={(e) => {
+          if ((e.target as HTMLElement).closest('a')) clearMapCameras();
+        }}
       >
         {/* Logo */}
         <Link href="/" onClick={closeAll} className="flex-shrink-0 opacity-90 hover:opacity-100 transition-opacity">

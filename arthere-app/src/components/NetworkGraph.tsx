@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { PreviewCard } from '@/components/PreviewCard';
 import { ZoomControls } from '@/components/ZoomControls';
+import { loadNetworkCamera, saveNetworkCamera } from '@/lib/map-camera';
 import { isCityLevelNeighborhood } from '@/lib/neighborhoods';
 
 export interface NetworkNode {
@@ -66,6 +67,8 @@ export interface NeighborhoodOptionGroup {
 }
 
 interface Props {
+  /** Which city's graph this is — the key its zoom and position are remembered under. */
+  citySlug: string;
   nodes: NetworkNode[];
   links: NetworkLink[];
   /**
@@ -89,7 +92,7 @@ interface HoverState {
  * which neighborhood each one belongs to. Drag dots around, scroll/pinch to
  * zoom, hover for details, click to visit.
  */
-export function NetworkGraph({ nodes, links, neighborhoodGroups }: Props) {
+export function NetworkGraph({ citySlug, nodes, links, neighborhoodGroups }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   // Fits every node into view; assigned inside the effect, where the zoom
@@ -178,7 +181,9 @@ export function NetworkGraph({ nodes, links, neighborhoodGroups }: Props) {
     const zoomG = svg.append('g');
     const zoom = d3.zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.08, 4])
-      .on('zoom', e => zoomG.attr('transform', e.transform));
+      .on('zoom', e => zoomG.attr('transform', e.transform))
+      // Remember where the graph was left, for this tab (lib/map-camera.ts).
+      .on('end', e => saveNetworkCamera(citySlug, { x: e.transform.x, y: e.transform.y, k: e.transform.k }));
     svg.call(zoom);
     svg.on('dblclick.zoom', () => {
       svg.call(zoom.transform, d3.zoomIdentity);
@@ -454,7 +459,11 @@ export function NetworkGraph({ nodes, links, neighborhoodGroups }: Props) {
     const settleTicks = Math.ceil(Math.log(sim.alphaMin()) / Math.log(1 - sim.alphaDecay()));
     for (let i = 0; i < settleTicks; i++) sim.tick();
     draw();
-    fitToNodes();
+    // Back where the visitor left it this session, if anywhere; otherwise
+    // framed.
+    const saved = loadNetworkCamera(citySlug);
+    if (saved) svg.call(zoom.transform, d3.zoomIdentity.translate(saved.x, saved.y).scale(saved.k));
+    else fitToNodes();
 
     // A real resize re-frames the graph where it stands. The observer also
     // reports once when it starts watching — that's the size the layout was
@@ -474,7 +483,7 @@ export function NetworkGraph({ nodes, links, neighborhoodGroups }: Props) {
       resizeObserver.disconnect();
       fadeInTimers.forEach(clearTimeout);
     };
-  }, [nodes, links, neighborhoods]);
+  }, [citySlug, nodes, links, neighborhoods]);
 
   return (
     <div ref={containerRef} className="absolute inset-0 overflow-hidden">
