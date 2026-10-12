@@ -175,9 +175,11 @@ export default async function Home() {
               Questions?
             </div>
             <FaqAccordion items={TEASER_IDS.map(faqItem)} idPrefix="teaser-" />
-            <Link href="/faq" className="inline-block mt-6 text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#bbb] hover:opacity-60 transition-opacity">
-              More questions →
-            </Link>
+            <div className="mt-6 text-right">
+              <Link href="/faq" className="text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#bbb] hover:opacity-60 transition-opacity">
+                More questions →
+              </Link>
+            </div>
           </div>
         </section>
 
