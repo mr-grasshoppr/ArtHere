@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import OnboardingForm from "@/components/OnboardingForm";
 import { getFocals } from "@/lib/image-focus";
 import { getMediumOptions } from "@/lib/medium-options";
+import Link from 'next/link';
 
 export default async function OnboardingPage() {
   const session = await auth();
@@ -63,9 +64,9 @@ export default async function OnboardingPage() {
       <div className="max-w-[980px] mx-auto px-4 sm:px-10 pb-10 text-center">
         <p className="text-[0.82rem] text-[#aaa] font-light">
           Experiencing tech issues?{' '}
-          <a href="mailto:hello@artishere.org" className="underline underline-offset-[3px] hover:text-[#555] transition-colors">
+          <Link href="/contact" className="underline underline-offset-[3px] hover:text-[#555] transition-colors">
             Contact us here
-          </a>
+          </Link>
         </p>
       </div>
     </main>

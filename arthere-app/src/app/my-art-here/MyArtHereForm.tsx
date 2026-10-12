@@ -45,9 +45,9 @@ export function MyArtHereForm() {
             Try again
           </button>
           {' '}or{' '}
-          <a href="mailto:hello@artishere.org" className="underline underline-offset-[3px] hover:text-[#555] transition-colors">
+          <Link href="/contact" className="underline underline-offset-[3px] hover:text-[#555] transition-colors">
             contact us
-          </a>.
+          </Link>.
         </p>
       </div>
     );

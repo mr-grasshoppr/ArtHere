@@ -14,6 +14,7 @@ import type { FramingValue } from '@/components/FramingEditor';
 import { resizeImageForUpload } from '@/lib/client-image-resize';
 import type { PlaceRelationship } from '@prisma/client';
 import { RELATIONSHIP_LABELS, LINK_TYPE_OPTIONS } from '@/lib/artist-options';
+import Link from 'next/link';
 
 interface Artist {
   connectionId: string;
@@ -503,9 +504,9 @@ export default function PlaceEditForm({
       <div className="pb-10 text-center">
         <p className="text-[0.78rem] text-[#ccc] font-light">
           Having trouble?{' '}
-          <a href="mailto:hello@artishere.org" className="underline underline-offset-[3px] hover:text-[#888] transition-colors">
+          <Link href="/contact" className="underline underline-offset-[3px] hover:text-[#888] transition-colors">
             Contact us
-          </a>
+          </Link>
         </p>
       </div>
     </div>
