@@ -34,3 +34,27 @@
   background-color: #f062a4;
   animation: none;
 }
+
+/* Gradient seen through small text (background-clip: text). The photo is
+   scaled so a heading sees a soft blend of the colors, rather than
+   a ~100px slice of the full-size image; one scaled width is still an exact,
+   gap-free loop. Sized so each heading shows a gentle shift, not a hard one. */
+.gradientText {
+  background-color: #1a9b6f;
+  background-image: url('/images/arthere_logo_green_pink_background_for_animated_logo.png');
+  background-repeat: repeat-x;
+  background-size: 1800px 100%;
+  background-position: 0 center;
+  animation: gradientTextPan 45s linear infinite;
+}
+
+@keyframes gradientTextPan {
+  from { background-position-x: 0; }
+  to   { background-position-x: -1800px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gradientText {
+    animation: none;
+  }
+}

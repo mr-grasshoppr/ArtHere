@@ -4,6 +4,7 @@ import { SiteFooter } from '@/components/SiteFooter';
 import { FaqAccordion } from '@/components/FaqAccordion';
 import { FaqDeepLink } from '@/components/FaqDeepLink';
 import { FAQ_SECTIONS } from '@/lib/faq';
+import gradientStyles from '../AnimatedGradient.module.css';
 
 export const metadata: Metadata = {
   title: 'FAQ | Art Here',
@@ -29,7 +30,7 @@ export default function FaqPage() {
       <div className="bg-[#1a1a1a] text-white mt-14">
         <div className="px-[18px] py-4 flex flex-wrap items-baseline gap-x-6 gap-y-2">
           <h1 className="font-display text-[2rem] sm:text-[2.4rem] leading-none tracking-[0.04em]">
-            Art Here FAQ
+            FAQ
           </h1>
           <p className="text-[0.9rem] font-light text-white/65 leading-[1.7]">
             Get to know <BandLink id="about-art-here">Art Here</BandLink> and{' '}
@@ -43,7 +44,10 @@ export default function FaqPage() {
       <main className="max-w-[760px] mx-auto px-6 sm:px-10 pt-10 pb-20">
         {FAQ_SECTIONS.map(s => (
           <section key={s.title} id={slug(s.title)} className="mb-12 scroll-mt-[90px]">
-            <h2 className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-4">{s.title}</h2>
+            {/* Gradient shows through the letters (text-clip), panning like the pill. */}
+            <h2 className={`${gradientStyles.gradientText} font-display inline-block text-[1.4rem] sm:text-[1.6rem] leading-none tracking-[0.06em] uppercase text-transparent [background-clip:text] [-webkit-background-clip:text] pb-1 mb-3`}>
+              {s.title}
+            </h2>
             <FaqAccordion items={s.items} />
           </section>
         ))}
