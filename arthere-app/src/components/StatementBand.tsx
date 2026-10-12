@@ -44,8 +44,8 @@ export function StatementBand({ cityHref, cityLabel }: Props) {
       data-inview={inView}
       className={styles.band}
     >
-      <div className="relative z-10 w-full mx-auto px-6 sm:px-10 py-16 sm:py-20 flex flex-col items-stretch gap-3 sm:gap-4 text-center">
-        <h2 className="font-display uppercase text-white text-[clamp(2.2rem,9.5vw,3.4rem)] min-[560px]:text-[clamp(2rem,7vw,7rem)] tracking-[0.01em] leading-[1.02]">
+      <div className="relative z-10 w-full max-w-[900px] mx-auto px-6 sm:px-10 py-16 sm:py-20 flex flex-col items-stretch gap-3 sm:gap-4 text-center">
+        <h2 className="font-display uppercase text-white text-[clamp(2.2rem,9.5vw,3.4rem)] min-[560px]:text-[clamp(2rem,7vw,4.1rem)] tracking-[0.01em] leading-[1.02]">
           {/* One line when there's room; on a phone it turns after "made". */}
           <span className="block min-[560px]:inline">Discover art made</span>{' '}
           <span className="block min-[560px]:inline">down the street</span>
@@ -53,7 +53,7 @@ export function StatementBand({ cityHref, cityLabel }: Props) {
         {cityHref && cityLabel && (
           <Link
             href={cityHref}
-            className="self-end mr-[8vw] font-sans italic text-[#262626] text-[0.9rem] min-[560px]:text-[clamp(0.875rem,2.1vw,2.1rem)] tracking-[0.02em] leading-none underline underline-offset-[0.25em] hover:opacity-70 transition-opacity"
+            className="self-end mr-[clamp(0px,8vw,4rem)] font-sans italic text-[#262626] text-[0.9rem] min-[560px]:text-[clamp(0.875rem,2.1vw,1.23rem)] tracking-[0.02em] leading-none underline underline-offset-[0.25em] hover:opacity-70 transition-opacity"
           >
             in {cityLabel} →
           </Link>

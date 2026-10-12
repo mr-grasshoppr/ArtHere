@@ -31,7 +31,7 @@
    * more lines than the band would otherwise allow for. */
   display: flex;
   align-items: center;
-  min-height: clamp(300px, 48.5vw, 640px);
+  min-height: clamp(300px, 48.5vw, 560px);
   /* White like the sections above and below, so the wash dissolves into the
      page rather than into a gap. */
   background-color: #fff;
