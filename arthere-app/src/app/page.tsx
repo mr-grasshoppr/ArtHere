@@ -95,7 +95,7 @@ export default async function Home() {
 
         {/* About + Map side by side */}
         <section id="about" className="bg-[#f7f6f3] scroll-mt-[70px]">
-          <div className="max-w-[900px] mx-auto px-6 sm:px-10 pt-16 sm:pt-24 pb-0 flex flex-col sm:flex-row gap-12 sm:gap-16 items-center">
+          <div className="max-w-[900px] mx-auto px-6 sm:px-10 pt-16 sm:pt-24 pb-12 sm:pb-0 flex flex-col sm:flex-row gap-0 sm:gap-16 items-center">
             <div className="flex-1 min-w-0">
               <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-6">About</div>
               <div className="text-[1.05rem] text-[#555] font-light leading-[1.85] [&>p]:mb-[18px]">
@@ -116,19 +116,9 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Statement band — reveals a link through to the pilot city on
-            hover (pointer) or on scroll-into-view (touch). The animated
-            gradient also breaks up what would otherwise be a long run of
-            black sections further down. */}
-        <StatementBand
-          cityHref={pilotCityHref}
-          cityLabel={pilotCityLabel}
-          cityCode={pilotCitySlug ? CITY_CODES[pilotCitySlug] : undefined}
-        />
-
         {/* How it works */}
-        <section className="bg-[#f7f6f3]">
-          <div className="max-w-[900px] mx-auto px-6 sm:px-10 pt-0 pb-14 sm:pb-[72px]">
+        <section className="bg-white">
+          <div className="max-w-[900px] mx-auto px-6 sm:px-10 pt-14 sm:pt-16 pb-14 sm:pb-[72px]">
             <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-10">
               How it works
             </div>
@@ -168,6 +158,15 @@ export default async function Home() {
             </div>
           </div>
         </section>
+
+        {/* Statement band — reveals a link through to the pilot city on
+            hover (pointer) or on scroll-into-view (touch). Sits between How it works
+            and the FAQ. */}
+        <StatementBand
+          cityHref={pilotCityHref}
+          cityLabel={pilotCityLabel}
+          cityCode={pilotCitySlug ? CITY_CODES[pilotCitySlug] : undefined}
+        />
 
         {/* FAQ teaser — the three most common questions; the full list lives at /faq. */}
         <section className="bg-white">

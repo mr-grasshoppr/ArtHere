@@ -32,9 +32,9 @@
   display: flex;
   align-items: center;
   min-height: clamp(300px, 48.5vw, 640px);
-  /* Same off-white as the sections above and below, so the wash dissolves
-     into the page rather than into a gap. */
-  background-color: #f7f6f3;
+  /* White like the sections above and below, so the wash dissolves into the
+     page rather than into a gap. */
+  background-color: #fff;
 }
 
 .band::before {
@@ -42,15 +42,13 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background-image: url('/images/pink_green_section_v3.png');
+  background-image: url('/images/Pink_Green_banner.png');
   background-repeat: no-repeat;
-  /* Drawn 9% wider than the box and pinned right, so the overhang falls off
-     the left edge and is clipped away by the background box. The artwork
-     carries a fully transparent 8.1% strip down its left side; without this
-     the green stopped short of the viewport instead of running off it. What
-     gets cropped is that dead strip — the first live pixel sits at 8.1%, and
-     alpha there is still under 10/255. */
-  background-size: 109% 100%;
+  /* Stretched to the box, drawn 2% wider than it and pinned right so the
+     overhang falls off the left edge. The artwork has a ~0.9% transparent
+     strip down its left side (alpha is under 200 until column 69 of 8069);
+     without the crop the colour stopped short of the viewport edge. */
+  background-size: 102% 100%;
   background-position: right center;
 }
 

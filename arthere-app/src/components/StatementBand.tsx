@@ -21,9 +21,7 @@ interface Props {
  * is decided purely in CSS via `@media (hover: ...)`; this component just
  * publishes `data-inview` for the touch branch to key off.
  */
-export function StatementBand({ cityHref, cityLabel, cityCode }: Props) {
-  // Narrowest label falls back to the city name without its state suffix.
-  const shortCode = cityCode ?? cityLabel?.split(',')[0] ?? '';
+export function StatementBand({ cityHref, cityLabel }: Props) {
   const bandRef = useRef<HTMLElement>(null);
   const [inView, setInView] = useState(false);
 
@@ -46,29 +44,18 @@ export function StatementBand({ cityHref, cityLabel, cityCode }: Props) {
       data-inview={inView}
       className={styles.band}
     >
-      {/* Always a row, vertically centred: stacking the CTA underneath left
-          the headline sitting high with the hidden button still reserving a
-          block of empty space below it. */}
-      <div className="relative z-10 w-full max-w-[900px] mx-auto px-6 sm:px-10 py-16 sm:py-20 flex flex-row items-center justify-between gap-4 sm:gap-10">
-        <h2 className="font-display text-[clamp(1.35rem,3vw,2rem)] tracking-[0.04em] leading-[1.2] text-[#1a1a1a]">
-          {/* Broken by hand rather than left to text-balance. One line when
-              there's room; once it doesn't fit, it turns after "made". */}
-          <span className="block min-[760px]:inline">Discover the art made</span>{' '}
-          <span className="block min-[760px]:inline">down the street</span>
+      <div className="relative z-10 w-full mx-auto px-6 sm:px-10 py-16 sm:py-20 flex flex-col items-stretch gap-3 sm:gap-4 text-center">
+        <h2 className="font-display uppercase text-white text-[clamp(2.2rem,9.5vw,3.4rem)] min-[560px]:text-[clamp(2rem,7vw,7rem)] tracking-[0.01em] leading-[1.02]">
+          {/* One line when there's room; on a phone it turns after "made". */}
+          <span className="block min-[560px]:inline">Discover art made</span>{' '}
+          <span className="block min-[560px]:inline">down the street</span>
         </h2>
-        {/* Below the sm breakpoint the pill is pulled off the right edge to
-            sit over the artwork's pink bloom, which peaks at ~81.5% of the
-            image — drawn 109% wide and anchored right, that lands at ~79.8%
-            of the viewport. The margin is that offset minus half the pill's
-            own width, which differs once the label lengthens at 620px. */}
-        {cityHref && (
+        {cityHref && cityLabel && (
           <Link
             href={cityHref}
-            className={`${styles.revealOnHover} caps-optical-center shrink-0 inline-block mr-[calc(20.2vw-54.5px)] min-[620px]:mr-[calc(20.2vw-84px)] sm:mr-12 px-5 sm:px-6 py-2.5 rounded-full bg-[#1a1a1a] font-display text-white text-[1rem] sm:text-[1.1rem] tracking-[0.05em] whitespace-nowrap hover:opacity-85`}
+            className="self-end mr-[8vw] font-sans italic text-[#262626] text-[0.9rem] min-[560px]:text-[clamp(0.875rem,2.1vw,2.1rem)] tracking-[0.02em] leading-none underline underline-offset-[0.25em] hover:opacity-70 transition-opacity"
           >
-            {/* Label shortens rather than wrapping as the row tightens. */}
-            <span className="hidden min-[620px]:inline">Explore {shortCode}</span>
-            <span className="min-[620px]:hidden">{shortCode}</span>
+            in {cityLabel} →
           </Link>
         )}
       </div>
