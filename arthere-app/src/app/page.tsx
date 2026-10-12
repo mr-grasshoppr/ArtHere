@@ -12,6 +12,8 @@ import { getInstagramPosts } from '@/lib/instagram-posts';
 import { AnimatedLogoMask } from '@/components/AnimatedLogoMask';
 import { getLogoSlides } from '@/lib/logo-slides';
 import { StatementBand } from '@/components/StatementBand';
+import { FaqAccordion } from '@/components/FaqAccordion';
+import { faqItem, TEASER_IDS } from '@/lib/faq';
 import gradientStyles from './AnimatedGradient.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -164,6 +166,19 @@ export default async function Home() {
                 );
               })}
             </div>
+          </div>
+        </section>
+
+        {/* FAQ teaser — the three most common questions; the full list lives at /faq. */}
+        <section className="bg-white">
+          <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-14 sm:py-16">
+            <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-6">
+              Questions?
+            </div>
+            <FaqAccordion items={TEASER_IDS.map(faqItem)} idPrefix="teaser-" />
+            <Link href="/faq" className="inline-block mt-6 text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#bbb] hover:opacity-60 transition-opacity">
+              More questions →
+            </Link>
           </div>
         </section>
 

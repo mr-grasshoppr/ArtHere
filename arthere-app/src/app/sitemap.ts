@@ -25,6 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     { url: BASE_URL, changeFrequency: 'weekly', priority: 1 },
     { url: `${BASE_URL}/survey`, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${BASE_URL}/faq`, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${BASE_URL}/contact`, changeFrequency: 'yearly', priority: 0.5 },
     ...publicCities.flatMap(c => [
       { url: `${BASE_URL}/cities/${c.slug}`, changeFrequency: 'weekly' as const, priority: 0.9 },

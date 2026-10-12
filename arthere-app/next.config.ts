@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
     return [
       { source: "/featured", destination: "/contact?type=featured", permanent: false },
       { source: "/getfeatured", destination: "/contact?type=featured", permanent: false },
+      { source: "/partner", destination: "/contact?type=partner", permanent: false },
+      { source: "/bringus", destination: "/contact?type=bring", permanent: false },
       // The "network" tab became one view of the "map" tab — keep old
       // bookmarks and shared links landing on the same graph.
       { source: "/cities/:slug/network", destination: "/cities/:slug/map?view=network", permanent: true },

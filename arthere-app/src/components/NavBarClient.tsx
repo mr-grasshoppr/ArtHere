@@ -249,6 +249,17 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark', cityNav }
               >
                 Take the Survey
               </Link>
+              <Link
+                href="/faq"
+                className={`block px-5 py-[13px] text-[0.9rem] transition-colors border-b ${
+                  isLight
+                    ? 'text-[#444] border-[#f0f0f0] hover:bg-[#fafafa] hover:text-[#1a1a1a]'
+                    : 'text-[#ccc] border-[#222] hover:bg-[#222] hover:text-white'
+                }`}
+                onClick={closeAll}
+              >
+                FAQ
+              </Link>
 
               <Link
                 href="/#get-in-touch"
