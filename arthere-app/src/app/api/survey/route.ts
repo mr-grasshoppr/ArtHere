@@ -62,6 +62,8 @@ function responseData(body: Record<string, unknown>) {
 
     raffleOptIn: str(body.raffleOptIn),
     email: str(body.email),
+    featuredSocial: str(body.featuredSocial),
+    featuredAffiliations: str(body.featuredAffiliations),
     learnedAbout: strArray(body.learnedAbout),
     connectionSuggestions: str(body.connectionSuggestions),
     openFeedback: str(body.openFeedback),

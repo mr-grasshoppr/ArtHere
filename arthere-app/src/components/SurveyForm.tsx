@@ -25,6 +25,7 @@ import {
   PRACTICE_GOAL_OPTIONS,
   INVOLVEMENT_OTHER,
   INVOLVEMENT_NONE,
+  INVOLVEMENT_FEATURED,
   INVOLVEMENT_OPTIONS,
   RAFFLE_YES,
   RAFFLE_OPTIONS,
@@ -74,6 +75,8 @@ interface Answers {
 
   raffleOptIn: string;
   email: string;
+  featuredSocial: string;
+  featuredAffiliations: string;
   learnedAbout: string[];
   learnedAboutOther: string;
   connectionSuggestions: string;
@@ -121,6 +124,8 @@ const initialAnswers: Answers = {
 
   raffleOptIn: '',
   email: '',
+  featuredSocial: '',
+  featuredAffiliations: '',
   learnedAbout: [],
   learnedAboutOther: '',
   connectionSuggestions: '',
@@ -763,6 +768,32 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
               <p className="text-[0.8rem] text-[#b91c1c] mt-2">Please enter a valid email address.</p>
             )}
           </Question>
+          {answers.involvementInterests.includes(INVOLVEMENT_FEATURED) && (
+            <>
+              <p className="text-[0.95rem] text-[#444] font-light leading-[1.7]">
+                You mentioned you&rsquo;d like to showcase your work on Art Here. We&rsquo;d love to learn more about you through your website or social media.
+              </p>
+              <Question text="Website or social media (optional)">
+                <input
+                  value={answers.featuredSocial}
+                  onChange={e => update('featuredSocial', e.target.value)}
+                  className={`${INPUT_CLASS} max-w-[360px]`}
+                  placeholder="https://yoursite.com or @yourhandle"
+                />
+              </Question>
+              <Question
+                text="Local affiliations (optional)"
+                hint="Local galleries, studios, collectives, shops, or organizations where you're involved"
+              >
+                <textarea
+                  value={answers.featuredAffiliations}
+                  onChange={e => update('featuredAffiliations', e.target.value)}
+                  className={TEXTAREA_CLASS}
+                  placeholder="Multnomah Arts Center, Maplewood Coffee and Tea, Ford Gallery"
+                />
+              </Question>
+            </>
+          )}
         </div>
       )}
 

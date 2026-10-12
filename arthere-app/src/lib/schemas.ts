@@ -118,6 +118,8 @@ export const surveySchema = z
     involvementInterestsOther: shortText.nullish(),
     raffleOptIn: shortText.nullish(),
     email: z.string().max(254).nullish(),
+    featuredSocial: shortText.nullish(),
+    featuredAffiliations: mediumText.nullish(),
     learnedAbout: stringList.nullish(),
     connectionSuggestions: longText.nullish(),
     openFeedback: longText.nullish(),

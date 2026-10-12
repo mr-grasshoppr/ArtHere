@@ -30,6 +30,8 @@ type SurveyResponse = {
   involvementInterests: string[];
   involvementInterestsOther: string | null;
   completedAt: Date | null;
+  featuredSocial: string | null;
+  featuredAffiliations: string | null;
   connectionSuggestions: string | null;
   openFeedback: string | null;
   learnedAbout: string[];
@@ -200,6 +202,8 @@ function Row({
                 <Field label="Featured (legacy)" value={r.featuredArtistInterest} />
                 <Field label="Email" value={r.email} />
                 <Field label="Raffle" value={r.raffleOptIn} />
+                <Field label="Website / social" value={r.featuredSocial} />
+                <Field label="Local affiliations" value={r.featuredAffiliations} />
                 <Field label="Connections" value={r.connectionSuggestions} />
                 <Field label="Feedback" value={r.openFeedback} />
               </div>

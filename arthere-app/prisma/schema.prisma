@@ -509,6 +509,11 @@ model SurveyResponse {
   // via the Contact Tracking "Raffle winner" tag.
   raffleWinnerAt DateTime?
   email       String?
+  // Asked only of respondents who picked "Showcase my work on the Art Here
+  // platform" — mirrors the website/social + local affiliations fields on the
+  // /contact "get featured" form.
+  featuredSocial       String?
+  featuredAffiliations String? @db.Text
 
   // Referral
   learnedAbout          String[] @default([])
