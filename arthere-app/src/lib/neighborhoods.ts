@@ -7,7 +7,7 @@
 // rather than an actual neighborhood — filtered out of neighborhood lists.
 export function isCityLevelNeighborhood(value: string): boolean {
   const v = value.trim();
-  if (/^(Portland(,?\s*(OR|Oregon))?|Vancouver(,?\s*WA)?)$/i.test(v)) return true;
+  if (/^Portland(,?\s*(OR|Oregon))?$/i.test(v)) return true;
   // Splitting "Portland, OR" on the comma leaves a bare "OR" behind, which
   // is not a neighborhood. Same for the city's own nickname.
   return /^(OR|Oregon|WA|Washington|PDX)$/i.test(v);
