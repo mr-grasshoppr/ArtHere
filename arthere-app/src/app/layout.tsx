@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Inter, Nunito, Bebas_Neue } from "next/font/google";
 import "./globals.css";
+import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 // Body copy across the site.
@@ -38,6 +39,7 @@ export default function RootLayout({
       {/* The site is light-only — every page sets its own colors on top of
           this neutral base. */}
       <body className="min-h-full bg-white text-[#1a1a1a] font-[family-name:var(--font-inter)]">
+        <AnalyticsTracker />
         {children}
       </body>
     </html>

@@ -7,6 +7,7 @@ import { ZoomControls } from '@/components/ZoomControls';
 import { loadNetworkCamera, saveNetworkCamera } from '@/lib/map-camera';
 import { isTouchOnly, TAP_OPEN_DELAY_MS } from '@/lib/tap-to-open';
 import { isCityLevelNeighborhood } from '@/lib/neighborhoods';
+import { track, trackNavigation } from '@/lib/analytics-client';
 
 export interface NetworkNode {
   id: string;
@@ -345,9 +346,13 @@ export function NetworkGraph({ citySlug, nodes, links, neighborhoodGroups }: Pro
           if (!open || open.id !== d.id || Date.now() - open.at < TAP_OPEN_DELAY_MS) {
             pinnedRef.current = { id: d.id, at: Date.now() };
             setPinned({ node: d, x: e.clientX, y: e.clientY });
+            track({ type: 'click', kind: 'map_node', targetId: d.label, meta: { node: d.type } });
             return;
           }
+        } else {
+          track({ type: 'click', kind: 'map_node', targetId: d.label, meta: { node: d.type } });
         }
+        trackNavigation(d.href, 'map_node');
         if (d.external) window.open(d.href, '_blank', 'noopener,noreferrer');
         else window.location.href = d.href;
       })

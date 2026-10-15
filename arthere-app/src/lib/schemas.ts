@@ -156,6 +156,18 @@ export const placeProfileSchema = z
   })
   .loose();
 
+// Analytics events from the browser tracker (lib/analytics-client.ts). Kinds
+// are a closed character set, not a closed list, so new surfaces can be
+// instrumented without a deploy of the route.
+export const trackEventSchema = z.object({
+  type: z.enum(["pageview", "click", "search"]),
+  kind: z.string().min(1).max(40).regex(/^[a-z0-9_:-]+$/),
+  targetId: z.string().max(300).optional(),
+  path: z.string().max(300).startsWith("/"),
+  source: z.string().max(300).optional(),
+  meta: z.record(z.string(), z.unknown()).optional(),
+});
+
 /** Parse a request body; returns data or null (caller responds 400). */
 export function parseBody<T>(schema: z.ZodType<T>, body: unknown): T | null {
   const result = schema.safeParse(body);

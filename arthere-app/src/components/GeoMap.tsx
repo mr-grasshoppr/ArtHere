@@ -5,6 +5,8 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { PreviewCard } from '@/components/PreviewCard';
 import { MapRegionPanel } from '@/components/MapRegionPanel';
+import { classifyPath } from '@/lib/analytics';
+import { track, trackNavigation } from '@/lib/analytics-client';
 import { ZoomControls } from '@/components/ZoomControls';
 import { loadGeoCamera, saveGeoCamera } from '@/lib/map-camera';
 import { TAP_OPEN_DELAY_MS } from '@/lib/tap-to-open';
@@ -440,6 +442,7 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
       const f = e.features?.[0];
       if (!f) return;
       clearRegionHover();
+      track({ type: 'click', kind: 'map_region', targetId: String(f.properties.name) });
       selectRef.current({ id: String(f.properties.id), name: String(f.properties.name) });
       // The panel opening narrows the map; once it has, bring the spot that
       // was clicked to the middle of what's left so it isn't pushed aside.
@@ -506,12 +509,16 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
       // A second click opens the place — but not a quick double-tap, which
       // only shows the card (lib/tap-to-open.ts).
       if (stickyId === pin.id && Date.now() - stickyAt >= TAP_OPEN_DELAY_MS) {
-        if (pin.href) window.location.href = pin.href;
+        if (pin.href) {
+          trackNavigation(pin.href, 'map_pin');
+          window.location.href = pin.href;
+        }
         return;
       }
       if (stickyId === pin.id) return;
       clearRegionHover();
       setPlaceHover(null);
+      track({ type: 'click', kind: 'map_pin', targetId: pin.href ? classifyPath(pin.href).targetId : pin.name });
       stickyId = pin.id;
       stickyAt = Date.now();
       setStickyPin({ pin, x: e.originalEvent.clientX, y: e.originalEvent.clientY });

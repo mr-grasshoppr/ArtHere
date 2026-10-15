@@ -6,6 +6,7 @@ import { FadeImage } from '@/components/FadeImage';
 import type { PlaceRelationship } from '@prisma/client';
 import { MultiFilterDropdown, pillClass } from './FilterDropdown';
 import { parseNeighborhoodList } from '@/lib/neighborhoods';
+import { useTrackSearch } from '@/lib/useTrackSearch';
 
 const RELATIONSHIP_LABELS: Partial<Record<PlaceRelationship, string>> = {
   INSTRUCTOR: 'Instructor',
@@ -93,6 +94,8 @@ export function CommunityBrowser({ places, neighborhoodOptions, citySlug }: Prop
     neighborhoodFilter.length === 0 ||
     parseNeighborhoodList(p.neighborhood).some(n => neighborhoodFilter.includes(n))
   );
+
+  useTrackSearch({ neighborhood: neighborhoodFilter }, shown.length);
 
   return (
     <>

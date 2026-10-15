@@ -5,6 +5,7 @@ import { ArtistsGrid, type ArtistCardData } from './ArtistsGrid';
 import { FilterDropdown, MultiFilterDropdown, pillClass , type OptionGroup} from './FilterDropdown';
 import { mediumMatches } from '@/lib/artist-options';
 import { parseNeighborhoodList } from '@/lib/neighborhoods';
+import { useTrackSearch } from '@/lib/useTrackSearch';
 
 interface Props {
   citySlug: string;
@@ -49,6 +50,11 @@ export function ArtistsSearch({ citySlug, artists, mediumOptions, neighborhoodOp
     mediumMatches(a.medium, mediumFilter) &&
     (neighborhoodFilter.length === 0 || parseNeighborhoodList(a.neighborhood).some(n => neighborhoodFilter.includes(n))) &&
     (communityFilter.length === 0 || a.communities.some(c => communityFilter.includes(c)))
+  );
+
+  useTrackSearch(
+    { medium: mediumFilter ? [mediumFilter] : [], neighborhood: neighborhoodFilter, places: communityFilter },
+    shown.length
   );
 
   return (

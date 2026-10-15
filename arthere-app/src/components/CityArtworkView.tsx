@@ -6,6 +6,7 @@ import { CityGrid, type ArtistGridData } from './CityGrid';
 import { FilterDropdown, MultiFilterDropdown, pillClass, type OptionGroup } from './FilterDropdown';
 import { parseNeighborhoodList } from '@/lib/neighborhoods';
 import type { Focal } from '@/lib/focal-style';
+import { useTrackSearch } from '@/lib/useTrackSearch';
 
 export interface ArtworkArtistData {
   slug: string;
@@ -119,6 +120,10 @@ export function CityArtworkView({
   }
 
   const matchCount = gridArtists.reduce((n, a) => n + a.images.length, 0);
+  useTrackSearch(
+    { medium: mediumFilter ? [mediumFilter] : [], neighborhood: neighborhoodFilter, places: communityFilter },
+    matchCount
+  );
 
   return (
     <>

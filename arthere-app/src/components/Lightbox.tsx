@@ -7,7 +7,18 @@ import { useEffect, useState, type ReactNode } from 'react';
  * complete original upload — plain object-contain, no crop/focal styling —
  * since the on-page tile may be cropped or zoomed to fit its layout.
  */
-export function Lightbox({ src, alt, children }: { src: string; alt: string; children: ReactNode }) {
+export function Lightbox({
+  src,
+  alt,
+  children,
+  trackKind = 'artwork',
+}: {
+  src: string;
+  alt: string;
+  children: ReactNode;
+  /** What a click here counts as in analytics (the image URL is the id). */
+  trackKind?: string;
+}) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -29,6 +40,8 @@ export function Lightbox({ src, alt, children }: { src: string; alt: string; chi
         role="button"
         tabIndex={0}
         aria-label={`View larger: ${alt}`}
+        data-track={trackKind}
+        data-track-id={src}
         onClick={() => setOpen(true)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {

@@ -293,6 +293,8 @@ export function CityGrid({ artists, overlayImageUrl, maskImageUrl, onFrozenChang
           <a
             className={styles.logoCell}
             href={logoItem.url}
+            data-track="artwork"
+            data-track-id={logoItem.src}
             style={{ height: layout.row * 2 + GAP, '--cg-row-px': `${layout.row}px` } as React.CSSProperties}
           >
             <div
@@ -340,7 +342,7 @@ export function CityGrid({ artists, overlayImageUrl, maskImageUrl, onFrozenChang
             const className = `${styles.cell}${item.wide ? ` ${styles.cellWide}` : ''}${frozen ? ` ${styles.cellClickable}` : ''}`;
             const height = layout.row;
             return frozen ? (
-              <a key={i} href={item.url} className={className} style={{ height }} onClick={e => e.stopPropagation()}>
+              <a key={i} href={item.url} data-track="artwork" data-track-id={item.src} className={className} style={{ height }} onClick={e => e.stopPropagation()}>
                 {cellContent}
               </a>
             ) : (

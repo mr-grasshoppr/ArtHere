@@ -774,3 +774,32 @@ model OutreachRecipient {
   @@index([messageId])
   @@index([email])
 }
+
+// ─── Analytics ────────────────────────────────────────────────────────────────
+
+// First-party, cookie-free usage events: page views, clicks (artist, artwork,
+// place, map, outbound...) and settled filter searches. One row per event, never
+// updated, so history accumulates for trend charts. No IPs, user ids, or
+// cookies are stored — see lib/analytics.ts and /api/track.
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  // "pageview" | "click" | "search"
+  type      String
+  // What it was about: artist, place, city, section, page, artwork, outbound,
+  // contact, map_region, map_pin, map_node, map_view, filter...
+  kind      String
+  // Slug (artist/place/city), path, image URL, or host — whatever kind implies.
+  // A slug rather than a foreign key, so history survives a deleted artist.
+  targetId  String?
+  // The page the event happened on.
+  path      String
+  // Pageviews: the page (or external site) the visitor came from.
+  source    String?
+  // Extras: { via } on clicks, { filters, results } on searches.
+  meta      Json?
+
+  @@index([createdAt])
+  @@index([type, kind, createdAt])
+  @@index([kind, targetId])
+}

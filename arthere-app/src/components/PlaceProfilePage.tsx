@@ -72,7 +72,7 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
           same 21:9 ratio, actually matches what renders here. */}
       {place.heroImageUrl && (
         <section className="relative w-full aspect-[21/9] max-h-[420px] min-h-[200px] overflow-hidden bg-[#f4f4f0]">
-          <Lightbox src={place.heroImageUrl} alt={place.name}>
+          <Lightbox src={place.heroImageUrl} alt={place.name} trackKind="place_photo">
             <FadeImage
               src={place.heroImageUrl}
               alt={place.name}
@@ -157,7 +157,7 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
               key={url}
               className="relative aspect-[4/3] sm:aspect-square overflow-hidden rounded-md bg-[#f4f4f0] group"
             >
-              <Lightbox src={url} alt={`${place.name} photo ${i + 1}`}>
+              <Lightbox src={url} alt={`${place.name} photo ${i + 1}`} trackKind="place_photo">
                 <FadeImage
                   src={url}
                   alt={`${place.name} photo ${i + 1}`}
