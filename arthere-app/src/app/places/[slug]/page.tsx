@@ -56,7 +56,11 @@ export default async function PlacePage({
 
   const cityForPlace = place.city;
 
-  const focals = await getFocalStyles([place.heroImageUrl, ...place.galleryImages]);
+  const focals = await getFocalStyles([
+    place.heroImageUrl,
+    ...place.galleryImages,
+    ...(place.showArtistPhotos ? place.artists.flatMap(r => [r.artist.bioPhotoUrl ?? r.artist.heroImageUrl]) : []),
+  ]);
 
   return (
     <PlaceProfilePage

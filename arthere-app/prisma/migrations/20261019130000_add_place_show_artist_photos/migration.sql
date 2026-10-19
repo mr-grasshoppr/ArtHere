@@ -1,0 +1,1 @@
+ALTER TABLE "Place" ADD COLUMN "showArtistPhotos" BOOLEAN NOT NULL DEFAULT false;

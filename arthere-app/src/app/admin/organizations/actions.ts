@@ -65,6 +65,7 @@ type OrgInput = {
   galleryImages: string[];
   locations: { label: string; streetAddress: string }[];
   showOnMap: boolean;
+  showArtistPhotos: boolean;
 };
 
 export async function updateOrganization(placeId: string, data: OrgInput) {
@@ -75,6 +76,7 @@ export async function updateOrganization(placeId: string, data: OrgInput) {
     data: {
       name: data.name.trim(),
       showOnMap: data.showOnMap,
+      showArtistPhotos: data.showArtistPhotos,
       neighborhood: joinNeighborhoodList(parseNeighborhoodList(data.neighborhood)),
       description: data.description.trim() || null,
       quote: data.quote.trim() || null,

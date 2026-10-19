@@ -33,6 +33,7 @@ type Org = {
   /** Saved addresses that didn't geocode, so have no pin. */
   unresolvedAddresses: string[];
   showOnMap: boolean;
+  showArtistPhotos: boolean;
 };
 
 const GALLERY_MAX = 3;
@@ -88,6 +89,7 @@ export default function OrgEditor({
   const [galleryImages, setGalleryImages] = useState<string[]>(place.galleryImages);
   const [locations, setLocations] = useState<LocationRow[]>(place.locations);
   const [showOnMap, setShowOnMap] = useState(place.showOnMap);
+  const [showArtistPhotos, setShowArtistPhotos] = useState(place.showArtistPhotos);
 
   // Images the community-card picker can choose from: the hero, every
   // gallery photo, and (deduped) whatever's currently set as the thumbnail —
@@ -145,6 +147,7 @@ export default function OrgEditor({
           galleryImages,
           locations,
           showOnMap,
+          showArtistPhotos,
         });
         setSaved(true);
         router.refresh();
@@ -220,6 +223,10 @@ export default function OrgEditor({
             Show {locations.length > 1 ? "a pin for each location" : "a pin for this place"} on the city map
           </label>
         </div>
+        <label className="flex items-center gap-2 text-sm text-[#444]">
+          <input type="checkbox" checked={showArtistPhotos} onChange={(e) => setShowArtistPhotos(e.target.checked)} />
+          Show artists as small bio photos with names (otherwise a plain list of names)
+        </label>
         <div>
           <label className={labelCls}>About</label>
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={5} className={`${inputCls} resize-y`} />

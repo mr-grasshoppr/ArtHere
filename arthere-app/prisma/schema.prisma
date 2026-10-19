@@ -266,6 +266,9 @@ model Place {
   // Opt-in to pins on the map tab's Geographic view — one pin per
   // PlaceLocation that geocoded. Off by default, like Artist.showOnMap.
   showOnMap            Boolean   @default(false)
+  // How "Artists here" renders on the place's page: false = a plain list of
+  // names, true = small bio photos with names.
+  showArtistPhotos     Boolean   @default(false)
   description          String?   @db.Text
   // Optional pull quote shown on the page (e.g. a customer or community
   // testimonial), with its speaker credited separately.

@@ -129,23 +129,54 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
       {place.artists.length > 0 && (
         <section className="max-w-[980px] mx-auto px-5 sm:px-10 pb-12">
           <div className="text-[0.75rem] uppercase tracking-[0.18em] text-[#999] mb-3">Artists here</div>
-          <div className="flex flex-wrap gap-x-6 gap-y-2 items-baseline">
-            {place.artists.map(rel => {
-              const relLabel =
-                rel.relationship === 'OTHER' ? rel.relationshipLabel : RELATIONSHIP_LABELS[rel.relationship];
-              return (
-                <div key={rel.id} className="text-[0.85rem]">
+          {place.showArtistPhotos ? (
+            <div className="flex flex-wrap gap-x-6 gap-y-5">
+              {place.artists.map(rel => {
+                const photo = rel.artist.bioPhotoUrl ?? rel.artist.heroImageUrl;
+                return (
                   <Link
+                    key={rel.id}
                     href={artistHref(rel.artist.slug)}
-                    className="text-[#666] underline underline-offset-4 decoration-[#ccc] hover:decoration-[#1a1a1a] transition-colors"
+                    className="group flex flex-col items-center w-[84px] text-center"
                   >
-                    {rel.artist.name}
+                    <span className="relative block w-[72px] h-[72px] rounded-full overflow-hidden bg-[#f4f4f0]">
+                      {photo && (
+                        <FadeImage
+                          src={photo}
+                          alt={rel.artist.name}
+                          fill
+                          sizes="72px"
+                          className="object-cover group-hover:scale-[1.05]"
+                          style={styleOf(photo)}
+                        />
+                      )}
+                    </span>
+                    <span className="mt-2 text-[0.8rem] text-[#666] leading-snug group-hover:text-[#1a1a1a] transition-colors">
+                      {rel.artist.name}
+                    </span>
                   </Link>
-                  {relLabel && <span className="text-[#bbb] font-light"> · {relLabel}</span>}
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-x-6 gap-y-2 items-baseline">
+              {place.artists.map(rel => {
+                const relLabel =
+                  rel.relationship === 'OTHER' ? rel.relationshipLabel : RELATIONSHIP_LABELS[rel.relationship];
+                return (
+                  <div key={rel.id} className="text-[0.85rem]">
+                    <Link
+                      href={artistHref(rel.artist.slug)}
+                      className="text-[#666] underline underline-offset-4 decoration-[#ccc] hover:decoration-[#1a1a1a] transition-colors"
+                    >
+                      {rel.artist.name}
+                    </Link>
+                    {relLabel && <span className="text-[#bbb] font-light"> · {relLabel}</span>}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </section>
       )}
 

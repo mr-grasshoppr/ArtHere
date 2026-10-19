@@ -64,6 +64,7 @@ export default async function AdminOrgEditPage({ params }: { params: Promise<{ i
           locations: place.locations.map((l) => ({ label: l.label ?? "", streetAddress: l.streetAddress })),
           unresolvedAddresses: place.locations.filter((l) => l.lat == null).map((l) => l.streetAddress),
           showOnMap: place.showOnMap,
+          showArtistPhotos: place.showArtistPhotos,
         }}
         neighborhoodOptions={neighborhoodOptions}
         initialFocals={initialFocals}

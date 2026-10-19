@@ -153,6 +153,7 @@ export const placeProfileSchema = z
       .max(6)
       .nullish(),
     showOnMap: z.boolean().nullish(),
+    showArtistPhotos: z.boolean().nullish(),
   })
   .loose();
 

@@ -40,6 +40,7 @@ interface InitialData {
   locations: LocationRow[];
   unresolvedAddresses: string[];
   showOnMap: boolean;
+  showArtistPhotos: boolean;
 }
 
 type InitialFocals = Record<string, Focal>;
@@ -91,6 +92,7 @@ export default function PlaceEditForm({
   const [galleryImages, setGalleryImages] = useState<string[]>(initialData.galleryImages);
   const [locations, setLocations] = useState<LocationRow[]>(initialData.locations);
   const [showOnMap, setShowOnMap] = useState(initialData.showOnMap);
+  const [showArtistPhotos, setShowArtistPhotos] = useState(initialData.showArtistPhotos);
   const [artists, setArtists] = useState<Artist[]>(initialData.artists);
   const [removingConnectionId, setRemovingConnectionId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -126,6 +128,7 @@ export default function PlaceEditForm({
           galleryImages: 'galleryImages' in overrides ? overrides.galleryImages : galleryImages,
           locations,
           showOnMap,
+          showArtistPhotos,
         }),
       });
       if (!res.ok) throw new Error();
@@ -141,7 +144,7 @@ export default function PlaceEditForm({
     saveTimer.current = setTimeout(() => persistAll(), 1200);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, neighborhoods, description, quote, quoteAttribution, JSON.stringify(links), JSON.stringify(locations), showOnMap]);
+  }, [name, neighborhoods, description, quote, quoteAttribution, JSON.stringify(links), JSON.stringify(locations), showOnMap, showArtistPhotos]);
 
   async function handleHeroSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -402,6 +405,10 @@ export default function PlaceEditForm({
               );
             })}
           </div>
+          <label className="mt-4 flex items-center gap-2 text-[0.8rem] text-[#555]">
+            <input type="checkbox" checked={showArtistPhotos} onChange={e => setShowArtistPhotos(e.target.checked)} />
+            Show small photos of the artists on our page (otherwise just their names)
+          </label>
           <p className="text-[0.7rem] text-[#ccc] mt-3">
             Artists add these connections themselves. If one doesn&rsquo;t belong, remove it — this can&rsquo;t be undone from here.
           </p>
