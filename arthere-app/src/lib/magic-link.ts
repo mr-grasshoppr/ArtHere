@@ -282,5 +282,5 @@ export async function verifyMagicLinkToken(token: string) {
   // record.place.user.email, which is the PRIMARY owner. A token minted for
   // an invited teammate (see addPlaceTeamMember) is sent to a different
   // address, and callers need to resolve the session to *that* person.
-  return { artist: record.artist, place: record.place, email: record.email };
+  return { artist: record.artist, place: record.place, email: record.email, next: record.next };
 }

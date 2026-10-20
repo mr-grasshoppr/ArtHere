@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyMagicLinkToken } from '@/lib/magic-link';
 import { createSessionForUser } from '@/lib/auth';
 import { prisma } from '@/lib/db';
+import { safePlaceNext } from '@/lib/events';
 import { notifyBlockedAccess, type BlockedAccessReason } from '@/lib/blocked-access';
 
 export async function GET(req: NextRequest) {
@@ -63,7 +64,7 @@ export async function GET(req: NextRequest) {
 
   const cookie = await createSessionForUser(user.id);
 
-  const destination = result.place ? '/place/edit' : '/profile';
+  const destination = result.place ? (safePlaceNext(result.next) ?? '/place/edit') : '/profile';
   const response = NextResponse.redirect(`${base}${destination}`);
   response.cookies.set(cookie.name, cookie.value, cookie.options);
 

@@ -3,6 +3,7 @@ import { safeStaticParams } from '@/lib/static-params';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { PlaceProfilePage } from '@/components/PlaceProfilePage';
+import { upcomingPublicEvents } from '@/lib/event-queries';
 import { cityLabel } from '@/components/ArtistProfilePage';
 import { getFocalStyles } from '@/lib/image-focus';
 
@@ -66,6 +67,8 @@ export default async function CityPlacePage({
 
   if (!place || !city) notFound();
 
+  const events = await upcomingPublicEvents({ placeId: place.id });
+
   const focals = await getFocalStyles([
     place.heroImageUrl,
     ...place.galleryImages,
@@ -78,6 +81,7 @@ export default async function CityPlacePage({
       citySlug={citySlug}
       cityDisplayName={cityLabel(city)}
       focals={focals}
+      events={events}
       preview={preview === '1'}
     />
   );

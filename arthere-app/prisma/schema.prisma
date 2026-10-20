@@ -125,6 +125,7 @@ model Artist {
   user              User?                   @relation(fields: [userId], references: [id])
   artworkImages     ArtworkImage[]
   placeRelations    ArtistPlace[]
+  events            EventArtist[]
   // Set when this profile was created by converting a "Request an
   // invite"/"Get featured" contact submission (see admin/artists Interested
   // tab). Back-relation of ContactSubmission.invitedArtistId.
@@ -312,6 +313,8 @@ model Place {
   links           PlaceLink[]
   blockedAccess   BlockedAccessAttempt[]
   locations       PlaceLocation[]
+  events          Event[]
+  eventSubmissions EventSubmission[]
 
   @@index([cityId])
 }
@@ -550,6 +553,10 @@ model MagicLinkToken {
   email     String
   artistId  String?
   placeId   String?
+  // Where /profile/setup sends the person after signing in, instead of the
+  // default edit page (e.g. the "add an event" form from the events email).
+  // Same-site paths only — validated at redirect time.
+  next      String?
   used      Boolean  @default(false)
   expiresAt DateTime
   createdAt DateTime @default(now())
@@ -805,4 +812,78 @@ model AnalyticsEvent {
   @@index([createdAt])
   @@index([type, kind, createdAt])
   @@index([kind, targetId])
+}
+
+enum EventStatus {
+  // Submitted by the org, waiting for an admin to approve it.
+  PENDING
+  PUBLISHED
+  // Admin pulled it from public view (or declined it).
+  HIDDEN
+}
+
+// An event an organization is hosting — shown on its page and on /events.
+// Org submissions land as PENDING and need admin approval; any later edit by
+// the org sends a published event back to PENDING.
+model Event {
+  id            String      @id @default(cuid())
+  placeId       String
+  name          String
+  // Stored in UTC; entered and displayed in EVENT_TIMEZONE (lib/events.ts).
+  startsAt      DateTime
+  endsAt        DateTime?
+  // True when the org gave a date but no start time ("all day" / TBD).
+  allDay        Boolean     @default(false)
+  coverImageUrl String?
+  description   String?     @db.Text
+  status        EventStatus @default(PENDING)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  place   Place         @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  artists EventArtist[]
+
+  @@index([placeId])
+  @@index([status, startsAt])
+}
+
+model EventArtist {
+  id       String @id @default(cuid())
+  eventId  String
+  artistId String
+
+  event  Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, artistId])
+  @@index([artistId])
+}
+
+// An event someone sent in through the public "Get listed" form on the events
+// page (as opposed to an org adding its own via the emailed sign-in link).
+// Kept apart from Event because the venue may not have a Place yet: then
+// venueName + pocEmail say who to onboard first. An admin turns it into an
+// Event once there is a place to hang it on.
+model EventSubmission {
+  id             String    @id @default(cuid())
+  createdAt      DateTime  @default(now())
+  submitterName  String
+  submitterEmail String
+  name           String
+  startsAt       DateTime
+  endsAt         DateTime?
+  allDay         Boolean   @default(false)
+  description    String?   @db.Text
+  // Free text as typed ("Kristin Casaletto, Yong Hong Zhong").
+  artistNames    String?
+  coverImageUrl  String?
+  // Either an existing Place the submitter picked...
+  placeId        String?
+  place          Place?    @relation(fields: [placeId], references: [id], onDelete: SetNull)
+  // ...or a venue with no page yet, plus someone there we can invite.
+  venueName      String?
+  pocEmail       String?
+  handledAt      DateTime?
+
+  @@index([createdAt])
 }

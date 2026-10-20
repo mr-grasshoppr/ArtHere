@@ -17,6 +17,7 @@ export function cityNavFor(slug: string, cityLabel: string): CityNav {
       { label: 'artwork', href: `${home}?browse` },
       { label: 'artists', href: `${home}/artists` },
       { label: 'places', href: `${home}/community` },
+      { label: 'events', href: `${home}/events` },
       { label: 'map', href: `${home}/map` },
     ],
   };
