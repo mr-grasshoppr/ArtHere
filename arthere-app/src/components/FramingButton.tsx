@@ -1,5 +1,6 @@
 "use client";
 
+import { createPortal } from "react-dom";
 import { FramingEditor, type FramingValue } from "./FramingEditor";
 import { useFramingModal } from "@/lib/useFramingModal";
 
@@ -40,7 +41,9 @@ export function FramingButton({
         {label}
       </button>
 
-      {open && (
+      {/* Portalled to <body>: inside a draggable photo tile, a mouse drag on
+          the preview starts the tile's native reorder drag and cancels the pan. */}
+      {open && createPortal(
         <div
           className="fixed inset-0 z-[200] bg-black/60 flex items-center justify-center p-4"
           onClick={(e) => { if (e.target === e.currentTarget) setOpen(false); }}
@@ -61,7 +64,8 @@ export function FramingButton({
             )}
             {error && <p className="text-xs text-red-500 mt-2">{error}</p>}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

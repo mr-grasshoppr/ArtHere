@@ -243,7 +243,7 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals, p
           {galleryImages.map(img => (
             <div
               key={img.id}
-              className="relative aspect-[4/3] sm:aspect-square overflow-hidden rounded-md bg-[#f4f4f0] group"
+              className="relative aspect-square overflow-hidden rounded-md bg-[#f4f4f0] group"
             >
               <Lightbox src={img.url} alt={img.altText ?? ''}>
                 <FadeImage

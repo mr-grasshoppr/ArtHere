@@ -186,7 +186,7 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
           {place.galleryImages.map((url, i) => (
             <div
               key={url}
-              className="relative aspect-[4/3] sm:aspect-square overflow-hidden rounded-md bg-[#f4f4f0] group"
+              className="relative aspect-square overflow-hidden rounded-md bg-[#f4f4f0] group"
             >
               <Lightbox src={url} alt={`${place.name} photo ${i + 1}`} trackKind="place_photo">
                 <FadeImage

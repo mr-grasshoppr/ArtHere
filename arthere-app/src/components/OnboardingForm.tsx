@@ -212,9 +212,10 @@ export default function OnboardingForm({
   // Publish gating — a brand-new profile (no initialData yet) will become a
   // placeholder the moment it's first saved (see api/profile/route.ts), so
   // default to true rather than leaving this undefined pre-save.
-  const [isPlaceholder] = useState(initialData?.isPlaceholder ?? true);
+  const [isPlaceholder, setIsPlaceholder] = useState(initialData?.isPlaceholder ?? true);
   const [reviewSubmittedAt, setReviewSubmittedAt] = useState<string | null>(initialData?.submittedForReviewAt ?? null);
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [takingOffline, setTakingOffline] = useState(false);
 
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   // ─── Save ────────────────────────────────────────────────────────────
@@ -330,6 +331,23 @@ export default function OnboardingForm({
       setSaveStatus("error");
     }
     setSubmittingReview(false);
+  }
+
+  // Live → Draft, by the artist's own choice. Coming back live goes through
+  // Submit again (an admin publish), so this is deliberately one-way.
+  async function handleTakeOffline() {
+    if (!window.confirm("Take your profile offline? It will be hidden from the public site until you submit it again and Art Here puts it back live.")) return;
+    setTakingOffline(true);
+    try {
+      const res = await fetch("/api/profile/take-offline", { method: "POST" });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? "Something went wrong.");
+      setIsPlaceholder(true);
+      setReviewSubmittedAt(null);
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : "Something went wrong.");
+      setSaveStatus("error");
+    }
+    setTakingOffline(false);
   }
 
   return (
@@ -726,6 +744,19 @@ export default function OnboardingForm({
           )}
           </div>
         </div>
+        {!isPlaceholder && hasArtist && (
+          <p className="text-sm text-right mt-3 text-[#888]">
+            Your profile is live.{" "}
+            <button
+              type="button"
+              onClick={handleTakeOffline}
+              disabled={takingOffline}
+              className="underline underline-offset-2 hover:text-[#1a1a1a] disabled:opacity-50"
+            >
+              {takingOffline ? "Taking offline…" : "Switch to draft (take offline)"}
+            </button>
+          </p>
+        )}
         {isPlaceholder && hasArtist && (
           <p className={`text-sm text-right mt-3 ${reviewSubmittedAt ? "text-[#00805a]" : "text-[#888]"}`}>
             {reviewSubmittedAt

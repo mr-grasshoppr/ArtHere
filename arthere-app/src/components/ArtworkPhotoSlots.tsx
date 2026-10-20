@@ -119,6 +119,9 @@ export function GalleryPhotoSlots({
         <h2 className="text-[0.7rem] font-semibold text-[#aaa] uppercase tracking-widest">{title}</h2>
         <span className="text-[0.7rem] text-[#bbb]">Three images of your artwork</span>
       </div>
+      <p className="text-[0.75rem] text-[#999] mb-1">
+        Highlight a favorite detail of your artwork for the gallery preview. Visitors will be able to click to see the full image.
+      </p>
       <p className="text-[0.75rem] text-[#999] mb-3">
         Tag each image with its medium, so visitors can find it when they filter. Drag images, or hold one on a phone until it lifts, to change the order.
       </p>

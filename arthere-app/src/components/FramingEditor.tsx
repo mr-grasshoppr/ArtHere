@@ -108,6 +108,7 @@ export function FramingEditor({
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
+        onDragStart={(e) => e.preventDefault()}
         className={`relative w-full overflow-hidden rounded-lg bg-[#f0f0f0] select-none touch-none ${
           isDragging ? "cursor-grabbing" : "cursor-grab"
         }`}
