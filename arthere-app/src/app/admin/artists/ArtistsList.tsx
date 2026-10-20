@@ -124,22 +124,18 @@ export default function ArtistsList({ artists }: { artists: ArtistRow[] }) {
         {filtered.map((a) => {
           const heroImage = a.artworkImages.find((i) => i.isHero) ?? a.artworkImages[0];
           return (
-            <Link
+            <div
               key={a.id}
-              href={`/admin/artists/${a.id}`}
               className={`flex items-center gap-4 px-5 py-4 hover:bg-[#fafafa] transition-colors ${a.isArchived ? "opacity-50" : ""}`}
             >
               <input
                 type="checkbox"
                 checked={selected.has(a.id)}
                 onChange={(e) => toggleSelect(a.id, e.target.checked)}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  toggleSelect(a.id, !selected.has(a.id));
-                }}
                 className="cursor-pointer flex-shrink-0"
               />
+
+            <Link href={`/admin/artists/${a.id}`} className="flex flex-1 min-w-0 items-center gap-4">
 
               <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-[#f0f0f0] flex-shrink-0">
                 {heroImage ? (
@@ -161,7 +157,7 @@ export default function ArtistsList({ artists }: { artists: ArtistRow[] }) {
                   {a.submittedForReviewAt && (
                     <span
                       className="text-xs bg-[#f062a4]/10 text-[#a84573] border border-[#f062a4]/25 px-1.5 py-0.5 rounded flex-shrink-0"
-                      title={`Submitted for review ${new Date(a.submittedForReviewAt).toLocaleString()}`}
+                      title={`Submitted for review ${new Date(a.submittedForReviewAt).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })}`}
                     >
                       Needs review
                     </span>
@@ -178,15 +174,16 @@ export default function ArtistsList({ artists }: { artists: ArtistRow[] }) {
               <div className="hidden sm:flex items-center gap-6 text-xs text-[#bbb] flex-shrink-0">
                 <span>{a.artworkImages.length} images</span>
                 <span>{a._count.adminNotes} notes</span>
-                <span title="Created">Created {new Date(a.createdAt).toLocaleDateString()}</span>
+                <span title="Created">Created {new Date(a.createdAt).toLocaleDateString("en-US", { timeZone: "America/Los_Angeles" })}</span>
                 <span title="Last edited by the artist">
-                  {a.lastArtistEditAt ? `Edited ${new Date(a.lastArtistEditAt).toLocaleDateString()}` : "Not edited"}
+                  {a.lastArtistEditAt ? `Edited ${new Date(a.lastArtistEditAt).toLocaleDateString("en-US", { timeZone: "America/Los_Angeles" })}` : "Not edited"}
                 </span>
               </div>
               <div className="flex-shrink-0">
                 <VisibilityToggle artistId={a.id} isPlaceholder={a.isPlaceholder} />
               </div>
             </Link>
+            </div>
           );
         })}
       </div>

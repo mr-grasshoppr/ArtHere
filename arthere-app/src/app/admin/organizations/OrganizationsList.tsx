@@ -109,22 +109,18 @@ export default function OrganizationsList({ places }: { places: PlaceRow[] }) {
       <div className="bg-white border border-[#e5e5e5] rounded-lg divide-y divide-[#f0f0f0]">
         {filtered.length === 0 && <p className="p-6 text-sm text-[#999]">No organizations match this filter.</p>}
         {filtered.map((p) => (
-          <Link
+          <div
             key={p.id}
-            href={`/admin/organizations/${p.id}`}
             className={`flex items-center gap-4 px-5 py-4 hover:bg-[#fafafa] transition-colors ${p.isArchived ? "opacity-50" : ""}`}
           >
             <input
               type="checkbox"
               checked={selected.has(p.id)}
               onChange={(e) => toggleSelect(p.id, e.target.checked)}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                toggleSelect(p.id, !selected.has(p.id));
-              }}
               className="cursor-pointer flex-shrink-0"
             />
+
+          <Link href={`/admin/organizations/${p.id}`} className="flex flex-1 min-w-0 items-center gap-4">
 
             <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-[#f0f0f0] flex-shrink-0">
               {p.heroImageUrl ? (
@@ -143,7 +139,7 @@ export default function OrganizationsList({ places }: { places: PlaceRow[] }) {
                 {p.submittedForReviewAt && (
                   <span
                     className="text-xs bg-[#f062a4]/10 text-[#a84573] border border-[#f062a4]/25 px-1.5 py-0.5 rounded flex-shrink-0"
-                    title={`Submitted for review ${new Date(p.submittedForReviewAt).toLocaleString()}`}
+                    title={`Submitted for review ${new Date(p.submittedForReviewAt).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })}`}
                   >
                     Needs review
                   </span>
@@ -160,15 +156,16 @@ export default function OrganizationsList({ places }: { places: PlaceRow[] }) {
             <div className="hidden sm:flex items-center gap-6 text-xs text-[#bbb] flex-shrink-0">
               <span>{p._count.artists} artists</span>
               <span>{p._count.adminNotes} notes</span>
-              <span title="Created">Created {new Date(p.createdAt).toLocaleDateString()}</span>
+              <span title="Created">Created {new Date(p.createdAt).toLocaleDateString("en-US", { timeZone: "America/Los_Angeles" })}</span>
               <span title="Last edited by the org">
-                {p.lastPlaceEditAt ? `Edited ${new Date(p.lastPlaceEditAt).toLocaleDateString()}` : "Not edited"}
+                {p.lastPlaceEditAt ? `Edited ${new Date(p.lastPlaceEditAt).toLocaleDateString("en-US", { timeZone: "America/Los_Angeles" })}` : "Not edited"}
               </span>
             </div>
             <div className="flex-shrink-0">
               <OrgVisibilityToggle placeId={p.id} inDirectory={p.inDirectory} />
             </div>
           </Link>
+          </div>
         ))}
       </div>
     </div>
