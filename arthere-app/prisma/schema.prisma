@@ -838,6 +838,14 @@ model Event {
   // True when the org gave a date but no start time ("all day" / TBD).
   allDay        Boolean     @default(false)
   coverImageUrl String?
+  // "Learn more" page (the org's own listing, ticketing, press release…).
+  linkUrl       String?
+  // Both required for new events (see parseEventInput); nullable only for
+  // events created before they were.
+  // Price as shown, e.g. "Free", "$10", "Sliding scale $5–20".
+  price         String?
+  // Age range or other restriction, e.g. "All ages", "21+", "Members only".
+  audience      String?
   description   String?     @db.Text
   status        EventStatus @default(PENDING)
   createdAt     DateTime    @default(now())
@@ -856,14 +864,6 @@ model EventArtist {
   artistId String
 
   event  Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  // "Learn more" page (the org's own listing, ticketing, press release…).
-  linkUrl       String?
-  // Both required for new events (see parseEventInput); nullable only for
-  // events created before they were.
-  // Price as shown, e.g. "Free", "$10", "Sliding scale $5–20".
-  price         String?
-  // Age range or other restriction, e.g. "All ages", "21+", "Members only".
-  audience      String?
   artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
 
   @@unique([eventId, artistId])
@@ -888,6 +888,9 @@ model EventSubmission {
   // Free text as typed ("Kristin Casaletto, Yong Hong Zhong").
   artistNames    String?
   coverImageUrl  String?
+  linkUrl        String?
+  price          String?
+  audience       String?
   // Either an existing Place the submitter picked...
   placeId        String?
   place          Place?    @relation(fields: [placeId], references: [id], onDelete: SetNull)
@@ -898,6 +901,3 @@ model EventSubmission {
 
   @@index([createdAt])
 }
-  linkUrl        String?
-  price          String?
-  audience       String?
