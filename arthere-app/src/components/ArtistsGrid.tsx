@@ -31,14 +31,15 @@ export function ArtistsGrid({ artists, citySlug }: Props) {
   }
 
   return (
-    <div className="max-w-[1400px] mx-auto px-5 sm:px-10 pt-8 sm:pt-10 pb-10 sm:pb-[60px] grid grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-x-4 gap-y-6 sm:gap-x-6 sm:gap-y-8">
+    <div className="max-w-[1400px] mx-auto px-5 sm:px-10 pt-8 sm:pt-10 pb-10 sm:pb-[60px] grid grid-cols-3 sm:grid-cols-[repeat(auto-fill,minmax(170px,1fr))] gap-x-3 gap-y-6 sm:gap-x-6 sm:gap-y-8">
       {artists.map(artist => (
         <Link
           key={artist.slug}
           href={citySlug ? `/cities/${citySlug}/artists/${artist.slug}` : `/artists/${artist.slug}`}
           className="block text-center text-inherit no-underline transition-opacity duration-200 hover:opacity-80"
         >
-          <div className="w-full aspect-square rounded-full overflow-hidden bg-[#f4f4f0] mb-3.5">
+          {/* Capped so photos stay small on any screen: fills the narrow phone columns, never grows past 170px. */}
+          <div className="w-full max-w-[170px] mx-auto aspect-square rounded-full overflow-hidden bg-[#f4f4f0] mb-3.5">
             {artist.photoUrl && (
               <FadeImage
                 src={artist.photoUrl}
@@ -49,7 +50,7 @@ export function ArtistsGrid({ artists, citySlug }: Props) {
               />
             )}
           </div>
-          <div className="font-heading text-[1.05rem] font-bold mb-[3px]">{artist.name}</div>
+          <div className="font-heading text-[0.88rem] sm:text-[1.05rem] font-bold mb-[3px] leading-tight">{artist.name}</div>
           {artist.medium && (
             <div className="text-[0.82rem] text-[#888] font-light mb-0.5">{artist.medium}</div>
           )}

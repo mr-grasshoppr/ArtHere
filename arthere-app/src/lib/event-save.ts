@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { parseEventInput } from '@/lib/events';
 import { storeEventCover } from '@/lib/event-cover';
+import { safeFetch } from '@/lib/safe-fetch';
 
 
 const str = (form: FormData, key: string) => {
@@ -26,6 +27,9 @@ export async function saveEventFromForm(
     endDate: str(form, 'endDate'),
     endTime: str(form, 'endTime'),
     description: str(form, 'description'),
+    link: str(form, 'link'),
+    price: str(form, 'price'),
+    audience: str(form, 'audience'),
   });
   if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
 
@@ -40,6 +44,15 @@ export async function saveEventFromForm(
     const stored = await storeEventCover(file, `places/${place.slug}/events`);
     if ('error' in stored) return NextResponse.json({ error: stored.error }, { status: 400 });
     coverImageUrl = stored.url;
+  } else if (str(form, 'coverUrl')) {
+    // Cover pulled from the org's source link: fetch it here (never trust the browser's copy) and store our own.
+    try {
+      const img = await safeFetch(str(form, 'coverUrl'), { maxBytes: 12 * 1024 * 1024 });
+      const stored = await storeEventCover(new File([new Uint8Array(img.body)], 'cover', { type: img.contentType }), `places/${place.slug}/events`);
+      if ('url' in stored) coverImageUrl = stored.url;
+    } catch {
+      // A cover we can't fetch isn't worth failing the event over; the org can upload one.
+    }
   } else if (form.get('removeCover') === 'true') {
     coverImageUrl = '';
   }

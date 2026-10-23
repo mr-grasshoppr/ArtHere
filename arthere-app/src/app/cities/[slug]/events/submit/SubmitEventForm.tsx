@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { ArtistNamePicker } from '@/components/ArtistNamePicker';
+import { AUDIENCE_SUGGESTIONS, EVENT_DESCRIPTION_MAX } from '@/lib/events';
 import { resizeImageForUpload } from '@/lib/client-image-resize';
 
 const field = 'w-full px-3 py-2.5 border border-[#e5e5e5] rounded-lg text-sm focus:outline-none focus:border-[#999]';
@@ -84,17 +85,17 @@ export default function SubmitEventForm({ places, artistNames, eventsHref }: { p
           <label className={label} htmlFor="se-sd">Starts</label>
           <div className="flex gap-2">
             <input id="se-sd" name="startDate" type="date" required className={field} />
-            <input name="startTime" type="time" aria-label="Start time" className={field} />
+            <input name="startTime" type="time" aria-label="Start time" required className={field} />
           </div>
         </div>
         <div>
-          <label className={label} htmlFor="se-ed">Ends <span className="text-[#aaa]">(optional)</span></label>
+          <label className={label} htmlFor="se-ed">Ends</label>
           <div className="flex gap-2">
             <input id="se-ed" name="endDate" type="date" className={field} />
-            <input name="endTime" type="time" aria-label="End time" className={field} />
+            <input name="endTime" type="time" aria-label="End time" required className={field} />
           </div>
         </div>
-        <p className="sm:col-span-2 text-xs text-[#999] -mt-2">Leave the start time blank for an all-day event. Times are Pacific.</p>
+        <p className="sm:col-span-2 text-xs text-[#999] -mt-2">Times are Pacific. Leave the end date blank if the event ends the same day.</p>
       </div>
 
       <div>
@@ -105,6 +106,28 @@ export default function SubmitEventForm({ places, artistNames, eventsHref }: { p
       <div>
         <label className={label} htmlFor="se-cover">Cover photo <span className="text-[#aaa]">(optional)</span></label>
         <input id="se-cover" name="cover" type="file" accept="image/jpeg,image/png,image/webp" className="text-sm" onChange={(e) => setCover(e.target.files?.[0] ?? null)} />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className={label} htmlFor="se-price">Price</label>
+          <input id="se-price" name="price" required maxLength={40} placeholder="Free, $10, sliding scale…" className={field} />
+        </div>
+        <div>
+          <label className={label} htmlFor="se-aud">Age range / who it&rsquo;s for</label>
+          <input id="se-aud" name="audience" list="se-aud-options" required maxLength={60} placeholder="All ages, 21+, members only…" className={field} />
+          <datalist id="se-aud-options">{AUDIENCE_SUGGESTIONS.map((o) => <option key={o} value={o} />)}</datalist>
+        </div>
+      </div>
+
+      <div>
+        <label className={label} htmlFor="se-link">Link to learn more</label>
+        <input id="se-link" name="link" type="text" inputMode="url" required placeholder="https://" className={field} />
+      </div>
+
+      <div>
+        <label className={label} htmlFor="se-desc">Event description <span className="text-[#aaa]">(up to {EVENT_DESCRIPTION_MAX} characters)</span></label>
+        <textarea id="se-desc" name="description" rows={4} required maxLength={EVENT_DESCRIPTION_MAX} className={field} />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

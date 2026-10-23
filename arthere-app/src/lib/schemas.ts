@@ -154,6 +154,7 @@ export const placeProfileSchema = z
       .nullish(),
     showOnMap: z.boolean().nullish(),
     showArtistPhotos: z.boolean().nullish(),
+    showEventsCarousel: z.boolean().nullish(),
   })
   .loose();
 

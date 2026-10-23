@@ -22,16 +22,9 @@ export function EventsPromptEmail({ name, link }: EventsPromptEmailProps) {
       <Text style={styles.paragraph}>Hi {name?.trim() || 'there'},</Text>
       <Text style={styles.paragraph}>
         If you have a show, opening, workshop or gathering coming up, we&rsquo;d love to share it on your Art Here
-        page. It takes about a minute &mdash; all we need is:
-      </Text>
-      <Text style={styles.paragraph}>
-        &bull; the event name
-        <br />
-        &bull; start and end dates and times
-        <br />
-        &bull; which artists are involved
-        <br />
-        &bull; one cover photo
+        page &mdash; and there&rsquo;s no need to retype anything. Just paste a link to wherever you already share it
+        (your event page, Eventbrite, a flyer or PDF). We&rsquo;ll pull in the name, dates and times, price, ages and
+        photo, and you&rsquo;ll get to review and approve it before it&rsquo;s listed.
       </Text>
 
       <Section style={styles.buttonSection}>

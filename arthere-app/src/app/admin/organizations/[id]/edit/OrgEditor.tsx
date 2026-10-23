@@ -34,6 +34,7 @@ type Org = {
   unresolvedAddresses: string[];
   showOnMap: boolean;
   showArtistPhotos: boolean;
+  showEventsCarousel: boolean;
 };
 
 const GALLERY_MAX = 3;
@@ -90,6 +91,7 @@ export default function OrgEditor({
   const [locations, setLocations] = useState<LocationRow[]>(place.locations);
   const [showOnMap, setShowOnMap] = useState(place.showOnMap);
   const [showArtistPhotos, setShowArtistPhotos] = useState(place.showArtistPhotos);
+  const [showEventsCarousel, setShowEventsCarousel] = useState(place.showEventsCarousel);
 
   // Images the community-card picker can choose from: the hero, every
   // gallery photo, and (deduped) whatever's currently set as the thumbnail —
@@ -148,6 +150,7 @@ export default function OrgEditor({
           locations,
           showOnMap,
           showArtistPhotos,
+          showEventsCarousel,
         });
         setSaved(true);
         router.refresh();
@@ -226,6 +229,10 @@ export default function OrgEditor({
         <label className="flex items-center gap-2 text-sm text-[#444]">
           <input type="checkbox" checked={showArtistPhotos} onChange={(e) => setShowArtistPhotos(e.target.checked)} />
           Show artists as small bio photos with names (otherwise a plain list of names)
+        </label>
+        <label className="flex items-center gap-2 text-sm text-[#444]">
+          <input type="checkbox" checked={showEventsCarousel} onChange={(e) => setShowEventsCarousel(e.target.checked)} />
+          Show events as a carousel at the bottom of the page, including past events (otherwise just upcoming, as a list)
         </label>
         <div>
           <label className={labelCls}>About</label>

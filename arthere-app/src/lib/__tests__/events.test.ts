@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { formatEventWhen, isUpcoming, parseEventInput, safePlaceNext, utcToZoned, zonedToUtc } from '../events';
+import { formatEventWhen, normalizeEventLink, isUpcoming, parseEventInput, safePlaceNext, utcToZoned, zonedToUtc } from '../events';
 
-const base = { name: 'Opening', startDate: '2026-11-07', startTime: '19:00', endDate: '', endTime: '', description: '' };
+const base = { name: 'Opening', startDate: '2026-11-07', startTime: '19:00', endDate: '', endTime: '21:00', description: 'An evening of new work.', price: 'Free', audience: 'All ages', link: 'https://example.org/open' };
 
 describe('zonedToUtc', () => {
   it('converts Pacific standard and daylight time', () => {
@@ -21,9 +21,14 @@ describe('parseEventInput', () => {
   it('requires a name', () => {
     expect(parseEventInput({ ...base, name: '  ' }).ok).toBe(false);
   });
-  it('treats a blank start time as all day', () => {
-    const r = parseEventInput({ ...base, startTime: '' });
-    expect(r.ok && r.value.allDay).toBe(true);
+  it('requires start and end times, price, audience, description and a link', () => {
+    for (const patch of [{ startTime: '' }, { endTime: '' }, { price: ' ' }, { audience: '' }, { link: '' }, { description: '  ' }]) {
+      expect(parseEventInput({ ...base, ...patch }).ok).toBe(false);
+    }
+  });
+  it('caps the description at about a paragraph', () => {
+    expect(parseEventInput({ ...base, description: 'x'.repeat(451) }).ok).toBe(false);
+    expect(parseEventInput({ ...base, description: 'x'.repeat(450) }).ok).toBe(true);
   });
   it('rejects an end before the start', () => {
     expect(parseEventInput({ ...base, endDate: '2026-11-06' }).ok).toBe(false);
@@ -43,9 +48,9 @@ describe('formatEventWhen', () => {
     expect(formatEventWhen(r.value, now)).toBe('Sat, Nov 7 · 7:00 PM – 9:00 PM');
   });
   it('formats a multi-day run', () => {
-    const r = parseEventInput({ ...base, startTime: '', endDate: '2026-11-09' });
+    const r = parseEventInput({ ...base, endDate: '2026-11-09' });
     if (!r.ok) throw new Error('bad');
-    expect(formatEventWhen(r.value, now)).toBe('Sat, Nov 7 – Mon, Nov 9');
+    expect(formatEventWhen(r.value, now)).toBe('Sat, Nov 7, 7:00 PM – Mon, Nov 9, 9:00 PM');
   });
 });
 
@@ -63,5 +68,19 @@ describe('safePlaceNext', () => {
     expect(safePlaceNext('https://evil.com')).toBeNull();
     expect(safePlaceNext('//evil.com')).toBeNull();
     expect(safePlaceNext('/admin')).toBeNull();
+  });
+});
+
+describe('normalizeEventLink', () => {
+  it('adds https and rejects non-web or malformed links', () => {
+    expect(normalizeEventLink('example.org/open-house')).toBe('https://example.org/open-house');
+    expect(normalizeEventLink('  ')).toBeNull();
+    expect(normalizeEventLink('javascript:alert(1)')).toBeNull();
+    expect(normalizeEventLink('notaurl')).toBeNull();
+  });
+  it('rejects a bad link when parsing an event', () => {
+    expect(parseEventInput({ ...base, link: 'javascript:alert(1)' }).ok).toBe(false);
+    const r = parseEventInput({ ...base, link: 'example.org' });
+    expect(r.ok && r.value.linkUrl).toBe('https://example.org/');
   });
 });

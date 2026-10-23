@@ -270,6 +270,9 @@ model Place {
   // How "Artists here" renders on the place's page: false = a plain list of
   // names, true = small bio photos with names.
   showArtistPhotos     Boolean   @default(false)
+  // Show this place's events as a scrolling carousel at the bottom of its page
+  // (otherwise upcoming events appear as a simple list).
+  showEventsCarousel   Boolean   @default(false)
   description          String?   @db.Text
   // Optional pull quote shown on the page (e.g. a customer or community
   // testimonial), with its speaker credited separately.
@@ -853,6 +856,14 @@ model EventArtist {
   artistId String
 
   event  Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  // "Learn more" page (the org's own listing, ticketing, press release…).
+  linkUrl       String?
+  // Both required for new events (see parseEventInput); nullable only for
+  // events created before they were.
+  // Price as shown, e.g. "Free", "$10", "Sliding scale $5–20".
+  price         String?
+  // Age range or other restriction, e.g. "All ages", "21+", "Members only".
+  audience      String?
   artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
 
   @@unique([eventId, artistId])
@@ -887,3 +898,6 @@ model EventSubmission {
 
   @@index([createdAt])
 }
+  linkUrl        String?
+  price          String?
+  audience       String?

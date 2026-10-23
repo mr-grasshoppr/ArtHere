@@ -39,6 +39,9 @@ export async function POST(req: NextRequest) {
     endDate: str(form, 'endDate'),
     endTime: str(form, 'endTime'),
     description: str(form, 'description'),
+    link: str(form, 'link'),
+    price: str(form, 'price'),
+    audience: str(form, 'audience'),
   });
   if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
 
@@ -86,6 +89,9 @@ export async function POST(req: NextRequest) {
     const rows = [
       { label: 'Event', value: parsed.value.name },
       { label: 'When', value: formatEventWhen(parsed.value) },
+      { label: 'Price', value: parsed.value.price },
+      { label: 'Audience', value: parsed.value.audience },
+      { label: 'Link', value: parsed.value.linkUrl },
       { label: 'Where', value: place ? place.name : `${venueName} (not on Art Here yet)` },
       ...(pocEmail ? [{ label: 'Contact at venue', value: pocEmail }] : []),
       ...(artistNames ? [{ label: 'Artists', value: artistNames.replace(/\n/g, ', ') }] : []),

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" width="1920.55" height="769.99" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1920.55 769.99">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0" y1="350.29" x2="1450.86" y2="350.29" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ecffbd"/>
+      <stop offset="1" stop-color="#ff008e" stop-opacity=".8"/>
+    </linearGradient>
+    <linearGradient id="linear-gradient-2" x1="1292.75" y1="474.25" x2="3248.97" y2="474.25" gradientTransform="translate(3188.806) scale(-.9815 1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ecf5bd" stop-opacity=".9"/>
+      <stop offset="1" stop-color="#ff1d8b" stop-opacity=".8"/>
+    </linearGradient>
+    <linearGradient id="linear-gradient-3" x1="404.89" y1="198.91" x2="1920" y2="198.91" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ecdbbd"/>
+      <stop offset="1" stop-color="#ff008e" stop-opacity=".8"/>
+    </linearGradient>
+    <linearGradient id="linear-gradient-4" x1="1235.81" y1="1304.36" x2="2924.49" y2="1304.36" gradientTransform="translate(2950.3906 1412.1723) rotate(-180) scale(.8333 .7566)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#00ac65" stop-opacity=".8"/>
+      <stop offset=".57" stop-color="#b3d587"/>
+    </linearGradient>
+    <linearGradient id="linear-gradient-5" x1="1745.42" y1="1156.46" x2="5464.88" y2="1156.46" gradientTransform="translate(-900.992 1412.1723) scale(.5162 -.7566)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#00ac65" stop-opacity=".7"/>
+      <stop offset=".42" stop-color="#b3d587" stop-opacity=".7"/>
+      <stop offset="1" stop-color="#00ac65" stop-opacity=".7"/>
+    </linearGradient>
+  </defs>
+  <g id="Layer_1" data-name="Layer 1">
+    <polygon points="0 582.73 1450.86 238.33 0 117.86 0 582.73" fill="url(#linear-gradient)" opacity=".42"/>
+    <polygon points="1920 731.05 0 304.51 1920 217.45 1920 731.05" fill="url(#linear-gradient-2)" opacity=".46"/>
+    <polygon points="404.89 324.12 1920 397.82 1920 0 404.89 324.12" fill="url(#linear-gradient-3)" opacity=".42"/>
+  </g>
+  <g id="Layer_2" data-name="Layer 2">
+    <polygon points="1919.1 126.84 513.32 460.98 1920.55 723.86 1919.1 126.84" fill="url(#linear-gradient-4)" opacity=".72"/>
+    <polygon points="0 304.51 1920 397.49 0 769.99 0 304.51" fill="url(#linear-gradient-5)" opacity=".82"/>
+  </g>
+</svg>

@@ -10,6 +10,8 @@ import { FadeImage } from '@/components/FadeImage';
 import { Lightbox } from '@/components/Lightbox';
 import { RELATIONSHIP_LABELS, linkTypeLabel } from '@/lib/artist-options';
 import { EventCard } from '@/components/EventCard';
+import { ScrollRow } from '@/components/ScrollRow';
+import { EventCarouselTile } from '@/components/EventCarouselTile';
 import type { PublicEvent } from '@/lib/event-queries';
 
 export type PlaceWithArtists = Place & {
@@ -30,13 +32,15 @@ interface Props {
   preview?: boolean;
   /** Upcoming published events at this place. */
   events?: PublicEvent[];
+  /** Upcoming + past events for the bottom-of-page carousel (when showEventsCarousel is on). */
+  carouselEvents?: PublicEvent[];
 }
 
 /**
  * Full place page body — shared by /places/[slug] and
  * /cities/[slug]/places/[placeSlug] so the two routes can't drift apart.
  */
-export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, preview, events }: Props) {
+export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, preview, events, carouselEvents }: Props) {
   const metaParts = [place.neighborhood].filter(Boolean) as string[];
   // Auto-detected focal point per image, falling back to center.
   const styleOf = (url: string, fallback: CSSProperties = { objectPosition: DEFAULT_OBJECT_POSITION }) =>
@@ -185,7 +189,7 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
       )}
 
       {/* Upcoming events */}
-      {events && events.length > 0 && (
+      {!place.showEventsCarousel && events && events.length > 0 && (
         <section className="max-w-[980px] mx-auto px-5 sm:px-10 pb-12">
           <div className="text-[0.75rem] uppercase tracking-[0.18em] text-[#999] mb-4">Upcoming events</div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
@@ -215,6 +219,18 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
             </div>
           ))}
         </div>
+      )}
+
+      {/* Events carousel — the very bottom of the page, opt-in per place */}
+      {place.showEventsCarousel && carouselEvents && carouselEvents.length > 0 && (
+        <section className="max-w-[980px] mx-auto px-5 sm:px-10 pb-6">
+          <div className="text-[0.75rem] uppercase tracking-[0.18em] text-[#999] mb-4">Events</div>
+          <ScrollRow label="events">
+            {carouselEvents.map(e => (
+              <EventCarouselTile key={e.id} event={e} />
+            ))}
+          </ScrollRow>
+        </section>
       )}
 
       {!preview && communityHref && (

@@ -42,7 +42,7 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background-image: url('/images/Pink_Green_banner.png');
+  background-image: url('/images/Pink_Green_banner_v2.svg');
   background-repeat: no-repeat;
   /* Stretched to the box, drawn 2% wider than it and pinned right so the
      overhang falls off the left edge. The artwork has a ~0.9% transparent

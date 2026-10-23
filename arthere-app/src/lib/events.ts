@@ -6,7 +6,12 @@
 export const EVENT_TIMEZONE = 'America/Los_Angeles';
 
 export const EVENT_NAME_MAX = 120;
-export const EVENT_DESCRIPTION_MAX = 1000;
+export const EVENT_DESCRIPTION_MAX = 450;
+export const EVENT_PRICE_MAX = 40;
+export const EVENT_AUDIENCE_MAX = 60;
+
+/** Suggestions for the audience field; anything else can be typed. */
+export const AUDIENCE_SUGGESTIONS = ['All ages', 'Adults 18+', '21+', 'Teens', 'Kids & families', 'Members only'];
 
 /** UTC offset (ms) of `timeZone` at the given instant. */
 function zoneOffsetMs(utcMs: number, timeZone: string): number {
@@ -49,36 +54,57 @@ export function utcToZoned(value: Date, timeZone = EVENT_TIMEZONE): { date: stri
 export interface EventFormInput {
   name: string;
   startDate: string;
-  startTime: string; // blank = all day
+  startTime: string;
   endDate: string;   // blank = no end
   endTime: string;
   description: string;
+  price: string;
+  audience: string;
+  /** "Learn more" page. */
+  link: string;
 }
 
 export type ParsedEvent =
-  | { ok: true; value: { name: string; startsAt: Date; endsAt: Date | null; allDay: boolean; description: string | null } }
+  | { ok: true; value: { name: string; startsAt: Date; endsAt: Date | null; allDay: boolean; description: string; linkUrl: string; price: string; audience: string } }
   | { ok: false; error: string };
+
+/** Accepts "example.org/x" or a full URL; only http(s) is kept. Null when blank or unusable. */
+export function normalizeEventLink(input: string | null | undefined): string | null {
+  const raw = input?.trim();
+  if (!raw) return null;
+  try {
+    const url = new URL(/^[a-z][a-z0-9+.-]*:\/\//i.test(raw) ? raw : `https://${raw}`);
+    return (url.protocol === 'https:' || url.protocol === 'http:') && url.hostname.includes('.') ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
 
 export function parseEventInput(input: EventFormInput): ParsedEvent {
   const name = input.name.trim();
   if (!name) return { ok: false, error: 'Please give the event a name.' };
   if (name.length > EVENT_NAME_MAX) return { ok: false, error: `Event names are limited to ${EVENT_NAME_MAX} characters.` };
   const description = input.description.trim();
+  if (!description) return { ok: false, error: 'Please add a short event description.' };
   if (description.length > EVENT_DESCRIPTION_MAX) return { ok: false, error: `Descriptions are limited to ${EVENT_DESCRIPTION_MAX} characters.` };
 
-  const allDay = !input.startTime.trim();
-  const startsAt = zonedToUtc(input.startDate, allDay ? '00:00' : input.startTime);
-  if (!startsAt) return { ok: false, error: 'Please enter a valid start date.' };
+  const startsAt = zonedToUtc(input.startDate, input.startTime.trim());
+  if (!startsAt) return { ok: false, error: 'Please enter a start date and start time.' };
+  // An end date is only needed for events that run past midnight or over several days.
+  const endsAt = zonedToUtc(input.endDate.trim() || input.startDate, input.endTime.trim());
+  if (!endsAt) return { ok: false, error: 'Please enter an end time.' };
+  if (endsAt <= startsAt) return { ok: false, error: 'The event can’t end before it starts.' };
 
-  let endsAt: Date | null = null;
-  if (input.endDate.trim() || input.endTime.trim()) {
-    // A time with no end date means "same day".
-    const endDate = input.endDate.trim() || input.startDate;
-    endsAt = zonedToUtc(endDate, input.endTime.trim() || (allDay ? '23:59' : '23:59'));
-    if (!endsAt) return { ok: false, error: 'Please enter a valid end date.' };
-    if (endsAt < startsAt) return { ok: false, error: 'The event can’t end before it starts.' };
-  }
-  return { ok: true, value: { name, startsAt, endsAt, allDay, description: description || null } };
+  const price = input.price.trim();
+  if (!price) return { ok: false, error: 'Please enter the price (or “Free”).' };
+  if (price.length > EVENT_PRICE_MAX) return { ok: false, error: `Price is limited to ${EVENT_PRICE_MAX} characters.` };
+  const audience = input.audience.trim();
+  if (!audience) return { ok: false, error: 'Please enter the age range or who the event is for (e.g. “All ages”).' };
+  if (audience.length > EVENT_AUDIENCE_MAX) return { ok: false, error: `Audience is limited to ${EVENT_AUDIENCE_MAX} characters.` };
+
+  const linkUrl = normalizeEventLink(input.link);
+  if (!linkUrl) return { ok: false, error: 'Please add a web address where people can learn more.' };
+  return { ok: true, value: { name, startsAt, endsAt, allDay: false, description, linkUrl, price, audience } };
 }
 
 /** An event is "upcoming" until its end (or, with no end, the end of its start day). */

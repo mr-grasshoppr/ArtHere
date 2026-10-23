@@ -70,6 +70,7 @@ export default async function PlaceEditPage() {
           unresolvedAddresses: place.locations.filter((l) => l.lat == null).map((l) => l.streetAddress),
           showOnMap: place.showOnMap,
           showArtistPhotos: place.showArtistPhotos,
+          showEventsCarousel: place.showEventsCarousel,
         }}
         placeSlug={place.slug}
         neighborhoodOptions={neighborhoodOptions}

@@ -41,6 +41,7 @@ interface InitialData {
   unresolvedAddresses: string[];
   showOnMap: boolean;
   showArtistPhotos: boolean;
+  showEventsCarousel: boolean;
 }
 
 type InitialFocals = Record<string, Focal>;
@@ -93,6 +94,7 @@ export default function PlaceEditForm({
   const [locations, setLocations] = useState<LocationRow[]>(initialData.locations);
   const [showOnMap, setShowOnMap] = useState(initialData.showOnMap);
   const [showArtistPhotos, setShowArtistPhotos] = useState(initialData.showArtistPhotos);
+  const [showEventsCarousel, setShowEventsCarousel] = useState(initialData.showEventsCarousel);
   const [artists, setArtists] = useState<Artist[]>(initialData.artists);
   const [removingConnectionId, setRemovingConnectionId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -129,6 +131,7 @@ export default function PlaceEditForm({
           locations,
           showOnMap,
           showArtistPhotos,
+          showEventsCarousel,
         }),
       });
       if (!res.ok) throw new Error();
@@ -144,7 +147,7 @@ export default function PlaceEditForm({
     saveTimer.current = setTimeout(() => persistAll(), 1200);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, neighborhoods, description, quote, quoteAttribution, JSON.stringify(links), JSON.stringify(locations), showOnMap, showArtistPhotos]);
+  }, [name, neighborhoods, description, quote, quoteAttribution, JSON.stringify(links), JSON.stringify(locations), showOnMap, showArtistPhotos, showEventsCarousel]);
 
   async function handleHeroSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -414,6 +417,18 @@ export default function PlaceEditForm({
           </p>
         </div>
       )}
+
+      {/* Events display */}
+      <div className="max-w-[980px] mx-auto px-5 sm:px-10 py-8 border-b border-[#f0f0f0]">
+        <h2 className="text-[0.75rem] uppercase tracking-[0.18em] text-[#999] mb-3">Events</h2>
+        <p className="text-sm text-[#888] mb-3">
+          <Link href="/place/events" className="underline">Add or edit your events →</Link>
+        </p>
+        <label className="flex items-center gap-2 text-[0.8rem] text-[#555]">
+          <input type="checkbox" checked={showEventsCarousel} onChange={e => setShowEventsCarousel(e.target.checked)} />
+          Show events as a carousel at the bottom of my page, including past events (otherwise just upcoming events in a list)
+        </label>
+      </div>
 
       {/* Team */}
       <div className="max-w-[980px] mx-auto px-5 sm:px-10 py-8 border-b border-[#f0f0f0]">

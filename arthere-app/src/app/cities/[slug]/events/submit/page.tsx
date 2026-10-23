@@ -32,7 +32,11 @@ export default async function SubmitEventPage({ params }: { params: Promise<{ sl
       <NavBar activeCitySlug={slug} theme="light" cityNav={cityNavFor(slug, scope.cityDisplayName)} />
       <main className="max-w-2xl mx-auto px-5 py-10 pb-24">
         <h1 className="text-2xl font-semibold mb-1">Share your event!</h1>
-        <p className="text-sm text-[#888] mb-8">Tell us about what&rsquo;s happening, and we&rsquo;ll add your event to the local Art Here events page.</p>
+        <p className="text-sm text-[#888] mb-4">Tell us about what&rsquo;s happening, and we&rsquo;ll add your event to the local Art Here events page.</p>
+        <p className="text-sm text-[#555] mb-8 rounded-lg bg-[#f7f6f3] border border-[#dedad4] px-4 py-3">
+          Art Here events are about <strong className="font-semibold">supporting local artists</strong>{' '}&mdash; shows, openings,
+          workshops, markets and gatherings that feature, serve or pay local artists.
+        </p>
         <SubmitEventForm places={places} artistNames={artists.map(a => a.name)} eventsHref={`/cities/${slug}/events`} />
       </main>
       <SiteFooter />
