@@ -294,14 +294,12 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark', cityNav }
 
       {/* Phones: the section tabs in a bar of their own under the header. The
           page offsets that assume a 56px header (top padding, sticky bars,
-          the artwork grid, the map) grow by the bar's 36px via --subnav-h. */}
+          the artwork grid, the map) grow by the bar's 28px via --subnav-h. */}
       {cityNav && (
         <>
-          <style>{`@media (max-width:639px){:root{--subnav-h:36px}.pt-14{padding-top:5.75rem}.sticky.top-14{top:5.75rem}}`}</style>
+          <style>{`@media (max-width:639px){:root{--subnav-h:28px}.pt-14{padding-top:5.25rem}.sticky.top-14{top:5.25rem}}`}</style>
           <nav
-            className={`sm:hidden fixed top-14 left-0 right-0 h-9 z-[199] flex items-center justify-between px-[18px] ${
-              isLight ? 'bg-white/[0.97] backdrop-blur-[10px] border-b border-[#eee]' : 'bg-black'
-            }`}
+            className="sm:hidden fixed top-14 left-0 right-0 h-7 z-[199] flex items-center justify-end-safe gap-3 min-[340px]:gap-5 px-3 min-[340px]:px-[18px] bg-black overflow-x-auto [scrollbar-width:none]"
             onClickCapture={(e) => {
               if ((e.target as HTMLElement).closest('a')) clearMapCameras();
             }}
@@ -313,16 +311,8 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark', cityNav }
                   key={tab.label}
                   href={tab.href}
                   onClick={closeAll}
-                  className={`no-underline text-[0.84rem] leading-none font-light tracking-[0.01em] pb-[3px] border-b-[1.5px] border-transparent ${
-                    isLight ? 'text-[#1a1a1a]/55' : 'text-white/55'
-                  }`}
-                  style={
-                    isActive
-                      ? isLight
-                        ? { color: '#1a1a1a', borderColor: 'rgba(26,26,26,0.6)' }
-                        : { color: '#fff', borderColor: 'rgba(255,255,255,0.6)' }
-                      : undefined
-                  }
+                  className="flex-shrink-0 no-underline text-[0.68rem] min-[340px]:text-[0.8rem] leading-none font-light tracking-[0.01em] pb-[2px] border-b-[1.5px] border-transparent text-[#bbb]"
+                  style={isActive ? { color: '#fff', borderColor: 'rgba(255,255,255,0.7)' } : undefined}
                 >
                   {tab.label}
                 </Link>
