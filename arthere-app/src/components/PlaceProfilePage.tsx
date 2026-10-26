@@ -10,7 +10,6 @@ import { FadeImage } from '@/components/FadeImage';
 import { Lightbox } from '@/components/Lightbox';
 import { RELATIONSHIP_LABELS, linkTypeLabel } from '@/lib/artist-options';
 import { EventCard } from '@/components/EventCard';
-import { ScrollRow } from '@/components/ScrollRow';
 import { EventCarouselTile } from '@/components/EventCarouselTile';
 import type { PublicEvent } from '@/lib/event-queries';
 
@@ -211,11 +210,11 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
         <section className="bg-[#f7f6f3]">
           <div className="max-w-[980px] mx-auto px-5 sm:px-10 pt-4 pb-10">
             <div className="text-[0.82rem] font-medium uppercase tracking-[0.18em] text-[#555] mb-8">Happenings</div>
-            <ScrollRow label="happenings">
-              {carouselEvents.map(e => (
+            <div className="flex flex-col gap-3">
+              {carouselEvents.slice(0, 6).map(e => (
                 <EventCarouselTile key={e.id} event={e} />
               ))}
-            </ScrollRow>
+            </div>
           </div>
         </section>
       )}

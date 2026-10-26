@@ -92,7 +92,7 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark', cityNav }
             On phones (under the sm breakpoint) the city name is dropped —
             the four tabs alone are all that fits beside the logo and menu. */}
         {cityNav && (
-          <nav className="flex items-center gap-3 sm:gap-7 ml-auto mr-2.5 sm:mr-6 min-w-0 overflow-x-auto [scrollbar-width:none]">
+          <nav className="hidden sm:flex items-center gap-7 ml-auto mr-6 min-w-0 overflow-x-auto [scrollbar-width:none]">
             <Link
               href={cityNav.cityHref}
               className={`font-display flex-shrink-0 text-[1.35rem] leading-none tracking-[0.05em] no-underline transition-opacity hover:opacity-60 hidden sm:block ${
@@ -108,7 +108,7 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark', cityNav }
                 <Link
                   key={tab.label}
                   href={tab.href}
-                  className={`flex-shrink-0 no-underline text-[0.84rem] sm:text-[0.88rem] leading-none font-light tracking-[0.01em] pb-[3px] mt-[3.5px] transition-colors duration-200 border-b-[1.5px] border-transparent ${
+                  className={`flex-shrink-0 no-underline text-[0.88rem] leading-none font-light tracking-[0.01em] pb-[3px] mt-[3.5px] transition-colors duration-200 border-b-[1.5px] border-transparent ${
                     isLight
                       ? 'text-[#1a1a1a]/55 hover:text-[#1a1a1a] hover:border-[#1a1a1a]/60'
                       : 'text-white/55 hover:text-white hover:border-white/60'
@@ -128,8 +128,22 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark', cityNav }
           </nav>
         )}
 
+        {/* Phones: the city name sits beside the menu; the section tabs get
+            their own bar underneath (below). */}
+        {cityNav && (
+          <Link
+            href={cityNav.cityHref}
+            onClick={closeAll}
+            className={`sm:hidden ml-auto font-display flex-shrink-0 text-[1.2rem] leading-none tracking-[0.05em] no-underline ${
+              isLight ? 'text-[#1a1a1a]' : 'text-white'
+            }`}
+          >
+            <span className="relative top-[0.13em]">{cityNav.cityLabel}</span>
+          </Link>
+        )}
+
         {/* Hamburger menu */}
-        <div className={`relative flex-shrink-0 z-[210]${cityNav ? '' : ' ml-auto'}`}>
+        <div className={`relative flex-shrink-0 z-[210]${cityNav ? ' sm:ml-0' : ' ml-auto'}`}>
           <button
             className="bg-transparent border-none cursor-pointer p-1 flex flex-col gap-1"
             onClick={e => { e.stopPropagation(); setMenuOpen(o => !o); if (menuOpen) setCitiesOpen(false); }}
@@ -277,6 +291,46 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark', cityNav }
         </div>
 
       </div>
+
+      {/* Phones: the section tabs in a bar of their own under the header. The
+          page offsets that assume a 56px header (top padding, sticky bars,
+          the artwork grid, the map) grow by the bar's 36px via --subnav-h. */}
+      {cityNav && (
+        <>
+          <style>{`@media (max-width:639px){:root{--subnav-h:36px}.pt-14{padding-top:5.75rem}.sticky.top-14{top:5.75rem}}`}</style>
+          <nav
+            className={`sm:hidden fixed top-14 left-0 right-0 h-9 z-[199] flex items-center justify-between px-[18px] ${
+              isLight ? 'bg-white/[0.97] backdrop-blur-[10px] border-b border-[#eee]' : 'bg-black'
+            }`}
+            onClickCapture={(e) => {
+              if ((e.target as HTMLElement).closest('a')) clearMapCameras();
+            }}
+          >
+            {cityNav.tabs.map(tab => {
+              const isActive = pathname === tab.href.split('?')[0];
+              return (
+                <Link
+                  key={tab.label}
+                  href={tab.href}
+                  onClick={closeAll}
+                  className={`no-underline text-[0.84rem] leading-none font-light tracking-[0.01em] pb-[3px] border-b-[1.5px] border-transparent ${
+                    isLight ? 'text-[#1a1a1a]/55' : 'text-white/55'
+                  }`}
+                  style={
+                    isActive
+                      ? isLight
+                        ? { color: '#1a1a1a', borderColor: 'rgba(26,26,26,0.6)' }
+                        : { color: '#fff', borderColor: 'rgba(255,255,255,0.6)' }
+                      : undefined
+                  }
+                >
+                  {tab.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </>
+      )}
     </>
   );
 }

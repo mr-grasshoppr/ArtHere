@@ -51,7 +51,7 @@ export default async function CityMapPage({
           nav's own "map" tab. dvh, not vh: on a phone 100vh is the height
           with the browser's toolbars hidden, which pushed the bottom of the
           map — and its zoom buttons — under them. */}
-      <div className="relative h-[calc(100dvh-3.5rem)]">
+      <div className="relative h-[calc(100dvh-3.5rem-var(--subnav-h,0px))]">
         {view === 'network' ? (
           <>
             <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20">
