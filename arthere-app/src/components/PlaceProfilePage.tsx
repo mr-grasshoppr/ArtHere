@@ -135,65 +135,50 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
 
       {/* Connected artists */}
       {place.artists.length > 0 && (
-        <section className="max-w-[980px] mx-auto px-5 sm:px-10 pb-12">
-          <div className="text-[0.75rem] uppercase tracking-[0.18em] text-[#999] mb-3">Artists here</div>
-          {place.showArtistPhotos ? (
-            <div className="flex flex-wrap gap-x-6 gap-y-5">
-              {place.artists.map(rel => {
-                const photo = rel.artist.bioPhotoUrl ?? rel.artist.heroImageUrl;
-                return (
-                  <Link
-                    key={rel.id}
-                    href={artistHref(rel.artist.slug)}
-                    className="group flex flex-col items-center w-[84px] text-center"
-                  >
-                    <span className="relative block w-[72px] h-[72px] rounded-full overflow-hidden bg-[#f4f4f0]">
-                      {photo && (
-                        <FadeImage
-                          src={photo}
-                          alt={rel.artist.name}
-                          fill
-                          sizes="72px"
-                          className="object-cover group-hover:scale-[1.05]"
-                          style={styleOf(photo)}
-                        />
-                      )}
-                    </span>
-                    <span className="mt-2 text-[0.8rem] text-[#666] leading-snug group-hover:text-[#1a1a1a] transition-colors">
-                      {rel.artist.name}
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="flex flex-wrap gap-x-6 gap-y-2 items-baseline">
-              {place.artists.map(rel => {
-                const relLabel =
-                  rel.relationship === 'OTHER' ? rel.relationshipLabel : RELATIONSHIP_LABELS[rel.relationship];
-                return (
-                  <div key={rel.id} className="text-[0.85rem]">
-                    <Link
-                      href={artistHref(rel.artist.slug)}
-                      className="text-[#666] underline underline-offset-4 decoration-[#ccc] hover:decoration-[#1a1a1a] transition-colors"
-                    >
-                      {rel.artist.name}
-                    </Link>
-                    {relLabel && <span className="text-[#bbb] font-light"> · {relLabel}</span>}
-                  </div>
-                );
-              })}
-            </div>
-          )}
+        <section className="max-w-[980px] mx-auto px-5 sm:px-10 pt-4 pb-10">
+          <div className="text-[0.82rem] font-medium uppercase tracking-[0.18em] text-[#555] mb-8">Artists here</div>
+          <div className="flex flex-wrap gap-x-6 gap-y-6 items-start">
+            {place.artists.map(rel => {
+              const photo = rel.artist.bioPhotoUrl ?? rel.artist.heroImageUrl;
+              const relLabel =
+                rel.relationship === 'OTHER' ? rel.relationshipLabel : RELATIONSHIP_LABELS[rel.relationship];
+              return (
+                <Link
+                  key={rel.id}
+                  href={artistHref(rel.artist.slug)}
+                  className="group flex flex-col items-center w-[104px] text-center"
+                >
+                  <span className="relative block w-[84px] h-[84px] rounded-full overflow-hidden bg-[#f4f4f0]">
+                    {photo && (
+                      <FadeImage
+                        src={photo}
+                        alt={rel.artist.name}
+                        fill
+                        sizes="84px"
+                        className="object-cover group-hover:scale-[1.05]"
+                        style={styleOf(photo)}
+                      />
+                    )}
+                  </span>
+                  <span className="mt-1.5 text-[0.75rem] text-[#666] leading-snug group-hover:text-[#1a1a1a] transition-colors">
+                    {rel.artist.name}
+                  </span>
+                  {relLabel && <span className="text-[0.68rem] text-[#bbb] font-light leading-snug">{relLabel}</span>}
+                </Link>
+              );
+            })}
+          </div>
         </section>
       )}
 
       {/* Upcoming events */}
       {!place.showEventsCarousel && events && events.length > 0 && (
-        <section className="max-w-[980px] mx-auto px-5 sm:px-10 pb-12">
-          <div className="text-[0.75rem] uppercase tracking-[0.18em] text-[#999] mb-4">Upcoming events</div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-            {events.map(e => <EventCard key={e.id} event={e} />)}
+        <section className="bg-[#f7f6f3] mb-10">
+          <div className="max-w-[980px] mx-auto px-5 sm:px-10 pt-4 pb-10">
+            <div className="text-[0.82rem] font-medium uppercase tracking-[0.18em] text-[#555] mb-8">Upcoming happenings</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+              {events.map(e => <EventCard key={e.id} event={e} />)}
+            </div>
           </div>
         </section>
       )}
@@ -223,13 +208,15 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
 
       {/* Events carousel — the very bottom of the page, opt-in per place */}
       {place.showEventsCarousel && carouselEvents && carouselEvents.length > 0 && (
-        <section className="max-w-[980px] mx-auto px-5 sm:px-10 pb-6">
-          <div className="text-[0.75rem] uppercase tracking-[0.18em] text-[#999] mb-4">Events</div>
-          <ScrollRow label="events">
-            {carouselEvents.map(e => (
-              <EventCarouselTile key={e.id} event={e} />
-            ))}
-          </ScrollRow>
+        <section className="bg-[#f7f6f3]">
+          <div className="max-w-[980px] mx-auto px-5 sm:px-10 pt-4 pb-10">
+            <div className="text-[0.82rem] font-medium uppercase tracking-[0.18em] text-[#555] mb-8">Happenings</div>
+            <ScrollRow label="happenings">
+              {carouselEvents.map(e => (
+                <EventCarouselTile key={e.id} event={e} />
+              ))}
+            </ScrollRow>
+          </div>
         </section>
       )}
 
