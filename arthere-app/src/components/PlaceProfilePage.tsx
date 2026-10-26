@@ -133,6 +133,29 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
         </section>
       )}
 
+      {/* Gallery */}
+      {place.galleryImages.length > 0 && (
+        <div className="max-w-[1200px] mx-auto px-5 pb-10 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5">
+          {place.galleryImages.map((url, i) => (
+            <div
+              key={url}
+              className="relative aspect-square overflow-hidden rounded-md bg-[#f4f4f0] group"
+            >
+              <Lightbox src={url} alt={`${place.name} photo ${i + 1}`} trackKind="place_photo">
+                <FadeImage
+                  src={url}
+                  alt={`${place.name} photo ${i + 1}`}
+                  fill
+                  sizes="(max-width: 640px) 100vw, 33vw"
+                  className="object-cover group-hover:scale-[1.03]"
+                  style={styleOf(url)}
+                />
+              </Lightbox>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Connected artists */}
       {place.artists.length > 0 && (
         <section className="max-w-[980px] mx-auto px-5 sm:px-10 pt-4 pb-10">
@@ -181,29 +204,6 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
             </div>
           </div>
         </section>
-      )}
-
-      {/* Gallery */}
-      {place.galleryImages.length > 0 && (
-        <div className="max-w-[1200px] mx-auto px-5 pb-10 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5">
-          {place.galleryImages.map((url, i) => (
-            <div
-              key={url}
-              className="relative aspect-square overflow-hidden rounded-md bg-[#f4f4f0] group"
-            >
-              <Lightbox src={url} alt={`${place.name} photo ${i + 1}`} trackKind="place_photo">
-                <FadeImage
-                  src={url}
-                  alt={`${place.name} photo ${i + 1}`}
-                  fill
-                  sizes="(max-width: 640px) 100vw, 33vw"
-                  className="object-cover group-hover:scale-[1.03]"
-                  style={styleOf(url)}
-                />
-              </Lightbox>
-            </div>
-          ))}
-        </div>
       )}
 
       {/* Events carousel — the very bottom of the page, opt-in per place */}
