@@ -19,7 +19,7 @@ export function DirectoryCallout({ cityName }: Props) {
         <span className="text-[0.9rem] font-light text-white/65">
           Art Here is growing. {cityName} artist?{' '}
           <Link
-            href="/contact?type=featured"
+            href="/join/artists"
             className="text-white underline underline-offset-[3px] decoration-white/40 hover:decoration-white transition-colors"
           >
             Get featured →

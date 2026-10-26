@@ -117,7 +117,7 @@ export const FAQ_SECTIONS: FaqSection[] = [
         a: (
           <p>
             We&rsquo;d love to feature your work! Head to our{' '}
-            <Link href="/contact?type=featured" className={linkCls}>Get Featured</Link>{' '}
+            <Link href="/join/artists" className={linkCls}>Get Featured</Link>{' '}
             page to introduce yourself.
             Because we personally connect with every artist, we&rsquo;re expanding the directory thoughtfully.
             We&rsquo;ll be in touch when it&rsquo;s time to set up your profile.
@@ -163,7 +163,7 @@ export const FAQ_SECTIONS: FaqSection[] = [
           <p>
             Yes! Art Here highlights the galleries, studios, shops, and venues that support local artists, so
             people can find you along with the artists you work with.{' '}
-            <Link href="/contact?type=partner" className={linkCls}>Get in touch</Link>{' '}
+            <Link href="/join/organizations" className={linkCls}>Get in touch</Link>{' '}
             to learn more.
           </p>
         ),
@@ -175,7 +175,7 @@ export const FAQ_SECTIONS: FaqSection[] = [
         a: (
           <p>
             Interested in bringing Art Here to your community? We&rsquo;d love to{' '}
-            <Link href="/contact?type=bring" className={linkCls}>hear from</Link>{' '}
+            <Link href="/join/cities" className={linkCls}>hear from</Link>{' '}
             cities and local organizations that want to celebrate and map their artist ecosystem.
           </p>
         ),

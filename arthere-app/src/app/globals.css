@@ -36,3 +36,9 @@
   position: relative;
   top: 0.056em;
 }
+
+/* Cross-fade for the join-us backdrop demos */
+@keyframes stage-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

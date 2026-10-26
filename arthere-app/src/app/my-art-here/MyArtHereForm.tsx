@@ -83,15 +83,19 @@ export function MyArtHereForm() {
         <p className="text-[0.88rem] text-[#555] font-light -mt-2">Let us know how you&rsquo;d like to be involved!</p>
         <div className="flex items-baseline gap-4">
           <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#bbb] w-36 shrink-0">Artists</span>
-          <Link href="/contact?type=featured" className="text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#ccc] hover:opacity-60 transition-opacity">Get featured →</Link>
+          <Link href="/join/artists" className="text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#ccc] hover:opacity-60 transition-opacity">Get featured →</Link>
         </div>
         <div className="flex items-baseline gap-4">
-          <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#bbb] w-36 shrink-0">Organizations</span>
-          <Link href="/contact?type=partner" className="text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#ccc] hover:opacity-60 transition-opacity">Partner with us →</Link>
+          <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#bbb] w-36 shrink-0">Places</span>
+          <Link href="/join/places" className="text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#ccc] hover:opacity-60 transition-opacity">Showcase your space →</Link>
+        </div>
+        <div className="flex items-baseline gap-4">
+          <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#bbb] w-36 shrink-0">Partners</span>
+          <Link href="/join/organizations" className="text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#ccc] hover:opacity-60 transition-opacity">Collaborate with us →</Link>
         </div>
         <div className="flex items-baseline gap-4">
           <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#bbb] w-36 shrink-0">Cities &amp; Neighborhoods</span>
-          <Link href="/contact?type=bring" className="text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#ccc] hover:opacity-60 transition-opacity">Bring Art Here →</Link>
+          <Link href="/join/cities" className="text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#ccc] hover:opacity-60 transition-opacity">Invite Art Here →</Link>
         </div>
       </div>
     </div>

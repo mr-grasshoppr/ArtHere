@@ -9,6 +9,10 @@ const INTENTS: Record<string, { greeting: string; opening: string }> = {
     greeting: 'Get featured on Art Here',
     opening: `I'm interested in being featured as an artist on Art Here.`,
   },
+  place: {
+    greeting: 'Get your place featured on Art Here',
+    opening: `I'd like my gallery, shop, studio, or organization to be featured as a place on Art Here.`,
+  },
   partner: {
     greeting: 'Partner with Art Here',
     opening: `I'm interested in partnering or collaborating with Art Here.`,

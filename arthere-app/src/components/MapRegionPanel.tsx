@@ -128,7 +128,7 @@ export function MapRegionPanel({
       {artists.length === 0 && (
         <p className="px-4 pb-4 text-[0.8rem] text-[#aaa] leading-relaxed">
           Art Here is growing in {name}.{' '}
-          <Link href="/contact?type=featured" className="text-white underline underline-offset-2 hover:text-[#bdd349]">
+          <Link href="/join/artists" className="text-white underline underline-offset-2 hover:text-[#bdd349]">
             Join us as a featured artist here →
           </Link>
         </p>

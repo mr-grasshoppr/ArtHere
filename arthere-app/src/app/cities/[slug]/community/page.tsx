@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { NavBar } from '@/components/NavBar';
+import { PlacesCallout } from '@/components/PlacesCallout';
 import { cityNavFor } from '@/lib/city-nav';
 import { CommunityBrowser, type CommunityPlaceData } from '@/components/CommunityBrowser';
 import { getFocalStyles } from '@/lib/image-focus';
@@ -112,7 +113,9 @@ export default async function CityCommunityPage({
     <div className="min-h-screen bg-white text-[#1a1a1a] pt-14">
       <NavBar activeCitySlug={slug} theme="light" cityNav={cityNavFor(slug, cityDisplayName)} />
 
-      {/* No page heading — the nav's "places" tab is the title, as on the artists page. */}
+      {/* No page heading — the nav's "places" tab is the title; the band is the invitation to join. */}
+      <PlacesCallout />
+
       {places.length > 0 ? (
         <CommunityBrowser places={places} neighborhoodOptions={neighborhoodOptions} citySlug={slug} />
       ) : (
