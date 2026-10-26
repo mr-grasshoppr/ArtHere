@@ -135,7 +135,7 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
 
       {/* Gallery */}
       {place.galleryImages.length > 0 && (
-        <div className="max-w-[1200px] mx-auto px-5 pb-10 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5">
+        <div className="max-w-[980px] mx-auto px-5 sm:px-10 pb-10 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5">
           {place.galleryImages.map((url, i) => (
             <div
               key={url}
