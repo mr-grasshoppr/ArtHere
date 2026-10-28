@@ -731,6 +731,22 @@ model InstagramPost {
   updatedAt DateTime @updatedAt
 }
 
+// A Community Stories video shown on /stories. Hosted on YouTube or Vimeo —
+// videoUrl is the pasted watch link, turned into an embed by lib/story-video.
+// Unpublished rows stay in the admin only.
+model StoryVideo {
+  id          String   @id @default(cuid())
+  sortOrder   Int      @default(0)
+  title       String   @default("")
+  /// Who is telling the story, e.g. "Maria Lopez, muralist".
+  byline      String   @default("")
+  description String   @default("") @db.Text
+  videoUrl    String   @default("")
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 // ─── Profile Revision History ─────────────────────────────────────────────────
 // An append-only audit trail: one row is written on every profile save (artist
 // or place), capturing the full post-save state as JSON. Never updated or
