@@ -31,7 +31,7 @@ export default async function StoriesPage() {
             Community Stories
           </h1>
           <p className="text-[0.9rem] font-light text-white/65 leading-[1.7]">
-            First-person accounts of how creative places and programs shape the city.
+            Video stories about how the impact of arts on places.
           </p>
         </div>
       </div>
@@ -56,6 +56,13 @@ export default async function StoriesPage() {
             <div className="space-y-10">
               {videos.map(v => (
                 <figure key={v.id}>
+                  {(v.title || v.byline || v.description) && (
+                    <figcaption className="mb-3">
+                      {v.title && <h3 className="text-[1.1rem] font-medium leading-snug">{v.title}</h3>}
+                      {v.byline && <p className="text-[0.9rem] text-[#666] font-light">{v.byline}</p>}
+                      {v.description && <p className="mt-1 text-[1rem] leading-[1.75] font-light">{v.description}</p>}
+                    </figcaption>
+                  )}
                   <div className="aspect-video bg-[#f0f0f0] rounded-md overflow-hidden">
                     <iframe
                       src={v.embed}
@@ -66,13 +73,6 @@ export default async function StoriesPage() {
                       loading="lazy"
                     />
                   </div>
-                  {(v.title || v.byline || v.description) && (
-                    <figcaption className="mt-3">
-                      {v.title && <h3 className="text-[1.1rem] font-medium leading-snug">{v.title}</h3>}
-                      {v.byline && <p className="text-[0.9rem] text-[#666] font-light">{v.byline}</p>}
-                      {v.description && <p className="mt-1 text-[1rem] leading-[1.75] font-light">{v.description}</p>}
-                    </figcaption>
-                  )}
                 </figure>
               ))}
             </div>
@@ -81,11 +81,11 @@ export default async function StoriesPage() {
 
         <section className="mt-12">
           <h2 className="font-display text-[1.4rem] sm:text-[1.6rem] leading-none tracking-[0.06em] uppercase mb-3">
-            Take part
+            Tell Your Story
           </h2>
           <p className="text-[1rem] leading-[1.75] font-light">
-            Interested in partnering, or know someone whose perspective belongs
-            here?{' '}
+            Interested in creating an Art Here story, or know someone whose
+            perspective belongs here?{' '}
             <a
               href="/contact"
               className="underline underline-offset-[3px] decoration-[#1a1a1a]/40 hover:decoration-[#1a1a1a] transition-colors"
