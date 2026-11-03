@@ -35,7 +35,7 @@ export function SendPlaceInviteButton({ placeId, email }: { placeId: string; ema
   if (!email) {
     return (
       <p className="text-xs text-[#888]">
-        Add an owner email below and save to send an invite.
+        Add a Page Admin email below and save to send an invite.
       </p>
     );
   }

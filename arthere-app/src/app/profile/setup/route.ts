@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyMagicLinkToken } from '@/lib/magic-link';
-import { createSessionForUser } from '@/lib/auth';
+import { auth, createSessionForUser } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { safePlaceNext } from '@/lib/events';
+import { placeAccessWhere } from '@/lib/place-access';
 import { notifyBlockedAccess, type BlockedAccessReason } from '@/lib/blocked-access';
 
 export async function GET(req: NextRequest) {
@@ -38,6 +39,28 @@ export async function GET(req: NextRequest) {
         placeId: record.placeId,
         name: record.artist?.name ?? record.place?.name,
       });
+
+      // Someone coming back through an old email while still signed in on
+      // this browser doesn't need the dead end: they already have a session
+      // for this very profile or page, so take them to it. Still logged above
+      // as a blocked attempt, and the link itself stays single-use.
+      const session = await auth();
+      if (session?.user?.id) {
+        if (record.artistId) {
+          const own = await prisma.artist.findFirst({
+            where: { id: record.artistId, userId: session.user.id },
+            select: { id: true },
+          });
+          if (own) return NextResponse.redirect(`${base}/profile`);
+        }
+        if (record.placeId) {
+          const own = await prisma.place.findFirst({
+            where: { id: record.placeId, ...placeAccessWhere(session.user.id) },
+            select: { id: true },
+          });
+          if (own) return NextResponse.redirect(`${base}${safePlaceNext(record.next) ?? '/place/edit'}`);
+        }
+      }
     }
 
     return NextResponse.redirect(`${base}/profile/link-error?msg=${encodeURIComponent(msg)}`);

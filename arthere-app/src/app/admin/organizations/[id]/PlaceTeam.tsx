@@ -22,7 +22,7 @@ export default function PlaceTeam({ placeId, initialTeam }: { placeId: string; i
   const [error, setError] = useState("");
   const [removingId, setRemovingId] = useState<string | null>(null);
 
-  function handleInvite(e: React.FormEvent) {
+  function handleInvite(e: React.SyntheticEvent) {
     e.preventDefault();
     const clean = email.trim();
     if (!clean) return;
@@ -53,16 +53,18 @@ export default function PlaceTeam({ placeId, initialTeam }: { placeId: string; i
   }
 
   return (
-    <div className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
-      <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Team</h2>
+    <div className="space-y-3">
+      <div>
+        <h3 className="block text-xs text-[#888] uppercase tracking-wide mb-1">Other page admins</h3>
+        <p className="text-xs text-[#999]">They can edit this page too. Add one by email and they&rsquo;ll get a sign-in link, no password needed.</p>
+      </div>
 
       <div className="space-y-1.5">
-        {team.map((m) => (
+        {team.filter((m) => m.role === "member").map((m) => (
           <div key={m.userId} className="flex items-center justify-between gap-3 text-sm">
             <div className="flex items-baseline gap-2 min-w-0">
               <span className="text-[#1a1a1a] truncate">{m.email}</span>
-              <span className="text-[0.68rem] text-[#bbb] uppercase tracking-wide flex-shrink-0">{m.role}</span>
-            </div>
+                          </div>
             {m.role === "member" && (
               <button
                 type="button"
@@ -75,25 +77,28 @@ export default function PlaceTeam({ placeId, initialTeam }: { placeId: string; i
             )}
           </div>
         ))}
-        {team.length === 0 && <p className="text-sm text-[#bbb]">No owner or team members yet.</p>}
+        {!team.some((m) => m.role === "member") && <p className="text-sm text-[#bbb]">No other page admins yet.</p>}
       </div>
 
-      <form onSubmit={handleInvite} className="flex gap-2 pt-2 border-t border-[#f0f0f0]">
+      {/* A div, not a form: this sits inside the page editor's own form, and a nested submit would save the whole page. */}
+      <div className="flex gap-2 pt-2 border-t border-[#f0f0f0]">
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="teammate@email.com"
+          onKeyDown={(e) => { if (e.key === "Enter") handleInvite(e); }}
+          placeholder="another-admin@email.com"
           className="flex-1 px-3 py-2 border border-[#e5e5e5] rounded-lg text-sm focus:outline-none focus:border-[#999]"
         />
         <button
-          type="submit"
+          type="button"
+          onClick={handleInvite}
           disabled={isPending || !email.trim()}
           className="px-4 py-2 rounded-full bg-[#1a1a1a] text-white text-xs font-medium hover:opacity-80 transition-opacity disabled:opacity-40 whitespace-nowrap"
         >
           {isPending && !removingId ? "Inviting…" : "Invite"}
         </button>
-      </form>
+      </div>
       {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   );

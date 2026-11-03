@@ -116,7 +116,7 @@ export default async function AdminOrgEditPage({ params }: { params: Promise<{ i
             </div>
 
             <div className="text-sm space-y-1 pt-2 border-t border-[#f0f0f0]">
-              <Row label="Email" value={place.user?.email ?? null} />
+              <Row label="Page Admin" value={place.user?.email ?? null} />
               {place.user && (
                 <Row label="Logged in" value={place.user.emailVerified ? new Date(place.user.emailVerified).toLocaleDateString("en-US", { timeZone: tz }) : "Never"} />
               )}
@@ -124,8 +124,8 @@ export default async function AdminOrgEditPage({ params }: { params: Promise<{ i
                 label="Last edit"
                 value={
                   lastOwnerEdit
-                    ? `${new Date(lastOwnerEdit.createdAt).toLocaleDateString("en-US", { timeZone: tz })} (by owner)`
-                    : "Never edited by owner"
+                    ? `${new Date(lastOwnerEdit.createdAt).toLocaleDateString("en-US", { timeZone: tz })} (by page admin)`
+                    : "Never edited by page admin"
                 }
               />
               <Row label="Directory" value={place.inDirectory ? "Live" : "Hidden"} />
@@ -143,7 +143,7 @@ export default async function AdminOrgEditPage({ params }: { params: Promise<{ i
                 {revisions.map((r, i) => (
                   <div key={i} className="text-sm flex items-baseline justify-between gap-2">
                     <span className="text-[#444]">
-                      {r.editedBy === "place" ? "Edited by owner" : r.editedBy === "admin" ? `Edited by admin${r.editorEmail ? ` (${r.editorEmail})` : ""}` : "System update"}
+                      {r.editedBy === "place" ? "Edited by page admin" : r.editedBy === "admin" ? `Edited by admin${r.editorEmail ? ` (${r.editorEmail})` : ""}` : "System update"}
                     </span>
                     <span className="text-[#bbb] text-xs flex-shrink-0">
                       {new Date(r.createdAt).toLocaleDateString("en-US", { timeZone: tz, month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
@@ -178,8 +178,8 @@ export default async function AdminOrgEditPage({ params }: { params: Promise<{ i
             }}
             neighborhoodOptions={neighborhoodOptions}
             initialFocals={initialFocals}
+            admins={<PlaceTeam placeId={place.id} initialTeam={team} />}
           />
-          <PlaceTeam placeId={place.id} initialTeam={team} />
           <PlaceNotes placeId={place.id} initialNotes={place.adminNotes} />
         </div>
       </div>

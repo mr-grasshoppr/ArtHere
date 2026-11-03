@@ -49,12 +49,11 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
   const artistHref = (slug: string) =>
     citySlug ? `/cities/${citySlug}/artists/${slug}` : `/artists/${slug}`;
   const communityHref = citySlug ? `/cities/${citySlug}/community` : null;
-  // One flat list: linked artists and hand-listed names, ordered by how the
-  // place supports them. A listed name that matches a linked artist is dropped
-  // so nobody appears twice.
+  // Only artists with an Art Here profile appear: each connected themselves
+  // and confirmed how they relate to the place. Names a place has typed in
+  // stay in its editor (and are never shown here) until the artist joins.
   const affiliation = (relationship: PlaceRelationship, custom: string | null) =>
     relationship === 'OTHER' ? custom : relationship === 'IN_SHOP' ? 'In shop' : RELATIONSHIP_LABELS[relationship];
-  const linkedNames = new Set(place.artists.map(rel => rel.artist.name.trim().toLowerCase()));
   const artistEntries = PLACE_RELATIONSHIP_ORDER.flatMap(relationship => [
     ...place.artists
       .filter(rel => rel.relationship === relationship)
@@ -63,14 +62,6 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
         name: rel.artist.name,
         artist: rel.artist,
         label: affiliation(relationship, rel.relationshipLabel),
-      })),
-    ...place.listedArtists
-      .filter(a => a.relationship === relationship && !linkedNames.has(a.name.trim().toLowerCase()))
-      .map(a => ({
-        key: `n-${a.id}`,
-        name: a.name,
-        artist: null,
-        label: affiliation(relationship, a.relationshipLabel),
       })),
   ]);
   const linkCls =
@@ -181,14 +172,12 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
         </div>
       )}
 
-      {/* Artists here — linked profiles and hand-listed names, each with how the place supports them */}
+      {/* Artists here — artists with a profile, each with how they confirmed their connection to the place */}
       {artistEntries.length > 0 && (
         <section className="max-w-[980px] mx-auto px-5 sm:px-10 pt-4 pb-10">
           <div className="text-[0.82rem] font-medium uppercase tracking-[0.18em] text-[#555] mb-8">Artists here</div>
-          {artistEntries.some(e => e.artist) && (
-            <div className="flex flex-wrap gap-x-6 gap-y-6 items-start">
+          <div className="flex flex-wrap gap-x-6 gap-y-6 items-start">
               {artistEntries.flatMap(e => {
-                if (!e.artist) return [];
                 const photo = e.artist.bioPhotoUrl ?? e.artist.heroImageUrl;
                 return [
                   <Link
@@ -215,17 +204,6 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
                   </Link>,
                 ];
               })}
-            </div>
-          )}
-          <div className="flex flex-wrap gap-x-6 gap-y-2 items-baseline">
-            {artistEntries
-              .filter(e => !e.artist)
-              .map(e => (
-                <div key={e.key} className="text-[0.85rem]">
-                  <span className="text-[#666]">{e.name}</span>
-                  {e.label && <span className="text-[#bbb] font-light"> · {e.label}</span>}
-                </div>
-              ))}
           </div>
         </section>
       )}

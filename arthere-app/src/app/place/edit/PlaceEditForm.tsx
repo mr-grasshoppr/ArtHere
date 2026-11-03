@@ -412,9 +412,9 @@ export default function PlaceEditForm({
       <div className="max-w-[980px] mx-auto px-5 sm:px-10 py-8 border-b border-[#f0f0f0]">
         <div className={LABEL}>Artists you support</div>
         <p className="text-[0.8rem] text-[#999] mb-5 max-w-[560px]">
-          Add the artists you work with, grouped by how you support them — paste a whole list into any box, one name per
-          line. Leave a box empty if it doesn&rsquo;t apply. Artists who join Art Here connect to your page themselves and
-          show up above.
+          Artists appear on your page once they have a profile on Art Here and confirm how they&rsquo;re connected to you.
+          List the artists you work with here — paste a whole list into any box, one name per line — then invite the ones
+          who aren&rsquo;t on Art Here yet. Until they join, their names are only visible to you.
         </p>
         <PlaceArtistNamesEditor value={listedNames} onChange={setListedNames} fieldClassName={FIELD} />
       </div>
@@ -448,18 +448,18 @@ export default function PlaceEditForm({
         </div>
       )}
 
+      {/* Invite listed artists to make their own profile */}
+      <div className="max-w-[980px] mx-auto px-5 sm:px-10 py-8 border-b border-[#f0f0f0]">
+        <div className={LABEL}>Invite artists who aren&rsquo;t on Art Here yet</div>
+        <PlaceInviteArtists placeName={name || initialData.name} placeSlug={placeSlug} baseUrl={baseUrl} fieldClassName={FIELD} />
+      </div>
+
       {/* Events display */}
       <div className="mb-10">
         <h2 className="text-lg font-semibold mb-1">Events</h2>
         <p className="text-sm text-[#888] mb-3">
           <Link href="/place/events" className="underline">Add or edit your events →</Link>
         </p>
-      </div>
-
-      {/* Invite listed artists to make their own profile */}
-      <div className="max-w-[980px] mx-auto px-5 sm:px-10 py-8 border-b border-[#f0f0f0]">
-        <div className={LABEL}>Invite artists to Art Here</div>
-        <PlaceInviteArtists placeName={name || initialData.name} placeSlug={placeSlug} baseUrl={baseUrl} fieldClassName={FIELD} />
       </div>
 
       {/* Team */}

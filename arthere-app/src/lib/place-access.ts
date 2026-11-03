@@ -5,3 +5,8 @@
 export function placeAccessWhere(userId: string) {
   return { OR: [{ userId }, { members: { some: { userId } } }] };
 }
+
+/** Page admins a place can have besides its main Page Admin. */
+export const MAX_OTHER_PAGE_ADMINS = 3;
+
+export const PAGE_ADMIN_LIMIT_MESSAGE = `A page can have up to ${MAX_OTHER_PAGE_ADMINS} other page admins. Remove one first, or write to us if you need more.`;

@@ -64,10 +64,13 @@ export default function OrgEditor({
   place,
   neighborhoodOptions,
   initialFocals,
+  admins,
 }: {
   place: Org;
   neighborhoodOptions: string[];
   initialFocals?: Record<string, Focal>;
+  /** Other page admins (can edit too) — shown right under the Page Admin email. */
+  admins?: React.ReactNode;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -210,10 +213,11 @@ export default function OrgEditor({
             <NeighborhoodPicker options={neighborhoodOptions} value={neighborhoods} onChange={setNeighborhoods} />
           </div>
           <div>
-            <label className={labelCls}>Owner email</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="owner@email.com" className={inputCls} />
+            <label className={labelCls}>Page Admin email</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin@email.com" className={inputCls} />
           </div>
         </div>
+        {admins}
         <div>
           <label className={labelCls}>Street address{locations.length > 1 ? "es" : ""}</label>
           <PlaceLocationsEditor

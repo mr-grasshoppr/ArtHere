@@ -173,7 +173,7 @@ export default function OrganizationsList({ places }: { places: PlaceRow[] }) {
                         )}
                       </div>
                       <div className="text-sm text-[#888] truncate">
-                        {p.user?.email ?? "no owner email"} ·{" "}
+                        {p.user?.email ?? "no page admin email"} ·{" "}
                         {p.neighborhood ?? "no neighborhood"}
                       </div>
                     </div>

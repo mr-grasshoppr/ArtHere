@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
-import { placeAccessWhere } from '@/lib/place-access';
+import { placeAccessWhere, MAX_OTHER_PAGE_ADMINS, PAGE_ADMIN_LIMIT_MESSAGE } from '@/lib/place-access';
 import { sendPlaceMagicLink } from '@/lib/magic-link';
 
 // Self-service team management — any current editor (owner or member) can
@@ -54,6 +54,14 @@ export async function POST(req: NextRequest) {
 
   if (user.id === place.userId) {
     return NextResponse.json({ error: `${email} already has access to this page.` }, { status: 400 });
+  }
+
+  const alreadyMember = await prisma.placeMember.findUnique({
+    where: { placeId_userId: { placeId: place.id, userId: user.id } },
+    select: { userId: true },
+  });
+  if (!alreadyMember && (await prisma.placeMember.count({ where: { placeId: place.id } })) >= MAX_OTHER_PAGE_ADMINS) {
+    return NextResponse.json({ error: PAGE_ADMIN_LIMIT_MESSAGE }, { status: 400 });
   }
 
   await prisma.placeMember.upsert({

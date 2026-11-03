@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin";
+import { MAX_OTHER_PAGE_ADMINS, PAGE_ADMIN_LIMIT_MESSAGE } from "@/lib/place-access";
 import { createPlaceInvitePreview, sendPlaceInviteEmail, sendPlaceMagicLink, type InvitePreview } from "@/lib/magic-link";
 import { snapshotPlace } from "@/lib/profile-revision";
 import { slugify } from "@/lib/slug";
@@ -189,6 +190,11 @@ export async function addPlaceTeamMember(placeId: string, email: string) {
   const user = await prisma.user.upsert({ where: { email: clean }, create: { email: clean }, update: {} });
   if (user.id === place.userId) throw new Error(`${clean} already has access to this page.`);
 
+  const alreadyMember = await prisma.placeMember.findUnique({ where: { placeId_userId: { placeId, userId: user.id } }, select: { userId: true } });
+  if (!alreadyMember && (await prisma.placeMember.count({ where: { placeId } })) >= MAX_OTHER_PAGE_ADMINS) {
+    throw new Error(PAGE_ADMIN_LIMIT_MESSAGE);
+  }
+
   await prisma.placeMember.upsert({
     where: { placeId_userId: { placeId, userId: user.id } },
     create: { placeId, userId: user.id },
@@ -203,7 +209,7 @@ export async function addPlaceTeamMember(placeId: string, email: string) {
 export async function removePlaceTeamMember(placeId: string, userId: string) {
   await requireAdmin();
   const place = await prisma.place.findUnique({ where: { id: placeId }, select: { userId: true } });
-  if (place?.userId === userId) throw new Error("The page's owner can't be removed here.");
+  if (place?.userId === userId) throw new Error("The Page Admin can't be removed here.");
   await prisma.placeMember.deleteMany({ where: { placeId, userId } });
   revalidatePath(`/admin/organizations/${placeId}`);
 }

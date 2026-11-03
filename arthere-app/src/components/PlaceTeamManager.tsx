@@ -13,7 +13,7 @@ const FIELD = 'flex-1 px-4 py-3 rounded-lg border border-[#e8e8e8] text-[0.95rem
 const BTN = 'px-5 py-3 rounded-full bg-[#1a1a1a] text-white text-[0.88rem] font-medium transition-opacity hover:opacity-80 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap';
 
 /**
- * Lets any current editor (owner or teammate) see who has edit access to
+ * Lets any current editor (owner or another page admin) see who has edit access to
  * this org's page, invite another teammate by email, or remove someone
  * (the owner can't be removed here). Backed by /api/place/team.
  */
@@ -85,9 +85,9 @@ export function PlaceTeamManager() {
 
   return (
     <div>
-      <div className={LABEL}>Team</div>
+      <div className={LABEL}>Page admins</div>
       <p className="text-[0.8rem] text-[#999] font-light mb-4">
-        Anyone here can edit this page. Invite a teammate by email — they&rsquo;ll get a sign-in link, no password needed.
+        Page admins can edit this page. Add another page admin by email — they&rsquo;ll get a sign-in link, no password needed.
       </p>
 
       {team === null ? (
@@ -98,7 +98,7 @@ export function PlaceTeamManager() {
             <div key={m.userId} className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-lg border border-[#f0f0f0] bg-[#fafafa]">
               <div className="flex items-baseline gap-2 min-w-0">
                 <span className="text-[0.88rem] text-[#1a1a1a] truncate">{m.email}</span>
-                <span className="text-[0.68rem] text-[#bbb] uppercase tracking-wide flex-shrink-0">{m.role}</span>
+                <span className="text-[0.68rem] text-[#bbb] uppercase tracking-wide flex-shrink-0">{m.role === 'owner' ? 'main contact' : ''}</span>
               </div>
               {m.role === 'member' && (
                 <button
@@ -120,7 +120,7 @@ export function PlaceTeamManager() {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="teammate@email.com"
+          placeholder="another-admin@email.com"
           className={FIELD}
         />
         <button type="submit" disabled={inviting || !email.trim()} className={BTN}>
