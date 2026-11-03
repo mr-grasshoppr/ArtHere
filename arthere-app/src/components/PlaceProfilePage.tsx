@@ -119,10 +119,10 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
         )}
       </div>
 
-      {/* Description + quote + links */}
+      {/* Description + quote + links — full content width, so the text edges line up with the photo row below */}
       {(place.description || place.quote || place.links.length > 0) && (
         <section className="max-w-[980px] mx-auto px-5 sm:px-10 pt-7 pb-10">
-          <div className="max-w-[680px] text-[1.05rem] text-[#444] font-light leading-[1.8]">
+          <div className="text-[1.05rem] text-[#444] font-light leading-[1.8]">
             {place.quote && (
               <blockquote className="italic border-l-2 border-[#ccc] pl-5 mb-[18px] text-[#888] text-[0.92rem]">
                 &ldquo;{place.quote}&rdquo;

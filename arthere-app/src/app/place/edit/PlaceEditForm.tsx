@@ -326,7 +326,7 @@ export default function PlaceEditForm({
 
       {/* Description + quote + website */}
       <div className="max-w-[980px] mx-auto px-5 sm:px-10 pt-7 pb-10 border-b border-[#f0f0f0]">
-        <div className="max-w-[680px]">
+        <div>
           <div className={LABEL}>About</div>
           <textarea
             value={description}
