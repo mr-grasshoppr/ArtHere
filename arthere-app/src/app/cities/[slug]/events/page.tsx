@@ -46,7 +46,7 @@ export default async function CityEventsPage({ params }: { params: Promise<{ slu
   return (
     <div className="min-h-screen bg-white text-[#1a1a1a] pt-14">
       <NavBar activeCitySlug={slug} theme="light" cityNav={cityNavFor(slug, scope.cityDisplayName)} />
-      <EventsCallout submitHref={`/cities/${slug}/events/submit`} />
+      <EventsCallout submitHref={`/cities/${slug}/events/submit`} citySlug={slug} />
       <main className={`max-w-[980px] mx-auto px-5 sm:px-10 pt-10 ${pastEvents.length > 0 ? 'pb-4' : 'pb-24'}`}>
         {events.length === 0 ? (
           <p className="text-[#888]">No upcoming events are listed right now. Check back soon.</p>

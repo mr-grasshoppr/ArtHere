@@ -72,7 +72,7 @@ export default function ArtistNotes({
             <p className="text-sm text-[#1a1a1a] whitespace-pre-wrap leading-relaxed">{note.body}</p>
             <div className="flex justify-between items-center mt-3">
               <span className="text-xs text-[#bbb]">
-                {new Date(note.createdAt).toLocaleString("en-US", {
+                {new Date(note.createdAt).toLocaleString("en-US", { timeZone: "America/Los_Angeles",
                   month: "short",
                   day: "numeric",
                   year: "numeric",

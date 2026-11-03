@@ -211,18 +211,18 @@ model ArtworkImage {
 
   // AI-generated tags stored as JSON
   // Shape: { medium, colors, scale, style, subjects, indoor_outdoor, mood }
-  aiTags         Json?
-  aiTaggedAt     DateTime?
+  aiTags               Json?
+  aiTaggedAt           DateTime?
   // Structured, per-artwork medium — a normalized subset of aiTags.medium
   // (values restricted to MEDIUM_OPTIONS, see lib/artist-options.ts) so this
   // specific piece can be filtered/grouped by medium independently of the
   // artist's overall list of mediums. An admin can hand-correct this if the
   // AI mistags a piece.
-  medium         String[]  @default([])
+  medium               String[]  @default([])
   // Set when an admin has eyeballed this piece's tags during a manual audit
   // pass (see /admin/artwork-review) — distinct from aiTaggedAt, which just
   // means the AI ran, not that a human confirmed the result is correct.
-  tagsReviewedAt DateTime?
+  tagsReviewedAt       DateTime?
   // Set when an admin has hidden this image from the artwork-review grid —
   // for pieces that aren't really "artwork" to tag (e.g. a hero image of a
   // storefront). Doesn't affect where the image shows on the public site.
@@ -305,19 +305,20 @@ model Place {
   // The place's own city — independent of any artist connection (a place
   // with no connected artists still needs to know which city's directory it
   // belongs to). Mirrors Artist.cityId.
-  cityId          String?
-  city            City?            @relation(fields: [cityId], references: [id])
-  userId          String?          @unique
-  user            User?            @relation(fields: [userId], references: [id])
-  artists         ArtistPlace[]
-  magicLinkTokens MagicLinkToken[]
-  adminNotes      AdminNote[]
-  members         PlaceMember[]
-  links           PlaceLink[]
-  blockedAccess   BlockedAccessAttempt[]
-  locations       PlaceLocation[]
-  events          Event[]
+  cityId           String?
+  city             City?                  @relation(fields: [cityId], references: [id])
+  userId           String?                @unique
+  user             User?                  @relation(fields: [userId], references: [id])
+  artists          ArtistPlace[]
+  magicLinkTokens  MagicLinkToken[]
+  adminNotes       AdminNote[]
+  members          PlaceMember[]
+  links            PlaceLink[]
+  blockedAccess    BlockedAccessAttempt[]
+  locations        PlaceLocation[]
+  events           Event[]
   eventSubmissions EventSubmission[]
+  listedArtists    PlaceListedArtist[]
 
   @@index([cityId])
 }
@@ -398,6 +399,23 @@ model ArtistPlace {
   place  Place? @relation(fields: [placeId], references: [id], onDelete: Cascade)
 
   @@unique([artistId, placeId, relationship])
+  @@index([placeId])
+}
+
+// An artist a place lists by name only — typed or pasted in by the place, with
+// no Artist profile behind it (rendered as plain text, never a link). Artists
+// who do have a profile connect themselves via ArtistPlace instead.
+model PlaceListedArtist {
+  id                String            @id @default(cuid())
+  placeId           String
+  place             Place             @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  name              String
+  relationship      PlaceRelationship
+  // Only meaningful for OTHER (e.g. "Residency alumni").
+  relationshipLabel String?
+  sortOrder         Int               @default(0)
+  createdAt         DateTime          @default(now())
+
   @@index([placeId])
 }
 
@@ -512,17 +530,17 @@ model SurveyResponse {
   involvementInterestsOther String?
 
   // Raffle + Email
-  raffleOptIn String?
+  raffleOptIn          String?
   // Set when an admin marks this entrant as having won the raffle — distinct
   // from raffleOptIn (entered) so "won" can be filtered/messaged separately
   // via the Contact Tracking "Raffle winner" tag.
-  raffleWinnerAt DateTime?
-  email       String?
+  raffleWinnerAt       DateTime?
+  email                String?
   // Asked only of respondents who picked "Showcase my work on the Art Here
   // platform" — mirrors the website/social + local affiliations fields on the
   // /contact "get featured" form.
   featuredSocial       String?
-  featuredAffiliations String? @db.Text
+  featuredAffiliations String?   @db.Text
 
   // Referral
   learnedAbout          String[] @default([])
@@ -599,21 +617,21 @@ model BlockedAccessAttempt {
 // ─── Contact Form Submissions ────────────────────────────────────────────────
 
 model ContactSubmission {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  name      String
-  email     String
-  social    String?
-  message   String?  @db.Text
-  intent    String?
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
+  name         String
+  email        String
+  social       String?
+  message      String?  @db.Text
+  intent       String?
   // Galleries, studios, collectives, shops or organisations the sender named
   // on the contact form. Free text: an artist reaching out has no way to pick
   // from our Place records, and half of what they name won't exist as one yet.
   // Structured ArtistPlace relations are established later, in onboarding.
-  affiliations String? @db.Text
+  affiliations String?  @db.Text
   // Mirrors SurveyResponse.isTest — lets an admin flag a submission as their
   // own test/QA data so it stops appearing in Contact Tracking.
-  isTest    Boolean  @default(false)
+  isTest       Boolean  @default(false)
 
   // Set once an admin converts this submission into a placeholder Artist via
   // the admin/artists "Interested" tab — the tab uses this to know the
@@ -789,12 +807,12 @@ model OutreachMessage {
 // relations because a contact may exist only as a survey response or a
 // newsletter signup, with no Artist/User record to point at.
 model OutreachRecipient {
-  id        String   @id @default(cuid())
+  id        String          @id @default(cuid())
   messageId String
   message   OutreachMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
 
-  email String
-  name  String?
+  email  String
+  name   String?
   // "sent" or "failed" — a partial failure must not hide the rest of the send.
   status String
   error  String?

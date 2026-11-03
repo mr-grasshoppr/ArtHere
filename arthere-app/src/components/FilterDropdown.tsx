@@ -13,12 +13,12 @@ export const PILL_BASE =
 
 const PILL_THEME: Record<FilterTheme, { inactive: string; active: string }> = {
   light: {
-    inactive: 'border-[#ddd] text-[#888] bg-transparent hover:border-[#999] hover:text-[#444]',
-    active: 'bg-[#1a1a1a] border-[#1a1a1a] text-white',
+    inactive: 'border-[#ddd] text-[#888] bg-transparent hover:bg-[#bdd349] hover:border-[#bdd349] hover:text-[#1a1a1a]',
+    active: 'bg-[#1a1a1a] border-[#1a1a1a] text-white hover:bg-[#bdd349] hover:border-[#bdd349] hover:text-[#1a1a1a]',
   },
   dark: {
-    inactive: 'border-[#444] text-[#888] bg-transparent hover:border-[#888] hover:text-[#ccc]',
-    active: 'bg-white border-white text-black',
+    inactive: 'border-[#444] text-[#888] bg-transparent hover:bg-[#bdd349] hover:border-[#bdd349] hover:text-black',
+    active: 'bg-white border-white text-black hover:bg-[#bdd349] hover:border-[#bdd349]',
   },
 };
 
@@ -29,19 +29,19 @@ export function pillClass(theme: FilterTheme, active: boolean): string {
 export const MENU_THEME: Record<FilterTheme, { menu: string; item: string; itemOn: string; itemOff: string; itemSelected: string; empty: string; heading: string }> = {
   light: {
     menu: 'bg-white border border-[#ddd] rounded-lg overflow-hidden min-w-[180px] z-[100] shadow-[0_4px_16px_rgba(0,0,0,0.1)]',
-    item: 'block w-full text-left px-[18px] py-2.5 text-[0.85rem] border-b border-[#f5f5f5] last:border-b-0 transition-colors hover:bg-[#fafafa] hover:text-[#1a1a1a]',
+    item: 'block w-full text-left px-[18px] py-2.5 text-[0.85rem] border-b border-[#f5f5f5] last:border-b-0 transition-colors hover:bg-[#bdd349] hover:text-[#1a1a1a] active:bg-[#07b26b] active:text-white',
     itemOn: 'text-[#1a1a1a] font-medium',
     itemOff: 'text-[#666]',
-    itemSelected: 'bg-[#f0f0f0]',
+    itemSelected: 'bg-[#1a1a1a] text-white hover:bg-[#1a1a1a]! hover:text-[#bdd349]! font-semibold',
     empty: 'px-[18px] py-2.5 text-[0.85rem] text-[#bbb] italic',
     heading: 'px-[18px] pt-2.5 pb-1 text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#999]',
   },
   dark: {
     menu: 'bg-[#1a1a1a] border border-[#333] rounded-md overflow-hidden min-w-[170px] z-[100] shadow-[0_4px_16px_rgba(0,0,0,0.5)]',
-    item: 'block w-full text-left px-4 py-2.5 text-[0.82rem] border-b border-[#222] last:border-b-0 transition-colors hover:bg-[#222] hover:text-white',
+    item: 'block w-full text-left px-4 py-2.5 text-[0.82rem] border-b border-[#222] last:border-b-0 transition-colors hover:bg-[#bdd349] hover:text-black active:bg-[#07b26b] active:text-white',
     itemOn: 'text-white',
     itemOff: 'text-[#888]',
-    itemSelected: 'bg-[#2a2a2a]',
+    itemSelected: 'bg-white text-black hover:bg-white! hover:text-black! font-semibold',
     empty: 'px-4 py-2.5 text-[0.82rem] text-[#555] italic',
     heading: 'px-4 pt-2.5 pb-1 text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#666]',
   },
@@ -134,7 +134,7 @@ export function FilterDropdown({
       key={opt}
       type="button"
       onClick={e => { e.stopPropagation(); onChange(opt); }}
-      className={`${t.item} ${value === opt ? t.itemOn : t.itemOff}${indent ? ' pl-[26px]' : ''}`}
+      className={`${t.item} ${value === opt ? t.itemSelected : t.itemOff}${indent ? ' pl-[26px]' : ''}`}
     >
       {opt}
     </button>
@@ -273,15 +273,15 @@ export function MultiFilterDropdown({
               onChange(allOn ? value.filter(v => !whole.includes(v)) : [...new Set([...value, ...whole])]);
             };
 
-            // Selection reads as a highlighted row — no checkbox. A partly
-            // selected area shows its heading in the "on" colour without
-            // the fill, so it's clear something under it is chosen.
+            // Selection reads as a solid dark row (hover is chartreuse). A partly selected
+            // area shows its heading in the "on" colour with no fill,
+            // so it's clear something under it is chosen.
             const row = (label: string, on: boolean, partial: boolean, onClick: () => void, indent: boolean, heading: boolean) => (
               <button
                 key={`${group.label ?? 'g'}:${label}`}
                 type="button"
                 onClick={e => { e.stopPropagation(); onClick(); }}
-                className={`${t.item} ${on || partial ? t.itemOn : t.itemOff}${on ? ` ${t.itemSelected}` : ''}${indent ? ' pl-7' : ''}${
+                className={`${t.item} ${on ? t.itemSelected : partial ? t.itemOn : t.itemOff}${indent ? ' pl-7' : ''}${
                   heading ? ' font-semibold' : ''
                 }`}
               >

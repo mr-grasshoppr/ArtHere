@@ -10,6 +10,8 @@ import { joinNeighborhoodList, parseNeighborhoodList } from "@/lib/neighborhoods
 import { LinkType } from "@prisma/client";
 import { normalizeLinkUrl } from "@/lib/social-link";
 import { syncPlaceLocations } from "@/lib/geocode";
+import { replaceListedArtists } from "@/lib/place-listed-artists-server";
+import type { ListedGroup } from "@/lib/place-listed-artists";
 
 async function uniquePlaceSlug(name: string): Promise<string> {
   const base = slugify(name) || "venue";
@@ -65,8 +67,7 @@ type OrgInput = {
   galleryImages: string[];
   locations: { label: string; streetAddress: string }[];
   showOnMap: boolean;
-  showArtistPhotos: boolean;
-  showEventsCarousel: boolean;
+  listedArtists: ListedGroup[];
 };
 
 export async function updateOrganization(placeId: string, data: OrgInput) {
@@ -77,8 +78,6 @@ export async function updateOrganization(placeId: string, data: OrgInput) {
     data: {
       name: data.name.trim(),
       showOnMap: data.showOnMap,
-      showArtistPhotos: data.showArtistPhotos,
-      showEventsCarousel: data.showEventsCarousel,
       neighborhood: joinNeighborhoodList(parseNeighborhoodList(data.neighborhood)),
       description: data.description.trim() || null,
       quote: data.quote.trim() || null,
@@ -106,6 +105,7 @@ export async function updateOrganization(placeId: string, data: OrgInput) {
   }
 
   await syncPlaceLocations(placeId, data.locations);
+  await replaceListedArtists(placeId, data.listedArtists);
 
   const email = data.email.trim().toLowerCase();
   if (email) await attachPlaceUser(placeId, email);

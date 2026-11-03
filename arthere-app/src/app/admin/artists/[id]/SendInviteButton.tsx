@@ -66,6 +66,7 @@ export function SendInviteButton({
 
       {preview && (
         <InvitePreviewModal
+          showArtistTemplates
           email={preview.email}
           link={preview.link}
           initialGreetingName={preview.greetingName}

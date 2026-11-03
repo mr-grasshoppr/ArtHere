@@ -42,7 +42,7 @@ export default async function AdminContactsPage() {
                   </span>
                 )}
                 <span className="ml-auto text-xs text-[#bbb]">
-                  {new Date(s.createdAt).toLocaleDateString("en-US", {
+                  {new Date(s.createdAt).toLocaleDateString("en-US", { timeZone: "America/Los_Angeles",
                     year: "numeric",
                     month: "short",
                     day: "numeric",

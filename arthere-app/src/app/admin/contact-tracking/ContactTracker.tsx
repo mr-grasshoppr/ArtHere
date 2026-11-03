@@ -26,7 +26,7 @@ const SOURCE_ORDER: ContactSource[] = ["survey", "contact form", "newsletter"];
 
 function fmt(iso: string) {
   if (!iso) return "";
-  return new Date(iso).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  return new Date(iso).toLocaleDateString("en-US", { timeZone: "America/Los_Angeles", year: "numeric", month: "short", day: "numeric" });
 }
 
 export default function ContactTracker({

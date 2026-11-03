@@ -153,8 +153,16 @@ export const placeProfileSchema = z
       .max(6)
       .nullish(),
     showOnMap: z.boolean().nullish(),
-    showArtistPhotos: z.boolean().nullish(),
-    showEventsCarousel: z.boolean().nullish(),
+    listedArtists: z
+      .array(
+        z.object({
+          relationship: z.string().max(30),
+          label: shortText.nullish(),
+          names: z.array(z.string().max(300)).max(500),
+        }),
+      )
+      .max(7)
+      .nullish(),
   })
   .loose();
 

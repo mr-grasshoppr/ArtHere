@@ -83,7 +83,7 @@ export default async function AdminOverviewPage() {
                   </div>
                 </div>
                 <div className="text-xs text-[#bbb]">
-                  {new Date(r.createdAt).toLocaleDateString()}
+                  {new Date(r.createdAt).toLocaleDateString("en-US", { timeZone: "America/Los_Angeles" })}
                 </div>
               </Link>
             ))}
@@ -126,7 +126,7 @@ export default async function AdminOverviewPage() {
                   </div>
                 </div>
                 <div className="text-xs text-[#bbb]">
-                  {new Date(a.createdAt).toLocaleDateString()}
+                  {new Date(a.createdAt).toLocaleDateString("en-US", { timeZone: "America/Los_Angeles" })}
                 </div>
               </Link>
             ))}

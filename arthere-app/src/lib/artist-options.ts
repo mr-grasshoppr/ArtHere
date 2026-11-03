@@ -104,3 +104,32 @@ export const RELATIONSHIP_LABELS: Record<PlaceRelationship, string> = {
   IN_SHOP: '',
   OTHER: '',
 };
+
+// Order and group headings for the "Artists here" section of a place's page,
+// where artists are grouped by how the place supports them.
+export const PLACE_RELATIONSHIP_ORDER: PlaceRelationship[] = [
+  'IN_SHOP',
+  'EXHIBITING_ARTIST',
+  'MEMBER',
+  'INSTRUCTOR',
+  'STUDENT',
+  'GRANTEE',
+  'OTHER',
+];
+
+export const PLACE_GROUP_HEADINGS: Record<PlaceRelationship, string> = {
+  IN_SHOP: 'In the shop',
+  EXHIBITING_ARTIST: 'Exhibiting artists',
+  MEMBER: 'Members',
+  INSTRUCTOR: 'Instructors',
+  STUDENT: 'Students',
+  GRANTEE: 'Grantees',
+  OTHER: 'Other artists',
+};
+
+// Length limits for the free-text "about" copy, enforced in the self-service
+// editors (admins see the counter but can exceed it). Chosen from the data at
+// the time: artist bios had a median of ~260 characters and all but one fit
+// in 1,000; place descriptions all fit in 700.
+export const BIO_MAX_CHARS = 1000;
+export const PLACE_DESCRIPTION_MAX_CHARS = 700;

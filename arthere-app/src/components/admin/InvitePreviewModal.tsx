@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ARTIST_INVITE_TEMPLATES } from "@/lib/invite-templates";
 
 /**
  * Interstitial shown before an admin-triggered invite email actually goes
@@ -16,6 +17,7 @@ export function InvitePreviewModal({
   initialBodyText,
   onSend,
   onClose,
+  showArtistTemplates = false,
 }: {
   email: string;
   link: string;
@@ -25,6 +27,8 @@ export function InvitePreviewModal({
   initialBodyText: string;
   onSend: (subject: string, bodyText: string, greetingName: string | null) => Promise<void>;
   onClose: () => void;
+  /** Offer the artist message presets (draft profile / from scratch) above the message box. */
+  showArtistTemplates?: boolean;
 }) {
   const [greetingName, setGreetingName] = useState(initialGreetingName?.trim() ?? "");
   const [subject, setSubject] = useState(initialSubject);
@@ -122,6 +126,23 @@ export function InvitePreviewModal({
                 />
                 <span className="text-sm text-[#1a1a1a]">,</span>
               </div>
+              {showArtistTemplates && (
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs text-[#888]">Use template:</span>
+                  {ARTIST_INVITE_TEMPLATES.map((t) => (
+                    <button
+                      key={t.label}
+                      type="button"
+                      onClick={() => setBodyText(t.bodyText)}
+                      className={`px-3 py-1 rounded-full border text-xs transition-colors ${
+                        bodyText === t.bodyText ? "border-[#1a1a1a] text-[#1a1a1a]" : "border-[#e5e5e5] text-[#666] hover:border-[#999]"
+                      }`}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              )}
               <textarea
                 value={bodyText}
                 onChange={(e) => setBodyText(e.target.value)}

@@ -1,5 +1,8 @@
 "use client";
 
+import { PlaceArtistNamesEditor, type ListedNamesState } from "@/components/PlaceArtistNamesEditor";
+import { groupsFromRows, groupsToPayload } from "@/lib/place-listed-artists";
+import type { PlaceRelationship } from "@prisma/client";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { updateOrganization } from "../../actions";
@@ -12,7 +15,8 @@ import { focalStyle, type Focal } from "@/lib/focal-style";
 import { parseNeighborhoodList, joinNeighborhoodList } from "@/lib/neighborhoods";
 import type { FramingValue } from "@/components/FramingEditor";
 import { resizeImageForUpload } from "@/lib/client-image-resize";
-import { LINK_TYPE_OPTIONS } from "@/lib/artist-options";
+import { LINK_TYPE_OPTIONS, PLACE_DESCRIPTION_MAX_CHARS } from "@/lib/artist-options";
+import { CharCounter } from "@/components/CharCounter";
 
 type Link = { type: string; url: string; label?: string };
 
@@ -33,8 +37,7 @@ type Org = {
   /** Saved addresses that didn't geocode, so have no pin. */
   unresolvedAddresses: string[];
   showOnMap: boolean;
-  showArtistPhotos: boolean;
-  showEventsCarousel: boolean;
+  listedArtists: { name: string; relationship: PlaceRelationship; relationshipLabel: string | null }[];
 };
 
 const GALLERY_MAX = 3;
@@ -90,8 +93,7 @@ export default function OrgEditor({
   const [galleryImages, setGalleryImages] = useState<string[]>(place.galleryImages);
   const [locations, setLocations] = useState<LocationRow[]>(place.locations);
   const [showOnMap, setShowOnMap] = useState(place.showOnMap);
-  const [showArtistPhotos, setShowArtistPhotos] = useState(place.showArtistPhotos);
-  const [showEventsCarousel, setShowEventsCarousel] = useState(place.showEventsCarousel);
+  const [listedNames, setListedNames] = useState<ListedNamesState>(() => groupsFromRows(place.listedArtists));
 
   // Images the community-card picker can choose from: the hero, every
   // gallery photo, and (deduped) whatever's currently set as the thumbnail —
@@ -149,8 +151,7 @@ export default function OrgEditor({
           galleryImages,
           locations,
           showOnMap,
-          showArtistPhotos,
-          showEventsCarousel,
+          listedArtists: groupsToPayload(listedNames),
         });
         setSaved(true);
         router.refresh();
@@ -226,17 +227,14 @@ export default function OrgEditor({
             Show {locations.length > 1 ? "a pin for each location" : "a pin for this place"} on the city map
           </label>
         </div>
-        <label className="flex items-center gap-2 text-sm text-[#444]">
-          <input type="checkbox" checked={showArtistPhotos} onChange={(e) => setShowArtistPhotos(e.target.checked)} />
-          Show artists as small bio photos with names (otherwise a plain list of names)
-        </label>
-        <label className="flex items-center gap-2 text-sm text-[#444]">
-          <input type="checkbox" checked={showEventsCarousel} onChange={(e) => setShowEventsCarousel(e.target.checked)} />
-          Show events as a carousel at the bottom of the page, including past events (otherwise just upcoming, as a list)
-        </label>
+        <div>
+          <label className={labelCls}>Artists</label>
+          <PlaceArtistNamesEditor value={listedNames} onChange={setListedNames} fieldClassName={inputCls} />
+        </div>
         <div>
           <label className={labelCls}>About</label>
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={5} className={`${inputCls} resize-y`} />
+          <CharCounter value={description} max={PLACE_DESCRIPTION_MAX_CHARS} className="mt-1" />
         </div>
       </section>
 
@@ -370,13 +368,6 @@ export default function OrgEditor({
           className="px-6 py-2.5 bg-[#1a1a1a] text-white text-sm rounded-full hover:opacity-80 transition-opacity disabled:opacity-40"
         >
           {isPending ? "Saving…" : "Save changes"}
-        </button>
-        <button
-          type="button"
-          onClick={() => router.push(`/admin/organizations/${place.id}`)}
-          className="px-6 py-2.5 text-sm text-[#888] border border-[#e5e5e5] rounded-full hover:border-[#999] transition-colors"
-        >
-          Done
         </button>
       </div>
     </form>

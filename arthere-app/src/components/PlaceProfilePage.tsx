@@ -1,14 +1,14 @@
 import { DEFAULT_OBJECT_POSITION } from '@/lib/focal-style';
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
-import type { Place, ArtistPlace, Artist, PlaceLink } from '@prisma/client';
+import type { Place, ArtistPlace, Artist, PlaceLink, PlaceListedArtist, PlaceRelationship } from '@prisma/client';
 import { NavBar } from '@/components/NavBar';
 import { cityNavFor } from '@/lib/city-nav';
 import { SiteFooter } from '@/components/SiteFooter';
 import { TechSupportLink } from '@/components/TechSupportLink';
 import { FadeImage } from '@/components/FadeImage';
 import { Lightbox } from '@/components/Lightbox';
-import { RELATIONSHIP_LABELS, linkTypeLabel } from '@/lib/artist-options';
+import { PLACE_RELATIONSHIP_ORDER, RELATIONSHIP_LABELS, linkTypeLabel } from '@/lib/artist-options';
 import { EventCard } from '@/components/EventCard';
 import { EventCarouselTile } from '@/components/EventCarouselTile';
 import type { PublicEvent } from '@/lib/event-queries';
@@ -16,6 +16,7 @@ import type { PublicEvent } from '@/lib/event-queries';
 export type PlaceWithArtists = Place & {
   artists: (ArtistPlace & { artist: Artist })[];
   links: PlaceLink[];
+  listedArtists: PlaceListedArtist[];
 };
 
 interface Props {
@@ -31,7 +32,7 @@ interface Props {
   preview?: boolean;
   /** Upcoming published events at this place. */
   events?: PublicEvent[];
-  /** Upcoming + past events for the bottom-of-page carousel (when showEventsCarousel is on). */
+  /** Upcoming + past events for the bottom-of-page carousel (always shown). */
   carouselEvents?: PublicEvent[];
 }
 
@@ -48,6 +49,30 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
   const artistHref = (slug: string) =>
     citySlug ? `/cities/${citySlug}/artists/${slug}` : `/artists/${slug}`;
   const communityHref = citySlug ? `/cities/${citySlug}/community` : null;
+  // One flat list: linked artists and hand-listed names, ordered by how the
+  // place supports them. A listed name that matches a linked artist is dropped
+  // so nobody appears twice.
+  const affiliation = (relationship: PlaceRelationship, custom: string | null) =>
+    relationship === 'OTHER' ? custom : relationship === 'IN_SHOP' ? 'In shop' : RELATIONSHIP_LABELS[relationship];
+  const linkedNames = new Set(place.artists.map(rel => rel.artist.name.trim().toLowerCase()));
+  const artistEntries = PLACE_RELATIONSHIP_ORDER.flatMap(relationship => [
+    ...place.artists
+      .filter(rel => rel.relationship === relationship)
+      .map(rel => ({
+        key: `l-${rel.id}`,
+        name: rel.artist.name,
+        artist: rel.artist,
+        label: affiliation(relationship, rel.relationshipLabel),
+      })),
+    ...place.listedArtists
+      .filter(a => a.relationship === relationship && !linkedNames.has(a.name.trim().toLowerCase()))
+      .map(a => ({
+        key: `n-${a.id}`,
+        name: a.name,
+        artist: null,
+        label: affiliation(relationship, a.relationshipLabel),
+      })),
+  ]);
   const linkCls =
     'text-[#999] underline underline-offset-4 decoration-[#ddd] hover:text-[#1a1a1a] hover:decoration-[#aaa] transition-colors';
 
@@ -117,7 +142,8 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
             )}
             {place.description && <p className="mb-[18px]">{place.description}</p>}
             {place.links.length > 0 && (
-              <p className="text-[#999] text-[0.9rem]">
+              <p className="text-[#999] text-[0.9rem] text-right">
+                <span className="mr-3 text-black italic">Learn more <span aria-hidden="true">→</span></span>
                 {place.links.map((link, i) => (
                   <span key={link.id}>
                     {i > 0 && ' · '}
@@ -155,59 +181,71 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
         </div>
       )}
 
-      {/* Connected artists */}
-      {place.artists.length > 0 && (
+      {/* Artists here — linked profiles and hand-listed names, each with how the place supports them */}
+      {artistEntries.length > 0 && (
         <section className="max-w-[980px] mx-auto px-5 sm:px-10 pt-4 pb-10">
           <div className="text-[0.82rem] font-medium uppercase tracking-[0.18em] text-[#555] mb-8">Artists here</div>
-          <div className="flex flex-wrap gap-x-6 gap-y-6 items-start">
-            {place.artists.map(rel => {
-              const photo = rel.artist.bioPhotoUrl ?? rel.artist.heroImageUrl;
-              const relLabel =
-                rel.relationship === 'OTHER' ? rel.relationshipLabel : RELATIONSHIP_LABELS[rel.relationship];
-              return (
-                <Link
-                  key={rel.id}
-                  href={artistHref(rel.artist.slug)}
-                  className="group flex flex-col items-center w-[104px] text-center"
-                >
-                  <span className="relative block w-[84px] h-[84px] rounded-full overflow-hidden bg-[#f4f4f0]">
-                    {photo && (
-                      <FadeImage
-                        src={photo}
-                        alt={rel.artist.name}
-                        fill
-                        sizes="84px"
-                        className="object-cover group-hover:scale-[1.05]"
-                        style={styleOf(photo)}
-                      />
-                    )}
-                  </span>
-                  <span className="mt-1.5 text-[0.75rem] text-[#666] leading-snug group-hover:text-[#1a1a1a] transition-colors">
-                    {rel.artist.name}
-                  </span>
-                  {relLabel && <span className="text-[0.68rem] text-[#bbb] font-light leading-snug">{relLabel}</span>}
-                </Link>
-              );
-            })}
+          {artistEntries.some(e => e.artist) && (
+            <div className="flex flex-wrap gap-x-6 gap-y-6 items-start">
+              {artistEntries.flatMap(e => {
+                if (!e.artist) return [];
+                const photo = e.artist.bioPhotoUrl ?? e.artist.heroImageUrl;
+                return [
+                  <Link
+                    key={e.key}
+                    href={artistHref(e.artist.slug)}
+                    className="group flex flex-col items-center w-[104px] text-center"
+                  >
+                    <span className="relative block w-[84px] h-[84px] rounded-full overflow-hidden bg-[#f4f4f0]">
+                      {photo && (
+                        <FadeImage
+                          src={photo}
+                          alt={e.name}
+                          fill
+                          sizes="84px"
+                          className="object-cover group-hover:scale-[1.05]"
+                          style={styleOf(photo)}
+                        />
+                      )}
+                    </span>
+                    <span className="mt-1.5 text-[0.75rem] text-[#666] leading-snug group-hover:text-[#1a1a1a] transition-colors">
+                      {e.name}
+                    </span>
+                    {e.label && <span className="text-[0.68rem] text-[#bbb] font-light leading-snug">{e.label}</span>}
+                  </Link>,
+                ];
+              })}
+            </div>
+          )}
+          <div className="flex flex-wrap gap-x-6 gap-y-2 items-baseline">
+            {artistEntries
+              .filter(e => !e.artist)
+              .map(e => (
+                <div key={e.key} className="text-[0.85rem]">
+                  <span className="text-[#666]">{e.name}</span>
+                  {e.label && <span className="text-[#bbb] font-light"> · {e.label}</span>}
+                </div>
+              ))}
           </div>
         </section>
       )}
 
-      {/* Upcoming events */}
-      {!place.showEventsCarousel && events && events.length > 0 && (
-        <section className="bg-[#f7f6f3] mb-10">
+      {/* Events — plain upcoming grid, or the upcoming + past carousel when available */}
+      {!(carouselEvents && carouselEvents.length > 0) && events && events.length > 0 && (
+        <section className="bg-[#f7f6f3] mt-10">
           <div className="max-w-[980px] mx-auto px-5 sm:px-10 pt-4 pb-10">
             <div className="text-[0.82rem] font-medium uppercase tracking-[0.18em] text-[#555] mb-8">Upcoming happenings</div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-              {events.map(e => <EventCard key={e.id} event={e} />)}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-8">
+              {events.map(e => (
+                <EventCard key={e.id} event={e} />
+              ))}
             </div>
           </div>
         </section>
       )}
 
-      {/* Events carousel — the very bottom of the page, opt-in per place */}
-      {place.showEventsCarousel && carouselEvents && carouselEvents.length > 0 && (
-        <section className="bg-[#f7f6f3]">
+      {carouselEvents && carouselEvents.length > 0 && (
+        <section className="bg-[#f7f6f3] mt-10">
           <div className="max-w-[980px] mx-auto px-5 sm:px-10 pt-4 pb-10">
             <div className="text-[0.82rem] font-medium uppercase tracking-[0.18em] text-[#555] mb-8">Happenings</div>
             <div className="flex flex-col gap-3">

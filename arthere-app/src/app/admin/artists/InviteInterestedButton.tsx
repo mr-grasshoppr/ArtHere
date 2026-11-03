@@ -47,6 +47,7 @@ export function InviteInterestedButton({ submissionId }: { submissionId: string 
 
       {preview && (
         <InvitePreviewModal
+          showArtistTemplates
           email={preview.email}
           link={preview.link}
           initialGreetingName={preview.greetingName}

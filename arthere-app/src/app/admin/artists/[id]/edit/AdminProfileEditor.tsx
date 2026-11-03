@@ -3,7 +3,8 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { updateArtistProfile, setArtistEmail, setArtistCity } from "../actions";
-import { MEDIUM_OPTIONS, OFFERING_OPTIONS, LINK_TYPE_OPTIONS } from "@/lib/artist-options";
+import { MEDIUM_OPTIONS, OFFERING_OPTIONS, LINK_TYPE_OPTIONS, BIO_MAX_CHARS } from "@/lib/artist-options";
+import { CharCounter } from "@/components/CharCounter";
 
 type Place = { id: string; name: string; neighborhood: string | null };
 type CityOption = { id: string; label: string };
@@ -222,6 +223,7 @@ export default function AdminProfileEditor({
         <div>
           <label className={labelCls}>Bio</label>
           <textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={5} className={`${inputCls} resize-y`} />
+          <CharCounter value={bio} max={BIO_MAX_CHARS} className="mt-1" />
         </div>
       </section>
 

@@ -208,7 +208,7 @@ export default async function AdminArtistsPage({
                       >
                         {s.email}
                       </a>
-                      <span className="text-xs text-[#bbb]">{new Date(s.createdAt).toLocaleDateString()}</span>
+                      <span className="text-xs text-[#bbb]">{new Date(s.createdAt).toLocaleDateString("en-US", { timeZone: "America/Los_Angeles" })}</span>
                     </div>
                     {s.social && <p className="text-sm text-[#888] truncate">{s.social}</p>}
                     {s.affiliations && (
@@ -235,7 +235,7 @@ export default async function AdminArtistsPage({
                   <div className="flex-1 min-w-0">
                     <span className="font-medium truncate">{a.name}</span>
                     <div className="text-sm text-[#888] truncate">
-                      {a.user?.email ?? "no owner yet"} · invited {new Date(a.createdAt).toLocaleDateString()}
+                      {a.user?.email ?? "no owner yet"} · invited {new Date(a.createdAt).toLocaleDateString("en-US", { timeZone: "America/Los_Angeles" })}
                     </div>
                   </div>
                   <Link

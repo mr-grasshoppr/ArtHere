@@ -1,6 +1,7 @@
 import { Button, Heading, Hr, Section, Text } from '@react-email/components';
 import * as React from 'react';
 import { EmailLayout, styles } from './EmailLayout';
+import { ARTIST_DRAFT_PROFILE_BODY_TEXT } from '@/lib/invite-templates';
 
 interface MagicLinkEmailProps {
   /**
@@ -22,12 +23,7 @@ interface MagicLinkEmailProps {
 
 // Exported so lib/magic-link.ts can prefill the same copy into the
 // admin invite-preview modal, without the two drifting apart.
-export const MAGIC_LINK_DEFAULT_BODY_TEXT =
-  "Thanks for expressing interest in joining Art Here as a featured artist!" +
-  "\n\nI created a draft profile from the content on your website to help you get started." +
-  "\n\nYou are welcome to edit and adjust as you like, and you'll always be able to access it through your email address." +
-  "\n\nSubmit when you're ready, and then your profile and artwork will appear live on Art Here alongside other Portland-area artists." +
-  "\n\nWe're excited to have you!";
+export const MAGIC_LINK_DEFAULT_BODY_TEXT = ARTIST_DRAFT_PROFILE_BODY_TEXT;
 
 // Same welcome email, but for a Place (gallery/studio/shop/venue) rather
 // than an individual artist — kept separate so the two never drift onto

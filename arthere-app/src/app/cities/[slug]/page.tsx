@@ -7,6 +7,8 @@ import type { Metadata } from 'next';
 import { NavBar } from '@/components/NavBar';
 import { CityArtworkView, type ArtworkArtistData } from '@/components/CityArtworkView';
 import { getFocals } from '@/lib/image-focus';
+import { cityDescription } from '@/lib/seo';
+import { cityLabel } from '@/components/ArtistProfilePage';
 import { visibleArtworkImages } from '@/lib/artist-images';
 import { gridFallbackFor } from '@/lib/focal-style';
 import { cityNavFor } from '@/lib/city-nav';
@@ -32,9 +34,16 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const city = await prisma.city.findUnique({ where: { slug }, select: { displayName: true, name: true } });
-  const label = city?.displayName ?? city?.name ?? slug;
-  return { title: `${label} — Art Here` };
+  const city = await prisma.city.findUnique({ where: { slug }, select: { displayName: true, name: true, state: true, description: true } });
+  const label = city ? cityLabel(city) : slug;
+  const title = `${label} — Art Here`;
+  const description = cityDescription(label, city?.description);
+  return {
+    title,
+    description,
+    alternates: { canonical: `/cities/${slug}` },
+    openGraph: { title, description, url: `/cities/${slug}`, type: 'website' },
+  };
 }
 
 /**

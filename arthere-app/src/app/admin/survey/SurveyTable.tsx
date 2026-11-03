@@ -124,7 +124,7 @@ function Row({
           />
         </td>
         <td className="px-4 py-3 text-sm text-[#999]">
-          {new Date(r.createdAt).toLocaleDateString("en-US", {
+          {new Date(r.createdAt).toLocaleDateString("en-US", { timeZone: "America/Los_Angeles",
             month: "short",
             day: "numeric",
             year: "numeric",

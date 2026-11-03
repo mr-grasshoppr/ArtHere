@@ -11,6 +11,7 @@ import { renderEmail } from '@/lib/render-email';
 
 const INTENTS: Record<string, string> = {
   featured: 'Get Featured on Art Here',
+  place: 'Get My Place Featured on Art Here',
   partner: 'Partner with Art Here',
   bring: 'Bring Art Here to My City',
   invite: 'Request an Art Here Invite',

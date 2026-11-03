@@ -3,8 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { FramingButton } from '@/components/FramingButton';
-import { PhotoGrid } from '@/components/PhotoGrid';
+import { PlaceHeroSlot, PlaceGallerySlots } from '@/components/PlacePhotoSlots';
 import { NeighborhoodPicker } from '@/components/NeighborhoodPicker';
 import { PlaceLocationsEditor, type LocationRow } from '@/components/PlaceLocationsEditor';
 import { PlaceTeamManager } from '@/components/PlaceTeamManager';
@@ -13,8 +12,12 @@ import { parseNeighborhoodList, joinNeighborhoodList } from '@/lib/neighborhoods
 import type { FramingValue } from '@/components/FramingEditor';
 import { resizeImageForUpload } from '@/lib/client-image-resize';
 import type { PlaceRelationship } from '@prisma/client';
-import { RELATIONSHIP_LABELS, LINK_TYPE_OPTIONS } from '@/lib/artist-options';
+import { RELATIONSHIP_LABELS, LINK_TYPE_OPTIONS, PLACE_DESCRIPTION_MAX_CHARS } from '@/lib/artist-options';
+import { CharCounter } from '@/components/CharCounter';
 import Link from 'next/link';
+import { PlaceInviteArtists } from '@/components/PlaceInviteArtists';
+import { PlaceArtistNamesEditor, type ListedNamesState } from '@/components/PlaceArtistNamesEditor';
+import { groupsFromRows, groupsToPayload } from '@/lib/place-listed-artists';
 
 interface Artist {
   connectionId: string;
@@ -40,8 +43,7 @@ interface InitialData {
   locations: LocationRow[];
   unresolvedAddresses: string[];
   showOnMap: boolean;
-  showArtistPhotos: boolean;
-  showEventsCarousel: boolean;
+  listedArtists: { name: string; relationship: PlaceRelationship; relationshipLabel: string | null }[];
 }
 
 type InitialFocals = Record<string, Focal>;
@@ -59,19 +61,19 @@ export default function PlaceEditForm({
   placeSlug,
   neighborhoodOptions,
   initialFocals,
+  baseUrl,
 }: {
   initialData: InitialData;
   placeSlug: string;
   neighborhoodOptions: string[];
   initialFocals?: InitialFocals;
+  baseUrl: string;
 }) {
   const router = useRouter();
-  const heroInputRef = useRef<HTMLInputElement>(null);
   const thumbInputRef = useRef<HTMLInputElement>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [focals, setFocals] = useState<InitialFocals>(initialFocals ?? {});
   const styleFor = (url?: string | null) => focalStyle(url ? focals[url] : undefined);
-  const focalStyles = new Map(Object.entries(focals).map(([url, f]) => [url, focalStyle(f)]));
   function rememberFocal(url: string, value: FramingValue) {
     setFocals((prev) => ({ ...prev, [url]: value }));
   }
@@ -93,8 +95,7 @@ export default function PlaceEditForm({
   const [galleryImages, setGalleryImages] = useState<string[]>(initialData.galleryImages);
   const [locations, setLocations] = useState<LocationRow[]>(initialData.locations);
   const [showOnMap, setShowOnMap] = useState(initialData.showOnMap);
-  const [showArtistPhotos, setShowArtistPhotos] = useState(initialData.showArtistPhotos);
-  const [showEventsCarousel, setShowEventsCarousel] = useState(initialData.showEventsCarousel);
+  const [listedNames, setListedNames] = useState<ListedNamesState>(() => groupsFromRows(initialData.listedArtists));
   const [artists, setArtists] = useState<Artist[]>(initialData.artists);
   const [removingConnectionId, setRemovingConnectionId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -102,6 +103,8 @@ export default function PlaceEditForm({
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [reviewSubmittedAt, setReviewSubmittedAt] = useState<string | null>(initialData.submittedForReviewAt);
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [live, setLive] = useState(initialData.inDirectory);
+  const [takingOffline, setTakingOffline] = useState(false);
 
   async function uploadFile(file: File, isHero = false) {
     const form = new FormData();
@@ -130,8 +133,7 @@ export default function PlaceEditForm({
           galleryImages: 'galleryImages' in overrides ? overrides.galleryImages : galleryImages,
           locations,
           showOnMap,
-          showArtistPhotos,
-          showEventsCarousel,
+          listedArtists: groupsToPayload(listedNames),
         }),
       });
       if (!res.ok) throw new Error();
@@ -147,11 +149,9 @@ export default function PlaceEditForm({
     saveTimer.current = setTimeout(() => persistAll(), 1200);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, neighborhoods, description, quote, quoteAttribution, JSON.stringify(links), JSON.stringify(locations), showOnMap, showArtistPhotos, showEventsCarousel]);
+  }, [name, neighborhoods, description, quote, quoteAttribution, JSON.stringify(links), JSON.stringify(locations), showOnMap, JSON.stringify(listedNames)]);
 
-  async function handleHeroSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  async function handleHeroFile(file: File) {
     setUploading(true);
     try {
       const url = await uploadFile(file, true);
@@ -159,7 +159,6 @@ export default function PlaceEditForm({
       await persistAll({ heroImageUrl: url });
     } catch { setSaveStatus('error'); }
     setUploading(false);
-    e.target.value = '';
   }
 
   async function handleThumbnailSelect(e: React.ChangeEvent<HTMLInputElement>) {
@@ -184,6 +183,17 @@ export default function PlaceEditForm({
     const next = [...galleryImages, ...newUrls];
     setGalleryImages(next);
     await persistAll({ galleryImages: next });
+    setUploading(false);
+  }
+
+  async function handleGalleryReplace(url: string, file: File) {
+    setUploading(true);
+    try {
+      const fresh = await uploadFile(file);
+      const next = galleryImages.map((u) => (u === url ? fresh : u));
+      setGalleryImages(next);
+      await persistAll({ galleryImages: next });
+    } catch { setSaveStatus('error'); }
     setUploading(false);
   }
 
@@ -236,6 +246,22 @@ export default function PlaceEditForm({
     setSubmittingReview(false);
   }
 
+  // Live → Draft, by the owner's own choice. Coming back live goes through
+  // Submit again (an admin publish), so this is deliberately one-way.
+  async function handleTakeOffline() {
+    if (!window.confirm('Take your page offline? It will be hidden from the public site until you submit it again and Art Here puts it back live.')) return;
+    setTakingOffline(true);
+    try {
+      const res = await fetch('/api/place/take-offline', { method: 'POST' });
+      if (!res.ok) throw new Error();
+      setLive(false);
+      setReviewSubmittedAt(null);
+    } catch {
+      setSaveStatus('error');
+    }
+    setTakingOffline(false);
+  }
+
   return (
     <div className="min-h-screen bg-white text-[#1a1a1a]">
 
@@ -248,49 +274,25 @@ export default function PlaceEditForm({
             {saveStatus === 'error' && <span className="text-red-300 text-xs">Error saving</span>}
             <span
               className={`text-xs font-medium px-2.5 py-1 rounded-full ${
-                initialData.inDirectory
+                live
                   ? 'bg-[#00ae7a]/20 text-[#6fe3bd]'
                   : reviewSubmittedAt
                   ? 'bg-[#f062a4]/20 text-[#ff9dc7]'
                   : 'bg-white/15 text-white/70'
               }`}
             >
-              {initialData.inDirectory ? 'Live' : reviewSubmittedAt ? 'Pending' : 'Draft'}
+              {live ? 'Live' : reviewSubmittedAt ? 'Pending' : 'Draft'}
             </span>
           </div>
         </div>
 
-        {/* Fixed 21:9 aspect (not viewport-relative height) so the crop framed
-            below actually matches what renders on the live page. */}
-        <section className="relative w-full aspect-[21/9] max-h-[420px] min-h-[200px] overflow-hidden bg-[#f4f4f0]">
-          {heroImageUrl ? (
-            <label className="block w-full h-full cursor-pointer group">
-              <Image src={heroImageUrl} alt="" fill sizes="100vw" className="object-cover" style={styleFor(heroImageUrl)} priority />
-              <span className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/25 transition-all opacity-0 group-hover:opacity-100">
-                <span className="text-white text-sm font-medium px-4 py-2 bg-black/50 rounded-full">
-                  {uploading ? 'Uploading…' : 'Change hero image'}
-                </span>
-              </span>
-              <input ref={heroInputRef} type="file" accept="image/*" onChange={handleHeroSelect} className="hidden" />
-            </label>
-          ) : (
-            <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer gap-2">
-              <span className="text-[#999] text-sm">{uploading ? 'Uploading…' : '+ Add hero image'}</span>
-              <span className="text-[#ccc] text-xs">This appears at the top of your page</span>
-              <input ref={heroInputRef} type="file" accept="image/*" onChange={handleHeroSelect} className="hidden" />
-            </label>
-          )}
-          {heroImageUrl && (
-            <div className="absolute bottom-3 right-3 z-10">
-              <FramingButton
-                imageUrl={heroImageUrl}
-                endpoint="/api/image-focus"
-                aspect="21 / 9"
-                onSaved={(v) => rememberFocal(heroImageUrl, v)}
-              />
-            </div>
-          )}
-        </section>
+        <PlaceHeroSlot
+          url={heroImageUrl}
+          onFile={handleHeroFile}
+          styleFor={styleFor}
+          rememberFocal={rememberFocal}
+          uploading={uploading}
+        />
       </div>
 
       {/* Identity block */}
@@ -329,10 +331,12 @@ export default function PlaceEditForm({
           <textarea
             value={description}
             onChange={e => setDescription(e.target.value)}
+            maxLength={PLACE_DESCRIPTION_MAX_CHARS}
             rows={6}
             placeholder="Tell visitors about your space, what you do, and your connection to the arts community."
-            className={`${INLINE_BODY} mb-6`}
+            className={`${INLINE_BODY} mb-1`}
           />
+          <CharCounter value={description} max={PLACE_DESCRIPTION_MAX_CHARS} className="mb-6" />
           <div className={LABEL}>Quote (optional)</div>
           <textarea
             value={quote}
@@ -385,10 +389,40 @@ export default function PlaceEditForm({
         </div>
       </div>
 
-      {/* Artists here */}
+      {/* Gallery */}
+      <div className="max-w-[980px] mx-auto px-5 sm:px-10 pb-10 border-b border-[#f0f0f0]">
+        <div className={`${LABEL} mb-1`}>Photos ({galleryImages.length}/{GALLERY_MAX})</div>
+        <p className="text-[0.75rem] text-[#999] mb-3">
+          Drag photos, or hold one on a phone until it lifts, to change the order. Use Adjust to choose which part of a photo shows.
+        </p>
+        <PlaceGallerySlots
+          images={galleryImages}
+          max={GALLERY_MAX}
+          styleFor={styleFor}
+          rememberFocal={rememberFocal}
+          uploading={uploading}
+          onAdd={handleGalleryAdd}
+          onReplace={handleGalleryReplace}
+          onRemove={handleGalleryRemove}
+          onReorder={handleGalleryReorder}
+        />
+      </div>
+
+      {/* Artists listed by name — available to every place */}
+      <div className="max-w-[980px] mx-auto px-5 sm:px-10 py-8 border-b border-[#f0f0f0]">
+        <div className={LABEL}>Artists you support</div>
+        <p className="text-[0.8rem] text-[#999] mb-5 max-w-[560px]">
+          Add the artists you work with, grouped by how you support them — paste a whole list into any box, one name per
+          line. Leave a box empty if it doesn&rsquo;t apply. Artists who join Art Here connect to your page themselves and
+          show up above.
+        </p>
+        <PlaceArtistNamesEditor value={listedNames} onChange={setListedNames} fieldClassName={FIELD} />
+      </div>
+
+      {/* Artists connected through their own Art Here profile */}
       {artists.length > 0 && (
         <div className="max-w-[980px] mx-auto px-5 sm:px-10 py-8 border-b border-[#f0f0f0]">
-          <div className={LABEL}>Artists here</div>
+          <div className={LABEL}>Artists with an Art Here profile</div>
           <div className="flex flex-col gap-2">
             {artists.map(a => {
               const label = a.relationship === 'OTHER' ? a.relationshipLabel : RELATIONSHIP_LABELS[a.relationship];
@@ -408,48 +442,29 @@ export default function PlaceEditForm({
               );
             })}
           </div>
-          <label className="mt-4 flex items-center gap-2 text-[0.8rem] text-[#555]">
-            <input type="checkbox" checked={showArtistPhotos} onChange={e => setShowArtistPhotos(e.target.checked)} />
-            Show small photos of the artists on our page (otherwise just their names)
-          </label>
           <p className="text-[0.7rem] text-[#ccc] mt-3">
-            Artists add these connections themselves. If one doesn&rsquo;t belong, remove it — this can&rsquo;t be undone from here.
+            These artists connected themselves to your page. If one doesn&rsquo;t belong, remove it — this can&rsquo;t be undone from here.
           </p>
         </div>
       )}
 
       {/* Events display */}
-      <div className="max-w-[980px] mx-auto px-5 sm:px-10 py-8 border-b border-[#f0f0f0]">
-        <h2 className="text-[0.75rem] uppercase tracking-[0.18em] text-[#999] mb-3">Events</h2>
+      <div className="mb-10">
+        <h2 className="text-lg font-semibold mb-1">Events</h2>
         <p className="text-sm text-[#888] mb-3">
           <Link href="/place/events" className="underline">Add or edit your events →</Link>
         </p>
-        <label className="flex items-center gap-2 text-[0.8rem] text-[#555]">
-          <input type="checkbox" checked={showEventsCarousel} onChange={e => setShowEventsCarousel(e.target.checked)} />
-          Show events as a carousel at the bottom of my page, including past events (otherwise just upcoming events in a list)
-        </label>
+      </div>
+
+      {/* Invite listed artists to make their own profile */}
+      <div className="max-w-[980px] mx-auto px-5 sm:px-10 py-8 border-b border-[#f0f0f0]">
+        <div className={LABEL}>Invite artists to Art Here</div>
+        <PlaceInviteArtists placeName={name || initialData.name} placeSlug={placeSlug} baseUrl={baseUrl} fieldClassName={FIELD} />
       </div>
 
       {/* Team */}
       <div className="max-w-[980px] mx-auto px-5 sm:px-10 py-8 border-b border-[#f0f0f0]">
         <PlaceTeamManager />
-      </div>
-
-      {/* Gallery */}
-      <div className="max-w-[1200px] mx-auto px-5 py-10">
-        <div className={`${LABEL} mb-1`}>Photos ({galleryImages.length}/{GALLERY_MAX})</div>
-        <p className="text-[0.72rem] text-[#bbb] mb-4">Tap a photo to adjust its framing, or drag to reorder.</p>
-        <PhotoGrid
-          images={galleryImages}
-          max={GALLERY_MAX}
-          framingEndpoint="/api/image-focus"
-          framingAspect="1 / 1"
-          focals={focalStyles}
-          onReorder={handleGalleryReorder}
-          onRemove={handleGalleryRemove}
-          onAddFiles={handleGalleryAdd}
-          uploading={uploading}
-        />
       </div>
 
       {/* Community thumbnail — a separate image, doesn't count against the gallery */}
@@ -495,7 +510,7 @@ export default function PlaceEditForm({
             >
               {saving ? 'Saving…' : 'Save'}
             </button>
-            {!initialData.inDirectory && (
+            {!live && (
               reviewSubmittedAt ? (
                 <button
                   type="button"
@@ -514,7 +529,20 @@ export default function PlaceEditForm({
             )}
           </div>
         </div>
-        {!initialData.inDirectory && (
+        {live && (
+          <p className="text-sm text-right mt-3 text-[#888]">
+            Your page is live.{' '}
+            <button
+              type="button"
+              onClick={handleTakeOffline}
+              disabled={takingOffline}
+              className="underline underline-offset-2 hover:text-[#1a1a1a] disabled:opacity-50"
+            >
+              {takingOffline ? 'Taking offline…' : 'Switch to draft (take offline)'}
+            </button>
+          </p>
+        )}
+        {!live && (
           <p className={`text-sm text-right mt-3 ${reviewSubmittedAt ? 'text-[#00805a]' : 'text-[#888]'}`}>
             {reviewSubmittedAt
               ? '✓ Submitted! Your page will go live soon!'

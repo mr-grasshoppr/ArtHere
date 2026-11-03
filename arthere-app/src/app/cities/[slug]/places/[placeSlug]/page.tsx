@@ -59,6 +59,7 @@ export default async function CityPlacePage({
           orderBy: { createdAt: 'asc' },
           include: { artist: true },
         },
+        listedArtists: { orderBy: { sortOrder: 'asc' } },
         links: { orderBy: { sortOrder: 'asc' } },
       },
     }),
@@ -69,13 +70,13 @@ export default async function CityPlacePage({
 
   const [events, carouselEvents] = await Promise.all([
     upcomingPublicEvents({ placeId: place.id }),
-    place.showEventsCarousel ? carouselEventsForPlace(place.id) : Promise.resolve([]),
+    carouselEventsForPlace(place.id),
   ]);
 
   const focals = await getFocalStyles([
     place.heroImageUrl,
     ...place.galleryImages,
-    ...(place.showArtistPhotos ? place.artists.flatMap(r => [r.artist.bioPhotoUrl ?? r.artist.heroImageUrl]) : []),
+    ...place.artists.map(r => r.artist.bioPhotoUrl ?? r.artist.heroImageUrl),
   ]);
 
   return (
@@ -84,7 +85,7 @@ export default async function CityPlacePage({
       citySlug={citySlug}
       cityDisplayName={cityLabel(city)}
       focals={focals}
-      events={events}
+        events={events}
       carouselEvents={carouselEvents}
       preview={preview === '1'}
     />

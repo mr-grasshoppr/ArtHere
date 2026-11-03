@@ -176,7 +176,8 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals, p
               )
             )}
             {artist.links.length > 0 && (
-              <p className="text-[#999] text-[0.9rem]">
+              <p className="text-[#999] text-[0.9rem] text-right">
+                <span className="mr-3 text-black italic">Learn more <span aria-hidden="true">→</span></span>
                 {artist.links.map((link, i) => (
                   <span key={link.id}>
                     {i > 0 && ' · '}

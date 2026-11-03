@@ -1,5 +1,7 @@
 "use client";
 
+import { CharCounter } from '@/components/CharCounter';
+import { BIO_MAX_CHARS } from '@/lib/artist-options';
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FramingButton } from "@/components/FramingButton";
@@ -499,10 +501,12 @@ export default function OnboardingForm({
       <textarea
         value={bio}
         onChange={(e) => setBio(e.target.value)}
+        maxLength={BIO_MAX_CHARS}
         rows={5}
         placeholder="Tell visitors about yourself and your work, your background, what you make, and what inspires you."
-        className={`${FIELD} leading-relaxed resize-none mb-2`}
+        className={`${FIELD} leading-relaxed resize-none mb-1`}
       />
+      <CharCounter value={bio} max={BIO_MAX_CHARS} className="ml-1 mb-1" />
       <p className="text-[0.72rem] font-semibold text-[#1a1a1a] mb-4 ml-1">Your bio</p>
 
       {/* ── Links ─────────────────────────────────────────────────────── */}

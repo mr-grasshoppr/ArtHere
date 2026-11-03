@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { ArtistProfilePage, cityLabel } from '@/components/ArtistProfilePage';
 import { getFocalStyles } from '@/lib/image-focus';
+import { artistDescription } from '@/lib/seo';
 
 // ISR: content is edited via admin + self-service; regenerate at most every 30s
 export const revalidate = 30;
@@ -26,9 +27,14 @@ export async function generateMetadata({
   params: Promise<{ slug: string; artistSlug: string }>;
 }): Promise<Metadata> {
   const { artistSlug } = await params;
-  const artist = await prisma.artist.findUnique({ where: { slug: artistSlug }, select: { name: true } });
+  const artist = await prisma.artist.findUnique({
+    where: { slug: artistSlug },
+    select: { name: true, bio: true, medium: true, neighborhood: true, isPlaceholder: true, isArchived: true, city: true },
+  });
   return {
     title: artist ? `${artist.name} — Art Here` : 'Art Here',
+    description: artist ? artistDescription({ ...artist, cityLabel: cityLabel(artist.city) }) : undefined,
+    robots: artist && (artist.isPlaceholder || artist.isArchived) ? { index: false, follow: false } : undefined,
     // Same canonical as /artists/[slug] so the two URLs don't compete.
     alternates: { canonical: `/artists/${artistSlug}` },
   };

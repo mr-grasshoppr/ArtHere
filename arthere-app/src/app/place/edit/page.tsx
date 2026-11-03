@@ -22,6 +22,7 @@ export default async function PlaceEditPage() {
           orderBy: { createdAt: 'asc' },
           include: { artist: true },
         },
+        listedArtists: { orderBy: { sortOrder: 'asc' } },
         links: { orderBy: { sortOrder: 'asc' } },
         locations: { orderBy: { sortOrder: 'asc' } },
       },
@@ -69,12 +70,12 @@ export default async function PlaceEditPage() {
           locations: place.locations.map((l) => ({ label: l.label ?? '', streetAddress: l.streetAddress })),
           unresolvedAddresses: place.locations.filter((l) => l.lat == null).map((l) => l.streetAddress),
           showOnMap: place.showOnMap,
-          showArtistPhotos: place.showArtistPhotos,
-          showEventsCarousel: place.showEventsCarousel,
+          listedArtists: place.listedArtists.map(a => ({ name: a.name, relationship: a.relationship, relationshipLabel: a.relationshipLabel })),
         }}
         placeSlug={place.slug}
         neighborhoodOptions={neighborhoodOptions}
         initialFocals={initialFocals}
+        baseUrl={process.env.NEXT_PUBLIC_BASE_URL ?? 'https://artishere.org'}
       />
     </div>
   );

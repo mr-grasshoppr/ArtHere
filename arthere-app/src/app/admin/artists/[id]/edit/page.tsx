@@ -84,7 +84,7 @@ export default async function AdminArtistPage({ params }: { params: Promise<{ id
           <div className="space-y-1">
             {blockedAccess.map((b) => (
               <p key={b.id} className="text-xs text-red-600">
-                {new Date(b.createdAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
+                {new Date(b.createdAt).toLocaleString("en-US", { timeZone: "America/Los_Angeles", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
                 {" — "}
                 {b.email} ({b.reason})
               </p>
@@ -97,7 +97,7 @@ export default async function AdminArtistPage({ params }: { params: Promise<{ id
         <div className="mb-6 flex items-center justify-between gap-4 bg-[#f062a4]/10 border border-[#f062a4]/25 rounded-lg px-5 py-3">
           <p className="text-sm text-[#a84573]">
             <span className="font-medium">Ready for review</span> — submitted{" "}
-            {new Date(artist.submittedForReviewAt).toLocaleString("en-US", {
+            {new Date(artist.submittedForReviewAt).toLocaleString("en-US", { timeZone: "America/Los_Angeles",
               month: "short",
               day: "numeric",
               hour: "numeric",
@@ -128,13 +128,13 @@ export default async function AdminArtistPage({ params }: { params: Promise<{ id
             <div className="text-sm space-y-1 pt-2 border-t border-[#f0f0f0]">
               <Row label="Email" value={artist.user?.email ?? null} />
               {artist.user && (
-                <Row label="Logged in" value={artist.user.emailVerified ? new Date(artist.user.emailVerified).toLocaleDateString() : "Never"} />
+                <Row label="Logged in" value={artist.user.emailVerified ? new Date(artist.user.emailVerified).toLocaleDateString("en-US", { timeZone: "America/Los_Angeles" }) : "Never"} />
               )}
               <Row
                 label="Last edit"
                 value={
                   lastArtistEdit
-                    ? `${new Date(lastArtistEdit.createdAt).toLocaleDateString()} (by artist)`
+                    ? `${new Date(lastArtistEdit.createdAt).toLocaleDateString("en-US", { timeZone: "America/Los_Angeles" })} (by artist)`
                     : "Never edited by artist"
                 }
               />
@@ -168,7 +168,7 @@ export default async function AdminArtistPage({ params }: { params: Promise<{ id
                       {r.editedBy === "artist" ? "Edited by artist" : r.editedBy === "admin" ? `Edited by admin${r.editorEmail ? ` (${r.editorEmail})` : ""}` : "System update"}
                     </span>
                     <span className="text-[#bbb] text-xs flex-shrink-0">
-                      {new Date(r.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
+                      {new Date(r.createdAt).toLocaleDateString("en-US", { timeZone: "America/Los_Angeles", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
                     </span>
                   </div>
                 ))}

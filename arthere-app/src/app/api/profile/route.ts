@@ -8,7 +8,7 @@ import { profileSchema, parseBody } from "@/lib/schemas";
 import { slugify } from "@/lib/slug";
 import { snapshotArtist } from "@/lib/profile-revision";
 import { normalizeNeighborhood } from "@/lib/neighborhoods";
-import { parseMediumList } from "@/lib/artist-options";
+import { parseMediumList, BIO_MAX_CHARS } from "@/lib/artist-options";
 import { registerMediumOptions } from "@/lib/medium-options";
 import { normalizeLinkUrl } from "@/lib/social-link";
 
@@ -40,6 +40,14 @@ export async function POST(req: NextRequest) {
   const body = parseBody(profileSchema, raw);
   if (!body) {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+  }
+  // Self-service limit. An existing bio already over it (from before the limit)
+  // is let through unchanged so autosave of other fields keeps working.
+  if (typeof body.bio === "string" && body.bio.trim().length > BIO_MAX_CHARS) {
+    const current = await prisma.artist.findUnique({ where: { userId: session.user.id }, select: { bio: true } });
+    if (body.bio.trim() !== current?.bio) {
+      return NextResponse.json({ error: `Your bio can be up to ${BIO_MAX_CHARS} characters.` }, { status: 400 });
+    }
   }
   const {
     firstName,

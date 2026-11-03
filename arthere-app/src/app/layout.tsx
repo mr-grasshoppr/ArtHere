@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Inter, Nunito, Bebas_Neue } from "next/font/google";
 import "./globals.css";
+import { jsonLdString } from "@/lib/seo";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
@@ -12,6 +13,22 @@ const nunito = Nunito({ subsets: ["latin"], weight: ["600", "700"], variable: "-
 const bebasNeue = Bebas_Neue({ subsets: ["latin"], weight: "400", variable: "--font-bebas", display: "swap" });
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://artishere.org";
+
+const siteJsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Art Here",
+    url: BASE_URL,
+    sameAs: ["https://www.instagram.com/arthereproject"],
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Art Here",
+    url: BASE_URL,
+  },
+];
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -27,6 +44,7 @@ export const metadata: Metadata = {
     siteName: "Art Here",
     type: "website",
   },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({
@@ -39,6 +57,7 @@ export default function RootLayout({
       {/* The site is light-only — every page sets its own colors on top of
           this neutral base. */}
       <body className="min-h-full bg-white text-[#1a1a1a] font-[family-name:var(--font-inter)]">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(siteJsonLd) }} />
         <AnalyticsTracker />
         {children}
       </body>
