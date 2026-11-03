@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
   }
 
   const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
-  const data = { x: clamp(x, 0, 100), y: clamp(y, 0, 100), scale: clamp(scale, 1, 3), manual: true };
+  const data = { x: clamp(x, 0, 100), y: clamp(y, 0, 100), scale: clamp(scale, 0.5, 3), manual: true };
 
   await prisma.imageFocus.upsert({
     where: { url },

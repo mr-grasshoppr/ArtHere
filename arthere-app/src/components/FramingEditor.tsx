@@ -1,15 +1,17 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { focalStyle } from "@/lib/focal-style";
 
 export interface FramingValue {
   x: number; // 0-100
   y: number; // 0-100
-  scale: number; // >= 1
+  scale: number; // 0.5-3; 1 = fill the frame, <1 = show the whole photo smaller
 }
 
 const DEFAULT_FRAMING: FramingValue = { x: 50, y: 50, scale: 1 };
-const MIN_SCALE = 1;
+// Below 1 the whole photo shows (see focalStyle) and then shrinks.
+const MIN_SCALE = 0.5;
 const MAX_SCALE = 3;
 
 function clamp(n: number, min: number, max: number) {
@@ -98,8 +100,6 @@ export function FramingEditor({
     setIsDragging(false);
   }
 
-  const position = `${value.x}% ${value.y}%`;
-
   return (
     <div className="space-y-3">
       <div
@@ -120,15 +120,11 @@ export function FramingEditor({
           alt=""
           draggable={false}
           className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-          style={{
-            objectPosition: position,
-            transform: value.scale > 1 ? `scale(${value.scale})` : undefined,
-            transformOrigin: position,
-          }}
+          style={focalStyle(value)}
         />
       </div>
 
-      <p className="text-xs text-[#999]">Drag the image to reposition it.</p>
+      <p className="text-xs text-[#999]">Drag the image to reposition it. Below 100% the whole photo shows.</p>
 
       <div className="flex items-center gap-3">
         <label className="text-xs text-[#888] uppercase tracking-wide w-12 flex-shrink-0">Zoom</label>

@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { FramingButton } from "@/components/FramingButton";
 import { HeaderPhotoSlot, GalleryPhotoSlots, type PhotoSlotsContext } from "@/components/ArtworkPhotoSlots";
 import { useArtworkPhotos, type PhotoAdapter } from "@/lib/useArtworkPhotos";
-import { focalStyle, type Focal } from "@/lib/focal-style";
+import { focalStyle, BIO_PHOTO_OBJECT_POSITION, type Focal } from "@/lib/focal-style";
 import type { FramingValue } from "@/components/FramingEditor";
 import { resizeImageForUpload } from "@/lib/client-image-resize";
 import { parseNeighborhoodList, isCityLevelNeighborhood } from "@/lib/neighborhoods";
@@ -83,7 +83,7 @@ export default function OnboardingForm({
   mediumOptions: string[];
 }) {
   const [focals, setFocals] = useState<Record<string, Focal>>(initialFocals ?? {});
-  const styleFor = (url?: string | null) => focalStyle(url ? focals[url] : undefined);
+  const styleFor = (url?: string | null, fallback?: string) => focalStyle(url ? focals[url] : undefined, fallback);
   function rememberFocal(url: string, value: FramingValue) {
     setFocals((prev) => ({ ...prev, [url]: value }));
   }
@@ -387,7 +387,7 @@ export default function OnboardingForm({
             {bioPhotoUrl ? (
               <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-sm">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={bioPhotoUrl} alt="" className="w-full h-full object-cover hover:opacity-80 transition-opacity" style={styleFor(bioPhotoUrl)} />
+                <img src={bioPhotoUrl} alt="" className="w-full h-full object-cover hover:opacity-80 transition-opacity" style={styleFor(bioPhotoUrl, BIO_PHOTO_OBJECT_POSITION)} />
               </div>
             ) : (
               <div className="w-32 h-32 rounded-full bg-[#e8e3dc] border-4 border-white shadow-sm flex flex-col items-center justify-center hover:bg-[#ddd8d0] transition-colors">
@@ -405,6 +405,7 @@ export default function OnboardingForm({
                 endpoint="/api/image-focus"
                 aspect="1 / 1"
                 label="Adjust"
+                defaultFraming={{ x: 50, y: 20, scale: 1 }}
                 onSaved={(v) => rememberFocal(bioPhotoUrl, v)}
               />
             </div>

@@ -1,4 +1,4 @@
-import { DEFAULT_OBJECT_POSITION } from '@/lib/focal-style';
+import { DEFAULT_OBJECT_POSITION, PLACE_HERO_OBJECT_POSITION } from '@/lib/focal-style';
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
 import type { Place, ArtistPlace, Artist, PlaceLink, PlaceListedArtist, PlaceRelationship } from '@prisma/client';
@@ -102,7 +102,7 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
               fill
               sizes="100vw"
               className="object-cover"
-              style={styleOf(place.heroImageUrl, { objectPosition: '50% 38%' })}
+              style={styleOf(place.heroImageUrl, { objectPosition: PLACE_HERO_OBJECT_POSITION })}
               priority
             />
           </Lightbox>

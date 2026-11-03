@@ -73,7 +73,7 @@ export default function PlaceEditForm({
   const thumbInputRef = useRef<HTMLInputElement>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [focals, setFocals] = useState<InitialFocals>(initialFocals ?? {});
-  const styleFor = (url?: string | null) => focalStyle(url ? focals[url] : undefined);
+  const styleFor = (url?: string | null, fallback?: string) => focalStyle(url ? focals[url] : undefined, fallback);
   function rememberFocal(url: string, value: FramingValue) {
     setFocals((prev) => ({ ...prev, [url]: value }));
   }

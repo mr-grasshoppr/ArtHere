@@ -6,11 +6,12 @@ import { ArtworkMediumSelect } from "@/components/ArtworkMediumSelect";
 import { PhotoSlotFrame, UploadOverlay } from "@/components/PhotoSlotFrame";
 import { GALLERY_SLOTS, type ArtworkPhotos, type PhotoImage } from "@/lib/useArtworkPhotos";
 import type { FramingValue } from "@/components/FramingEditor";
+import { useLiveHeroAspect } from "@/lib/useLiveHeroAspect";
 
 /** What the artist's form and the admin editor each supply to the shared slots. */
 export type PhotoSlotsContext = {
   photos: ArtworkPhotos;
-  styleFor: (url?: string | null) => CSSProperties;
+  styleFor: (url?: string | null, fallback?: string) => CSSProperties;
   rememberFocal: (url: string, value: FramingValue) => void;
   framingEndpoint: "/api/image-focus" | "/api/admin/image-focus";
   mediumOptions: string[];
@@ -24,11 +25,14 @@ const ACTION_BTN =
 const ROUND_BTN =
   "w-6 h-6 rounded-full bg-black/55 text-white text-xs leading-none hover:bg-black/75 transition-colors";
 
-/** The 21:9 header image — the same shape the live profile shows. */
+/** The header image — the same shape the live profile shows on this screen. */
 export function HeaderPhotoSlot({ ctx }: { ctx: PhotoSlotsContext }) {
   const { photos, styleFor, rememberFocal, framingEndpoint, mediumOptions, onMediumOptionsChange } = ctx;
   const { heroImage } = photos;
   const uploadingHere = photos.pending.filter((p) => p.target === "hero").slice(-1)[0];
+  // The header is held between 200 and 420px high on the live page, so its
+  // shape depends on the screen. Show and frame the crop this screen publishes.
+  const heroAspect = useLiveHeroAspect();
 
   return (
     <>
@@ -37,7 +41,7 @@ export function HeaderPhotoSlot({ ctx }: { ctx: PhotoSlotsContext }) {
         onFiles={(files) => photos.placeHero(files[0])}
         onMove={(from) => heroImage && photos.swapPieces(from, heroImage.id)}
         className="rounded-lg overflow-hidden bg-[#f0ede9] relative"
-        style={{ aspectRatio: "21 / 9" }}
+        style={{ aspectRatio: heroAspect }}
       >
         {heroImage ? (
           <>
@@ -47,7 +51,7 @@ export function HeaderPhotoSlot({ ctx }: { ctx: PhotoSlotsContext }) {
               <FramingButton
                 imageUrl={heroImage.url}
                 endpoint={framingEndpoint}
-                aspect="21 / 9"
+                aspect={heroAspect}
                 label="Adjust"
                 className={ACTION_BTN}
                 onSaved={(v) => rememberFocal(heroImage.url, v)}

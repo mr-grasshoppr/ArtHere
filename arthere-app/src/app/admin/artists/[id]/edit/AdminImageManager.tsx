@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { setBioPhoto, setArtworkMedium, deleteImage, arrangeArtistImages } from "../actions";
 import { FramingButton } from "@/components/FramingButton";
-import { focalStyle, type Focal } from "@/lib/focal-style";
+import { focalStyle, BIO_PHOTO_OBJECT_POSITION, type Focal } from "@/lib/focal-style";
 import type { FramingValue } from "@/components/FramingEditor";
 import { HeaderPhotoSlot, GalleryPhotoSlots, type PhotoSlotsContext } from "@/components/ArtworkPhotoSlots";
 import { useArtworkPhotos, type PhotoAdapter, type PhotoImage } from "@/lib/useArtworkPhotos";
@@ -36,7 +36,7 @@ export default function AdminImageManager({
   const [bioPhotoUrl, setBioPhotoUrl] = useState<string | null>(initialBioPhotoUrl);
   const [focals, setFocals] = useState<Record<string, Focal>>(initialFocals ?? {});
   const [mediumOptions, setMediumOptions] = useState<string[]>(initialMediumOptions);
-  const styleFor = (url?: string | null) => focalStyle(url ? focals[url] : undefined);
+  const styleFor = (url?: string | null, fallback?: string) => focalStyle(url ? focals[url] : undefined, fallback);
   function rememberFocal(url: string, value: FramingValue) {
     setFocals((prev) => ({ ...prev, [url]: value }));
   }
@@ -116,7 +116,7 @@ export default function AdminImageManager({
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-full overflow-hidden bg-[#f0f0f0] flex-shrink-0">
             {bioPhotoUrl ? (
-              <img src={bioPhotoUrl} alt="Bio photo" className="w-full h-full object-cover" style={styleFor(bioPhotoUrl)} />
+              <img src={bioPhotoUrl} alt="Bio photo" className="w-full h-full object-cover" style={styleFor(bioPhotoUrl, BIO_PHOTO_OBJECT_POSITION)} />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-[#ccc] text-lg">?</div>
             )}
@@ -143,6 +143,7 @@ export default function AdminImageManager({
                 imageUrl={bioPhotoUrl}
                 endpoint="/api/admin/image-focus"
                 aspect="1 / 1"
+                defaultFraming={{ x: 50, y: 20, scale: 1 }}
                 className="ml-2 inline-block text-sm text-[#555] hover:text-[#1a1a1a] transition-colors underline underline-offset-2"
                 label="Adjust framing"
                 onSaved={(v) => rememberFocal(bioPhotoUrl, v)}

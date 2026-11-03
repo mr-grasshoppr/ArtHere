@@ -15,6 +15,7 @@ export function FramingButton({
   aspect = "16 / 9",
   className = "",
   label = "Adjust framing",
+  defaultFraming,
   onSaved,
 }: {
   imageUrl: string;
@@ -23,6 +24,8 @@ export function FramingButton({
   aspect?: string;
   className?: string;
   label?: string;
+  /** Where the editor opens for an image with no stored framing — match how the live page places an unframed one. */
+  defaultFraming?: FramingValue;
   /** Called with the new value right after a successful save, so the caller's
    *  own preview (outside this modal) can update immediately instead of only
    *  reflecting the change on next full page load. */
@@ -55,7 +58,7 @@ export function FramingButton({
             ) : (
               <FramingEditor
                 imageUrl={imageUrl}
-                initial={initial}
+                initial={initial ?? defaultFraming}
                 aspect={aspect}
                 saving={saving}
                 onSave={handleSave}

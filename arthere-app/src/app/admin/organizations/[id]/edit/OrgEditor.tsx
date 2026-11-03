@@ -11,7 +11,7 @@ import { FramingButton } from "@/components/FramingButton";
 import { PhotoGrid } from "@/components/PhotoGrid";
 import { NeighborhoodPicker } from "@/components/NeighborhoodPicker";
 import { PlaceLocationsEditor, type LocationRow } from "@/components/PlaceLocationsEditor";
-import { focalStyle, type Focal } from "@/lib/focal-style";
+import { focalStyle, PLACE_HERO_OBJECT_POSITION, type Focal } from "@/lib/focal-style";
 import { parseNeighborhoodList, joinNeighborhoodList } from "@/lib/neighborhoods";
 import type { FramingValue } from "@/components/FramingEditor";
 import { resizeImageForUpload } from "@/lib/client-image-resize";
@@ -78,7 +78,7 @@ export default function OrgEditor({
   const [saved, setSaved] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [focals, setFocals] = useState<Record<string, Focal>>(initialFocals ?? {});
-  const styleFor = (url?: string | null) => focalStyle(url ? focals[url] : undefined);
+  const styleFor = (url?: string | null, fallback?: string) => focalStyle(url ? focals[url] : undefined, fallback);
   const focalStyles = new Map(Object.entries(focals).map(([url, f]) => [url, focalStyle(f)]));
   function rememberFocal(url: string, value: FramingValue) {
     setFocals((prev) => ({ ...prev, [url]: value }));
@@ -180,7 +180,7 @@ export default function OrgEditor({
         <div className="relative w-full aspect-[21/9] rounded-lg overflow-hidden bg-[#f0f0f0]">
           {heroImageUrl && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={heroImageUrl} alt="" className="w-full h-full object-cover" style={styleFor(heroImageUrl)} />
+            <img src={heroImageUrl} alt="" className="w-full h-full object-cover" style={styleFor(heroImageUrl, PLACE_HERO_OBJECT_POSITION)} />
           )}
         </div>
         <div className="flex items-center gap-3">
@@ -193,6 +193,7 @@ export default function OrgEditor({
               imageUrl={heroImageUrl}
               endpoint="/api/admin/image-focus"
               aspect="21 / 9"
+              defaultFraming={{ x: 50, y: 38, scale: 1 }}
               className="text-sm text-[#555] hover:text-[#1a1a1a] transition-colors underline underline-offset-2"
               onSaved={(v) => rememberFocal(heroImageUrl, v)}
             />

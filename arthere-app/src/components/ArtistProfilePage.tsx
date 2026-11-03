@@ -1,4 +1,4 @@
-import { DEFAULT_OBJECT_POSITION } from '@/lib/focal-style';
+import { DEFAULT_OBJECT_POSITION, BIO_PHOTO_OBJECT_POSITION } from '@/lib/focal-style';
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
 import type { Artist, ArtworkImage, ArtistPlace, ArtistOtherConnection, ArtistLink, Place, City } from '@prisma/client';
@@ -139,7 +139,7 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals, p
                 fill
                 sizes="140px"
                 className="object-cover"
-                style={styleOf(artist.bioPhotoUrl, { objectPosition: '50% 20%' })}
+                style={styleOf(artist.bioPhotoUrl, { objectPosition: BIO_PHOTO_OBJECT_POSITION })}
               />
             </div>
           )}

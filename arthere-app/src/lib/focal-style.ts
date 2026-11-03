@@ -19,6 +19,16 @@ export type Focal = { x: number; y: number; scale: number };
 export const DEFAULT_OBJECT_POSITION = "50% 50%";
 
 /**
+ * Where an unframed place hero sits in its wide header. The place page and
+ * the editors that preview it both use this, so what's shown while editing is
+ * what publishes.
+ */
+export const PLACE_HERO_OBJECT_POSITION = "50% 38%";
+
+/** Where an unframed artist bio photo sits in its circle — the profile page's own fallback. */
+export const BIO_PHOTO_OBJECT_POSITION = "50% 20%";
+
+/**
  * What the city grid used before that rule, and still uses for the pieces
  * that were already on it.
  *
@@ -46,12 +56,19 @@ export function gridFallbackFor(uploadedAt: Date | string | null | undefined): s
 // cover-fit box; when scale > 1, a matching transform-origin zooms in on that
 // exact point without shifting the framing. scale === 1 is identical to plain
 // object-position (so untouched images render exactly as before this existed).
+// Below 1 the photo is zoomed OUT: it switches from cover to contain, so the
+// whole picture shows (the box's own background fills the gaps), then shrinks
+// further about the focal point. A cover crop can't reveal what it cut off by
+// scaling down, which is why zooming out changes the fit instead.
 export function focalStyle(
   focal: Focal | undefined | null,
   fallback: string = DEFAULT_OBJECT_POSITION
 ): CSSProperties {
   if (!focal) return { objectPosition: fallback };
   const position = `${focal.x}% ${focal.y}%`;
+  if (focal.scale < 1) {
+    return { objectFit: "contain", objectPosition: position, transform: `scale(${focal.scale})`, transformOrigin: position };
+  }
   return focal.scale > 1
     ? { objectPosition: position, transform: `scale(${focal.scale})`, transformOrigin: position }
     : { objectPosition: position };
