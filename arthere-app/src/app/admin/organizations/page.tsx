@@ -2,16 +2,20 @@ import { prisma } from "@/lib/db";
 import { requireAdminPage } from "@/lib/admin";
 import Link from "next/link";
 import OrganizationsList from "./OrganizationsList";
-import NewOrganizationForm from "./NewOrganizationForm";
+import OrganizationCharts from "./OrganizationCharts";
 
 export default async function AdminOrganizationsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string }>;
+  searchParams: Promise<{ filter?: string; field?: string; value?: string }>;
 }) {
   await requireAdminPage();
 
-  const { filter } = await searchParams;
+  const { filter: filterParam, field: activeField, value: activeValue } = await searchParams;
+  // Chart bars link with ?field=status&value=Live; fold those into the same
+  // filter names the header chips use.
+  const statusFilters: Record<string, string> = { Live: "live", Hidden: "hidden", "Needs review": "needsReview" };
+  const filter = filterParam ?? (activeField === "status" && activeValue ? statusFilters[activeValue] : undefined);
 
   const [placeRows, lastPlaceEdits] = await Promise.all([
     prisma.place.findMany({
@@ -40,15 +44,32 @@ export default async function AdminOrganizationsPage({
   const liveCount = nonArchived.filter((p) => p.inDirectory).length;
   const needsReviewCount = nonArchived.filter((p) => p.submittedForReviewAt != null).length;
 
-  const places =
+  const statusData = [
+    { label: "Live", count: liveCount },
+    { label: "Hidden", count: nonArchived.length - liveCount },
+    { label: "Needs review", count: needsReviewCount },
+  ]
+    .filter((d) => d.count > 0)
+    .sort((a, b) => b.count - a.count)
+    .map((d) => ({ ...d, pct: Math.round((d.count / (nonArchived.length || 1)) * 100) }));
+
+  const neighborhoodCounts: Record<string, number> = {};
+  for (const p of nonArchived) if (p.neighborhood) neighborhoodCounts[p.neighborhood] = (neighborhoodCounts[p.neighborhood] ?? 0) + 1;
+  const neighborhoodData = Object.entries(neighborhoodCounts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([label, count]) => ({ label, count, pct: Math.round((count / (nonArchived.length || 1)) * 100) }));
+
+  const byFilter =
     filter === "live" ? nonArchived.filter((p) => p.inDirectory)
     : filter === "hidden" ? nonArchived.filter((p) => !p.inDirectory)
     : filter === "needsReview" ? nonArchived.filter((p) => p.submittedForReviewAt != null)
     : filter === "archived" ? allPlaces.filter((p) => p.isArchived)
     : nonArchived;
+  const places =
+    activeField === "neighborhood" && activeValue ? byFilter.filter((p) => p.neighborhood === activeValue) : byFilter;
 
   const totalForLabel = filter === "archived" ? archivedCount : nonArchived.length;
-  const countLabel = filter ? `${places.length} of ${totalForLabel}` : `${totalForLabel}`;
+  const countLabel = filter || (activeField && activeValue) ? `${places.length} of ${totalForLabel}` : `${totalForLabel}`;
 
   return (
     <div>
@@ -98,7 +119,7 @@ export default async function AdminOrganizationsPage({
                 Archived
               </Link>
             )}
-            {filter && (
+            {(filter || (activeField && activeValue)) && (
               <Link href="/admin/organizations" className="px-3 py-1.5 rounded-full border border-[#e5e5e5] text-[#bbb] hover:border-[#999]">
                 Clear ✕
               </Link>
@@ -114,11 +135,17 @@ export default async function AdminOrganizationsPage({
         </div>
       </div>
 
-      <NewOrganizationForm />
+      {nonArchived.length > 0 && (
+        <OrganizationCharts
+          statusData={statusData}
+          neighborhoodData={neighborhoodData}
+          total={nonArchived.length}
+          activeField={activeField}
+          activeValue={activeValue}
+        />
+      )}
 
-      <div className="mt-6">
-        <OrganizationsList places={places} />
-      </div>
+      <OrganizationsList places={places} />
     </div>
   );
 }

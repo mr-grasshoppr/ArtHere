@@ -38,10 +38,9 @@ async function attachPlaceUser(placeId: string, email: string): Promise<string> 
   return user.id;
 }
 
-export async function createOrganization(name: string): Promise<string> {
+export async function createOrganization(name: string = ""): Promise<string> {
   await requireAdmin();
-  const trimmed = name.trim();
-  if (!trimmed) throw new Error("Name is required");
+  const trimmed = name.trim() || "New Organization";
   const slug = await uniquePlaceSlug(trimmed);
   // Every org needs a city even before it's connected to any artist — a
   // place's Community-directory listing depends on its own cityId, not on

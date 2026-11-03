@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import OrgVisibilityToggle from "./OrgVisibilityToggle";
+import CreateOrganizationButton from "./CreateOrganizationButton";
 import { setPlacesArchived } from "./actions";
 
 type PlaceRow = {
@@ -76,6 +77,7 @@ export default function OrganizationsList({ places }: { places: PlaceRow[] }) {
   return (
     <div>
       <div className="flex items-center gap-3 mb-4 flex-wrap">
+        <CreateOrganizationButton />
         <input
           type="text"
           placeholder="Search by name, email, neighborhood…"
