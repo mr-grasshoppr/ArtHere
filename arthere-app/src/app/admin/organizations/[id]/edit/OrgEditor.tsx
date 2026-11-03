@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { updateOrganization } from "../../actions";
 import OrgVisibilityToggle from "../../OrgVisibilityToggle";
 import { FramingButton } from "@/components/FramingButton";
-import { PhotoGrid } from "@/components/PhotoGrid";
+import { PlaceGallerySlots } from "@/components/PlacePhotoSlots";
 import { NeighborhoodPicker } from "@/components/NeighborhoodPicker";
 import { PlaceLocationsEditor, type LocationRow } from "@/components/PlaceLocationsEditor";
 import { focalStyle, PLACE_HERO_OBJECT_POSITION, type Focal } from "@/lib/focal-style";
@@ -79,7 +79,6 @@ export default function OrgEditor({
   const [uploading, setUploading] = useState(false);
   const [focals, setFocals] = useState<Record<string, Focal>>(initialFocals ?? {});
   const styleFor = (url?: string | null, fallback?: string) => focalStyle(url ? focals[url] : undefined, fallback);
-  const focalStyles = new Map(Object.entries(focals).map(([url, f]) => [url, focalStyle(f)]));
   function rememberFocal(url: string, value: FramingValue) {
     setFocals((prev) => ({ ...prev, [url]: value }));
   }
@@ -131,6 +130,17 @@ export default function OrgEditor({
       }
     }
     setGalleryImages((prev) => [...prev, ...urls]);
+    setUploading(false);
+  }
+
+  async function handleGalleryReplace(url: string, file: File) {
+    setUploading(true);
+    try {
+      const fresh = await uploadBlob(file);
+      setGalleryImages((prev) => prev.map((u) => (u === url ? fresh : u)));
+    } catch {
+      /* keep the old photo if the upload fails */
+    }
     setUploading(false);
   }
 
@@ -322,17 +332,18 @@ export default function OrgEditor({
       <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
         <div>
           <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Photos ({galleryImages.length}/{GALLERY_MAX})</h2>
-          <p className="text-xs text-[#aaa] mt-1">Tap a photo to adjust its framing, or drag to reorder.</p>
+          <p className="text-xs text-[#aaa] mt-1">Drag photos to reorder. Use Adjust to choose which part of a photo shows.</p>
         </div>
-        <PhotoGrid
+        <PlaceGallerySlots
           images={galleryImages}
           max={GALLERY_MAX}
           framingEndpoint="/api/admin/image-focus"
-          framingAspect="1 / 1"
-          focals={focalStyles}
+          styleFor={styleFor}
+          rememberFocal={rememberFocal}
           onReorder={setGalleryImages}
           onRemove={(url) => setGalleryImages((prev) => prev.filter((u) => u !== url))}
-          onAddFiles={handleGalleryAdd}
+          onAdd={handleGalleryAdd}
+          onReplace={handleGalleryReplace}
           uploading={uploading}
         />
 

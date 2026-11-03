@@ -13,6 +13,8 @@ const ROUND_BTN =
   "w-6 h-6 rounded-full bg-black/55 text-white text-xs leading-none hover:bg-black/75 transition-colors";
 
 type Common = {
+  /** Which API route owns these images: the owner's own, or admin. */
+  framingEndpoint?: "/api/image-focus" | "/api/admin/image-focus";
   styleFor: (url?: string | null, fallback?: string) => CSSProperties;
   rememberFocal: (url: string, value: FramingValue) => void;
   uploading: boolean;
@@ -61,7 +63,7 @@ export function PlaceHeroSlot({
           <div className="absolute left-3 bottom-3 z-10 flex gap-2 w-[260px] max-w-[70%]">
             <FramingButton
               imageUrl={url}
-              endpoint="/api/image-focus"
+              endpoint={c.framingEndpoint ?? "/api/image-focus"}
               aspect={aspect}
               label="Adjust"
               className={ACTION_BTN}
@@ -148,7 +150,7 @@ export function PlaceGallerySlots({
               <div className="absolute left-1.5 right-1.5 bottom-1.5 z-10 flex gap-1.5">
                 <FramingButton
                   imageUrl={url}
-                  endpoint="/api/image-focus"
+                  endpoint={c.framingEndpoint ?? "/api/image-focus"}
                   aspect="1 / 1"
                   label="Adjust"
                   className={ACTION_BTN}
