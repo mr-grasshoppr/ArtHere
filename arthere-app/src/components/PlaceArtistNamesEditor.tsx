@@ -93,7 +93,7 @@ export function PlaceArtistNamesEditor({
                 value={value[rel].text}
                 onChange={e => set(rel, { text: e.target.value })}
                 rows={3}
-                placeholder={`${PROMPTS[rel]} — paste or type one name per line`}
+                placeholder={`${PROMPTS[rel]} — list each artist's full name, separated by commas or line breaks`}
                 className={`${fieldClassName} resize-y`}
               />
             </div>

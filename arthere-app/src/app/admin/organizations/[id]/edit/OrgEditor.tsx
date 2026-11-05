@@ -242,10 +242,32 @@ export default function OrgEditor({
             Show {locations.length > 1 ? "a pin for each location" : "a pin for this place"} on the city map
           </label>
         </div>
+      </section>
+
+      {/* Quote — optional pull quote, e.g. a testimonial */}
+      <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-4">
         <div>
-          <label className={labelCls}>Artists</label>
-          <PlaceArtistNamesEditor value={listedNames} onChange={setListedNames} fieldClassName={inputCls} />
+          <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Quote</h2>
+          <p className="text-xs text-[#aaa] mt-1">Optional. Shown as a pull quote above the About text, e.g. a testimonial.</p>
         </div>
+        <div>
+          <label className={labelCls}>Quote</label>
+          <textarea
+            value={quote}
+            onChange={(e) => setQuote(e.target.value)}
+            rows={2}
+            placeholder="Alone we can do so little; together we can do so much."
+            className={`${inputCls} resize-y`}
+          />
+        </div>
+        <div>
+          <label className={labelCls}>Attribution</label>
+          <input type="text" value={quoteAttribution} onChange={(e) => setQuoteAttribution(e.target.value)} placeholder="Helen Keller" className={inputCls} />
+        </div>
+      </section>
+
+      {/* About */}
+      <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-4">
         <div>
           <label className={labelCls}>About</label>
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={5} className={`${inputCls} resize-y`} />
@@ -306,28 +328,6 @@ export default function OrgEditor({
         </button>
       </section>
 
-      {/* Quote — optional pull quote, e.g. a testimonial */}
-      <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-4">
-        <div>
-          <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Quote</h2>
-          <p className="text-xs text-[#aaa] mt-1">Optional. Shown as a pull quote below the About text, e.g. a testimonial.</p>
-        </div>
-        <div>
-          <label className={labelCls}>Quote</label>
-          <textarea
-            value={quote}
-            onChange={(e) => setQuote(e.target.value)}
-            rows={2}
-            placeholder="Alone we can do so little; together we can do so much."
-            className={`${inputCls} resize-y`}
-          />
-        </div>
-        <div>
-          <label className={labelCls}>Attribution</label>
-          <input type="text" value={quoteAttribution} onChange={(e) => setQuoteAttribution(e.target.value)} placeholder="Helen Keller" className={inputCls} />
-        </div>
-      </section>
-
       {/* Gallery — capped at 3; tap a photo to adjust its framing, drag to reorder */}
       <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
         <div>
@@ -373,6 +373,12 @@ export default function OrgEditor({
             </div>
           </div>
         )}
+      </section>
+
+      {/* Artists */}
+      <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
+        <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Artists</h2>
+        <PlaceArtistNamesEditor value={listedNames} onChange={setListedNames} fieldClassName={inputCls} />
       </section>
 
       {error && <p className="text-red-500 text-sm">{error}</p>}

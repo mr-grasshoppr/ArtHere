@@ -324,19 +324,9 @@ export default function PlaceEditForm({
         </label>
       </div>
 
-      {/* Description + quote + website */}
+      {/* Quote + description + links — same order as the published page */}
       <div className="max-w-[980px] mx-auto px-5 sm:px-10 pt-7 pb-10 border-b border-[#f0f0f0]">
         <div>
-          <div className={LABEL}>About</div>
-          <textarea
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-            maxLength={PLACE_DESCRIPTION_MAX_CHARS}
-            rows={6}
-            placeholder="Tell visitors about your space, what you do, and your connection to the arts community."
-            className={`${INLINE_BODY} mb-1`}
-          />
-          <CharCounter value={description} max={PLACE_DESCRIPTION_MAX_CHARS} className="mb-6" />
           <div className={LABEL}>Quote (optional)</div>
           <textarea
             value={quote}
@@ -351,6 +341,16 @@ export default function PlaceEditForm({
             placeholder="Attribution, e.g. Helen Keller"
             className={`${FIELD} mb-6`}
           />
+          <div className={LABEL}>About</div>
+          <textarea
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            maxLength={PLACE_DESCRIPTION_MAX_CHARS}
+            rows={6}
+            placeholder="Tell visitors about your space, what you do, and your connection to the arts community."
+            className={`${INLINE_BODY} mb-1`}
+          />
+          <CharCounter value={description} max={PLACE_DESCRIPTION_MAX_CHARS} className="mb-6" />
           <div className={LABEL}>Links</div>
           <div className="flex flex-col gap-2">
             {links.map((link, i) => {
