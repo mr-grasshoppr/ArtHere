@@ -30,6 +30,8 @@ interface Props {
   maskImageUrl: string;
   /** Fires when the grid freezes into its browsable state, or resumes. */
   onFrozenChange?: (frozen: boolean) => void;
+  /** Caption each tile with its artist's name. Off by default. */
+  showNames?: boolean;
   /**
    * True when the artist list is a filtered result set. Every piece then
    * appears exactly once and the last row is left ragged — REQUIRED DESIGN
@@ -117,7 +119,7 @@ interface GridLayout {
  * the cells into links; Space or Escape restarts it. Rendered
  * declaratively — layout lives in state, not hand-built DOM.
  */
-export function CityGrid({ artists, overlayImageUrl, maskImageUrl, onFrozenChange, filtered = false, browse = false }: Props) {
+export function CityGrid({ artists, overlayImageUrl, maskImageUrl, onFrozenChange, showNames = false, filtered = false, browse = false }: Props) {
   const vpRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [layout, setLayout] = useState<GridLayout | null>(null);
@@ -339,15 +341,18 @@ export function CityGrid({ artists, overlayImageUrl, maskImageUrl, onFrozenChang
                 isHero={item.wide}
               />
             );
+            const nameTag = showNames ? <span className={styles.cellName}>{item.name}</span> : null;
             const className = `${styles.cell}${item.wide ? ` ${styles.cellWide}` : ''}${frozen ? ` ${styles.cellClickable}` : ''}`;
             const height = layout.row;
             return frozen ? (
               <a key={i} href={item.url} data-track="artwork" data-track-id={item.src} className={className} style={{ height }} onClick={e => e.stopPropagation()}>
                 {cellContent}
+                {nameTag}
               </a>
             ) : (
               <div key={i} className={className} style={{ height }}>
                 {cellContent}
+                {nameTag}
               </div>
             );
           })}

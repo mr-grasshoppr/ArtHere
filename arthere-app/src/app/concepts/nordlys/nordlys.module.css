@@ -1,0 +1,56 @@
+/* Brand palette — verbatim from REQUIRED-DESIGN-FEATURES.md (PALETTE-1).
+   Scoped here because this concept may not touch globals.css; if the concept
+   is adopted, move these to @theme inline there. */
+.root {
+  --nl-pink: #f96a9b;
+  --nl-green: #07b26b;
+  --nl-chartreuse: #bdd349;
+  --nl-ink: #1a1a1a;
+  --nl-paper: #f7f6f3;
+  --nl-line: #dedad4;
+}
+
+.door {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.25rem 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 1rem;
+  color: var(--nl-ink);
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.door:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12); }
+.door:focus-visible { outline: 3px solid var(--nl-ink); outline-offset: 3px; }
+.doorPink { background: var(--nl-pink); }
+.doorGreen { background: var(--nl-green); }
+.doorChartreuse { background: var(--nl-chartreuse); }
+
+.mosaic {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px; /* same gap as the city grid */
+}
+.tile {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #e8e8e4;
+  display: block;
+}
+.tile:focus-visible { outline: 3px solid var(--nl-ink); outline-offset: 2px; z-index: 1; }
+.tileName {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 1.2rem 0.5rem 0.4rem;
+  font-size: 0.7rem; color: #fff;
+  background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+  opacity: 0; transition: opacity 0.15s ease;
+}
+.tile:hover .tileName, .tile:focus-visible .tileName { opacity: 1; }
+@media (hover: none) { .tileName { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .door { transition: none; }
+  .door:hover { transform: none; }
+}

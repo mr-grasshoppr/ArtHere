@@ -1,0 +1,72 @@
+/* Brand palette, verbatim from REQUIRED-DESIGN-FEATURES.md (PALETTE-1).
+   globals.css has no color tokens yet and this concept may not touch it, so
+   the three values are declared ONCE here as custom properties; every
+   component below (and the page's Tailwind classes, via var()) reads them.
+   If adopted, move these three lines into @theme inline in globals.css. */
+.root {
+  --brand-pink: #f96a9b;
+  --brand-green: #07b26b;
+  --brand-chartreuse: #bdd349;
+  --ink: #1a1a1a;
+  --paper: #f7f6f3;
+  --line: #dedad4;
+}
+
+.btnPrimary, .btnGhost {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 0.8rem 1.5rem; border-radius: 999px; font-weight: 600;
+  font-size: 0.95rem; text-decoration: none; transition: transform .15s ease, box-shadow .15s ease;
+}
+.btnPrimary { background: var(--ink); color: #fff; }
+.btnGhost { border: 2px solid var(--ink); color: var(--ink); }
+.btnPrimary:hover, .btnGhost:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.14); }
+.btnPrimary:focus-visible, .btnGhost:focus-visible, .card:focus-visible, .door:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+.chip {
+  display: inline-block; padding: 0.2rem 0.6rem; border-radius: 999px;
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+}
+.chipLive { background: var(--brand-green); color: var(--ink); }
+.chipSoon { background: var(--brand-chartreuse); color: var(--ink); }
+
+.card {
+  display: block; border: 1px solid var(--line); border-radius: 1rem; background: #fff;
+  overflow: hidden; height: 100%; color: inherit; text-decoration: none;
+  transition: box-shadow .15s ease;
+}
+a.card:hover { box-shadow: 0 6px 18px rgba(0,0,0,.1); }
+.cardSoon { border: 2px dashed var(--ink); background: var(--paper); }
+.soonArt {
+  aspect-ratio: 3 / 2;
+  background: linear-gradient(120deg, var(--brand-green), var(--brand-chartreuse) 50%, var(--brand-pink));
+  display: grid; place-items: center;
+}
+.soonArt span { font-family: var(--font-bebas), 'Arial Narrow', Arial, sans-serif; font-size: 2.2rem; letter-spacing: .06em; color: var(--ink); }
+
+.door {
+  display: flex; flex-direction: column; gap: .5rem; height: 100%;
+  padding: 1.4rem; border-radius: 1rem; color: var(--ink); text-decoration: none;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.door:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.14); }
+.doorPink { background: var(--brand-pink); }
+.doorGreen { background: var(--brand-green); }
+.doorChartreuse { background: var(--brand-chartreuse); }
+.doorPaper { background: #fff; border: 2px solid var(--ink); }
+
+.mosaic { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; /* the city grid's gap */ }
+@media (min-width: 1024px) { .mosaic { grid-template-columns: repeat(4, 1fr); } }
+.tile { position: relative; aspect-ratio: 1 / 1; overflow: hidden; background: #e8e8e4; display: block; }
+.tile:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; z-index: 1; }
+.tileName {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 1.2rem .5rem .4rem;
+  font-size: .7rem; color: #fff; background: linear-gradient(to top, rgba(0,0,0,.6), transparent);
+  opacity: 0; transition: opacity .15s ease;
+}
+.tile:hover .tileName, .tile:focus-visible .tileName { opacity: 1; }
+@media (hover: none) { .tileName { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .btnPrimary, .btnGhost, .door, .card { transition: none; }
+  .btnPrimary:hover, .btnGhost:hover, .door:hover { transform: none; }
+}

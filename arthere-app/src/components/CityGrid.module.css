@@ -53,6 +53,24 @@
   display: block;
 }
 
+/* Optional artist-name caption (showNames). A scrim keeps it legible on any
+   artwork; pointer-events off so it never intercepts the tile's own click. */
+.cellName {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1.6rem 0.6rem 0.5rem;
+  font-family: var(--font-bebas), 'Arial Narrow', sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.06em;
+  line-height: 1.05;
+  text-transform: uppercase;
+  color: #fff;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.62), rgba(0, 0, 0, 0));
+  pointer-events: none;
+}
+
 /* A hero: two columns across, one row high — the shape nearest its 21:9
    profile header (GRID-11). Planned as 1x2 by lib/grid-sequence.ts; change
    one and the other must follow. */
