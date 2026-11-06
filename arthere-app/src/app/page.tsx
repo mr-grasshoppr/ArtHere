@@ -72,7 +72,7 @@ export default async function Home() {
   const involved = [
     { who: 'Visitors', cta: 'Browse the artwork', href: `${home}?browse`, benefit: 'Find art and artists near you.' },
     { who: 'Artists', cta: 'Get featured', href: '/join/artists', benefit: 'Free for artists, always.' },
-    { who: 'Places', cta: 'Showcase your space', href: '/join/places', benefit: 'Be on the map.' },
+    { who: 'Places', cta: 'Join the network', href: '/join/places', benefit: 'Champions of local art.' },
     { who: 'Partners', cta: 'Collaborate with us', href: '/join/organizations', benefit: 'Bring Art Here to your city.' },
   ];
 
