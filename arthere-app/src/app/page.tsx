@@ -1,24 +1,18 @@
-import { getCachedCities } from '@/lib/cities';
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
+import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
+import { getCachedCities } from '@/lib/cities';
 import { NavBar } from '@/components/NavBar';
-import { UsMap } from '@/components/UsMap';
 import { SiteFooter } from '@/components/SiteFooter';
 import { StayInTouchForm } from '@/components/StayInTouchForm';
-import { InstagramIcon } from '@/components/InstagramIcon';
-import { InstagramPostsRow } from '@/components/InstagramPostsRow';
+import { FollowBand } from './concepts/_shared/FollowBand';
 import { getInstagramPosts } from '@/lib/instagram-posts';
-import { AnimatedLogoMask } from '@/components/AnimatedLogoMask';
-import { getLogoSlides } from '@/lib/logo-slides';
-import { JoinBand } from '@/components/JoinBand';
-import { StatementBand } from '@/components/StatementBand';
-import { FaqAccordion } from '@/components/FaqAccordion';
 import { faqItem, TEASER_IDS } from '@/lib/faq';
-import gradientStyles from './AnimatedGradient.module.css';
+import { HeroStage } from './_home/HeroStage';
+import { getKobo2City } from './_home/data';
 
 export const dynamic = 'force-dynamic';
-
 export const metadata: Metadata = {
   title: 'Art Here',
   description: 'Art Here puts local artists on the map.',
@@ -26,240 +20,217 @@ export const metadata: Metadata = {
 
 const INSTAGRAM_URL = 'https://www.instagram.com/arthereproject';
 
-// Airport-style short codes, used where a city label won't fit.
-const CITY_CODES: Record<string, string> = {
-  portland: 'PDX',
-};
+const DISPLAY = 'font-display uppercase tracking-[0.02em] leading-[0.95]';
+
+function Label({ children, light = false }: { children: string; light?: boolean }) {
+  return (
+    <h2 className={`${DISPLAY} text-[clamp(2.6rem,6.5vw,4.25rem)] ${light ? 'text-white' : 'text-[#1a1a1a]'}`}>
+      {children}
+    </h2>
+  );
+}
 
 export default async function Home() {
-  const allCities = await getCachedCities();
-  const cities = allCities.filter(c => !c.slug.endsWith('-demo'));
-  const { slides: logoSlides, focals: logoFocals } = await getLogoSlides();
+  const cities = (await getCachedCities()).filter(c => !c.slug.endsWith('-demo'));
+  const pilot = cities[0];
+  if (!pilot) notFound();
+  const data = await getKobo2City(pilot.slug);
+  if (!data) notFound();
   const instagramPosts = await getInstagramPosts();
-  const pilotCitySlug = cities[0]?.slug;
-  const pilotCityHref = pilotCitySlug ? `/cities/${pilotCitySlug}` : null;
-  const pilotCityLabel = cities[0]
-    ? (cities[0].displayName ?? `${cities[0].name}${cities[0].state ? `, ${cities[0].state}` : ''}`)
-    : null;
+  const { label, gridArtists } = data;
+  const home = `/cities/${pilot.slug}`;
 
-  const heroLogo = <AnimatedLogoMask width="100%" slides={logoSlides} focals={logoFocals} />;
+  // Each card shows the thing it describes. GIFs are served as-is (unoptimized)
+  // so they keep animating.
+  const does = [
+    { title: 'Artist directory', kicker: 'Meet the artists', tone: 'green', status: 'Live', href: `${home}/artists`, cta: 'Browse artists',
+      media: { kind: 'gif', src: '/images/artist-directory-demo.gif', pos: 'center top' },
+      body: 'Discover local artists, the work you love, and the galleries and organizations that support them.' },
+    { title: 'Mapping', kicker: 'Places & networks', tone: 'chartreuse', status: 'Live', href: `${home}/map?view=network`, cta: 'Explore the map',
+      media: { kind: 'gif', src: '/images/mapping-demo.gif', pos: 'center top' },
+      body: 'A map and network of the places and organizations that support artists in your area.' },
+    { title: 'Storytelling', kicker: 'Local Art Stories', tone: 'pink', status: 'In progress', href: '/stories', cta: 'Learn more',
+      media: { kind: 'photo', src: '/images/Community_voices_MD.webp', pos: 'center' },
+      body: 'With our partners we interview residents and run surveys, to understand how to better support the arts. Stories and insights are on the way.' },
+    { title: 'Events', kicker: 'Happenings', tone: 'ink', status: 'Coming soon', href: `${home}/events`, cta: 'Learn more',
+      media: { kind: 'gif', src: '/images/happenings-timeline-map.gif', pos: 'center bottom' },
+      body: 'A calendar of exhibitions, open studios and openings across the city, drawn from the places that host them.' },
+  ] as const;
+  const TONES = {
+    pink: 'bg-[#f96a9b] text-white',
+    green: 'bg-[#07b26b] text-white',
+    chartreuse: 'bg-[#bdd349] text-[#1a1a1a]',
+    ink: 'bg-[#1a1a1a] text-white',
+  } as const;
+
+  const involved = [
+    { who: 'Visitors', cta: 'Browse the artwork', href: `${home}?browse` },
+    { who: 'Artists', cta: 'Get featured', href: '/join/artists' },
+    { who: 'Places', cta: 'Showcase your space', href: '/join/places' },
+    { who: 'Partners', cta: 'Collaborate with us', href: '/join/organizations' },
+  ];
+
+  const wrap = 'max-w-[1000px] mx-auto px-6 sm:px-10';
+  const btn = 'inline-flex items-center gap-2 rounded-full px-6 py-3 font-display text-[1.35rem] tracking-[0.06em] leading-none transition-transform hover:-translate-y-0.5';
 
   return (
-    <div className="min-h-screen bg-white text-[#1a1a1a]">
-      <NavBar theme="light" />
+    <div className="bg-[#0a0a0a] text-[#1a1a1a]">
+      <NavBar />
 
-      {/* Hero: logo shape with artwork sliding behind it; the whole mark
-          links through to the pilot city. */}
-      <section className="min-h-[80vh] sm:min-h-0 flex flex-col items-center justify-center text-center px-5 pt-24 pb-20">
-        {pilotCityHref ? (
-          <Link
-            href={pilotCityHref}
-            className="block [container-type:inline-size] hover:opacity-90 transition-opacity"
-            style={{ width: 'min(60vw, 520px)' }}
-          >
-            {heroLogo}
-          </Link>
-        ) : (
-          <div className="[container-type:inline-size]" style={{ width: 'min(60vw, 520px)' }}>
-            {heroLogo}
-          </div>
-        )}
-
-        {/* Sized in cqw against a wrapper matching the logo's own width, so
-            the tagline always spans exactly the mark above it. */}
-        <div className="[container-type:inline-size] mt-4" style={{ width: 'min(60vw, 520px)' }}>
-          <h1 className="font-display text-[6.5cqw] tracking-[0.06em] leading-[1.1] text-[#1a1a1a] whitespace-nowrap">
+      <HeroStage
+        artists={gridArtists}
+        overlayImageUrl={data.city.logoOverlayImageUrl ?? '/images/arthere-portland-overlay.png'}
+        maskImageUrl="/images/arthere-mask.png"
+      >
+        <div className="px-5 pt-5 pb-5 sm:px-6 sm:pt-6 sm:pb-6">
+          <h1 className="font-display text-[2.6rem] sm:text-[3.1rem] leading-[0.98] tracking-[0.04em]">
             Art Here puts local artists on the map
           </h1>
-        </div>
-
-        {/* Same logo-width container, so the pill can be held to ~2/3 of the
-            mark (and never wider than it) with its type scaling to match. */}
-        {pilotCityHref && (
-          <div className="[container-type:inline-size] mt-[4.5rem] sm:mt-20" style={{ width: 'min(60vw, 520px)' }}>
-            {/* Type stays one size; the wording shortens instead, so the pill
-                never has to wrap to a second line as the frame narrows. */}
-            <Link
-              href={pilotCityHref}
-              className={`${gradientStyles.gradientPan} ${gradientStyles.launchPill} caps-optical-center mx-auto flex items-center justify-center text-center w-[66.7cqw] max-w-full px-4 py-3 rounded-full font-display text-white text-[1.15rem] tracking-[0.05em] leading-[1.15] whitespace-nowrap`}
-            >
-              <span className="hidden min-[800px]:inline">Art Here just launched in {pilotCityLabel}!</span>
-              <span className="hidden min-[540px]:inline min-[800px]:hidden">Art Here in {pilotCityLabel}</span>
-              <span className="min-[540px]:hidden">{pilotCityLabel}</span>
-            </Link>
+          <p className="mt-3 text-[0.9rem] text-[#555] font-light leading-[1.6]">
+            A living directory of artists, the places that support them, and local happenings that bring communities together.
+          </p>
+          <div className="mt-5 pt-3 border-t border-[#1a1a1a] flex items-baseline justify-between gap-4">
+            <Link href={`${home}?browse`} className="text-[0.9rem] underline underline-offset-[3px] decoration-[#bbb] hover:opacity-60 transition-opacity">Browse the artwork →</Link>
+            <a href="#involved" className="text-[0.9rem] underline underline-offset-[3px] decoration-[#bbb] hover:opacity-60 transition-opacity">Get involved ↓</a>
           </div>
-        )}
-      </section>
+        </div>
+      </HeroStage>
 
-      {/* Below the fold: redesigned to match the main-site landing page */}
-      <div>
-
-        {/* About + Map side by side */}
-        <section id="about" className="bg-[#f7f6f3] scroll-mt-[70px]">
-          <div className="max-w-[900px] mx-auto px-6 sm:px-10 pt-16 sm:pt-24 pb-16 sm:pb-24 flex flex-col sm:flex-row gap-0 sm:gap-16 items-center">
-            <div className="flex-1 min-w-0">
-              <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-6">About</div>
-              <div className="text-[1.05rem] text-[#555] font-light leading-[1.85] [&>p]:mb-[18px] [&>p:last-child]:mb-0">
+      <main className="relative z-10">
+        {/* What it is */}
+        <section className="bg-[#f7f6f3]">
+          <div className={`${wrap} py-16 sm:py-24`}>
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-y-6 sm:gap-x-8">
+              <div className="sm:col-span-5"><Label>What We Do</Label></div>
+              <div className="sm:col-span-7 text-[1.05rem] text-[#555] font-light leading-[1.85] [&>p]:mb-[18px] [&>p:last-child]:mb-0">
                 <p>
                   Art Here highlights and celebrates local artists. We partner with local organizations
-                  and community leaders to host events, capture residents&rsquo; art stories, and build
-                  a living directory of artists and the places that support them.
+                  and community leaders to capture residents&rsquo; art stories and build a living
+                  directory of artists and the places that support them.
                 </p>
                 <p>
                   Great neighborhoods are shaped by the artists who live in them. Art Here helps
                   communities see, celebrate, and support their own.
                 </p>
+                <p>
+                  <Link href={home} className="text-[#1a1a1a] underline underline-offset-[3px] decoration-[#bbb] hover:opacity-60 transition-opacity">
+                    Live in {label}.
+                  </Link>{' '}
+                  <Link href="/join/cities" className="text-[#1a1a1a] underline underline-offset-[3px] decoration-[#bbb] hover:opacity-60 transition-opacity">
+                    Bring us to yours →
+                  </Link>
+                </p>
               </div>
-            </div>
-            <div className="w-full sm:w-[340px] shrink-0">
-              <UsMap />
             </div>
           </div>
         </section>
 
-        {/* Prismatic join banner under About. The fuller Join Us list near the
-            footer stays as the nav's #contact target. */}
-        <JoinBand />
-
-        {/* How it works */}
+        {/* What we do: cards */}
         <section className="bg-white">
-          <div className="max-w-[900px] mx-auto px-6 sm:px-10 pt-14 sm:pt-16 pb-14 sm:pb-[72px]">
-            <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-10">
-              How it works
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-              {[
-                // Top-aligned: a center crop cuts off the top row of artwork.
-                { img: '/images/artist_directory_Aug20.webp',  alt: 'Artist Directory',  title: 'Artist Directory',  body: 'Discover local artists, artwork that you love, and the galleries and organizations that support them.', href: pilotCitySlug ? `/cities/${pilotCitySlug}` : undefined, objectPosition: 'top' },
-                { img: '/images/Community_voices_MD.webp',  alt: 'Community Voices',  title: 'Community Voices',  body: 'With our partners, we’re conducting interviews and surveys to help the community better understand how to support the arts. Stay tuned for stories and insights.' },
-                { img: '/images/Art_Here_Network.webp',  alt: 'Art Here Network',  title: 'Art Here Network', body: 'A visualization of the places and organizations that support artists in your area.', href: pilotCitySlug ? `/cities/${pilotCitySlug}/map?view=network` : undefined },
-              ].map(({ img, alt, title, body, href, objectPosition }) => {
+          <div className={`${wrap} py-16 sm:py-24`}>
+            <Label>How We Do It</Label>
+            <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+              {does.map(d => {
                 const card = (
-                  <div className="rounded-2xl border border-[#dedad4] bg-white overflow-hidden h-full">
-                    <div className="relative w-full aspect-[3/2] overflow-hidden bg-[#e8e8e4]">
-                      <Image
-                        src={img}
-                        alt={alt}
-                        fill
-                        sizes="(max-width: 639px) 100vw, 280px"
-                        className="object-cover"
-                        style={{ objectPosition: objectPosition ?? undefined }}
-                      />
+                  <article className={`h-full overflow-hidden rounded-[6px] transition-opacity duration-200 ${TONES[d.tone]} group-hover:opacity-85`}>
+                    <div className="relative aspect-[4/3] bg-[#0a0a0a] overflow-hidden">
+                        <Image
+                          src={d.media.src}
+                          alt=""
+                          fill
+                          unoptimized={d.media.kind === 'gif'}
+                          sizes="(max-width: 640px) 90vw, 460px"
+                          className="object-cover"
+                          style={{ objectPosition: d.media.pos }}
+                        />
                     </div>
-                    <div className="px-5 py-5">
-                      <h3 className="font-display text-[1.5rem] leading-none tracking-[0.04em] mb-2.5">{title}</h3>
-                      <p className="text-[0.85rem] text-[#666] font-light leading-[1.7]">{body}</p>
+                    <div className="px-5 pt-5 pb-6">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-[0.7rem] font-bold tracking-[0.16em] uppercase opacity-85">{d.kicker}</span>
+                        <span className={`text-[0.68rem] font-extrabold tracking-[0.14em] uppercase px-2.5 py-[3px] rounded-full ${d.status === 'Coming soon' ? 'bg-[#bdd349] text-[#1a1a1a]' : 'bg-[#1a1a1a] text-white'}`}>{d.status}</span>
+                      </div>
+                      <h3 className={`${DISPLAY} text-[2.6rem] mt-2 mb-2`}>{d.title}</h3>
+                      <p className="text-[0.95rem] leading-[1.6]">{d.body}</p>
+                      <span className="inline-block mt-4 font-display text-[1.4rem] tracking-[0.06em] border-b-2 border-current">{d.cta} →</span>
                     </div>
-                  </div>
+                  </article>
                 );
-                return href ? (
-                  <Link key={title} href={href} className="block hover:opacity-90 transition-opacity">
-                    {card}
-                  </Link>
-                ) : (
-                  <div key={title}>{card}</div>
-                );
+                return <Link key={d.title} href={d.href} className="group block">{card}</Link>;
               })}
             </div>
           </div>
         </section>
 
-        {/* Statement band — reveals a link through to the pilot city on
-            hover (pointer) or on scroll-into-view (touch). Sits between How it works
-            and the FAQ. */}
-        <StatementBand
-          cityHref={pilotCityHref}
-          cityLabel={pilotCityLabel}
-          cityCode={pilotCitySlug ? CITY_CODES[pilotCitySlug] : undefined}
-        />
+        {/* Live: entry point to the Portland artists */}
+        <section className="bg-[#bdd349]">
+          <div className={`${wrap} py-14 sm:py-16 flex flex-wrap items-center justify-between gap-x-10 gap-y-6`}>
+            <div className="min-w-0 flex-1 basis-[22rem]">
+              <h2 className={`${DISPLAY} text-[clamp(2.4rem,6vw,3.75rem)]`}>Artists in {pilot.name}</h2>
+              <p className="mt-3 max-w-[34rem] text-[1.05rem] leading-[1.6]">Painters, printmakers, ceramicists and more, are making work around you. Discover the artists, the artwork, and where to see it in person.</p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Link href={`${home}/artists`} className={`${btn} bg-[#1a1a1a] text-white`}>Meet the artists →</Link>
+              <Link href={`${home}?browse`} className={`${btn} border-2 border-[#1a1a1a]`}>Browse the artwork</Link>
+            </div>
+          </div>
+        </section>
 
-        {/* FAQ teaser — the three most common questions; the full list lives at /faq. */}
+        {/* Get involved: Vibra-style rows */}
+        <section id="involved" className="bg-[#1a1a1a] text-white scroll-mt-[70px]">
+          <div className={`${wrap} py-16 sm:py-20`}>
+            <Label light>How to get involved</Label>
+            <ul className="mt-10 border-t-2 border-[#333]">
+              {involved.map(w => (
+                <li key={w.who}>
+                  <Link
+                    href={w.href}
+                    className={`${DISPLAY} flex items-baseline justify-between gap-4 py-4 border-b-2 border-[#333] text-[clamp(2.2rem,7vw,4.5rem)] leading-none text-white transition-[padding,color] duration-200 hover:pl-5 hover:text-[#bdd349] focus-visible:pl-5 focus-visible:text-[#bdd349]`}
+                  >
+                    <span>{w.who}</span>
+                    <small className="font-[family-name:var(--font-inter)] normal-case tracking-normal text-[0.85rem] text-[#aaa] text-right">{w.cta} →</small>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-8 text-[1rem] text-[#ccc]">
+              Want Art Here in your city or neighborhood?{' '}
+              <Link href="/join/cities" className="text-[#bdd349] underline underline-offset-[3px]">Invite us</Link>.
+            </p>
+          </div>
+        </section>
+
+        {/* FAQs: question links straight to the answers, no accordion */}
         <section className="bg-white">
-          <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-14 sm:py-16">
-            <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#777] mb-6">
-              Questions?
+          <div className={`${wrap} py-14 sm:py-16`}>
+            <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4 mb-7">
+              <Label>FAQs</Label>
+              <Link href="/faq" className="text-[0.95rem] underline underline-offset-[3px] decoration-[#bbb] hover:opacity-60 transition-opacity">All questions →</Link>
             </div>
-            <FaqAccordion items={TEASER_IDS.map(faqItem)} idPrefix="teaser-" />
-            <div className="mt-6 text-right">
-              <Link href="/faq" className="text-[0.9rem] text-[#1a1a1a] underline underline-offset-[3px] decoration-[#bbb] hover:opacity-60 transition-opacity">
-                More questions →
-              </Link>
-            </div>
+            <ul className="flex flex-wrap gap-3">
+              {TEASER_IDS.map(faqItem).map(item => (
+                <li key={item.id}>
+                  <Link
+                    href={`/faq#${item.id}`}
+                    className="inline-block rounded-full border-2 border-[#1a1a1a] px-5 py-2.5 text-[1rem] font-medium hover:bg-[#1a1a1a] hover:text-white transition-colors"
+                  >
+                    {item.q}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 
-        {/* Follow Us — staying connected (social + email), as opposed to
-            Join Us below, which is about getting involved. Instagram mark
-            sits inline with the heading. */}
-        <section className="bg-[#1a1a1a]">
-          <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-14 sm:py-16">
-            <div className="flex items-center gap-5 mb-7">
-              <h2 className="font-heading text-[clamp(2.2rem,5vw,3.5rem)] font-bold tracking-[-0.02em] text-white">
-                Follow Us!
-              </h2>
-              <a
-                href={INSTAGRAM_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Art Here on Instagram"
-                className="shrink-0 hover:opacity-80 transition-opacity"
-              >
-                <InstagramIcon size={44} />
-              </a>
-            </div>
-            <StayInTouchForm />
-          </div>
-        </section>
+        <FollowBand
+          posts={instagramPosts}
+          profileUrl={INSTAGRAM_URL}
+          wrap={wrap}
+          heading={<Label light>Follow our progress</Label>}
+          signup={<StayInTouchForm />}
+        />
+      </main>
 
-        {/* Recent Instagram posts — light band between the two dark
-            sections. Curated at /admin/instagram; renders nothing while
-            there are no posts. */}
-        {instagramPosts.length > 0 && (
-          <section className="bg-white">
-            <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-12 sm:py-14">
-              <InstagramPostsRow posts={instagramPosts} profileUrl={INSTAGRAM_URL} />
-            </div>
-          </section>
-        )}
-
-        {/* Join Us + Get in Touch — one continuous black block. */}
-        <section id="contact" className="bg-[#1a1a1a] border-t border-[#2c2c2c] scroll-mt-[70px]">
-          <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-14 sm:py-16">
-            <h2 className="font-heading text-[clamp(2.2rem,5vw,3.5rem)] font-bold tracking-[-0.02em] text-white mb-7">
-              Join Us!
-            </h2>
-            <div className="flex flex-col gap-4">
-              <div className="flex items-baseline gap-4">
-                <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#555] w-36 shrink-0">Artists</span>
-                <Link href="/join/artists" className="text-[0.9rem] text-white underline underline-offset-[3px] decoration-[#555] hover:opacity-60 transition-opacity">Get featured →</Link>
-              </div>
-              <div className="flex items-baseline gap-4">
-                <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#555] w-36 shrink-0">Places</span>
-                <Link href="/join/places" className="text-[0.9rem] text-white underline underline-offset-[3px] decoration-[#555] hover:opacity-60 transition-opacity">Showcase your space →</Link>
-              </div>
-              <div className="flex items-baseline gap-4">
-                <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#555] w-36 shrink-0">Partners</span>
-                <Link href="/join/organizations" className="text-[0.9rem] text-white underline underline-offset-[3px] decoration-[#555] hover:opacity-60 transition-opacity">Collaborate with us →</Link>
-              </div>
-              <div className="flex items-baseline gap-4">
-                <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#555] w-36 shrink-0">Cities &amp; Neighborhoods</span>
-                <Link href="/join/cities" className="text-[0.9rem] text-white underline underline-offset-[3px] decoration-[#555] hover:opacity-60 transition-opacity">Invite Art Here →</Link>
-              </div>
-            </div>
-
-            <div id="get-in-touch" className="scroll-mt-[70px] mt-14">
-              <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#666] mb-5">Get in Touch</div>
-              <div className="font-heading text-[clamp(1.4rem,3vw,2rem)] font-bold">
-                <Link href="/contact" className="text-white no-underline border-b-2 border-white pb-0.5 hover:opacity-50 transition-opacity">
-                  hello@artishere.org
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <SiteFooter dark />
+      <div className="relative z-10"><SiteFooter dark /></div>
     </div>
   );
 }
