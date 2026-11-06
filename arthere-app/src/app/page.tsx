@@ -82,14 +82,14 @@ export default async function Home() {
         overlayImageUrl={data.city.logoOverlayImageUrl ?? '/images/arthere-portland-overlay.png'}
         maskImageUrl="/images/arthere-mask.png"
       >
-        <div className="px-5 pt-5 pb-5 sm:px-6 sm:pt-6 sm:pb-6">
-          <h1 className="font-display text-[2.6rem] sm:text-[3.1rem] leading-[0.98] tracking-[0.04em]">
+        <div className="px-5 pt-5 pb-5 sm:px-6 sm:pt-6 sm:pb-6 lg:px-9 lg:pt-9 lg:pb-8">
+          <h1 className="font-display text-[2.6rem] sm:text-[3.1rem] lg:text-[4.2rem] leading-[0.98] tracking-[0.04em]">
             Art Here puts local artists on the map
           </h1>
-          <p className="mt-3 text-[0.9rem] text-[#555] font-light leading-[1.6]">
+          <p className="mt-3 lg:mt-4 text-[0.9rem] lg:text-[1.1rem] text-[#555] font-light leading-[1.6]">
             A living directory of artists, the places that support them, and local happenings that bring communities together.
           </p>
-          <div className="mt-5 pt-3 border-t border-[#1a1a1a] flex items-baseline justify-between gap-4">
+          <div className="mt-5 lg:mt-7 pt-3 border-t border-[#1a1a1a] lg:text-[1rem] flex items-baseline justify-between gap-4">
             <Link href={`${home}?browse`} className="text-[0.9rem] underline underline-offset-[3px] decoration-[#bbb] hover:opacity-60 transition-opacity">Browse the artwork →</Link>
             <a href="#involved" className="text-[0.9rem] underline underline-offset-[3px] decoration-[#bbb] hover:opacity-60 transition-opacity">Get involved ↓</a>
           </div>

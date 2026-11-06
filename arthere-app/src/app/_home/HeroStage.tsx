@@ -27,7 +27,7 @@ export function HeroStage({
       <CityGrid showNames artists={artists} overlayImageUrl={overlayImageUrl} maskImageUrl={maskImageUrl} onFrozenChange={setFrozen} />
       <section className="relative pointer-events-none h-[100svh]" aria-label="Introduction">
         <div
-          className={`pointer-events-auto absolute left-4 right-4 bottom-[76px] sm:left-8 sm:right-auto sm:w-[400px] bg-[#f7f6f3] text-[#1a1a1a] transition-[opacity,transform] duration-300 ease-out ${
+          className={`pointer-events-auto absolute left-4 right-4 bottom-[76px] sm:left-8 sm:right-auto sm:w-[400px] lg:w-[540px] lg:bottom-auto lg:top-[112px] xl:w-[600px] bg-[#f7f6f3] text-[#1a1a1a] transition-[opacity,transform] duration-300 ease-out ${
             frozen ? 'opacity-0 translate-y-3 !pointer-events-none' : 'opacity-100'
           }`}
         >

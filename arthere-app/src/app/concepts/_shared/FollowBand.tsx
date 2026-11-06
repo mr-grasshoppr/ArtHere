@@ -19,8 +19,8 @@ interface Props {
 
 /**
  * One dark band that carries the whole "follow us" story: heading + Instagram
- * link + arrows share a header row, the posts line up on the same left edge and
- * run off the right edge so it reads as scrollable, then the email signup and
+ * link + arrows share a header row, the posts sit three across inside the page
+ * column (arrows scroll the rest), then the email signup and
  * contact line close the page above the footer.
  */
 export function FollowBand({ posts, profileUrl, wrap, heading, signup }: Props) {
@@ -56,7 +56,7 @@ export function FollowBand({ posts, profileUrl, wrap, heading, signup }: Props) 
         {posts.length > 0 && (
           <div
             ref={scroller}
-            className="flex gap-3 sm:gap-5 overflow-x-auto scroll-smooth snap-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden mr-[calc(50%-50vw)] pr-6"
+            className="flex gap-3 sm:gap-5 overflow-x-auto scroll-smooth snap-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden "
           >
             {posts.map((p, i) => (
               <a
@@ -64,9 +64,9 @@ export function FollowBand({ posts, profileUrl, wrap, heading, signup }: Props) 
                 href={p.permalink ?? profileUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="relative shrink-0 snap-start w-[62%] sm:w-[300px] aspect-[3/4] rounded-lg overflow-hidden bg-[#2a2a2a] hover:opacity-90 transition-opacity"
+                className="relative shrink-0 snap-start w-[62%] sm:w-[calc((100%-2.5rem)/3)] aspect-[3/4] rounded-lg overflow-hidden bg-[#2a2a2a] hover:opacity-90 transition-opacity"
               >
-                <Image src={p.imageUrl} alt={p.alt} fill sizes="(max-width: 640px) 62vw, 300px" className="object-cover scale-[1.01]" />
+                <Image src={p.imageUrl} alt={p.alt} fill sizes="(max-width: 640px) 62vw, 320px" className="object-cover scale-[1.01]" />
               </a>
             ))}
           </div>
