@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getJoinAudience } from '@/lib/join-audiences';
+import { JOIN_ACCENTS } from '@/lib/join-accent';
 import { AudienceStepForm } from './AudienceStepForm';
 
 /**
@@ -57,6 +58,7 @@ export function AudienceStage({ slug }: { slug: string }) {
 
   if (!audience || !stage) return null;
   const current = stage.slides[slide];
+  const accent = JOIN_ACCENTS[slug] ?? JOIN_ACCENTS.artists;
 
   return (
     <section
@@ -99,15 +101,20 @@ export function AudienceStage({ slug }: { slug: string }) {
         </div>
       )}
 
-      <div className="relative z-10 mx-4 my-6 rounded-2xl border border-[#2c2c2c] bg-[rgba(20,20,20,0.94)] p-6 lg:absolute lg:left-6 lg:top-6 lg:bottom-6 lg:m-0 lg:w-[460px] lg:overflow-auto">
+      <div style={{ '--accent': accent.color } as React.CSSProperties} className="relative z-10 mx-4 my-6 rounded-2xl border border-[#2c2c2c] border-t-4 border-t-[color:var(--accent)] bg-[rgba(20,20,20,0.94)] p-6 lg:absolute lg:left-6 lg:top-6 lg:bottom-6 lg:m-0 lg:w-[460px] lg:overflow-auto">
         {!sent && (
           <>
-            <p className="mb-2 text-[0.7rem] font-medium uppercase tracking-[0.14em] text-[#bdd349]">{stage.eyebrow}</p>
-            <h1
-              id="stage-heading"
-              className="font-display text-[clamp(2.4rem,4vw,3.2rem)] leading-[0.98] tracking-[0.03em] uppercase mb-2"
-            >
-              {stage.heading}
+            <p className="mb-1 text-[0.7rem] font-medium uppercase tracking-[0.14em] text-white/55">Join us</p>
+            <h1 id="stage-heading" className="mb-1">
+              <span
+                className="block font-display text-[clamp(4rem,7vw,5.5rem)] leading-[0.88] tracking-[0.02em] uppercase"
+                style={accent.wordGradient ? { backgroundImage: accent.wordGradient, WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' } : { color: accent.color }}
+              >
+                {accent.word}
+              </span>
+              <span className="mt-2 block font-display text-[1.7rem] leading-[1.02] tracking-[0.03em] uppercase text-white">
+                {stage.heading}
+              </span>
             </h1>
             <p className="mb-5 text-[0.92rem] font-light text-white/65">{stage.sub}</p>
           </>

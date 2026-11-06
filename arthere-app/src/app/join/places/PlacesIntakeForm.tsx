@@ -11,11 +11,11 @@ import {
 } from '@/lib/place-intake';
 
 const INPUT =
-  'w-full px-4 py-3 rounded-lg border border-transparent text-[0.95rem] text-[#1a1a1a] placeholder-[#c4c4c4] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#bdd349] transition-colors bg-white';
+  'w-full px-4 py-3 rounded-lg border border-transparent text-[0.95rem] text-[#1a1a1a] placeholder-[#c4c4c4] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] transition-colors bg-white';
 const LABEL = 'block text-[0.7rem] font-semibold text-[#aaa] mb-1.5 uppercase tracking-widest';
 const OPTIONAL = 'normal-case tracking-normal font-light text-[#aaa]';
 const BTN_PRIMARY =
-  'px-7 py-3 rounded-full bg-[#bdd349] text-[#1a1a1a] text-[0.95rem] font-medium transition-opacity hover:opacity-85 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#bdd349] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer';
+  'px-7 py-3 rounded-full bg-[var(--accent)] text-[#1a1a1a] text-[0.95rem] font-medium transition-opacity hover:opacity-85 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer';
 const BTN_GHOST =
   'px-6 py-3 rounded-full border border-[#555] text-white text-[0.95rem] font-medium transition-colors hover:border-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white cursor-pointer';
 
@@ -171,9 +171,9 @@ export function PlacesIntakeForm({ onStatus }: { onStatus?: (s: IntakeStatus) =>
               aria-current={i === step ? 'step' : undefined}
               className={`inline-flex h-8 w-8 items-center justify-center rounded-full border font-display text-[1.15rem] leading-none ${
                 i < step
-                  ? 'bg-[#07b26b] border-[#07b26b] text-white'
+                  ? 'bg-[#1a1a1a] border-[color:var(--accent)] text-[color:var(--accent)]'
                   : i === step
-                    ? 'bg-[#bdd349] border-[#bdd349] text-[#1a1a1a]'
+                    ? 'bg-[var(--accent)] border-[color:var(--accent)] text-[#1a1a1a]'
                     : 'bg-[#1a1a1a] border-[#333] text-[#888]'
               }`}
             >
@@ -220,12 +220,12 @@ export function PlacesIntakeForm({ onStatus }: { onStatus?: (s: IntakeStatus) =>
             </legend>
             <div className="flex flex-col gap-2.5">
               {SUPPORT_CRITERIA.map(c => (
-                <label key={c.id} className="flex items-start gap-3 cursor-pointer rounded-lg border border-[#333] bg-[#1a1a1a] p-3 has-[:checked]:border-[#bdd349] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#bdd349]">
+                <label key={c.id} className="flex items-start gap-3 cursor-pointer rounded-lg border border-[#333] bg-[#1a1a1a] p-3 has-[:checked]:border-[color:var(--accent)] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[color:var(--accent)]">
                   <input
                     type="checkbox"
                     checked={values.support.includes(c.id)}
                     onChange={() => toggle(c.id)}
-                    className="mt-1 h-4 w-4 shrink-0 accent-[#bdd349]"
+                    className="mt-1 h-4 w-4 shrink-0 accent-[color:var(--accent)]"
                   />
                   <span className="text-[0.9rem] text-[#eee] leading-[1.5]">{c.title}</span>
                 </label>
@@ -241,7 +241,7 @@ export function PlacesIntakeForm({ onStatus }: { onStatus?: (s: IntakeStatus) =>
               {ARTIST_WAYS.map(w => (
                 <label
                   key={w.id}
-                  className="cursor-pointer rounded-full border border-[#333] bg-[#1a1a1a] px-3.5 py-1.5 text-[0.85rem] text-[#eee] has-[:checked]:border-[#bdd349] has-[:checked]:bg-[#bdd349] has-[:checked]:text-[#1a1a1a] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#bdd349]"
+                  className="cursor-pointer rounded-full border border-[#333] bg-[#1a1a1a] px-3.5 py-1.5 text-[0.85rem] text-[#eee] has-[:checked]:border-[color:var(--accent)] has-[:checked]:bg-[var(--accent)] has-[:checked]:text-[#1a1a1a] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[color:var(--accent)]"
                 >
                   <input
                     type="checkbox"
