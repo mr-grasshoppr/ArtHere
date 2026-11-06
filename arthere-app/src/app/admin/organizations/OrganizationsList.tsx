@@ -178,23 +178,16 @@ export default function OrganizationsList({ places }: { places: PlaceRow[] }) {
                         {p.user?.email ?? "no page admin email"} ·{" "}
                         {p.neighborhood ?? "no neighborhood"}
                       </div>
-                    </div>
-
-                    <div className="hidden 2xl:flex items-center gap-6 text-xs text-[#bbb] flex-shrink-0">
-                      <span>{p._count.artists} artists</span>
-                      <span>{p._count.adminNotes} notes</span>
-                      <span title="Created">
-                        Created{" "}
-                        {new Date(p.createdAt).toLocaleDateString("en-US", {
-                          timeZone: "America/Los_Angeles",
-                        })}
-                      </span>
-                      <span title="Last edited by the org">
+                      <div className="text-xs text-[#bbb] truncate">
+                        {p._count.artists} {p._count.artists === 1 ? "artist" : "artists"} ·{" "}
+                        {p._count.adminNotes} {p._count.adminNotes === 1 ? "note" : "notes"} · Created{" "}
+                        {new Date(p.createdAt).toLocaleDateString("en-US", { timeZone: "America/Los_Angeles" })} ·{" "}
                         {p.lastPlaceEditAt
                           ? `Edited ${new Date(p.lastPlaceEditAt).toLocaleDateString("en-US", { timeZone: "America/Los_Angeles" })}`
                           : "Not edited"}
-                      </span>
+                      </div>
                     </div>
+
                     <div className="flex-shrink-0">
                       <OrgVisibilityToggle
                         placeId={p.id}
