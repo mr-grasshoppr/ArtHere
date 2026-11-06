@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { PreviewCard } from '@/components/PreviewCard';
@@ -19,6 +19,21 @@ import {
 } from '@/lib/map-regions';
 import type { GeoMapData, MapPin } from '@/lib/map-data';
 import { layoutCallouts } from '@/lib/pin-callouts';
+import { HappeningsDock, useHappeningsState } from '@/components/HappeningsDock';
+import { HappeningCard } from '@/components/HappeningCard';
+import {
+  AMBIENT_WINDOW,
+  HAPPENING_COLOR,
+  buildMockHappenings,
+  cardEvents,
+  describeHappenings,
+  eventPlaces,
+  inWindow,
+  passes,
+  sameNames,
+  windowOf,
+} from '@/lib/mock-happenings';
+import { adxHappenings } from '@/lib/preview-events';
 
 // OpenFreeMap: free vector tiles with no API key or usage cap. Overridable so
 // a Mapbox/MapTiler style can be swapped in without a code change.
@@ -103,6 +118,10 @@ interface Props extends GeoMapData {
   cityName: string;
   /** Centered over the top of the map area (the page's view switch), so an open panel never sits under it. */
   topControl?: ReactNode;
+  /** PROTOTYPE: show the happenings timeline over mock events (lib/mock-happenings.ts). */
+  mockHappenings?: boolean;
+  /** PREVIEW: use these happenings instead of generated mock ones (lib/preview-events.ts). */
+  previewHappenings?: boolean;
 }
 
 type RegionHover = { name: string; count: number; x: number; y: number };
@@ -121,7 +140,7 @@ type Selected = { id: string; name: string };
  * which cities exist or how finely they're divided, so subdividing a
  * satellite city later is a data change (see scripts/build-map-regions.mts).
  */
-export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topControl }: Props) {
+export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topControl, mockHappenings, previewHappenings }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const [regionHover, setRegionHover] = useState<RegionHover | null>(null);
@@ -142,6 +161,42 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
     if (bounds) map.fitBounds(bounds, { padding: { top: 64, bottom: 24, left: 24, right: 24 }, duration });
     else map.flyTo({ center: START_CENTER, zoom: START_ZOOM, duration });
   };
+
+  // ─── Happenings (prototype): which pins have something on in the picked days.
+  const { state: hap, update: setHap, preview, setPreview, ready: hapReady } = useHappeningsState();
+  const [dockH, setDockH] = useState(0);
+  // Names of the places inside the map's frame right now, for the timeline's pink bars.
+  const [viewNames, setViewNames] = useState<Set<string> | null>(null);
+  const happenings = useMemo(() => {
+    if (!mockHappenings) return [];
+    if (previewHappenings) return adxHappenings();
+    const subtitle = new Map(pins.map((p) => [p.name, p.subtitle]));
+    return buildMockHappenings([...subtitle.keys()].map((name) => ({ name, neighborhood: subtitle.get(name) })));
+  }, [mockHappenings, pins, previewHappenings]);
+  const filtered = useMemo(() => happenings.filter((e) => passes(e, hap)), [happenings, hap]);
+  const inView = useMemo(
+    () => (viewNames ? filtered.filter((e) => eventPlaces(e).some((n) => viewNames.has(n))) : filtered),
+    [filtered, viewNames]
+  );
+  const win = useMemo(() => (mockHappenings && hap.open ? windowOf(hap, preview) : null), [mockHappenings, hap, preview]);
+  const windowEvents = useMemo(() => (win ? filtered.filter((e) => inWindow(e, win)) : null), [filtered, win]);
+  const pinStyling = useMemo(() => {
+    const idsFor = (events: typeof filtered) => {
+      const names = new Set(events.flatMap(eventPlaces));
+      return pins.filter((p) => names.has(p.name)).map((p) => p.id);
+    };
+    if (windowEvents) return { lit: idsFor(windowEvents), amb: null };
+    // Nothing picked: ring whatever has something on in the next week.
+    if (mockHappenings && hap.open) return { lit: null, amb: idsFor(filtered.filter((e) => inWindow(e, AMBIENT_WINDOW))) };
+    return { lit: null, amb: null };
+  }, [windowEvents, filtered, pins, mockHappenings, hap.open]);
+  // The map's own handlers outlive renders, so they restyle through refs.
+  const litRef = useRef<{ lit: string[] | null; amb: string[] | null }>({ lit: null, amb: null });
+  const restyleRef = useRef<(() => void) | null>(null);
+  useEffect(() => {
+    litRef.current = pinStyling;
+    restyleRef.current?.();
+  }, [pinStyling]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -165,6 +220,19 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
       const { lng, lat } = map.getCenter();
       saveGeoCamera(citySlug, { center: [lng, lat], zoom: map.getZoom() });
     });
+    // Which places are inside the frame, reported (once a frame) as the map moves.
+    let viewFrame = 0;
+    const reportView = () => {
+      cancelAnimationFrame(viewFrame);
+      viewFrame = requestAnimationFrame(() => {
+        const b = map.getBounds();
+        const names = new Set(pins.filter((p) => b.contains([p.lng, p.lat])).map((p) => p.name));
+        setViewNames((prev) => (sameNames(prev, names) ? prev : names));
+      });
+    };
+    map.on('move', reportView);
+    map.on('resize', reportView);
+    reportView();
 
     // Fetched alongside the style rather than after it, and layers go on at
     // 'style.load' rather than 'load': 'load' waits for every basemap tile,
@@ -311,6 +379,42 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
           'circle-stroke-width': stopsExpression(PIN_STROKE),
         },
       });
+
+      // Prototype: with the happenings timeline open, pins with something on
+      // in the window grow and ring up; the rest shrink back and fade.
+      restyleRef.current = () => {
+        if (!map.getLayer('places-pin')) return;
+        const { lit, amb } = litRef.current;
+        const set = (prop: string, value: unknown) => map.setPaintProperty('places-pin', prop, value);
+        if (!lit && amb) {
+          // No days picked: pins with something on this week get a pink ring.
+          const isAmb: maplibregl.ExpressionSpecification = ['in', ['get', 'id'], ['literal', amb]];
+          set('circle-color', PLACE_PIN_COLOR);
+          set('circle-radius', stopsExpression(PIN_RADIUS));
+          set('circle-opacity', 1);
+          set('circle-stroke-opacity', 1);
+          set('circle-stroke-color', ['case', isAmb, HAPPENING_COLOR, PAGE_BG]);
+          set('circle-stroke-width', ['interpolate', ['linear'], ['zoom'], 9, ['case', isAmb, 1.5, 0.5], 12, ['case', isAmb, 2, 1], 16, ['case', isAmb, 2.5, 1.5]]);
+          return;
+        }
+        if (!lit) {
+          set('circle-color', PLACE_PIN_COLOR);
+          set('circle-radius', stopsExpression(PIN_RADIUS));
+          set('circle-opacity', 1);
+          set('circle-stroke-opacity', 1);
+          set('circle-stroke-color', PAGE_BG);
+          set('circle-stroke-width', stopsExpression(PIN_STROKE));
+          return;
+        }
+        const isLit: maplibregl.ExpressionSpecification = ['in', ['get', 'id'], ['literal', lit]];
+        set('circle-color', ['case', isLit, HAPPENING_COLOR, '#5a5a5a']);
+        set('circle-radius', ['interpolate', ['linear'], ['zoom'], 9, ['case', isLit, 5.5, 3], 12, ['case', isLit, 8, 4], 16, ['case', isLit, 11, 6]]);
+        set('circle-opacity', ['case', isLit, 1, 0.6]);
+        set('circle-stroke-opacity', ['case', isLit, 1, 0.6]);
+        set('circle-stroke-color', PAGE_BG);
+        set('circle-stroke-width', ['case', isLit, 1, 0.5]);
+      };
+      restyleRef.current();
 
       // Quadrant and city names, in the site's display face. HTML markers
       // rather than a symbol layer so they can use Bebas Neue, which the
@@ -527,6 +631,8 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
     return () => {
       cancelled = true;
       cancelAnimationFrame(pinFrame);
+      cancelAnimationFrame(viewFrame);
+      restyleRef.current = null;
       labels.clear();
       map.remove();
       mapRef.current = null;
@@ -570,7 +676,10 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
           <div ref={containerRef} className="w-full h-full" />
         </div>
         {topControl && <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20">{topControl}</div>}
-        <div className="absolute bottom-5 right-5 z-20">
+        {mockHappenings && hapReady && (
+          <HappeningsDock events={filtered} inView={inView} state={hap} update={setHap} preview={preview} setPreview={setPreview} onHeight={setDockH} />
+        )}
+        <div className="absolute right-5 z-20" style={{ bottom: dockH + 20 }}>
           <ZoomControls
             onZoomIn={() => mapRef.current?.zoomIn()}
             onZoomOut={() => mapRef.current?.zoomOut()}
@@ -579,11 +688,17 @@ export function GeoMap({ citySlug, cityName, regionStats, artists, pins, topCont
         </div>
       </div>
 
-      {shownPin ? (
+      {shownPin && hap.open && mockHappenings && !(stickyPin && shownPin.pin.id === stickyPin.pin.id) && cardEvents(filtered, shownPin.pin.name, win).length ? (
+        <HappeningCard event={cardEvents(filtered, shownPin.pin.name, win)[0]} place={shownPin.pin.name} x={shownPin.x} y={shownPin.y} />
+      ) : shownPin ? (
         <PreviewCard
           variant="place"
           label={shownPin.pin.name}
-          meta={shownPin.pin.subtitle}
+          meta={
+            windowEvents
+              ? describeHappenings(windowEvents.filter((e) => eventPlaces(e).includes(shownPin.pin.name))) || 'Nothing on in these days'
+              : shownPin.pin.subtitle
+          }
           imageUrl={shownPin.pin.imageUrl}
           x={shownPin.x}
           y={shownPin.y}
