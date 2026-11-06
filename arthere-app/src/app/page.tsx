@@ -57,7 +57,7 @@ export default async function Home() {
       body: 'A map and network of the places and organizations that support artists in your area.' },
     { title: 'Storytelling', kicker: 'Local Art Stories', tone: 'pink', status: 'In progress', href: '/stories', cta: 'Learn more',
       media: { kind: 'photo', src: '/images/Community_voices_MD.webp', pos: 'center' },
-      body: 'With our partners we interview residents and run surveys, to understand how to better support the arts. Stories and insights are on the way.' },
+      body: 'In collaboration with partners, we tell multi-media stories about the impact of the arts, grounded in our community-based research.' },
     { title: 'Events', kicker: 'Happenings', tone: 'ink', status: 'Coming soon', href: `${home}/events`, cta: 'Learn more',
       media: { kind: 'gif', src: '/images/happenings-timeline-map.gif', pos: 'center bottom' },
       body: 'A calendar of exhibitions, open studios and openings across the city, drawn from the places that host them.' },
@@ -90,7 +90,7 @@ export default async function Home() {
       >
         <div className="px-5 sm:px-10 pb-6 lg:pb-10 max-w-[1500px] mx-auto">
           <div className="text-[0.75rem] font-bold tracking-[0.22em] uppercase text-[#bdd349] mb-4">Art makes community</div>
-          <h1 className="font-display uppercase text-[clamp(2.8rem,min(9vw,13vh),9rem)] leading-[0.88] tracking-[0.01em] max-w-[18ch] [text-shadow:0_2px_24px_rgba(0,0,0,0.35)]">
+          <h1 className="font-display uppercase text-[clamp(2.6rem,min(8vw,11vh),7.5rem)] leading-[0.88] tracking-[0.01em] max-w-[18ch] [text-shadow:0_2px_24px_rgba(0,0,0,0.35)]">
             Art Here puts local artists on the map
           </h1>
           <div className="mt-6 flex flex-wrap items-end justify-between gap-x-10 gap-y-5">
@@ -148,7 +148,7 @@ export default async function Home() {
 
         {/* How we do it: live first and larger, coming-soon as slim rows */}
         <section className="bg-white">
-          <div className={`${wrap} py-12 sm:py-24`}>
+          <div className={`${wrap} pt-12 pb-9 sm:pt-24 sm:pb-10`}>
             <Label>How We Do It</Label>
             <div className="mt-8 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               {does.filter(d => d.status === 'Live').map(d => (

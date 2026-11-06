@@ -23,9 +23,14 @@ export function HeroStage({
   return (
     <>
       <CityGrid showNames artists={artists} overlayImageUrl={overlayImageUrl} maskImageUrl={maskImageUrl} onFrozenChange={setFrozen} />
-      <section className="relative pointer-events-none h-[100svh]" aria-label="Introduction">
+      {/* A shallow band of artwork, not a full screen: the page sheet starts below it.
+          Once the grid is held for browsing it needs the whole viewport, so the band grows. */}
+      <section
+        className={`relative pointer-events-none ${frozen ? 'h-[100svh]' : 'h-[clamp(520px,70svh,760px)]'}`}
+        aria-label="Introduction"
+      >
         <div
-          className={`absolute inset-x-0 bottom-0 pt-40 bg-gradient-to-t from-[#0a0a0a]/95 via-[#0a0a0a]/70 to-transparent text-white transition-[opacity,transform] duration-300 ease-out ${
+          className={`absolute inset-x-0 bottom-0 pt-40 bg-gradient-to-t from-[#0a0a0a]/95 via-[#0a0a0a]/80 to-transparent text-white transition-[opacity,transform] duration-300 ease-out ${
             frozen ? 'opacity-0 translate-y-3' : 'opacity-100'
           }`}
         >
