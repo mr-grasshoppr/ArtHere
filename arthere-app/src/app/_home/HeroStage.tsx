@@ -4,11 +4,9 @@ import { useState, type ReactNode } from 'react';
 import { CityGrid, type ArtistGridData } from '@/components/CityGrid';
 
 /**
- * The index opens on the real city artwork grid (CityGrid, untouched) and
- * lets the page itself scroll over it like a sheet of paper. The plate is
- * the only thing that sits on the artwork; once a visitor clicks the grid to
- * hold it (the city page's own gesture), the plate steps aside and the tiles
- * become links to the artists.
+ * Same behaviour as the index HeroStage (real CityGrid, page scrolls over it),
+ * but the intro is not a card: it is a display-scale headline anchored to the
+ * bottom of the screen over a soft ink gradient, so the artwork stays visible.
  */
 export function HeroStage({
   artists,
@@ -27,11 +25,11 @@ export function HeroStage({
       <CityGrid showNames artists={artists} overlayImageUrl={overlayImageUrl} maskImageUrl={maskImageUrl} onFrozenChange={setFrozen} />
       <section className="relative pointer-events-none h-[100svh]" aria-label="Introduction">
         <div
-          className={`pointer-events-auto absolute left-4 right-4 bottom-[76px] sm:left-8 sm:right-auto sm:w-[400px] lg:w-[540px] lg:bottom-auto lg:top-[112px] xl:w-[600px] bg-[#f7f6f3] text-[#1a1a1a] transition-[opacity,transform] duration-300 ease-out ${
-            frozen ? 'opacity-0 translate-y-3 !pointer-events-none' : 'opacity-100'
+          className={`absolute inset-x-0 bottom-0 pt-40 bg-gradient-to-t from-[#0a0a0a]/95 via-[#0a0a0a]/70 to-transparent text-white transition-[opacity,transform] duration-300 ease-out ${
+            frozen ? 'opacity-0 translate-y-3' : 'opacity-100'
           }`}
         >
-          {children}
+          <div className="pointer-events-auto">{children}</div>
         </div>
         <p
           className={`absolute right-4 sm:right-8 bottom-[76px] text-[0.7rem] tracking-[0.14em] uppercase text-white [text-shadow:0_1px_6px_rgba(0,0,0,0.6)] transition-opacity duration-300 ${
