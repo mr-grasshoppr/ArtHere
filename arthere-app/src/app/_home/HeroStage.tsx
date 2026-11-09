@@ -26,11 +26,11 @@ export function HeroStage({
       {/* A shallow band of artwork, not a full screen: the page sheet starts below it.
           Once the grid is held for browsing it needs the whole viewport, so the band grows. */}
       <section
-        className={`relative pointer-events-none ${frozen ? 'h-[100svh]' : 'h-[clamp(520px,70svh,760px)]'}`}
+        className={`relative pointer-events-none ${frozen ? 'h-[100svh]' : 'h-[clamp(620px,78svh,760px)] sm:h-[clamp(520px,70svh,760px)]'}`}
         aria-label="Introduction"
       >
         <div
-          className={`absolute inset-x-0 bottom-0 pt-40 bg-gradient-to-t from-[#0a0a0a]/95 via-[#0a0a0a]/80 to-transparent text-white transition-[opacity,transform] duration-300 ease-out ${
+          className={`absolute inset-x-0 bottom-0 pt-24 sm:pt-72 bg-gradient-to-t from-[#0a0a0a] from-35% via-[#0a0a0a]/90 via-60% to-transparent text-white transition-[opacity,transform] duration-300 ease-out ${
             frozen ? 'opacity-0 translate-y-3' : 'opacity-100'
           }`}
         >
