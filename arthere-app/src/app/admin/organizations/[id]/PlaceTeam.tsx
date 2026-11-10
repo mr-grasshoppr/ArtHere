@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { addPlaceTeamMember, removePlaceTeamMember } from "../actions";
+import { addPlaceTeamMember, previewPlaceTeamInvite, removePlaceTeamMember, sendPlaceInvite } from "../actions";
+import { InvitePreviewModal } from "@/components/admin/InvitePreviewModal";
+import type { InvitePreview } from "@/lib/magic-link";
 
 interface Member {
   userId: string;
@@ -21,6 +23,7 @@ export default function PlaceTeam({ placeId, initialTeam }: { placeId: string; i
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [preview, setPreview] = useState<InvitePreview | null>(null);
 
   function handleInvite(e: React.SyntheticEvent) {
     e.preventDefault();
@@ -29,11 +32,23 @@ export default function PlaceTeam({ placeId, initialTeam }: { placeId: string; i
     setError("");
     startTransition(async () => {
       try {
-        const added = await addPlaceTeamMember(placeId, clean);
-        setTeam((prev) => [...prev, { userId: added.userId, email: added.email, role: "member" }]);
+        const { userId, ...invite } = await addPlaceTeamMember(placeId, clean);
+        setTeam((prev) => (prev.some((m) => m.userId === userId) ? prev : [...prev, { userId, email: invite.email, role: "member" }]));
         setEmail("");
+        setPreview(invite);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Invite failed");
+      }
+    });
+  }
+
+  function handleResend(userId: string) {
+    setError("");
+    startTransition(async () => {
+      try {
+        setPreview(await previewPlaceTeamInvite(placeId, userId));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Couldn't prepare the invite");
       }
     });
   }
@@ -56,7 +71,7 @@ export default function PlaceTeam({ placeId, initialTeam }: { placeId: string; i
     <div className="space-y-3">
       <div>
         <h3 className="block text-xs text-[#888] uppercase tracking-wide mb-1">Other page admins</h3>
-        <p className="text-xs text-[#999]">They can edit this page too. Add one by email and they&rsquo;ll get a sign-in link, no password needed.</p>
+        <p className="text-xs text-[#999]">They can edit this page too. Add one by email, then preview and send their sign-in link (no password needed). Closing the preview still adds them, without emailing.</p>
       </div>
 
       <div className="space-y-1.5">
@@ -66,6 +81,15 @@ export default function PlaceTeam({ placeId, initialTeam }: { placeId: string; i
               <span className="text-[#1a1a1a] truncate">{m.email}</span>
                           </div>
             {m.role === "member" && (
+              <div className="flex items-center gap-3 flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => handleResend(m.userId)}
+                disabled={isPending}
+                className="text-xs text-[#bbb] hover:text-[#1a1a1a] transition-colors disabled:opacity-40"
+              >
+                Send invite
+              </button>
               <button
                 type="button"
                 onClick={() => handleRemove(m.userId)}
@@ -74,6 +98,7 @@ export default function PlaceTeam({ placeId, initialTeam }: { placeId: string; i
               >
                 {isPending && removingId === m.userId ? "Removing…" : "Remove"}
               </button>
+              </div>
             )}
           </div>
         ))}
@@ -100,6 +125,20 @@ export default function PlaceTeam({ placeId, initialTeam }: { placeId: string; i
         </button>
       </div>
       {error && <p className="text-xs text-red-500">{error}</p>}
+
+      {preview && (
+        <InvitePreviewModal
+          email={preview.email}
+          link={preview.link}
+          initialGreetingName={preview.greetingName}
+          initialSubject={preview.subject}
+          initialBodyText={preview.bodyText}
+          onClose={() => setPreview(null)}
+          onSend={async (subject, bodyText, greetingName) => {
+            await sendPlaceInvite(placeId, { email: preview.email, link: preview.link, subject, bodyText, greetingName });
+          }}
+        />
+      )}
     </div>
   );
 }

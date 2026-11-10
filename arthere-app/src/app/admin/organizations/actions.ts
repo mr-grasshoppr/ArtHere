@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin";
 import { MAX_OTHER_PAGE_ADMINS, PAGE_ADMIN_LIMIT_MESSAGE } from "@/lib/place-access";
-import { createPlaceInvitePreview, sendPlaceInviteEmail, sendPlaceMagicLink, type InvitePreview } from "@/lib/magic-link";
+import { createPlaceInvitePreview, sendPlaceInviteEmail, type InvitePreview } from "@/lib/magic-link";
 import { snapshotPlace } from "@/lib/profile-revision";
 import { slugify } from "@/lib/slug";
 import { joinNeighborhoodList, parseNeighborhoodList } from "@/lib/neighborhoods";
@@ -24,14 +24,25 @@ async function uniquePlaceSlug(name: string): Promise<string> {
 
 // Ensure the organization has a linked user account — required for the
 // magic-link edit flow (see /profile/setup, which reads place.userId). Creates
-// one from the email if the org doesn't have an owner yet.
+// one from the email if the org doesn't have an owner yet. If an owner is
+// already set and the email differs, the page is handed to the account for the
+// new email (created if needed) — the old account is left alone, it just loses
+// this page. Previously this silently no-opped once an owner existed, so
+// changing the Page Admin email in the editor never took effect.
 async function attachPlaceUser(placeId: string, email: string): Promise<string> {
-  const place = await prisma.place.findUnique({ where: { id: placeId }, select: { userId: true } });
-  if (place?.userId) return place.userId;
+  const place = await prisma.place.findUnique({
+    where: { id: placeId },
+    select: { userId: true, user: { select: { email: true } } },
+  });
+  if (place?.userId && place.user?.email.toLowerCase() === email) return place.userId;
 
   const user = await prisma.user.upsert({ where: { email }, create: { email }, update: {} });
   try {
-    await prisma.place.update({ where: { id: placeId }, data: { userId: user.id } });
+    await prisma.$transaction([
+      // The new owner can't also be listed as an "other page admin".
+      prisma.placeMember.deleteMany({ where: { placeId, userId: user.id } }),
+      prisma.place.update({ where: { id: placeId }, data: { userId: user.id } }),
+    ]);
   } catch {
     throw new Error("That email is already linked to another page. Use a different email.");
   }
@@ -178,7 +189,7 @@ export async function sendPlaceInvite(
 // equivalents, sending the invite directly rather than through the
 // editable-preview flow above (which is reserved for the first-time
 // onboarding message).
-export async function addPlaceTeamMember(placeId: string, email: string) {
+export async function addPlaceTeamMember(placeId: string, email: string): Promise<InvitePreview & { userId: string }> {
   await requireAdmin();
   const clean = email.trim().toLowerCase();
   if (!clean) throw new Error("An email is required");
@@ -200,9 +211,22 @@ export async function addPlaceTeamMember(placeId: string, email: string) {
     update: {},
   });
 
-  await sendPlaceMagicLink({ email: clean, placeId, placeName: place.name, variant: "welcome" });
+  // Nothing is emailed here: the admin previews/edits the message first (see
+  // InvitePreviewModal) and the send goes through sendPlaceInvite.
+  const preview = await createPlaceInvitePreview({ email: clean, placeId, placeName: place.name });
   revalidatePath(`/admin/organizations/${placeId}`);
-  return { userId: user.id, email: clean };
+  return { ...preview, userId: user.id };
+}
+
+// Re-open the invite preview for someone who is already a page admin (resend).
+export async function previewPlaceTeamInvite(placeId: string, userId: string): Promise<InvitePreview> {
+  await requireAdmin();
+  const member = await prisma.placeMember.findUnique({
+    where: { placeId_userId: { placeId, userId } },
+    include: { user: { select: { email: true } }, place: { select: { name: true } } },
+  });
+  if (!member) throw new Error("That person isn't a page admin");
+  return createPlaceInvitePreview({ email: member.user.email, placeId, placeName: member.place.name });
 }
 
 export async function removePlaceTeamMember(placeId: string, userId: string) {
