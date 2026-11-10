@@ -61,6 +61,7 @@ export const LINK_TYPE_OPTIONS: { value: string; label: string; placeholder: str
   { value: 'PATREON', label: 'Patreon', placeholder: 'https://patreon.com/you' },
   { value: 'INSTAGRAM', label: 'Instagram', placeholder: 'https://instagram.com/you' },
   { value: 'FACEBOOK', label: 'Facebook', placeholder: 'https://facebook.com/you' },
+  { value: 'VIDEO', label: 'Video', placeholder: 'https://youtube.com/… or https://vimeo.com/…' },
   { value: 'OTHER', label: 'Other', placeholder: 'https://…' },
 ];
 
@@ -132,4 +133,4 @@ export const PLACE_GROUP_HEADINGS: Record<PlaceRelationship, string> = {
 // the time: artist bios had a median of ~260 characters and all but one fit
 // in 1,000; place descriptions all fit in 700.
 export const BIO_MAX_CHARS = 1000;
-export const PLACE_DESCRIPTION_MAX_CHARS = 700;
+export const PLACE_DESCRIPTION_MAX_CHARS = 800;

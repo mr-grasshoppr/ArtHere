@@ -32,6 +32,7 @@ const LINK_TYPE_OPTIONS = [
   { value: "INSTAGRAM", label: "Instagram", placeholder: "https://instagram.com/you" },
   { value: "PATREON", label: "Patreon", placeholder: "https://patreon.com/you" },
   { value: "SHOP", label: "Shop", placeholder: "https://yourshop.com" },
+  { value: "VIDEO", label: "Video", placeholder: "https://youtube.com/… or https://vimeo.com/…" },
   { value: "OTHER", label: "Other", placeholder: "https://…" },
 ];
 
