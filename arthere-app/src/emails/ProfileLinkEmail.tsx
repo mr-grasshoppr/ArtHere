@@ -1,4 +1,4 @@
-import { Button, Heading, Hr, Section, Text } from '@react-email/components';
+import { Button, Heading, Hr, Img, Section, Text } from '@react-email/components';
 import * as React from 'react';
 import { EmailLayout, styles } from './EmailLayout';
 
@@ -14,6 +14,8 @@ interface ProfileLinkEmailProps {
    * it's sent without touching the surrounding template.
    */
   bodyText?: string;
+  /** Optional screenshot of their current page, shown between the message and the button. */
+  screenshotUrl?: string | null;
 }
 
 /**
@@ -28,7 +30,7 @@ export function profileLinkDefaultBodyText(noun: 'profile' | 'page' = 'profile')
   return `You can view and edit your Art Here ${noun} any time using the button below.`;
 }
 
-export function ProfileLinkEmail({ name, link, noun = 'profile', bodyText }: ProfileLinkEmailProps) {
+export function ProfileLinkEmail({ name, link, noun = 'profile', bodyText, screenshotUrl }: ProfileLinkEmailProps) {
   const paragraphs = (bodyText?.trim() || profileLinkDefaultBodyText(noun)).split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
   return (
     <EmailLayout preview={`View and edit your Art Here ${noun}`}>
@@ -38,6 +40,17 @@ export function ProfileLinkEmail({ name, link, noun = 'profile', bodyText }: Pro
       {paragraphs.map((p, i) => (
         <Text key={i} style={styles.paragraph}>{p}</Text>
       ))}
+
+      {screenshotUrl && (
+        <Section style={{ margin: '8px 0 16px' }}>
+          <Img
+            src={screenshotUrl}
+            alt={`Screenshot of your current Art Here ${noun}`}
+            width="100%"
+            style={{ width: '100%', maxWidth: '520px', height: 'auto', border: '1px solid #e5e5e5', borderRadius: '8px' }}
+          />
+        </Section>
+      )}
 
       <Section style={styles.buttonSection}>
         <Button style={styles.button} href={link}>

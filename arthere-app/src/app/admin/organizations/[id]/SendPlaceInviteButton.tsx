@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { previewPlaceInvite, sendPlaceInvite } from "../actions";
+import { previewPlaceInvite, sendPlaceInvite, capturePlaceScreenshot } from "../actions";
 import { InvitePreviewModal } from "@/components/admin/InvitePreviewModal";
 import type { InvitePreview } from "@/lib/magic-link";
 
@@ -62,8 +62,9 @@ export function SendPlaceInviteButton({ placeId, email }: { placeId: string; ema
             setPreview(null);
             if (wasSent) setState("sent");
           }}
-          onSend={async (subject, bodyText, greetingName) => {
-            await sendPlaceInvite(placeId, { email: preview.email, link: preview.link, subject, bodyText, greetingName });
+          onCaptureScreenshot={() => capturePlaceScreenshot(placeId)}
+          onSend={async (subject, bodyText, greetingName, screenshotUrl) => {
+            await sendPlaceInvite(placeId, { email: preview.email, link: preview.link, subject, bodyText, greetingName, screenshotUrl });
             setWasSent(true);
           }}
         />

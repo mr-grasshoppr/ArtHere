@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { addPlaceTeamMember, previewPlaceTeamInvite, removePlaceTeamMember, sendPlaceInvite } from "../actions";
+import { addPlaceTeamMember, previewPlaceTeamInvite, removePlaceTeamMember, sendPlaceInvite, capturePlaceScreenshot } from "../actions";
 import { InvitePreviewModal } from "@/components/admin/InvitePreviewModal";
 import type { InvitePreview } from "@/lib/magic-link";
 
@@ -134,8 +134,9 @@ export default function PlaceTeam({ placeId, initialTeam }: { placeId: string; i
           initialSubject={preview.subject}
           initialBodyText={preview.bodyText}
           onClose={() => setPreview(null)}
-          onSend={async (subject, bodyText, greetingName) => {
-            await sendPlaceInvite(placeId, { email: preview.email, link: preview.link, subject, bodyText, greetingName });
+          onCaptureScreenshot={() => capturePlaceScreenshot(placeId)}
+          onSend={async (subject, bodyText, greetingName, screenshotUrl) => {
+            await sendPlaceInvite(placeId, { email: preview.email, link: preview.link, subject, bodyText, greetingName, screenshotUrl });
           }}
         />
       )}

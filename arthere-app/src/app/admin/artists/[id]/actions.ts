@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { LinkType, PlaceRelationship } from "@prisma/client";
 import { createArtistInvitePreview, sendArtistInviteEmail, artistGreetingName, type InvitePreview } from "@/lib/magic-link";
 import { requireAdmin } from "@/lib/admin";
+import { captureProfileScreenshot } from "@/lib/profile-screenshot";
 import { snapshotArtist } from "@/lib/profile-revision";
 import { buildHireForText, parseMediumList } from "@/lib/artist-options";
 import { registerMediumOptions } from "@/lib/medium-options";
@@ -80,9 +81,16 @@ export async function previewArtistInvite(artistId: string, email: string): Prom
   return createArtistInvitePreview({ email: clean, artistId, artistName: artistGreetingName(artist) });
 }
 
+// Renders the live public page to an image so the admin can see it in the
+// invite preview before it's embedded in the email.
+export async function captureArtistScreenshot(artistId: string): Promise<string> {
+  await requireAdmin();
+  return captureProfileScreenshot("artist", artistId);
+}
+
 export async function sendArtistInvite(
   artistId: string,
-  preview: { email: string; link: string; subject: string; bodyText: string; greetingName?: string | null }
+  preview: { email: string; link: string; subject: string; bodyText: string; greetingName?: string | null; screenshotUrl?: string | null }
 ) {
   await requireAdmin();
   const artist = await prisma.artist.findUnique({ where: { id: artistId } });

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { previewArtistInvite, sendArtistInvite } from "./actions";
+import { previewArtistInvite, sendArtistInvite, captureArtistScreenshot } from "./actions";
 import { InvitePreviewModal } from "@/components/admin/InvitePreviewModal";
 import type { InvitePreview } from "@/lib/magic-link";
 
@@ -76,8 +76,9 @@ export function SendInviteButton({
             setPreview(null);
             if (wasSent) setState("sent");
           }}
-          onSend={async (subject, bodyText, greetingName) => {
-            await sendArtistInvite(artistId, { email: preview.email, link: preview.link, subject, bodyText, greetingName });
+          onCaptureScreenshot={() => captureArtistScreenshot(artistId)}
+          onSend={async (subject, bodyText, greetingName, screenshotUrl) => {
+            await sendArtistInvite(artistId, { email: preview.email, link: preview.link, subject, bodyText, greetingName, screenshotUrl });
             setWasSent(true);
           }}
         />

@@ -1,4 +1,4 @@
-import { Button, Heading, Hr, Section, Text } from '@react-email/components';
+import { Button, Heading, Hr, Img, Section, Text } from '@react-email/components';
 import * as React from 'react';
 import { EmailLayout, styles } from './EmailLayout';
 import { ARTIST_DRAFT_PROFILE_BODY_TEXT } from '@/lib/invite-templates';
@@ -19,6 +19,10 @@ interface MagicLinkEmailProps {
    * footer legal text stay standard).
    */
   bodyText?: string;
+  /** Optional screenshot of their current page, shown between the message and the button. */
+  screenshotUrl?: string | null;
+  /** What the button says to set up — 'profile' for artists (default), 'page' for places. */
+  noun?: 'profile' | 'page';
 }
 
 // Exported so lib/magic-link.ts can prefill the same copy into the
@@ -33,10 +37,10 @@ export const PLACE_MAGIC_LINK_DEFAULT_BODY_TEXT =
 
 const DEFAULT_BODY_TEXT = MAGIC_LINK_DEFAULT_BODY_TEXT;
 
-export function MagicLinkEmail({ artistName, link, bodyText }: MagicLinkEmailProps) {
+export function MagicLinkEmail({ artistName, link, bodyText, screenshotUrl, noun = 'profile' }: MagicLinkEmailProps) {
   const paragraphs = (bodyText?.trim() || DEFAULT_BODY_TEXT).split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
   return (
-    <EmailLayout preview="Set up your Art Here artist profile">
+    <EmailLayout preview={noun === 'page' ? 'Set up your Art Here page' : 'Set up your Art Here artist profile'}>
       <Heading style={styles.heading}>Welcome to Art Here</Heading>
 
       <Text style={styles.paragraph}>Hi {artistName?.trim() || 'there'},</Text>
@@ -44,9 +48,20 @@ export function MagicLinkEmail({ artistName, link, bodyText }: MagicLinkEmailPro
         <Text key={i} style={styles.paragraph}>{p}</Text>
       ))}
 
+      {screenshotUrl && (
+        <Section style={{ margin: '8px 0 16px' }}>
+          <Img
+            src={screenshotUrl}
+            alt={`Screenshot of your current Art Here ${noun}`}
+            width="100%"
+            style={{ width: '100%', maxWidth: '520px', height: 'auto', border: '1px solid #e5e5e5', borderRadius: '8px' }}
+          />
+        </Section>
+      )}
+
       <Section style={styles.buttonSection}>
         <Button style={styles.button} href={link}>
-          Set up your profile
+          Set up your {noun}
         </Button>
       </Section>
 

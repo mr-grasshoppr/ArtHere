@@ -139,7 +139,7 @@ export async function sendPlaceMagicLink({
           subject: 'View and edit your Art Here page',
         }
       : {
-          element: React.createElement(MagicLinkEmail, { artistName: placeName, link, bodyText: PLACE_MAGIC_LINK_DEFAULT_BODY_TEXT }),
+          element: React.createElement(MagicLinkEmail, { artistName: placeName, link, bodyText: PLACE_MAGIC_LINK_DEFAULT_BODY_TEXT, noun: 'page' as const }),
           subject: `Manage your Art Here page — ${placeName}`,
         };
 
@@ -202,15 +202,16 @@ export async function sendArtistInviteEmail({
   subject,
   bodyText,
   greetingName,
+  screenshotUrl,
   variant = 'welcome',
-}: SendArtistLinkParams & { link: string; subject: string; bodyText: string; greetingName?: string | null }): Promise<void> {
+}: SendArtistLinkParams & { link: string; subject: string; bodyText: string; greetingName?: string | null; screenshotUrl?: string | null }): Promise<void> {
   // greetingName lets the admin's edit in the invite-preview modal win over
   // the auto-derived first name (e.g. a nickname the artist actually goes by).
   const name = greetingName !== undefined ? greetingName : cleanGreetingName(artistName);
   const element =
     variant === 'returning'
-      ? React.createElement(ProfileLinkEmail, { name, link, noun: 'profile' as const, bodyText })
-      : React.createElement(MagicLinkEmail, { artistName: name, link, bodyText });
+      ? React.createElement(ProfileLinkEmail, { name, link, noun: 'profile' as const, bodyText, screenshotUrl })
+      : React.createElement(MagicLinkEmail, { artistName: name, link, bodyText, screenshotUrl });
 
   const { html, text } = await renderEmail(element);
   const { error } = await resend.emails.send({ from: FROM_ADDRESS, to: email, bcc: ADMIN_BCC, subject, html, text });
@@ -238,15 +239,16 @@ export async function sendPlaceInviteEmail({
   subject,
   bodyText,
   greetingName,
+  screenshotUrl,
   variant = 'welcome',
-}: SendPlaceLinkParams & { link: string; subject: string; bodyText: string; greetingName?: string | null }): Promise<void> {
+}: SendPlaceLinkParams & { link: string; subject: string; bodyText: string; greetingName?: string | null; screenshotUrl?: string | null }): Promise<void> {
   // greetingName lets the admin's edit in the invite-preview modal win over
   // the default full venue name (e.g. a shorter/friendlier name to greet by).
   const name = greetingName !== undefined ? greetingName : placeName;
   const element =
     variant === 'returning'
-      ? React.createElement(ProfileLinkEmail, { name, link, noun: 'page' as const, bodyText })
-      : React.createElement(MagicLinkEmail, { artistName: name, link, bodyText });
+      ? React.createElement(ProfileLinkEmail, { name, link, noun: 'page' as const, bodyText, screenshotUrl })
+      : React.createElement(MagicLinkEmail, { artistName: name, link, bodyText, screenshotUrl, noun: 'page' as const });
 
   const { html, text } = await renderEmail(element);
   const { error } = await resend.emails.send({ from: FROM_ADDRESS, to: email, bcc: ADMIN_BCC, subject, html, text });

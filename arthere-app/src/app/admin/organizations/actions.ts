@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin";
 import { MAX_OTHER_PAGE_ADMINS, PAGE_ADMIN_LIMIT_MESSAGE } from "@/lib/place-access";
+import { captureProfileScreenshot } from "@/lib/profile-screenshot";
 import { createPlaceInvitePreview, sendPlaceInviteEmail, type InvitePreview } from "@/lib/magic-link";
 import { snapshotPlace } from "@/lib/profile-revision";
 import { slugify } from "@/lib/slug";
@@ -173,9 +174,14 @@ export async function previewPlaceInvite(placeId: string, email: string): Promis
   return createPlaceInvitePreview({ email: clean, placeId, placeName: place.name });
 }
 
+export async function capturePlaceScreenshot(placeId: string): Promise<string> {
+  await requireAdmin();
+  return captureProfileScreenshot("place", placeId);
+}
+
 export async function sendPlaceInvite(
   placeId: string,
-  preview: { email: string; link: string; subject: string; bodyText: string; greetingName?: string | null }
+  preview: { email: string; link: string; subject: string; bodyText: string; greetingName?: string | null; screenshotUrl?: string | null }
 ) {
   await requireAdmin();
   const place = await prisma.place.findUnique({ where: { id: placeId } });

@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Hide the Next.js "N" badge in dev previews (dev-only; no effect in production).
+  devIndicators: false,
+  // Headless Chromium for profile screenshots must stay un-bundled.
+  serverExternalPackages: ["puppeteer-core", "@sparticuz/chromium"],
   // Friendly short links for outbound email/social — nicer than pasting the
   // full /contact?type=featured URL into a message. Add more here as other
   // intents need one.

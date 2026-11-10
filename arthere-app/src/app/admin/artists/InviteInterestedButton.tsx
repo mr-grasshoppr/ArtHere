@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { previewInterestedInvite } from "./interested-actions";
-import { sendArtistInvite } from "./[id]/actions";
+import { sendArtistInvite, captureArtistScreenshot } from "./[id]/actions";
 import { InvitePreviewModal } from "@/components/admin/InvitePreviewModal";
 import type { InvitePreview } from "@/lib/magic-link";
 
@@ -57,8 +57,9 @@ export function InviteInterestedButton({ submissionId }: { submissionId: string 
             setPreview(null);
             if (wasSent) setState("sent");
           }}
-          onSend={async (subject, bodyText, greetingName) => {
-            await sendArtistInvite(preview.artistId, { email: preview.email, link: preview.link, subject, bodyText, greetingName });
+          onCaptureScreenshot={() => captureArtistScreenshot(preview.artistId)}
+          onSend={async (subject, bodyText, greetingName, screenshotUrl) => {
+            await sendArtistInvite(preview.artistId, { email: preview.email, link: preview.link, subject, bodyText, greetingName, screenshotUrl });
             setWasSent(true);
             // Only now does this submission "move" from Not yet invited to
             // Invited — awaiting profile; refresh so the list picks that up.
