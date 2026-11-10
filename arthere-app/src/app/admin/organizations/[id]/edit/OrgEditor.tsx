@@ -262,7 +262,7 @@ export default function OrgEditor({
         </div>
         <div>
           <label className={labelCls}>Attribution</label>
-          <input type="text" value={quoteAttribution} onChange={(e) => setQuoteAttribution(e.target.value)} placeholder="Helen Keller" className={inputCls} />
+          <input type="text" value={quoteAttribution} onChange={(e) => setQuoteAttribution(e.target.value)} placeholder="First and last name" className={inputCls} />
         </div>
       </section>
 

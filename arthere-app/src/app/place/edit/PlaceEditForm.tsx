@@ -338,7 +338,7 @@ export default function PlaceEditForm({
           <input
             value={quoteAttribution}
             onChange={e => setQuoteAttribution(e.target.value)}
-            placeholder="Attribution, e.g. Helen Keller"
+            placeholder="Attribution, e.g. first and last name"
             className={`${FIELD} mb-6`}
           />
           <div className={LABEL}>About</div>

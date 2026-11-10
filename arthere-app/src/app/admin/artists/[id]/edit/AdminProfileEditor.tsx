@@ -215,7 +215,7 @@ export default function AdminProfileEditor({
             type="text"
             value={quoteAttribution}
             onChange={(e) => setQuoteAttribution(e.target.value)}
-            placeholder="e.g. a collector's name"
+            placeholder="First and last name"
             className={inputCls}
           />
         </div>
