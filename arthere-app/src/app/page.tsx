@@ -51,10 +51,10 @@ export default async function Home() {
   const does = [
     { title: 'Artist directory', kicker: 'Meet the artists', tone: 'green', status: 'Live', href: `${home}/artists`, cta: 'Browse artists',
       media: { kind: 'gif', src: '/images/artist-directory-demo.gif', pos: 'center top' },
-      body: 'Discover local artists, the work you love, and the galleries and organizations that support them.' },
+      body: 'Discover local artists, the work you love, and the places and organizations that support them.' },
     { title: 'Mapping', kicker: 'Places & networks', tone: 'chartreuse', status: 'Live', href: `${home}/map?view=network`, cta: 'Explore the map',
       media: { kind: 'gif', src: '/images/mapping-demo.gif', pos: 'center top' },
-      body: 'A map and network of the places and organizations that support artists in your area.' },
+      body: 'A map and network of the people, places, and organizations that make art happen near you.' },
     { title: 'Storytelling', kicker: 'Local Art Stories', tone: 'pink', status: 'In progress', href: '/stories', cta: 'Learn more',
       media: { kind: 'photo', src: '/images/Community_voices_MD.webp', pos: 'center' },
       body: 'In collaboration with partners, we tell multi-media stories about the impact of the arts, grounded in our community-based research.' },
@@ -89,13 +89,13 @@ export default async function Home() {
         maskImageUrl="/images/arthere-mask.png"
       >
         <div className="px-5 sm:px-10 pb-6 lg:pb-10 max-w-[1500px] mx-auto">
-          <div className="text-[0.75rem] font-bold tracking-[0.22em] uppercase text-[#bdd349] mb-4">Art makes community</div>
+          <div className="text-[0.75rem] font-bold tracking-[0.22em] uppercase text-[#bdd349] mb-4">Now live in Portland, OR</div>
           <h1 className="font-display uppercase text-[clamp(2.6rem,min(8vw,11vh),7.5rem)] leading-[0.88] tracking-[0.01em] max-w-[18ch] [text-shadow:0_2px_24px_rgba(0,0,0,0.35)]">
-            Art Here puts local artists on the map
+            Art Here reveals the artists near you.
           </h1>
           <div className="mt-6 flex flex-wrap items-end justify-between gap-x-10 gap-y-5">
             <p className="max-w-[34rem] text-[1rem] lg:text-[1.15rem] text-white/90 font-light leading-[1.6]">
-              A living directory of artists, the places that support them, and local happenings that bring communities together.
+              A living directory of local artists and the places that support them.
             </p>
             <div className="flex gap-3">
               <Link href={`${home}?browse`} className={`${btn} !px-4 !py-2.5 !text-[1.1rem] whitespace-nowrap sm:!text-[1.35rem] sm:!px-6 sm:!py-3 bg-[#bdd349] text-[#1a1a1a]`}>Browse the artwork<span className="hidden sm:inline"> →</span></Link>
