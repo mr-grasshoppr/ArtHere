@@ -7,6 +7,7 @@ import { cityNavFor } from '@/lib/city-nav';
 import { SiteFooter } from '@/components/SiteFooter';
 import { TechSupportLink } from '@/components/TechSupportLink';
 import { FadeImage } from '@/components/FadeImage';
+import { PhotoCredit } from '@/components/PhotoCredit';
 import { Lightbox } from '@/components/Lightbox';
 import { PLACE_RELATIONSHIP_ORDER, RELATIONSHIP_LABELS, linkTypeLabel } from '@/lib/artist-options';
 import { EventCard } from '@/components/EventCard';
@@ -169,6 +170,13 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
               </Lightbox>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* One attribution note under all the photos */}
+      {(place.heroImageUrl || place.galleryImages.length > 0) && (
+        <div className={`max-w-[980px] mx-auto px-5 sm:px-10 pb-10 ${place.galleryImages.length > 0 ? '-mt-7' : 'pt-3'}`}>
+          <PhotoCredit name={place.name} />
         </div>
       )}
 

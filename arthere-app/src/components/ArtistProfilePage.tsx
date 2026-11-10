@@ -7,6 +7,7 @@ import { cityNavFor } from '@/lib/city-nav';
 import { SiteFooter } from '@/components/SiteFooter';
 import { TechSupportLink } from '@/components/TechSupportLink';
 import { FadeImage } from '@/components/FadeImage';
+import { PhotoCredit } from '@/components/PhotoCredit';
 import { Lightbox } from '@/components/Lightbox';
 import { linkTypeLabel } from '@/lib/artist-options';
 import { galleryImagesOf } from '@/lib/artist-images';
@@ -258,6 +259,13 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals, p
               </Lightbox>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* One attribution note under all the photos */}
+      {(heroUrl || galleryImages.length > 0) && (
+        <div className={`max-w-[1200px] mx-auto px-5 pb-10 ${galleryImages.length > 0 ? '-mt-7' : 'pt-3'}`}>
+          <PhotoCredit name={artist.name} />
         </div>
       )}
 
