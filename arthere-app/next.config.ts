@@ -14,6 +14,14 @@ const nextConfig: NextConfig = {
       { source: "/getfeatured", destination: "/contact?type=featured", permanent: false },
       { source: "/partner", destination: "/contact?type=partner", permanent: false },
       { source: "/bringus", destination: "/contact?type=bring", permanent: false },
+      // Tualatin traffic signal box wraps call for artists (deadline
+      // 2026-12-02). Temporary (307) so it can be repointed or removed
+      // once the call closes.
+      { source: "/artbox", destination: "https://parks.tualatinoregon.gov/arts-culture/traffic-signal-box-wraps-call-to-artists/", permanent: false },
+      // /calls is the evergreen Instagram bio link: repoint it at whichever
+      // call for artists is currently being promoted. If more than one call
+      // is ever open at once, replace this with a real page listing them.
+      { source: "/calls", destination: "https://parks.tualatinoregon.gov/arts-culture/traffic-signal-box-wraps-call-to-artists/", permanent: false },
       // The "network" tab became one view of the "map" tab — keep old
       // bookmarks and shared links landing on the same graph.
       { source: "/cities/:slug/network", destination: "/cities/:slug/map?view=network", permanent: true },
