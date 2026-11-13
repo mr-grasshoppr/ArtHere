@@ -184,7 +184,7 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark', cityNav }
                 About Us
               </Link>
               <Link
-                href="/#contact"
+                href="/#involved"
                 className={`block px-5 py-[13px] text-[0.9rem] transition-colors border-b ${
                   isLight
                     ? 'text-[#444] border-[#f0f0f0] hover:bg-[#fafafa] hover:text-[#1a1a1a]'
@@ -251,6 +251,17 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark', cityNav }
                 onClick={closeAll}
               >
                 My Art Here
+              </Link>
+              <Link
+                href="/stories"
+                className={`block px-5 py-[13px] text-[0.9rem] transition-colors border-b ${
+                  isLight
+                    ? 'text-[#444] border-[#f0f0f0] hover:bg-[#fafafa] hover:text-[#1a1a1a]'
+                    : 'text-[#ccc] border-[#222] hover:bg-[#222] hover:text-white'
+                }`}
+                onClick={closeAll}
+              >
+                Stories
               </Link>
               <Link
                 href="/survey?src=nav_menu"
