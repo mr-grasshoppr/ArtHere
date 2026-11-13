@@ -7,8 +7,34 @@ import { NavBar } from '@/components/NavBar';
 import { SiteFooter } from '@/components/SiteFooter';
 import { cityNavFor } from '@/lib/city-nav';
 import { EventsCallout } from '@/components/EventsCallout';
-import { EventCard } from '@/components/EventCard';
-import { pastPublicEvents, upcomingPublicEvents } from '@/lib/event-queries';
+import { HappeningsExplainer } from '@/components/HappeningsExplainer';
+import { HappeningsBoard, type BoardEvent } from '@/components/HappeningsBoard';
+import { pastPublicEvents, upcomingPublicEvents, type PublicEvent } from '@/lib/event-queries';
+import { eventCoverUrl } from '@/lib/event-cover-fallback';
+import { EVENT_TIMEZONE, utcToZoned } from '@/lib/events';
+
+const timeFmt = new Intl.DateTimeFormat('en-US', { timeZone: EVENT_TIMEZONE, hour: 'numeric', minute: '2-digit' });
+const throughFmt = new Intl.DateTimeFormat('en-US', { timeZone: EVENT_TIMEZONE, weekday: 'short', month: 'short', day: 'numeric' });
+
+function toBoardEvent(e: PublicEvent, slug: string, past: boolean): BoardEvent {
+  const startDay = utcToZoned(e.startsAt).date;
+  const endDay = e.endsAt ? utcToZoned(e.endsAt).date : startDay;
+  return {
+    id: e.id,
+    name: e.name,
+    startDay,
+    endDay,
+    time: e.allDay ? '' : timeFmt.format(e.startsAt),
+    through: e.endsAt && endDay !== startDay ? `Through ${throughFmt.format(e.endsAt)}` : '',
+    placeName: e.place.name,
+    href: e.linkUrl ?? `/cities/${slug}/places/${e.place.slug}`,
+    external: !!e.linkUrl,
+    price: e.price,
+    audience: e.audience,
+    past,
+    coverUrl: eventCoverUrl(e),
+  };
+}
 
 // ISR: events are approved in admin; regenerate at most every 30s
 export const revalidate = 30;
@@ -46,27 +72,12 @@ export default async function CityEventsPage({ params }: { params: Promise<{ slu
   return (
     <div className="min-h-screen bg-white text-[#1a1a1a] pt-14">
       <NavBar activeCitySlug={slug} theme="light" cityNav={cityNavFor(slug, scope.cityDisplayName)} />
-      <EventsCallout submitHref={`/cities/${slug}/events/submit`} citySlug={slug} />
-      <main className={`max-w-[980px] mx-auto px-5 sm:px-10 pt-10 ${pastEvents.length > 0 ? 'pb-4' : 'pb-24'}`}>
-        {events.length === 0 ? (
-          <p className="text-[#888]">No upcoming events are listed right now. Check back soon.</p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-10">
-            {events.map(e => <EventCard key={e.id} event={e} showPlace citySlug={slug} />)}
-          </div>
-        )}
-      </main>
-      {pastEvents.length > 0 && (
-        // Same light block color as the home page's "about" section.
-        <section className="bg-[#f7f6f3] mt-14">
-          <div className="max-w-[980px] mx-auto px-5 sm:px-10 py-10 pb-16">
-            <div className="text-[0.75rem] uppercase tracking-[0.18em] text-[#999] mb-6">Past events</div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-10">
-              {pastEvents.map(e => <EventCard key={e.id} event={e} showPlace citySlug={slug} />)}
-            </div>
-          </div>
-        </section>
-      )}
+      <EventsCallout submitHref={`/cities/${slug}/events/submit`} />
+      <HappeningsBoard
+        events={[...events.map(e => toBoardEvent(e, slug, false)), ...pastEvents.map(e => toBoardEvent(e, slug, true))]}
+        submitHref={`/cities/${slug}/events/submit`}
+      />
+      <HappeningsExplainer />
       <SiteFooter />
     </div>
   );
