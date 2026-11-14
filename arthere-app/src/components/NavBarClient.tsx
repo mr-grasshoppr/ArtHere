@@ -261,7 +261,7 @@ export function NavBarClient({ cities, activeCitySlug, theme = 'dark', cityNav }
                 }`}
                 onClick={closeAll}
               >
-                Stories
+                Art Stories
               </Link>
               <Link
                 href="/survey?src=nav_menu"
