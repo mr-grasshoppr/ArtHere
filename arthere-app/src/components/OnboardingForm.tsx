@@ -573,7 +573,7 @@ export default function OnboardingForm({
                 />
                 <select
                   value={rel.relationship}
-                  onChange={(e) => setPlaces((prev) => prev.map((p, idx) => idx === i ? { ...p, relationship: e.target.value, relationshipLabel: "" } : p))}
+                  onChange={(e) => setPlaces((prev) => prev.map((p, idx) => idx === i ? { ...p, relationship: e.target.value, relationshipLabel: p.relationship === "OTHER" || e.target.value === "OTHER" ? "" : p.relationshipLabel } : p))}
                   className="px-3 py-3 rounded-lg border border-[#e8e8e8] text-sm text-[#555] bg-white focus:outline-none focus:border-[#1a1a1a] transition-colors cursor-pointer"
                 >
                   {RELATIONSHIP_TYPES.map((rt) => (
@@ -589,11 +589,11 @@ export default function OnboardingForm({
                   >×</button>
                 )}
               </div>
-              {rel.relationship === "OTHER" && (
+              {(
                 <input
                   value={rel.relationshipLabel}
                   onChange={(e) => setPlaces((prev) => prev.map((p, idx) => idx === i ? { ...p, relationshipLabel: e.target.value } : p))}
-                  placeholder="Describe your connection…"
+                  placeholder={rel.relationship === "OTHER" ? "Describe your connection…" : "Your title here (optional), e.g. Founder"}
                   className={`${FIELD} text-sm ml-0`}
                 />
               )}

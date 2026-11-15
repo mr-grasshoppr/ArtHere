@@ -430,6 +430,44 @@ enum PlaceRelationship {
   OTHER
 }
 
+// Append-only history of every affiliation between an artist and a place (or
+// a venue typed by name): when a role was added, retitled, confirmed or
+// removed, and by whom. ArtistPlace rows are rewritten and deleted freely, so
+// this is the permanent record — it answers "were they ever affiliated?" and
+// "how did their role here change?" (student → member → instructor).
+// Ids are plain strings, not foreign keys, and names are snapshots, so the
+// history survives an artist or place being deleted.
+model AffiliationHistory {
+  id           String            @id @default(cuid())
+  artistId     String
+  artistName   String
+  // Null for a venue that has no page yet; venueName/placeName hold the name.
+  placeId      String?
+  placeName    String
+  relationship PlaceRelationship
+  title        String?
+  action       AffiliationAction
+  source       AffiliationSource
+  at           DateTime          @default(now())
+
+  @@index([artistId, at])
+  @@index([placeId, at])
+}
+
+enum AffiliationAction {
+  ADDED
+  REMOVED
+  TITLE_CHANGED
+  CONFIRMED
+}
+
+enum AffiliationSource {
+  ARTIST
+  PLACE
+  ADMIN
+  DECLINE
+}
+
 // ─── Artist Intake (structured data for search) ───────────────────────────────
 
 model ArtistIntake {

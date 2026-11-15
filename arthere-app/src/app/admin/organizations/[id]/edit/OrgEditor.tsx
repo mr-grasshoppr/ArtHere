@@ -1,5 +1,6 @@
 "use client";
 
+import { PlaceArtistPicker, type ConnectedArtist } from "@/components/PlaceArtistPicker";
 import { PlaceArtistNamesEditor, type ListedNamesState } from "@/components/PlaceArtistNamesEditor";
 import { groupsFromRows, groupsToPayload } from "@/lib/place-listed-artists";
 import type { PlaceRelationship } from "@prisma/client";
@@ -15,7 +16,7 @@ import { focalStyle, PLACE_HERO_OBJECT_POSITION, type Focal } from "@/lib/focal-
 import { parseNeighborhoodList, joinNeighborhoodList } from "@/lib/neighborhoods";
 import type { FramingValue } from "@/components/FramingEditor";
 import { resizeImageForUpload } from "@/lib/client-image-resize";
-import { LINK_TYPE_OPTIONS, PLACE_DESCRIPTION_MAX_CHARS } from "@/lib/artist-options";
+import { LINK_TYPE_OPTIONS, PLACE_DESCRIPTION_MAX_CHARS, PLACE_GROUP_HEADINGS } from "@/lib/artist-options";
 import { CharCounter } from "@/components/CharCounter";
 
 type Link = { type: string; url: string; label?: string };
@@ -38,6 +39,7 @@ type Org = {
   unresolvedAddresses: string[];
   showOnMap: boolean;
   listedArtists: { name: string; relationship: PlaceRelationship; relationshipLabel: string | null }[];
+  connectedArtists: ConnectedArtist[];
 };
 
 const GALLERY_MAX = 3;
@@ -96,6 +98,7 @@ export default function OrgEditor({
   const [locations, setLocations] = useState<LocationRow[]>(place.locations);
   const [showOnMap, setShowOnMap] = useState(place.showOnMap);
   const [listedNames, setListedNames] = useState<ListedNamesState>(() => groupsFromRows(place.listedArtists));
+  const [connected, setConnected] = useState<ConnectedArtist[]>(place.connectedArtists);
 
   // Images the community-card picker can choose from: the hero, every
   // gallery photo, and (deduped) whatever's currently set as the thumbnail —
@@ -378,6 +381,55 @@ export default function OrgEditor({
       {/* Artists */}
       <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
         <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Artists</h2>
+        <div className="pb-2">
+          <p className="text-xs text-[#888] mb-2">Connect artists who already have an Art Here profile:</p>
+          <PlaceArtistPicker
+            placeId={place.id}
+            connectedSlugs={connected.map((a) => a.slug)}
+            onAdded={(a) => setConnected((prev) => [...prev, a])}
+            fieldClassName={inputCls}
+          />
+          {connected.length > 0 && (
+            <ul className="mt-3 space-y-1">
+              {connected.map((a) => (
+                <li key={a.connectionId} className="flex items-baseline gap-2 text-sm text-[#444]">
+                  <span>{a.name}</span>
+                  <span className="text-xs text-[#aaa]">{a.relationshipLabel?.trim() || (a.relationship === "OTHER" ? "" : PLACE_GROUP_HEADINGS[a.relationship])}</span>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const next = window.prompt(`Title for ${a.name} (e.g. Founder). Leave blank for none.`, a.relationshipLabel ?? "");
+                      if (next === null) return;
+                      const res = await fetch("/api/place/artist-connections", {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ id: a.connectionId, relationshipLabel: next }),
+                      });
+                      const data = await res.json().catch(() => ({}));
+                      if (res.ok) setConnected((prev) => prev.map((x) => (x.connectionId === a.connectionId ? { ...x, relationshipLabel: data.relationshipLabel } : x)));
+                      else alert(data.error || "Couldn't save that title — please try again.");
+                    }}
+                    className="ml-auto text-xs text-[#bbb] hover:text-[#1a1a1a]"
+                  >
+                    Edit title
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (!confirm(`Remove ${a.name}'s connection to this page?`)) return;
+                      const res = await fetch(`/api/place/artist-connections?id=${a.connectionId}`, { method: "DELETE" });
+                      if (res.ok) setConnected((prev) => prev.filter((x) => x.connectionId !== a.connectionId));
+                      else alert("Couldn't remove that connection — please try again.");
+                    }}
+                    className="text-xs text-[#bbb] hover:text-red-600"
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
         <PlaceArtistNamesEditor value={listedNames} onChange={setListedNames} fieldClassName={inputCls} />
       </section>
 

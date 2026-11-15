@@ -16,6 +16,7 @@ import { RELATIONSHIP_LABELS, LINK_TYPE_OPTIONS, PLACE_DESCRIPTION_MAX_CHARS } f
 import { CharCounter } from '@/components/CharCounter';
 import Link from 'next/link';
 import { PlaceInviteArtists } from '@/components/PlaceInviteArtists';
+import { PlaceArtistPicker } from '@/components/PlaceArtistPicker';
 import { PlaceArtistNamesEditor, type ListedNamesState } from '@/components/PlaceArtistNamesEditor';
 import { groupsFromRows, groupsToPayload } from '@/lib/place-listed-artists';
 
@@ -206,6 +207,23 @@ export default function PlaceEditForm({
   async function handleGalleryReorder(next: string[]) {
     setGalleryImages(next);
     await persistAll({ galleryImages: next });
+  }
+
+  async function handleEditTitle(a: Artist) {
+    const next = window.prompt(`Title for ${a.name} on your page (e.g. Founder). Leave blank for none.`, a.relationshipLabel ?? '');
+    if (next === null) return;
+    try {
+      const res = await fetch('/api/place/artist-connections', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: a.connectionId, relationshipLabel: next }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'failed');
+      setArtists(prev => prev.map(x => (x.connectionId === a.connectionId ? { ...x, relationshipLabel: data.relationshipLabel } : x)));
+    } catch (e) {
+      alert(e instanceof Error && e.message !== 'failed' ? e.message : "Couldn't save that title — please try again.");
+    }
   }
 
   async function handleRemoveArtistConnection(connectionId: string) {
@@ -419,22 +437,39 @@ export default function PlaceEditForm({
         <PlaceArtistNamesEditor value={listedNames} onChange={setListedNames} fieldClassName={FIELD} />
       </div>
 
+      {/* Connect artists who are already on Art Here — search, don't type */}
+      <div className="max-w-[980px] mx-auto px-5 sm:px-10 py-8 border-b border-[#f0f0f0]">
+        <div className={LABEL}>Add an artist who&rsquo;s on Art Here</div>
+        <PlaceArtistPicker
+          connectedSlugs={artists.map(a => a.slug)}
+          onAdded={a => setArtists(prev => [...prev, a])}
+          fieldClassName={FIELD}
+        />
+      </div>
+
       {/* Artists connected through their own Art Here profile */}
       {artists.length > 0 && (
         <div className="max-w-[980px] mx-auto px-5 sm:px-10 py-8 border-b border-[#f0f0f0]">
           <div className={LABEL}>Artists with an Art Here profile</div>
           <div className="flex flex-col gap-2">
             {artists.map(a => {
-              const label = a.relationship === 'OTHER' ? a.relationshipLabel : RELATIONSHIP_LABELS[a.relationship];
+              const label = a.relationshipLabel?.trim() || (a.relationship === 'OTHER' ? null : RELATIONSHIP_LABELS[a.relationship]);
               return (
                 <div key={a.connectionId} className="flex items-baseline gap-2">
                   <span className="text-[0.85rem] text-[#444]">{a.name}</span>
                   {label && <span className="text-[0.78rem] text-[#aaa] font-light">{label}</span>}
                   <button
                     type="button"
+                    onClick={() => handleEditTitle(a)}
+                    className="ml-auto text-[0.75rem] text-[#bbb] hover:text-[#1a1a1a] transition-colors"
+                  >
+                    Edit title
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => handleRemoveArtistConnection(a.connectionId)}
                     disabled={removingConnectionId === a.connectionId}
-                    className="ml-auto text-[0.75rem] text-[#bbb] hover:text-red-600 transition-colors disabled:opacity-40"
+                    className="text-[0.75rem] text-[#bbb] hover:text-red-600 transition-colors disabled:opacity-40"
                   >
                     {removingConnectionId === a.connectionId ? 'Removing…' : 'Remove'}
                   </button>
@@ -443,7 +478,7 @@ export default function PlaceEditForm({
             })}
           </div>
           <p className="text-[0.7rem] text-[#ccc] mt-3">
-            These artists connected themselves to your page. If one doesn&rsquo;t belong, remove it — this can&rsquo;t be undone from here.
+            These artists are connected to your page. If one doesn&rsquo;t belong, remove it — this can&rsquo;t be undone from here.
           </p>
         </div>
       )}

@@ -26,6 +26,7 @@ export default async function AdminOrgEditPage({ params }: { params: Promise<{ i
     include: {
       user: { select: { email: true, emailVerified: true } },
       listedArtists: { orderBy: { sortOrder: "asc" } },
+      artists: { include: { artist: { select: { name: true, slug: true } } }, orderBy: { createdAt: "asc" } },
       links: { orderBy: { sortOrder: "asc" } },
       locations: { orderBy: { sortOrder: "asc" } },
       adminNotes: { where: { placeId: id }, orderBy: { createdAt: "desc" } },
@@ -174,6 +175,7 @@ export default async function AdminOrgEditPage({ params }: { params: Promise<{ i
               locations: place.locations.map((l) => ({ label: l.label ?? "", streetAddress: l.streetAddress })),
               unresolvedAddresses: place.locations.filter((l) => l.lat == null).map((l) => l.streetAddress),
               showOnMap: place.showOnMap,
+              connectedArtists: place.artists.map((r) => ({ connectionId: r.id, slug: r.artist.slug, name: r.artist.name, relationship: r.relationship, relationshipLabel: r.relationshipLabel })),
               listedArtists: place.listedArtists.map((a) => ({ name: a.name, relationship: a.relationship, relationshipLabel: a.relationshipLabel })),
             }}
             neighborhoodOptions={neighborhoodOptions}

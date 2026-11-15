@@ -466,7 +466,7 @@ export default function AdminProfileEditor({
                 <select
                   value={rel.relationship}
                   onChange={(e) =>
-                    setPlaceRelations((prev) => prev.map((r, idx) => idx === i ? { ...r, relationship: e.target.value, relationshipLabel: "" } : r))
+                    setPlaceRelations((prev) => prev.map((r, idx) => idx === i ? { ...r, relationship: e.target.value, relationshipLabel: r.relationship === "OTHER" || e.target.value === "OTHER" ? "" : r.relationshipLabel } : r))
                   }
                   className={selectCls}
                 >
@@ -491,12 +491,12 @@ export default function AdminProfileEditor({
                   className={`${inputCls} text-sm`}
                 />
               )}
-              {rel.relationship === "OTHER" && (
+              {(
                 <input
                   type="text"
                   value={rel.relationshipLabel ?? ""}
                   onChange={(e) => setPlaceRelations((prev) => prev.map((r, idx) => idx === i ? { ...r, relationshipLabel: e.target.value } : r))}
-                  placeholder="Describe the connection…"
+                  placeholder={rel.relationship === "OTHER" ? "Describe the connection…" : "Title here (optional), e.g. Founder"}
                   className={`${inputCls} text-sm`}
                 />
               )}

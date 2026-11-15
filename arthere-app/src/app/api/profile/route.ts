@@ -11,6 +11,7 @@ import { normalizeNeighborhood } from "@/lib/neighborhoods";
 import { parseMediumList, BIO_MAX_CHARS } from "@/lib/artist-options";
 import { registerMediumOptions } from "@/lib/medium-options";
 import { normalizeLinkUrl } from "@/lib/social-link";
+import { recordAffiliationDiff } from "@/lib/affiliation-history-server";
 
 // GET — fetch current user's artist profile
 export async function GET() {
@@ -186,6 +187,11 @@ export async function POST(req: NextRequest) {
   // link. Near-but-inexact name matches are disambiguated on the client (the
   // venue field offers existing venues as you type) before we ever get here.
   if (Array.isArray(placeRelations)) {
+    // Remember the rows we're about to rewrite, for the affiliation history.
+    const priorRows = await prisma.artistPlace.findMany({
+      where: { artistId: artist.id },
+      select: { placeId: true, venueName: true, relationshipLabel: true, relationship: true },
+    });
     await prisma.artistPlace.deleteMany({ where: { artistId: artist.id } });
 
     type Resolved = {
@@ -244,6 +250,13 @@ export async function POST(req: NextRequest) {
         })),
       });
     }
+    // Permanent record of what this save added, retitled or removed.
+    await recordAffiliationDiff(
+      { id: artist.id, name: artist.name },
+      "ARTIST",
+      priorRows,
+      deduped.map((r) => ({ placeId: r.placeId, venueName: r.venueName, relationship: r.relationship, relationshipLabel: r.relationshipLabel })),
+    );
   }
 
   // Update other connections — affiliations outside the artist's local area,

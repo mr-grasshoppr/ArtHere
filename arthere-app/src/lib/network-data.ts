@@ -24,6 +24,7 @@ export async function getNetworkData(slug: string, scope: CityScope) {
   const nodes: NetworkNode[] = [];
   const links: NetworkLink[] = [];
   const seenPlaces = new Set<string>();
+  const seenLinks = new Set<string>();
 
   for (const artist of cityArtists) {
     const artistId = `artist-${artist.slug}`;
@@ -72,6 +73,10 @@ export async function getNetworkData(slug: string, scope: CityScope) {
         });
       }
 
+      // Several roles at one place are several rows but one connection.
+      const linkKey = `${artistId}>${placeId}`;
+      if (seenLinks.has(linkKey)) continue;
+      seenLinks.add(linkKey);
       links.push({ source: artistId, target: placeId });
     }
   }

@@ -1,5 +1,6 @@
 "use server";
 
+import { recordAffiliationDiff } from "@/lib/affiliation-history-server";
 import { prisma } from "@/lib/db";
 import { LinkType, PlaceRelationship } from "@prisma/client";
 import { createArtistInvitePreview, sendArtistInviteEmail, artistGreetingName, type InvitePreview } from "@/lib/magic-link";
@@ -173,6 +174,10 @@ export async function updateArtistProfile(artistId: string, data: ProfileInput) 
 
   // Replace all place relations — the editor now manages both real-place
   // (placeId) rows and free-text (venueName) rows for venues with no page yet.
+  const priorRows = await prisma.artistPlace.findMany({
+    where: { artistId },
+    select: { placeId: true, venueName: true, relationshipLabel: true, relationship: true },
+  });
   await prisma.artistPlace.deleteMany({ where: { artistId } });
   const validRelations = data.placeRelations.filter(
     (r) => (r.placeId?.trim() || r.venueName?.trim()) && r.relationship
@@ -195,6 +200,17 @@ export async function updateArtistProfile(artistId: string, data: ProfileInput) 
       })),
     });
   }
+  await recordAffiliationDiff(
+    { id: artistId, name },
+    "ADMIN",
+    priorRows,
+    deduped.map((r) => ({
+      placeId: r.placeId?.trim() || null,
+      venueName: r.placeId?.trim() ? null : r.venueName?.trim() || null,
+      relationship: r.relationship as PlaceRelationship,
+      relationshipLabel: r.relationshipLabel?.trim() || null,
+    })),
+  );
 
   // Replace all links.
   await prisma.artistLink.deleteMany({ where: { artistId } });

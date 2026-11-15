@@ -198,7 +198,13 @@ export function ArtistProfilePage({ artist, citySlug, cityDisplayName, focals, p
         <section className="max-w-[980px] mx-auto px-5 sm:px-10 pb-12">
           <div className="text-[0.75rem] uppercase tracking-[0.18em] text-[#999] mb-3">Community Connections</div>
           <div className="flex flex-wrap gap-x-6 gap-y-2 items-baseline">
-            {artist.placeRelations.map(rel => {
+            {artist.placeRelations
+              // Several roles at one place are several rows; list the place once.
+              .filter((rel, i, all) => {
+                const key = rel.placeId ?? rel.venueName?.trim().toLowerCase();
+                return all.findIndex(o => (o.placeId ?? o.venueName?.trim().toLowerCase()) === key) === i;
+              })
+              .map(rel => {
               // A relation is either a real page (rel.place) or a free-text
               // venue with no page (rel.venueName). Only venues with a live
               // directory page link; everything else is plain text.

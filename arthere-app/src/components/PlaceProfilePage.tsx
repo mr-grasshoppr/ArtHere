@@ -53,18 +53,24 @@ export function PlaceProfilePage({ place, citySlug, cityDisplayName, focals, pre
   // Only artists with an Art Here profile appear: each connected themselves
   // and confirmed how they relate to the place. Names a place has typed in
   // stay in its editor (and are never shown here) until the artist joins.
+  // A title the place or artist wrote (e.g. "Founder") replaces the default
+  // label for any relationship.
   const affiliation = (relationship: PlaceRelationship, custom: string | null) =>
-    relationship === 'OTHER' ? custom : relationship === 'IN_SHOP' ? 'In shop' : RELATIONSHIP_LABELS[relationship];
-  const artistEntries = PLACE_RELATIONSHIP_ORDER.flatMap(relationship => [
-    ...place.artists
-      .filter(rel => rel.relationship === relationship)
-      .map(rel => ({
-        key: `l-${rel.id}`,
-        name: rel.artist.name,
-        artist: rel.artist,
-        label: affiliation(relationship, rel.relationshipLabel),
-      })),
-  ]);
+    custom?.trim() || (relationship === 'OTHER' ? null : relationship === 'IN_SHOP' ? 'In shop' : RELATIONSHIP_LABELS[relationship]);
+  // An artist can hold several roles here (student, then member, then
+  // instructor…): one tile, with every role listed under the name.
+  const artistEntries = (() => {
+    const byArtist = new Map<string, { key: string; name: string; artist: Artist; labels: string[] }>();
+    for (const relationship of PLACE_RELATIONSHIP_ORDER) {
+      for (const rel of place.artists.filter(r => r.relationship === relationship)) {
+        const entry = byArtist.get(rel.artist.id) ?? { key: `l-${rel.artist.id}`, name: rel.artist.name, artist: rel.artist, labels: [] };
+        const label = affiliation(relationship, rel.relationshipLabel);
+        if (label && !entry.labels.includes(label)) entry.labels.push(label);
+        byArtist.set(rel.artist.id, entry);
+      }
+    }
+    return [...byArtist.values()].map(e => ({ ...e, label: e.labels.join(' · ') || null }));
+  })();
   const linkCls =
     'text-[#999] underline underline-offset-4 decoration-[#ddd] hover:text-[#1a1a1a] hover:decoration-[#aaa] transition-colors';
 
