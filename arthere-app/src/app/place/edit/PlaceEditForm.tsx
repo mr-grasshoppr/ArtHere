@@ -17,8 +17,8 @@ import { CharCounter } from '@/components/CharCounter';
 import Link from 'next/link';
 import { PlaceInviteArtists } from '@/components/PlaceInviteArtists';
 import { PlaceArtistPicker } from '@/components/PlaceArtistPicker';
-import { PlaceArtistNamesEditor, type ListedNamesState } from '@/components/PlaceArtistNamesEditor';
-import { groupsFromRows, groupsToPayload } from '@/lib/place-listed-artists';
+import { PlaceInviteBlurb } from '@/components/PlaceInviteBlurb';
+import { ArtistAvatar } from '@/components/ArtistAvatar';
 
 interface Artist {
   connectionId: string;
@@ -26,6 +26,7 @@ interface Artist {
   name: string;
   relationship: PlaceRelationship;
   relationshipLabel: string | null;
+  photoUrl?: string | null;
 }
 
 interface InitialData {
@@ -96,7 +97,6 @@ export default function PlaceEditForm({
   const [galleryImages, setGalleryImages] = useState<string[]>(initialData.galleryImages);
   const [locations, setLocations] = useState<LocationRow[]>(initialData.locations);
   const [showOnMap, setShowOnMap] = useState(initialData.showOnMap);
-  const [listedNames, setListedNames] = useState<ListedNamesState>(() => groupsFromRows(initialData.listedArtists));
   const [artists, setArtists] = useState<Artist[]>(initialData.artists);
   const [removingConnectionId, setRemovingConnectionId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -134,7 +134,6 @@ export default function PlaceEditForm({
           galleryImages: 'galleryImages' in overrides ? overrides.galleryImages : galleryImages,
           locations,
           showOnMap,
-          listedArtists: groupsToPayload(listedNames),
         }),
       });
       if (!res.ok) throw new Error();
@@ -150,7 +149,7 @@ export default function PlaceEditForm({
     saveTimer.current = setTimeout(() => persistAll(), 1200);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, neighborhoods, description, quote, quoteAttribution, JSON.stringify(links), JSON.stringify(locations), showOnMap, JSON.stringify(listedNames)]);
+  }, [name, neighborhoods, description, quote, quoteAttribution, JSON.stringify(links), JSON.stringify(locations), showOnMap]);
 
   async function handleHeroFile(file: File) {
     setUploading(true);
@@ -426,20 +425,13 @@ export default function PlaceEditForm({
         />
       </div>
 
-      {/* Artists listed by name — available to every place */}
+      {/* Connect artists who are already on Art Here — search, don't type */}
       <div className="max-w-[980px] mx-auto px-5 sm:px-10 py-8 border-b border-[#f0f0f0]">
         <div className={LABEL}>Artists you support</div>
         <p className="text-[0.8rem] text-[#999] mb-5 max-w-[560px]">
-          Artists appear on your page once they have a profile on Art Here and confirm how they&rsquo;re connected to you.
-          List the artists you work with here — paste a whole list into any box, one name per line — then invite the ones
-          who aren&rsquo;t on Art Here yet. Until they join, their names are only visible to you.
+          Search for artists who are already on Art Here and add them to your page. Not on Art Here yet? Invite them
+          below &mdash; once they join, you can add them here.
         </p>
-        <PlaceArtistNamesEditor value={listedNames} onChange={setListedNames} fieldClassName={FIELD} />
-      </div>
-
-      {/* Connect artists who are already on Art Here — search, don't type */}
-      <div className="max-w-[980px] mx-auto px-5 sm:px-10 py-8 border-b border-[#f0f0f0]">
-        <div className={LABEL}>Add an artist who&rsquo;s on Art Here</div>
         <PlaceArtistPicker
           connectedSlugs={artists.map(a => a.slug)}
           onAdded={a => setArtists(prev => [...prev, a])}
@@ -455,7 +447,8 @@ export default function PlaceEditForm({
             {artists.map(a => {
               const label = a.relationshipLabel?.trim() || (a.relationship === 'OTHER' ? null : RELATIONSHIP_LABELS[a.relationship]);
               return (
-                <div key={a.connectionId} className="flex items-baseline gap-2">
+                <div key={a.connectionId} className="flex items-center gap-2">
+                  <ArtistAvatar url={a.photoUrl} name={a.name} size={28} />
                   <span className="text-[0.85rem] text-[#444]">{a.name}</span>
                   {label && <span className="text-[0.78rem] text-[#aaa] font-light">{label}</span>}
                   <button
@@ -482,6 +475,11 @@ export default function PlaceEditForm({
           </p>
         </div>
       )}
+
+      {/* Invite affiliated artists who aren't on Art Here yet: a blurb to share */}
+      <div className="max-w-[980px] mx-auto px-5 sm:px-10 pb-8 border-b border-[#f0f0f0] -mt-2">
+        <PlaceInviteBlurb />
+      </div>
 
       {/* Invite listed artists to make their own profile */}
       <div className="max-w-[980px] mx-auto px-5 sm:px-10 py-8 border-b border-[#f0f0f0]">

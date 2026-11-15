@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
     return [
       { source: "/featured", destination: "/contact?type=featured", permanent: false },
       { source: "/getfeatured", destination: "/contact?type=featured", permanent: false },
+      { source: "/get-featured", destination: "/contact?type=featured", permanent: false },
       { source: "/partner", destination: "/contact?type=partner", permanent: false },
       { source: "/bringus", destination: "/contact?type=bring", permanent: false },
       // Tualatin traffic signal box wraps call for artists (deadline

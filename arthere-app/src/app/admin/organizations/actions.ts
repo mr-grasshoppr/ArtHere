@@ -79,7 +79,8 @@ type OrgInput = {
   galleryImages: string[];
   locations: { label: string; streetAddress: string }[];
   showOnMap: boolean;
-  listedArtists: ListedGroup[];
+  /** Optional: the editor no longer sends typed names, and omitting this leaves any stored ones untouched. */
+  listedArtists?: ListedGroup[];
 };
 
 export async function updateOrganization(placeId: string, data: OrgInput) {
@@ -117,7 +118,7 @@ export async function updateOrganization(placeId: string, data: OrgInput) {
   }
 
   await syncPlaceLocations(placeId, data.locations);
-  await replaceListedArtists(placeId, data.listedArtists);
+  if (data.listedArtists) await replaceListedArtists(placeId, data.listedArtists);
 
   const email = data.email.trim().toLowerCase();
   if (email) await attachPlaceUser(placeId, email);

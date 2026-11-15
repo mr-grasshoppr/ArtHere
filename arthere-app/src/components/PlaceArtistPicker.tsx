@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { PlaceRelationship } from '@prisma/client';
 import { PLACE_GROUP_HEADINGS, PLACE_RELATIONSHIP_ORDER } from '@/lib/artist-options';
+import { ArtistAvatar } from '@/components/ArtistAvatar';
 
 export type ConnectedArtist = {
   connectionId: string;
@@ -10,9 +11,10 @@ export type ConnectedArtist = {
   name: string;
   relationship: PlaceRelationship;
   relationshipLabel: string | null;
+  photoUrl?: string | null;
 };
 
-type Candidate = { id: string; name: string; slug: string; medium: string | null; neighborhood: string | null };
+type Candidate = { id: string; name: string; slug: string; medium: string | null; neighborhood: string | null; photoUrl: string | null };
 
 /**
  * Search-as-you-type for connecting an artist who is already on Art Here.
@@ -152,8 +154,10 @@ export function PlaceArtistPicker({
                   onMouseDown={e => e.preventDefault()}
                   onClick={() => choose(c)}
                   onMouseEnter={() => setActive(i)}
-                  className={`w-full text-left px-4 py-2.5 text-sm ${i === active ? 'bg-[#f6f6f3]' : ''}`}
+                  className={`w-full flex items-center gap-3 text-left px-4 py-2 text-sm ${i === active ? 'bg-[#f6f6f3]' : ''}`}
                 >
+                  <ArtistAvatar url={c.photoUrl} name={c.name} size={36} />
+                  <span className="min-w-0">
                   <span className="text-[#1a1a1a]">{c.name}</span>
                   {connectedSlugs.includes(c.slug) && (
                     <span className="ml-2 text-[0.72rem] text-[#a84573]">already listed — add another role</span>
@@ -163,6 +167,7 @@ export function PlaceArtistPicker({
                       {[c.medium, c.neighborhood].filter(Boolean).join(' · ')}
                     </span>
                   )}
+                  </span>
                 </button>
               </li>
             ))}
@@ -178,10 +183,20 @@ export function PlaceArtistPicker({
 
       {picked && (
         <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+          <ArtistAvatar url={picked.photoUrl} name={picked.name} size={40} />
           <select
             value={relationship}
             onChange={e => setRelationship(e.target.value as PlaceRelationship)}
-            className={`${fieldClassName} sm:w-auto`}
+            // appearance-none + our own chevron, so the arrow sits a consistent
+            // distance from the right edge instead of wherever the browser puts it.
+            className={`${fieldClassName} appearance-none pr-10 sm:w-auto`}
+            style={{
+              backgroundImage:
+                "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23888' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\")",
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'right 1rem center',
+              backgroundSize: '12px 8px',
+            }}
             aria-label={`How ${picked.name} is connected`}
           >
             {PLACE_RELATIONSHIP_ORDER.map(rel => (

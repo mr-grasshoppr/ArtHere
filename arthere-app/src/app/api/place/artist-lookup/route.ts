@@ -36,10 +36,12 @@ export async function GET(req: NextRequest) {
         { lastName: { contains: q, mode: "insensitive" } },
       ],
     },
-    select: { id: true, name: true, slug: true, medium: true, neighborhood: true, bioPhotoUrl: true },
+    select: { id: true, name: true, slug: true, medium: true, neighborhood: true, bioPhotoUrl: true, heroImageUrl: true },
     orderBy: { name: "asc" },
     take: 8,
   });
 
-  return NextResponse.json({ artists });
+  return NextResponse.json({
+    artists: artists.map(({ bioPhotoUrl, heroImageUrl, ...a }) => ({ ...a, photoUrl: bioPhotoUrl ?? heroImageUrl ?? null })),
+  });
 }

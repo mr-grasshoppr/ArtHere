@@ -125,7 +125,7 @@ export const PLACE_GROUP_HEADINGS: Record<PlaceRelationship, string> = {
   INSTRUCTOR: 'Instructors',
   STUDENT: 'Students',
   GRANTEE: 'Grantees',
-  OTHER: 'Other artists',
+  OTHER: 'Other',
 };
 
 // Length limits for the free-text "about" copy, enforced in the self-service

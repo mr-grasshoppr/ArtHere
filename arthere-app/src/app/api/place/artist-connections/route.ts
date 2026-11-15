@@ -79,9 +79,11 @@ export async function POST(req: NextRequest) {
   // Drop a hand-typed copy of the same name — it's now a real connection.
   await prisma.placeListedArtist.deleteMany({ where: { placeId: place.id, name: { equals: artist.name, mode: "insensitive" } } });
 
+  const photo = await prisma.artist.findUnique({ where: { id: artist.id }, select: { bioPhotoUrl: true, heroImageUrl: true } });
   return NextResponse.json({
     ok: true,
     connection: {
+      photoUrl: photo?.bioPhotoUrl ?? photo?.heroImageUrl ?? null,
       connectionId: connection.id,
       slug: artist.slug,
       name: artist.name,

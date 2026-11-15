@@ -1,8 +1,7 @@
 "use client";
 
 import { PlaceArtistPicker, type ConnectedArtist } from "@/components/PlaceArtistPicker";
-import { PlaceArtistNamesEditor, type ListedNamesState } from "@/components/PlaceArtistNamesEditor";
-import { groupsFromRows, groupsToPayload } from "@/lib/place-listed-artists";
+import { ArtistAvatar } from "@/components/ArtistAvatar";
 import type { PlaceRelationship } from "@prisma/client";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -97,7 +96,6 @@ export default function OrgEditor({
   const [galleryImages, setGalleryImages] = useState<string[]>(place.galleryImages);
   const [locations, setLocations] = useState<LocationRow[]>(place.locations);
   const [showOnMap, setShowOnMap] = useState(place.showOnMap);
-  const [listedNames, setListedNames] = useState<ListedNamesState>(() => groupsFromRows(place.listedArtists));
   const [connected, setConnected] = useState<ConnectedArtist[]>(place.connectedArtists);
 
   // Images the community-card picker can choose from: the hero, every
@@ -167,7 +165,6 @@ export default function OrgEditor({
           galleryImages,
           locations,
           showOnMap,
-          listedArtists: groupsToPayload(listedNames),
         });
         setSaved(true);
         router.refresh();
@@ -382,7 +379,7 @@ export default function OrgEditor({
       <section className="bg-white border border-[#e5e5e5] rounded-lg p-5 space-y-3">
         <h2 className="font-medium text-sm text-[#888] uppercase tracking-wide">Artists</h2>
         <div className="pb-2">
-          <p className="text-xs text-[#888] mb-2">Connect artists who already have an Art Here profile:</p>
+          <p className="text-xs text-[#888] mb-2">Search for an artist who already has an Art Here profile. (Artists not on the site yet can be invited by the place.)</p>
           <PlaceArtistPicker
             placeId={place.id}
             connectedSlugs={connected.map((a) => a.slug)}
@@ -392,7 +389,8 @@ export default function OrgEditor({
           {connected.length > 0 && (
             <ul className="mt-3 space-y-1">
               {connected.map((a) => (
-                <li key={a.connectionId} className="flex items-baseline gap-2 text-sm text-[#444]">
+                <li key={a.connectionId} className="flex items-center gap-2 text-sm text-[#444]">
+                  <ArtistAvatar url={a.photoUrl} name={a.name} size={28} />
                   <span>{a.name}</span>
                   <span className="text-xs text-[#aaa]">{a.relationshipLabel?.trim() || (a.relationship === "OTHER" ? "" : PLACE_GROUP_HEADINGS[a.relationship])}</span>
                   <button
@@ -430,7 +428,6 @@ export default function OrgEditor({
             </ul>
           )}
         </div>
-        <PlaceArtistNamesEditor value={listedNames} onChange={setListedNames} fieldClassName={inputCls} />
       </section>
 
       {error && <p className="text-red-500 text-sm">{error}</p>}

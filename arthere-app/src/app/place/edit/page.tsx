@@ -62,6 +62,7 @@ export default async function PlaceEditPage() {
           connectionId: rel.id,
           slug: rel.artist.slug,
           name: rel.artist.name,
+          photoUrl: rel.artist.bioPhotoUrl ?? rel.artist.heroImageUrl ?? null,
           relationship: rel.relationship,
           relationshipLabel: rel.relationshipLabel,
         })),
