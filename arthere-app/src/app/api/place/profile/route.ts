@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { slugUpdateFor } from "@/lib/slug-sync";
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { placeProfileSchema, parseBody } from '@/lib/schemas';
@@ -39,6 +40,7 @@ export async function POST(req: NextRequest) {
     where: { id: place.id },
     data: {
       name: typeof name === 'string' && name.trim() ? name.trim() : place.name,
+      ...(await slugUpdateFor('place', place.id, typeof name === 'string' && name.trim() ? name.trim() : place.name)),
       neighborhood: typeof neighborhood === 'string' ? joinNeighborhoodList(parseNeighborhoodList(neighborhood)) : undefined,
       description: typeof description === 'string' ? description.trim() || null : undefined,
       quote: typeof quote === 'string' ? quote.trim() || null : undefined,

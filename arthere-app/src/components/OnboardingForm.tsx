@@ -10,7 +10,6 @@ import { useArtworkPhotos, type PhotoAdapter } from "@/lib/useArtworkPhotos";
 import { focalStyle, BIO_PHOTO_OBJECT_POSITION, type Focal } from "@/lib/focal-style";
 import type { FramingValue } from "@/components/FramingEditor";
 import { resizeImageForUpload } from "@/lib/client-image-resize";
-import { parseNeighborhoodList, isCityLevelNeighborhood } from "@/lib/neighborhoods";
 
 type InitialData = {
   slug: string;
@@ -111,9 +110,8 @@ export default function OnboardingForm({
     return parts.some(p => !MEDIUM_OPTIONS.includes(p));
   });
   const [neighborhood, setNeighborhood] = useState(initialData?.neighborhood ?? "");
-  // A neighborhood shown publicly on the profile counts as consent to be
-  // counted there on the city map — the same call the map's first data made.
-  const showOnMap = parseNeighborhoodList(neighborhood).some((n) => !isCityLevelNeighborhood(n));
+  // On by default; artists can opt out of the city map here.
+  const [showOnMap, setShowOnMap] = useState(initialData?.showOnMap ?? true);
   const [bio, setBio] = useState(initialData?.bio ?? "");
   const [quote, setQuote] = useState(initialData?.quote ?? "");
 
@@ -485,7 +483,10 @@ export default function OnboardingForm({
               className={FIELD}
             />
             <p className="text-[0.72rem] font-semibold text-[#1a1a1a] mt-1.5 ml-1">Neighborhood (primary)</p>
-            <p className="text-[0.72rem] text-[#555] mt-2 ml-1">Your artwork will be on the map!</p>
+            <label className="mt-2 ml-1 flex items-start gap-2 text-[0.72rem] text-[#555]">
+              <input type="checkbox" checked={showOnMap} onChange={(e) => setShowOnMap(e.target.checked)} className="mt-0.5" />
+              Show me on the city map
+            </label>
           </div>
         </div>
       </div>

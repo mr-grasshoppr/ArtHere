@@ -115,7 +115,7 @@ export async function getGeoMapData(slug: string, scope: CityScope): Promise<Geo
       select: MAP_ARTIST_SELECT,
     }),
     prisma.place.findMany({
-      where: { cityId: { in: scope.cityIds }, showOnMap: true, isArchived: false },
+      where: { cityId: { in: scope.cityIds }, showOnMap: true, inDirectory: true, isArchived: false },
       select: {
         slug: true,
         name: true,

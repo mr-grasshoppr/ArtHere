@@ -91,10 +91,9 @@ model Artist {
   instagram            String?
   medium               String?
   neighborhood         String?
-  // Opt-in to being counted on the map tab's Geographic view. Off by default:
-  // the map is public and ties a person to a part of town, so it's the
-  // artist's call (or an admin's, with their OK), never automatic.
-  showOnMap            Boolean          @default(false)
+  // Counted on the map tab's Geographic view. On by default; the artist (or
+  // an admin) can opt out.
+  showOnMap            Boolean          @default(true)
   commissionStatus     CommissionStatus @default(UNSPECIFIED)
   priceRangeMin        Int?
   priceRangeMax        Int?
@@ -265,9 +264,9 @@ model Place {
   slug                 String    @unique
   name                 String
   neighborhood         String?
-  // Opt-in to pins on the map tab's Geographic view — one pin per
-  // PlaceLocation that geocoded. Off by default, like Artist.showOnMap.
-  showOnMap            Boolean   @default(false)
+  // Pins on the map tab's Geographic view — one pin per PlaceLocation that
+  // geocoded. On by default, like Artist.showOnMap; Hidden places never show.
+  showOnMap            Boolean   @default(true)
   // How "Artists here" renders on the place's page: false = a plain list of
   // names, true = small bio photos with names.
   showArtistPhotos     Boolean   @default(false)

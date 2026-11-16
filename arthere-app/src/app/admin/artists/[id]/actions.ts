@@ -1,6 +1,7 @@
 "use server";
 
 import { recordAffiliationDiff } from "@/lib/affiliation-history-server";
+import { slugUpdateFor } from "@/lib/slug-sync";
 import { prisma } from "@/lib/db";
 import { LinkType, PlaceRelationship } from "@prisma/client";
 import { createArtistInvitePreview, sendArtistInviteEmail, artistGreetingName, type InvitePreview } from "@/lib/magic-link";
@@ -144,6 +145,7 @@ export async function updateArtistProfile(artistId: string, data: ProfileInput) 
     where: { id: artistId },
     data: {
       name,
+      ...(await slugUpdateFor("artist", artistId, name)),
       firstName,
       lastName: lastName || null,
       bio: data.bio.trim() || null,

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { slugUpdateFor } from "@/lib/slug-sync";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin";
 import { MAX_OTHER_PAGE_ADMINS, PAGE_ADMIN_LIMIT_MESSAGE } from "@/lib/place-access";
@@ -90,6 +91,7 @@ export async function updateOrganization(placeId: string, data: OrgInput) {
     where: { id: placeId },
     data: {
       name: data.name.trim(),
+      ...(await slugUpdateFor("place", placeId, data.name.trim())),
       showOnMap: data.showOnMap,
       neighborhood: joinNeighborhoodList(parseNeighborhoodList(data.neighborhood)),
       description: data.description.trim() || null,

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { slugUpdateFor } from "@/lib/slug-sync";
 import { waitUntil } from "@vercel/functions";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
@@ -98,7 +99,9 @@ export async function POST(req: NextRequest) {
       slug = `${baseSlug}-${i++}`;
     }
   } else {
-    slug = existing.slug; // keep existing slug on update
+    // keep the existing slug on update — unless it's still a placeholder
+    // ("new-artist-5") minted before the artist had a name.
+    slug = (await slugUpdateFor("artist", existing.id, name)).slug ?? existing.slug;
   }
 
   const hireForClean = hireFor?.trim() || null;

@@ -47,11 +47,42 @@ function getNeighborhoods(nodes: NetworkNode[]): string[] {
   ).sort();
 }
 
-function colorForNeighborhood(neighborhood: string | null, neighborhoods: string[]): string {
+// Color follows the curated area (quadrant/suburb) a neighborhood is filed
+// under in /admin/neighborhoods, so all of SW Portland reads as one orangish
+// family, etc. Oregon City sits outside those areas and gets its own turquoise.
+const AREA_COLORS: Record<string, string> = {
+  'SW Portland': '#f28e2b', // orange
+  'NW Portland': '#4e79a7', // blue
+  'SE Portland': '#59a14f', // green
+  'NE Portland': '#b07aa1', // purple
+  'N Portland': '#e15759', // red
+  'East Portland': '#edc948', // yellow
+  'Beaverton': '#9c755f', // brown
+  'Lake Oswego': '#ff9da7', // pink
+  'Tigard': '#8cd17d', // light green
+};
+const NEIGHBORHOOD_COLORS: Record<string, string> = {
+  'Oregon City': '#1abc9c', // turquoise
+};
+
+/** neighborhood -> color, from its area; unlisted ones fall back to the palette. */
+function buildColorMap(neighborhoods: string[], groups?: NeighborhoodOptionGroup[]): Map<string, string> {
+  const areaOf = new Map<string, string>();
+  for (const g of groups ?? []) {
+    if (g.label) for (const n of g.options) areaOf.set(n, g.label);
+  }
+  const map = new Map<string, string>();
+  let next = 0;
+  for (const n of neighborhoods) {
+    const fixed = NEIGHBORHOOD_COLORS[n] ?? AREA_COLORS[areaOf.get(n) ?? ''] ?? AREA_COLORS[n];
+    map.set(n, fixed ?? PALETTE[next++ % PALETTE.length]);
+  }
+  return map;
+}
+
+function colorForNeighborhood(neighborhood: string | null, colors: Map<string, string>): string {
   if (!neighborhood) return UNKNOWN_COLOR;
-  const i = neighborhoods.indexOf(neighborhood);
-  if (i === -1) return UNKNOWN_COLOR;
-  return PALETTE[i % PALETTE.length];
+  return colors.get(neighborhood) ?? UNKNOWN_COLOR;
 }
 
 // Maps a neighborhood to the id of its <filter> (defined once in <defs>),
@@ -123,6 +154,7 @@ export function NetworkGraph({ citySlug, nodes, links, neighborhoodGroups }: Pro
     const seen = new Set(ordered);
     return [...ordered, ...[...present].filter(n => !seen.has(n)).sort()];
   }, [nodes, neighborhoodGroups]);
+  const colorMap = useMemo(() => buildColorMap(neighborhoods, neighborhoodGroups), [neighborhoods, neighborhoodGroups]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -172,7 +204,7 @@ export function NetworkGraph({ citySlug, nodes, links, neighborhoodGroups }: Pro
     // — the latter caused flicker/ghosting on moving nodes.
     const defs = svg.append('defs');
     const filterColors: [string, string][] = [
-      ...neighborhoods.map((n, i): [string, string] => [`${i}`, colorForNeighborhood(n, neighborhoods)]),
+      ...neighborhoods.map((n, i): [string, string] => [`${i}`, colorForNeighborhood(n, colorMap)]),
       ['unknown', UNKNOWN_COLOR],
     ];
     for (const [key, color] of filterColors) {
@@ -378,7 +410,7 @@ export function NetworkGraph({ citySlug, nodes, links, neighborhoodGroups }: Pro
       const g = d3.select<SVGGElement, SimNode>(this);
       const r = radius(d);
       const size = r * 2;
-      const color = colorForNeighborhood(d.neighborhood, neighborhoods);
+      const color = colorForNeighborhood(d.neighborhood, colorMap);
       const filterId = filterIdForNeighborhood(d.neighborhood, neighborhoods);
       const imageUrl = d.imageUrl;
       const clipId = `node-clip-${d.id}`;
@@ -513,7 +545,7 @@ export function NetworkGraph({ citySlug, nodes, links, neighborhoodGroups }: Pro
       resizeObserver.disconnect();
       fadeInTimers.forEach(clearTimeout);
     };
-  }, [citySlug, nodes, links, neighborhoods]);
+  }, [citySlug, nodes, links, neighborhoods, colorMap]);
 
   return (
     <div ref={containerRef} className="absolute inset-0 overflow-hidden">
