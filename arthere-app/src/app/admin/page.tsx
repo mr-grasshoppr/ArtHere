@@ -20,7 +20,7 @@ export default async function AdminOverviewPage() {
     where: { isTest: false },
     orderBy: { createdAt: "desc" },
     take: 5,
-    select: { id: true, createdAt: true, email: true, artistStatus: true, zipCode: true },
+    select: { id: true, createdAt: true, email: true, artistStatus: true, zipCode: true, surveyEdition: true },
   });
 
   const recentArtists = await prisma.artist.findMany({
@@ -73,7 +73,7 @@ export default async function AdminOverviewPage() {
             {recentSurveys.map((r) => (
               <Link
                 key={r.id}
-                href={`/admin/survey#${r.id}`}
+                href={`/admin/survey?edition=${r.surveyEdition}#${r.id}`}
                 className="flex justify-between items-center px-4 py-3 hover:bg-[#fafafa] transition-colors"
               >
                 <div>

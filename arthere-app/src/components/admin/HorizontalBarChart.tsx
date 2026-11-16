@@ -33,7 +33,7 @@ export function HorizontalBarChart({ title, data, total, fieldKey, baseHref, act
           const isActive = activeValue === row.label;
           const href = isActive
             ? baseHref
-            : `${baseHref}?field=${encodeURIComponent(fieldKey)}&value=${encodeURIComponent(row.label)}`;
+            : `${baseHref}${baseHref.includes("?") ? "&" : "?"}field=${encodeURIComponent(fieldKey)}&value=${encodeURIComponent(row.label)}`;
           return (
             <Link key={row.label} href={href} className="block group">
               <div className="flex justify-between items-baseline mb-0.5">

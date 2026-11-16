@@ -1,4 +1,4 @@
-// Single source of truth for PDX Community Survey option strings.
+// Single source of truth for Supporting Local Artists Survey option strings.
 //
 // These exact strings are stored in SurveyResponse rows, so the survey form,
 // the /api/survey route, and the admin dashboards must all import from here —
@@ -189,3 +189,15 @@ export const LEARNED_ABOUT_OPTIONS = [
   'Friends, Family, or Word of Mouth',
   LEARNED_ABOUT_OTHER,
 ];
+
+// ─── Editions ────────────────────────────────────────────────────────────────
+
+/** Original Portland-only run. Existing responses are backfilled with this. */
+export const SURVEY_EDITION_PDX = 'pdx-2026';
+/** The open "Supporting Local Artists Survey". New submissions get this tag. */
+export const CURRENT_SURVEY_EDITION = 'slas-2026';
+export const SURVEY_EDITION_LABELS: Record<string, string> = {
+  [SURVEY_EDITION_PDX]: 'PDX Community Survey (original)',
+  [CURRENT_SURVEY_EDITION]: 'Supporting Local Artists Survey',
+};
+export const surveyEditionLabel = (e: string) => SURVEY_EDITION_LABELS[e] ?? e;

@@ -6,8 +6,8 @@ import { TechSupportLink } from '@/components/TechSupportLink';
 import { getLogoSlides } from '@/lib/logo-slides';
 
 export const metadata: Metadata = {
-  title: 'Community Survey — Art Here',
-  description: 'Tell us about Portland, Multnomah Village, and your art practice.',
+  title: 'Supporting Local Artists Survey — Art Here',
+  description: 'Tell us about the arts in your community and your art practice.',
 };
 
 export default async function SurveyPage() {

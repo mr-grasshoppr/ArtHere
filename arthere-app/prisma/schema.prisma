@@ -506,6 +506,12 @@ model SurveyResponse {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 
+  // Which edition of the survey this response belongs to (see
+  // SURVEY_EDITIONS in lib/survey-constants.ts). The default backfills every
+  // pre-existing row as the original PDX Community Survey; the API sets the
+  // current edition explicitly on new submissions.
+  surveyEdition String @default("pdx-2026")
+
   // Secret returned only to the client that created this draft; required to
   // PATCH the response afterward. Prevents anyone else from overwriting it.
   draftToken  String?   @unique
@@ -592,6 +598,8 @@ model SurveyResponse {
 
   // Admin
   isTest     Boolean @default(false) // flagged by admin to exclude from reporting
+
+  @@index([surveyEdition])
   // Tucked out of the default admin table, independent of isTest — for real
   // responses you just want out of the way, not marked as test data. Unlike
   // isTest this does NOT exclude the response from stats/funnel/charts.

@@ -1,4 +1,4 @@
-// Pure step-machine logic for the PDX Community Survey. Extracted from
+// Pure step-machine logic for the Supporting Local Artists Survey. Extracted from
 // SurveyForm so the branching can be unit-tested without rendering.
 
 import { NOT_MAKING_ART_VALUES } from './survey-constants';

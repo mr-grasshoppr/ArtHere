@@ -8,7 +8,8 @@ import { renderEmail } from '@/lib/render-email';
 import { prisma } from '@/lib/db';
 import { resend } from '@/lib/resend';
 import { rateLimit } from '@/lib/rate-limit';
-import { INVOLVEMENT_FEATURED } from '@/lib/survey-constants';
+import { INVOLVEMENT_FEATURED, CURRENT_SURVEY_EDITION } from '@/lib/survey-constants';
+import { metroHubSlug } from '@/lib/city-metro';
 import { surveySchema, parseBody } from '@/lib/schemas';
 
 // Returns a trimmed string, or null if empty/not a string. Keeps the
@@ -77,7 +78,7 @@ function responseData(body: Record<string, unknown>) {
 // featured-artist provisioning. Runs exactly once, when the respondent
 // reaches the final Submit (POST or PATCH with `completed: true`) — drafts
 // must never trigger email.
-async function onCompleted(response: { id: string; email: string | null; involvementInterests: string[] }) {
+async function onCompleted(response: { id: string; email: string | null; involvementInterests: string[]; zipCode: string | null }) {
   const involvementList = response.involvementInterests;
   const email = response.email;
 
@@ -88,7 +89,7 @@ async function onCompleted(response: { id: string; email: string | null; involve
   // respondent gets is the thank-you below.
   if (involvementList.includes(INVOLVEMENT_FEATURED) && email) {
     try {
-      await provisionArtistPlaceholder(email);
+      await provisionArtistPlaceholder(email, response.zipCode);
     } catch (err) {
       console.error('[survey] placeholder provisioning failed:', err);
     }
@@ -120,7 +121,7 @@ async function sendAdminNotification(email: string | null, involvementList: stri
 
   const { html } = await renderEmail(
     React.createElement(AdminNotificationEmail, {
-      preview: 'New PDX Community Survey Response',
+      preview: 'New Supporting Local Artists Survey Response',
       heading: 'New Survey Response',
       rows: [
         { label: 'Respondent email', value: emailValue },
@@ -134,7 +135,7 @@ async function sendAdminNotification(email: string | null, involvementList: stri
   await resend.emails.send({
     from: 'Art Here <hello@artishere.org>',
     to: 'maryannamail@gmail.com',
-    subject: 'New PDX Community Survey Response',
+    subject: 'New Supporting Local Artists Survey Response',
     text: `A new survey response was submitted.\n\nRespondent email: ${email ?? '(not provided)'}\n\nGet involved:\n${involvementList.length ? involvementList.map(i => `• ${i}`).join('\n') : 'None selected'}\n\nView all responses: https://artishere.org/admin/survey`,
     html,
   });
@@ -146,7 +147,7 @@ async function sendThankYou(email: string) {
     from: 'Art Here <hello@artishere.org>',
     to: email,
     bcc: 'hello@artishere.org',
-    subject: 'Thank you for completing the PDX Community Survey!',
+    subject: 'Thank you for completing the Supporting Local Artists Survey!',
     html,
     text,
   });
@@ -169,6 +170,7 @@ export async function POST(req: NextRequest) {
   const response = await prisma.surveyResponse.create({
     data: {
       ...responseData(body),
+      surveyEdition: CURRENT_SURVEY_EDITION,
       draftToken,
       completedAt: completed ? new Date() : null,
     },
@@ -183,7 +185,7 @@ export async function POST(req: NextRequest) {
 
 // Reserves a User + placeholder Artist for a respondent who asked to be a
 // featured artist, so an admin can review and invite them later. Sends nothing.
-async function provisionArtistPlaceholder(email: string) {
+async function provisionArtistPlaceholder(email: string, zipCode: string | null) {
   // The survey never asks for a name, so we don't have one. Leave it blank
   // rather than inventing one from the email local-part — a derived name like
   // "Maryannamail" would end up greeting them in the invite email and showing
@@ -196,8 +198,12 @@ async function provisionArtistPlaceholder(email: string) {
     update: {},
   });
 
-  // Find Portland (fall back gracefully if the city seed hasn't run).
-  const portland = await prisma.city.findUnique({ where: { slug: 'portland' } });
+  // Place the respondent on a city map from their zip code. Portland-area
+  // zips (including suburbs like Beaverton and Oregon City) go to Portland, as
+  // do responses with no zip (older drafts). Any other zip gets no city and an
+  // admin assigns one on review.
+  const hubSlug = zipCode ? metroHubSlug(zipCode) : 'portland';
+  const city = hubSlug ? await prisma.city.findUnique({ where: { slug: hubSlug } }) : null;
 
   // Build a unique slug from the email local-part.
   const baseSlug = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '-');
@@ -206,7 +212,7 @@ async function provisionArtistPlaceholder(email: string) {
   // Upsert Artist — if the user submitted the survey twice we reuse their record.
   // isPlaceholder keeps this stub out of the public directory (see
   // lib/city-scope.ts) until an admin reviews it. Without it the record would
-  // default to false and publish an empty profile to the Portland directory.
+  // default to false and publish an empty profile to the city directory.
   await prisma.artist.upsert({
     where: { userId: user.id },
     create: {
@@ -214,7 +220,7 @@ async function provisionArtistPlaceholder(email: string) {
       slug,
       name: '',
       isPlaceholder: true,
-      cityId: portland?.id ?? null,
+      cityId: city?.id ?? null,
     },
     update: {},
   });

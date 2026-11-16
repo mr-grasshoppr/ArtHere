@@ -460,7 +460,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
               value={answers.zipCode}
               onChange={e => update('zipCode', e.target.value.replace(/\D/g, '').slice(0, 5))}
               className={`${INPUT_CLASS} max-w-[160px]`}
-              placeholder="97219"
+              placeholder="12345"
               inputMode="numeric"
               maxLength={5}
             />
@@ -473,7 +473,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
               value={answers.neighborhoods}
               onChange={e => update('neighborhoods', e.target.value)}
               className={INPUT_CLASS}
-              placeholder="e.g. Multnomah Village, St. Johns, Hawthorne…"
+              placeholder="e.g. Downtown, Riverside, Old Town…"
             />
           </Question>
         </div>
@@ -567,7 +567,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
 
       {step === 'portland-familiarity' && (
         <div>
-          <Eyebrow>About Portland</Eyebrow>
+          <Eyebrow>About Your Community</Eyebrow>
           <Question text="How interested are you in discovering or connecting with local artists?">
             <SingleSelect
               options={familiarityOptions}
@@ -580,7 +580,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
 
       {step === 'discovery' && (
         <div className="flex flex-col gap-10">
-          <Eyebrow>About Portland</Eyebrow>
+          <Eyebrow>About Your Community</Eyebrow>
           <Question text="How easy or difficult is it for you to discover new local artists?">
             <SingleSelect
               options={discoveryEaseOptions}
@@ -609,9 +609,9 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
 
       {step === 'portland-detail' && (
         <div className="flex flex-col gap-10">
-          <Eyebrow>About Portland</Eyebrow>
+          <Eyebrow>About Your Community</Eyebrow>
           {!isMakingArt(answers) && (
-            <Question text="In your opinion, what local organizations, groups, or places most support artists in Portland?" hint="Name one to three.">
+            <Question text="In your opinion, what local organizations, groups, or places most support artists in your community?" hint="Name one to three.">
               <textarea
                 value={answers.portlandHelpers}
                 onChange={e => update('portlandHelpers', e.target.value)}
@@ -620,7 +620,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
               />
             </Question>
           )}
-          <Question text="How, if at all, would you like to connect with or support local artists in Portland?" hint="Select all that apply.">
+          <Question text="How, if at all, would you like to connect with or support local artists in your community?" hint="Select all that apply.">
             <MultiSelect
               options={portlandSupportOptions}
               value={answers.portlandSupport}
@@ -718,7 +718,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
         <div className="flex flex-col gap-10">
           <Eyebrow>Get Involved</Eyebrow>
           <p className="text-[0.95rem] text-[#444] font-light leading-[1.7]">
-            Art Here is building a free, public directory to help neighbors discover and support local artists&rsquo; work. We&rsquo;ll also have a presence at Multnomah Days on August 15. Select any ways you&rsquo;d like to be involved:
+            Art Here is building a free, public directory to help neighbors discover and support local artists&rsquo; work. Select any ways you&rsquo;d like to be involved:
           </p>
           <Question text="In what ways, if any, would you like to get involved with Art Here?" hint="Select all that apply.">
             <MultiSelect
@@ -738,7 +738,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
           </Question>
           <Question
             text="Would you like to be entered in a raffle for completing this survey?"
-            hint="Raffles are held after every 25 surveys received. Your entry stays in the pool for all future drawings. Winners receive a $25 gift card to a local shop that supports Portland artists."
+            hint="Raffles are held after every 25 surveys received. Your entry stays in the pool for all future drawings. Winners receive a $25 gift card to a local shop that supports local artists."
           >
             <SingleSelect
               options={RAFFLE_OPTIONS}
@@ -789,7 +789,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
                   value={answers.featuredAffiliations}
                   onChange={e => update('featuredAffiliations', e.target.value)}
                   className={TEXTAREA_CLASS}
-                  placeholder="Multnomah Arts Center, Maplewood Coffee and Tea, Ford Gallery"
+                  placeholder="A community arts center, a local coffee shop, a neighborhood gallery"
                 />
               </Question>
             </>
@@ -824,7 +824,7 @@ export function SurveyForm({ onSubmitted }: { onSubmitted?: () => void }) {
               placeholder="Optional"
             />
           </Question>
-          <Question text="Is there anything else you would like to share about the arts in Portland, Art Here, or this survey?">
+          <Question text="Is there anything else you would like to share about the arts in your community, Art Here, or this survey?">
             <textarea
               value={answers.openFeedback}
               onChange={e => update('openFeedback', e.target.value)}

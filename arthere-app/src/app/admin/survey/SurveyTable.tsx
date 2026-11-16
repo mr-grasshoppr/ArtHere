@@ -167,7 +167,7 @@ function Row({
           <td colSpan={9} className="px-6 py-4">
             <div className="grid md:grid-cols-2 gap-x-10 gap-y-1">
               <div>
-                <p className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-2">About Portland</p>
+                <p className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-2">About the Community</p>
                 <Field label="Familiarity" value={r.portlandFamiliarity} />
                 <Field label="Words" value={r.portlandWords} />
                 <Field label="What helps" value={r.portlandHelpers} />

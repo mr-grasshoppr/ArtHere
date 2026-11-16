@@ -34,7 +34,7 @@ export function SurveyPageContent({
           Thank You!
         </h1>
         <p className="text-[1.05rem] text-[#555] font-light leading-[1.85] max-w-[440px] mx-auto mb-10">
-          Your answers help us understand what Portland&rsquo;s arts community needs. We
+          Your answers help us understand what local arts communities need. We
           really appreciate you taking the time.
         </p>
         <Link
@@ -53,10 +53,10 @@ export function SurveyPageContent({
         <AnimatedLogoMask width="min(45vw, 160px)" slides={logoSlides} focals={logoFocals} />
 
         <div className="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-[#bbb] mb-4 mt-8">
-          Art Here · Portland
+          Art Here
         </div>
         <h1 className="font-heading text-[clamp(2rem,5vw,2.8rem)] font-bold tracking-[-0.02em] leading-[1.15] mb-4">
-          PDX Community Survey
+          Supporting Local Artists Survey
         </h1>
 
         <p className="text-[1.05rem] text-[#1a1a1a] font-normal leading-[1.85] mb-6">
@@ -70,18 +70,18 @@ export function SurveyPageContent({
           </p>
           <p>
             The purpose of this survey is to understand how to better support the arts in
-            Portland, OR. We&rsquo;ll share findings with the community and our
+            your community. We&rsquo;ll share findings with the community and our
             partners.
           </p>
           <p>
-            Whether you&rsquo;re an artist, a neighbor, or just curious, we&rsquo;d love to hear from you! The survey takes about 5&ndash;7 minutes, and everyone who completes it is eligible to win a $25 gift card to a local shop that supports Portland artists.
+            Whether you&rsquo;re an artist, a neighbor, or just curious, we&rsquo;d love to hear from you! The survey takes about 5&ndash;7 minutes, and everyone who completes it is eligible to win a $25 gift card to a local shop that supports local artists.
           </p>
         </div>
 
         <div className="max-w-[600px] mb-8">
           <p className="text-[13px] text-[#999] font-normal leading-[1.85]">
             By completing this survey, you agree to the use of your responses to support the arts
-            and artists in Portland. Your data and quotes will not be tied to your name or personal information. You will have the option to respond completely
+            and local artists. Your data and quotes will not be tied to your name or personal information. You will have the option to respond completely
             anonymously if you choose not to share your email or participate in the raffle.
           </p>
         </div>
@@ -132,7 +132,7 @@ export function SurveyPageContent({
         </button>
 
         <p className="text-[0.75rem] text-[#aaa] font-light leading-[1.6] mt-8 max-w-[560px]">
-          No purchase necessary. Open to US residents 18 and older. Raffles will be held after every 25 surveys received. Your entry stays in the pool for all future drawings. Winners receive a $25 gift card to a local business that supports Portland artists. Notified by email.
+          No purchase necessary. Open to US residents 18 and older. Raffles will be held after every 25 surveys received. Your entry stays in the pool for all future drawings. Winners receive a $25 gift card to a local business that supports local artists. Notified by email.
         </p>
       </div>
     );

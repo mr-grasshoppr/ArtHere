@@ -20,17 +20,21 @@ export async function GET(request: Request) {
   // Admin-flagged test responses are excluded to match what the dashboard
   // reports. ?includeTests=1 exports everything, with an isTest column so the
   // test rows stay identifiable in the spreadsheet.
-  const includeTests = new URL(request.url).searchParams.get("includeTests") === "1";
+  const sp = new URL(request.url).searchParams;
+  const includeTests = sp.get("includeTests") === "1";
+  // ?edition=<tag> limits the export to one survey edition; omitted or "all" exports every edition.
+  const edition = sp.get("edition");
+  const editionWhere = edition && edition !== "all" ? { surveyEdition: edition } : {};
 
   const responses = await prisma.surveyResponse.findMany({
-    where: includeTests ? undefined : { isTest: false },
+    where: { ...editionWhere, ...(includeTests ? {} : { isTest: false }) },
     orderBy: { createdAt: "desc" },
   });
 
   const flag = (arr: string[], value: string) => arr.includes(value) ? "Yes" : "";
 
   const headers = [
-    "id", "createdAt", "completedAt", "source", "email", "raffleOptIn",
+    "id", "surveyEdition", "createdAt", "completedAt", "source", "email", "raffleOptIn",
     "zipCode", "neighborhoods",
     "occupation", "occupationOther",
     "artistStatus", "artistStatusOther",
@@ -53,6 +57,7 @@ export async function GET(request: Request) {
     ...responses.map((r) =>
       row([
         r.id,
+        r.surveyEdition,
         r.createdAt.toISOString(),
         r.completedAt?.toISOString() ?? "",
         r.source,

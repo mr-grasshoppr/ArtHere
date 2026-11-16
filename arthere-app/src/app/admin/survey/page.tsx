@@ -9,6 +9,8 @@ import {
   INVOLVEMENT_FEATURED,
   INVOLVEMENT_VOLUNTEER,
   RAFFLE_YES,
+  CURRENT_SURVEY_EDITION,
+  surveyEditionLabel,
 } from "@/lib/survey-constants";
 
 // Older responses (before the "Get Involved" redesign) stored these answers
@@ -40,13 +42,26 @@ function tally(values: string[], total: number) {
 export default async function AdminSurveyPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string; field?: string; value?: string }>;
+  searchParams: Promise<{ filter?: string; field?: string; value?: string; edition?: string }>;
 }) {
   await requireAdminPage();
 
-  const { filter: activeFilter, field: activeField, value: activeValue } = await searchParams;
+  const { filter: activeFilter, field: activeField, value: activeValue, edition: editionParam } = await searchParams;
+
+  // Edition: a specific survey edition (default: the current one) or "all".
+  const editionGroups = await prisma.surveyResponse.groupBy({ by: ["surveyEdition"], _count: { _all: true } });
+  const editionCounts = new Map(editionGroups.map((g) => [g.surveyEdition, g._count._all]));
+  const editions = [...new Set([CURRENT_SURVEY_EDITION, ...editionCounts.keys()])];
+  const edition = editionParam === "all" || (editionParam && editions.includes(editionParam)) ? editionParam : CURRENT_SURVEY_EDITION;
+  const q = (extra: string) => {
+    const params = new URLSearchParams(extra);
+    if (edition !== CURRENT_SURVEY_EDITION) params.set("edition", edition);
+    const s = params.toString();
+    return `/admin/survey${s ? `?${s}` : ""}`;
+  };
 
   const responses = await prisma.surveyResponse.findMany({
+    where: edition === "all" ? undefined : { surveyEdition: edition },
     orderBy: { createdAt: "desc" },
   });
 
@@ -61,9 +76,9 @@ export default async function AdminSurveyPage({
     { label: "Started", count: realResponses.length },
     { label: "Location", count: realResponses.filter((r) => !!(r.zipCode || r.neighborhoods)).length },
     { label: "About You", count: realResponses.filter((r) => !!r.artistStatus).length },
-    { label: "Portland Familiarity", count: realResponses.filter((r) => !!r.portlandFamiliarity).length },
+    { label: "Community Familiarity", count: realResponses.filter((r) => !!r.portlandFamiliarity).length },
     { label: "Discovery", count: realResponses.filter((r) => !!(r.discoveryEase || r.discoveryChannel.length)).length },
-    { label: "Portland Support", count: realResponses.filter((r) => !!(r.portlandHelpers || r.portlandSupport.length)).length },
+    { label: "Community Support", count: realResponses.filter((r) => !!(r.portlandHelpers || r.portlandSupport.length)).length },
     { label: "Involvement", count: realResponses.filter((r) => r.involvementInterests.length > 0).length },
     { label: "Email / Raffle", count: realResponses.filter((r) => !!r.raffleOptIn).length },
     {
@@ -121,7 +136,7 @@ export default async function AdminSurveyPage({
       key: "total",
       label: `Completed surveys${stats.drafts > 0 ? ` (+${stats.drafts} drafts)` : ""}`,
       value: stats.total,
-      href: "/admin/survey",
+      href: q(""),
       color: "bg-[#f5f5f5]",
     },
     {
@@ -129,7 +144,7 @@ export default async function AdminSurveyPage({
       label: "Volunteer offers",
       value: stats.volunteer,
       pct: Math.round((stats.volunteer / (stats.total || 1)) * 100),
-      href: "/admin/survey?filter=volunteer",
+      href: q("filter=volunteer"),
       color: "bg-[#f062a4]/10",
     },
     {
@@ -137,7 +152,7 @@ export default async function AdminSurveyPage({
       label: "Want to be featured",
       value: stats.featured,
       pct: Math.round((stats.featured / (stats.total || 1)) * 100),
-      href: "/admin/survey?filter=featured",
+      href: q("filter=featured"),
       color: "bg-blue-50",
     },
     {
@@ -145,7 +160,7 @@ export default async function AdminSurveyPage({
       label: "Raffle opt-ins",
       value: stats.raffle,
       pct: Math.round((stats.raffle / (stats.total || 1)) * 100),
-      href: "/admin/survey?filter=raffle",
+      href: q("filter=raffle"),
       color: "bg-green-50",
     },
     ...(stats.winners > 0
@@ -154,7 +169,7 @@ export default async function AdminSurveyPage({
             key: "winners",
             label: "Raffle winners",
             value: stats.winners,
-            href: "/admin/survey?filter=winners",
+            href: q("filter=winners"),
             color: "bg-[#00ae7a]/10",
           },
         ]
@@ -166,12 +181,32 @@ export default async function AdminSurveyPage({
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-medium">Survey Responses</h1>
         <a
-          href="/api/admin/export/survey"
+          href={`/api/admin/export/survey?edition=${edition}`}
           download
           className="text-sm px-4 py-2 border border-[#e5e5e5] rounded-full text-[#555] hover:border-[#999] transition-colors"
         >
           Export CSV
         </a>
+      </div>
+
+      {/* Edition switcher */}
+      <div className="flex flex-wrap items-center gap-2 mb-6">
+        <span className="text-xs font-semibold text-[#888] uppercase tracking-wide mr-1">Survey</span>
+        {[...editions, "all"].map((e) => {
+          const active = e === edition;
+          const total = e === "all" ? [...editionCounts.values()].reduce((a, b) => a + b, 0) : editionCounts.get(e) ?? 0;
+          return (
+            <Link
+              key={e}
+              href={e === CURRENT_SURVEY_EDITION ? "/admin/survey" : `/admin/survey?edition=${e}`}
+              className={`text-sm px-4 py-1.5 rounded-full border transition-colors ${
+                active ? "border-[#1a1a1a] bg-[#1a1a1a] text-white" : "border-[#e5e5e5] text-[#555] hover:border-[#999]"
+              }`}
+            >
+              {e === "all" ? "All editions" : surveyEditionLabel(e)} ({total})
+            </Link>
+          );
+        })}
       </div>
 
       {/* Stat cards */}
@@ -211,6 +246,7 @@ export default async function AdminSurveyPage({
         artistCount={artistResponses.length}
         activeField={activeField}
         activeValue={activeValue}
+        baseHref={q("")}
       />
 
       <SurveyTable
