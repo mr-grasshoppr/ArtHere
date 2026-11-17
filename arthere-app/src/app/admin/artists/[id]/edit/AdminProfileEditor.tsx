@@ -157,7 +157,11 @@ export default function AdminProfileEditor({
           links,
         });
         if (email.trim() !== (artist.email ?? "")) {
-          await setArtistEmail(artist.id, email);
+          const res = await setArtistEmail(artist.id, email);
+          if (!res.ok) {
+            setError(res.error);
+            return;
+          }
         }
         if (cityId && cityId !== (artist.cityId ?? "")) {
           await setArtistCity(artist.id, cityId);

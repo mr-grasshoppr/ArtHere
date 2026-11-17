@@ -37,24 +37,39 @@ export async function attachArtistUser(artistId: string, email: string): Promise
 // User row's email never moved, so the detail page kept showing the old one
 // forever. This always updates the currently-linked account's own email; if
 // there's no owner yet, it attaches one (same behavior as attachArtistUser).
-export async function setArtistEmail(artistId: string, email: string) {
+export async function setArtistEmail(artistId: string, email: string): Promise<{ ok: true } | { ok: false; error: string }> {
   const session = await requireAdmin();
   const clean = email.trim().toLowerCase();
-  if (!clean) return;
+  if (!clean) return { ok: true };
 
   const artist = await prisma.artist.findUnique({ where: { id: artistId }, select: { userId: true } });
-  if (!artist) throw new Error("Artist not found");
+  if (!artist) return { ok: false, error: "Artist not found" };
+
+  // Errors are returned, not thrown: production Next.js masks thrown server
+  // action messages behind a generic "Server Components render" digest, so the
+  // admin never saw why the email wouldn't save.
+  const other = await prisma.user.findUnique({ where: { email: clean }, include: { artist: { select: { id: true, name: true } } } });
+  if (other && other.id !== artist.userId) {
+    if (other.artist && other.artist.id !== artistId) {
+      return { ok: false, error: `${clean} is already linked to another artist profile ("${other.artist.name}").` };
+    }
+    // An account exists for this email (e.g. from the interest form or a place
+    // login) but owns no artist profile: link this profile to it.
+    if (!artist.userId) {
+      await prisma.artist.update({ where: { id: artistId }, data: { userId: other.id } });
+      await snapshotArtist(artistId, "admin", session.user?.email);
+      return { ok: true };
+    }
+    return { ok: false, error: `${clean} already belongs to another account (not an artist profile), so it can't replace this artist's current login email.` };
+  }
 
   if (artist.userId) {
-    try {
-      await prisma.user.update({ where: { id: artist.userId }, data: { email: clean } });
-    } catch {
-      throw new Error(`${clean} is already used by another account.`);
-    }
+    await prisma.user.update({ where: { id: artist.userId }, data: { email: clean } });
   } else {
     await attachArtistUser(artistId, clean);
   }
   await snapshotArtist(artistId, "admin", session.user?.email);
+  return { ok: true };
 }
 
 // Corrects which /cities/[slug] page an artist belongs to. Exists because
