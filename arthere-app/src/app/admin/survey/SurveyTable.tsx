@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { INVOLVEMENT_FEATURED, INVOLVEMENT_VOLUNTEER, RAFFLE_YES } from "@/lib/survey-constants";
+import { CreateDraftProfileButton } from "@/components/admin/CreateDraftProfileButton";
 import { setResponseIsTest, setResponsesArchived, setResponseRaffleWinner } from "./actions";
 
 type SurveyResponse = {
@@ -208,7 +209,8 @@ function Row({
                 <Field label="Feedback" value={r.openFeedback} />
               </div>
             </div>
-            <div className="mt-4 pt-3 border-t border-[#e5e5e5] flex gap-2">
+            <div className="mt-4 pt-3 border-t border-[#e5e5e5] flex gap-2 items-start">
+              {r.email && <CreateDraftProfileButton email={r.email} />}
               {r.raffleOptIn === RAFFLE_YES && (
                 <button
                   onClick={handleToggleWinner}

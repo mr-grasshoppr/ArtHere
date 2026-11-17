@@ -112,6 +112,18 @@ export async function createDraftArtistFromEmail(email: string): Promise<{ artis
   });
   const submission = submissions.find((s) => s.social?.trim() || s.affiliations?.trim()) ?? submissions[0];
 
+  // Survey respondents who ticked "showcase my work" gave the same
+  // website/social + affiliations fields. Use them when there's no contact
+  // submission to prefill from (the survey asks for no name, so name falls
+  // back to the email until the admin edits it).
+  const survey = submission
+    ? null
+    : await prisma.surveyResponse.findFirst({
+        where: { email: { equals: clean, mode: "insensitive" } },
+        orderBy: { createdAt: "desc" },
+        select: { featuredSocial: true, featuredAffiliations: true },
+      });
+
   const name = submission?.name?.trim() || clean;
   const slug = await uniqueArtistSlug(name);
   const portland = await prisma.city.findUnique({ where: { slug: "portland" } });
@@ -119,7 +131,7 @@ export async function createDraftArtistFromEmail(email: string): Promise<{ artis
     data: { name, slug, isPlaceholder: true, cityId: portland?.id ?? null },
   });
 
-  const social = classifySocialLink(submission?.social);
+  const social = classifySocialLink(submission?.social ?? survey?.featuredSocial);
   if (social) {
     await prisma.artistLink.create({ data: { artistId: artist.id, ...social } });
   }
@@ -127,7 +139,11 @@ export async function createDraftArtistFromEmail(email: string): Promise<{ artis
   const noteLines = [
     submission
       ? `Draft created from a "${INTENT_LABELS[submission.intent ?? ""] ?? "contact form"}" submission.`
-      : "Draft created from Contact Tracking.",
+      : survey
+        ? "Draft created from a Supporting Local Artists Survey response."
+        : "Draft created from Contact Tracking.",
+    survey?.featuredSocial ? `Website/social as entered: ${survey.featuredSocial}` : null,
+    survey?.featuredAffiliations ? `Community connections as entered: ${survey.featuredAffiliations}` : null,
     submission?.social ? `Website/social as entered: ${submission.social}` : null,
     submission?.affiliations ? `Community connections as entered: ${submission.affiliations}` : null,
     submission?.message ? `Message: ${submission.message}` : null,
