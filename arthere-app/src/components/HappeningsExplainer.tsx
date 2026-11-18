@@ -60,8 +60,8 @@ export function HappeningsExplainer() {
         <div className={styles.foot}>
           <span className={styles.dot} aria-hidden />
           <p>
-            The animations use sample data to show the idea. Real happenings appear here as places add them &mdash; and
-            there&rsquo;s more to come.
+            <strong>Note:</strong> The above animations use sample data to demonstrate this feature. Map and network
+            will be live as partners onboard.
           </p>
         </div>
       </div>
