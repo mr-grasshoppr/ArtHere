@@ -1,0 +1,41 @@
+.root {
+  --brand-pink: #f96a9b;
+  --brand-green: #07b26b;
+  --brand-chartreuse: #bdd349;
+  --ink: #1a1a1a;
+  --paper: #f7f6f3;
+  --line: #dedad4;
+  --u: 1.5rem; /* one spacing unit; every gap below is a multiple */
+}
+.stripe { height: 6px; background: linear-gradient(90deg, var(--brand-pink), var(--brand-green)); }
+
+.explainer { background: var(--paper); }
+.wrap { max-width: 1280px; margin: 0 auto; padding: calc(var(--u) * 2.5) 1.25rem; }
+@media (min-width: 640px) { .wrap { padding: calc(var(--u) * 3.5) 2.5rem; } }
+
+/* Head: title and intro share one baseline-aligned row on desktop */
+.head { display: grid; gap: var(--u); align-items: end; }
+.eyebrow { font-size: .78rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: #555; display: flex; align-items: center; gap: .6rem; margin-bottom: .75rem; }
+.eyebrow::before { content: ''; width: 1.75rem; height: 3px; background: var(--brand-pink); }
+.title { font-family: var(--font-bebas), 'Arial Narrow', Arial, sans-serif; font-size: clamp(2.6rem, 6vw, 4.2rem); line-height: .95; letter-spacing: .03em; margin: 0; }
+.intro { margin: 0; font-size: 1.05rem; font-weight: 300; line-height: 1.75; color: #333; max-width: 46ch; }
+@media (min-width: 900px) {
+  .head { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: calc(var(--u) * 2.5); }
+}
+
+/* Two equal panels: media on top, caption directly beneath, same measure */
+.panels { display: grid; gap: calc(var(--u) * 2); margin-top: calc(var(--u) * 2); }
+@media (min-width: 900px) { .panels { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(var(--u) * 2.5); margin-top: calc(var(--u) * 2.5); } }
+.panel { margin: 0; display: flex; flex-direction: column; gap: var(--u); }
+.media { position: relative; border-radius: .75rem; overflow: hidden; border: 1.5px solid var(--ink); background: #111; aspect-ratio: 16 / 10; }
+.media video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.tag { position: absolute; left: .75rem; top: .75rem; z-index: 1; background: #fff; border: 1.5px solid var(--ink); border-radius: 999px; padding: .2rem .7rem; font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.cap { display: grid; gap: .5rem; border-top: 2px solid var(--ink); padding-top: 1rem; }
+.capTitle { font-family: var(--font-bebas), 'Arial Narrow', Arial, sans-serif; font-size: clamp(2rem, 3.4vw, 2.5rem); line-height: 1; letter-spacing: .04em; margin: 0; }
+.capText { margin: 0; font-size: 1rem; font-weight: 300; line-height: 1.75; color: #333; max-width: 52ch; }
+
+/* Footnote: a closing rule in the same grid, not a floating line */
+.foot { margin-top: calc(var(--u) * 2); padding-top: 1rem; border-top: 1px solid var(--line); display: flex; gap: .75rem; align-items: baseline; font-size: .88rem; line-height: 1.6; color: #555; }
+.dot { flex: none; width: .55rem; height: .55rem; border-radius: 50%; background: var(--brand-chartreuse); border: 1.5px solid var(--ink); transform: translateY(1px); }
+.foot p { margin: 0; max-width: 70ch; }
+@media (prefers-reduced-motion: reduce) { .media video { animation: none; } }
